@@ -3,21 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SharePoint Full-Width Container Web Part — Preview</title>
+  <title>SharePoint Full-Width Container — Fluent UI 2</title>
   <!-- React 17 & ReactDOM -->
   <script src="https://unpkg.com/react@17.0.2/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js" crossorigin></script>
-  <!-- Fluent UI React & Icons -->
-  <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.1.0/css/fabric.min.css" />
+  <!-- FontAwesome for preview icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
     :root {
-      --bodyText: #0f172a;
-      --link: #0078d4;
-      --linkHovered: #004578;
+      /* Fluent 2 Design Tokens (Light Theme) */
+      --fui-colorNeutralBackground1: #ffffff;
+      --fui-colorNeutralBackground2: #fafafa;
+      --fui-colorNeutralBackground3: #f5f5f5;
+      --fui-colorNeutralForeground1: #242424;
+      --fui-colorNeutralForeground2: #424242;
+      --fui-colorNeutralForeground3: #616161;
+      --fui-colorNeutralStroke1: #d1d1d1;
+      --fui-colorNeutralStroke2: #e0e0e0;
+      --fui-colorBrandBackground: #0078d4;
+      --fui-colorBrandBackgroundHover: #106ebe;
+      --fui-colorBrandBackground2: #eff6fc;
+      --fui-colorBrandForeground1: #0078d4;
+      --fui-colorBrandForeground2: #106ebe;
+      --fui-colorBrandStroke1: #0078d4;
+      --fui-colorSuccessBackground1: #dff6dd;
+      --fui-colorSuccessForeground1: #107c10;
+      --fui-borderRadiusSmall: 4px;
+      --fui-borderRadiusMedium: 6px;
+      --fui-borderRadiusLarge: 8px;
+      --fui-borderRadiusCircular: 9999px;
+      --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+      --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.14);
+      --fui-fontFamily: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     }
-    
+
+    .dark-mode {
+      --fui-colorNeutralBackground1: #1f1f1f;
+      --fui-colorNeutralBackground2: #141414;
+      --fui-colorNeutralBackground3: #292929;
+      --fui-colorNeutralForeground1: #ffffff;
+      --fui-colorNeutralForeground2: #d6d6d6;
+      --fui-colorNeutralForeground3: #adadad;
+      --fui-colorNeutralStroke1: #424242;
+      --fui-colorNeutralStroke2: #333333;
+      --fui-colorBrandBackground: #2886de;
+      --fui-colorBrandBackgroundHover: #3aa0f3;
+      --fui-colorBrandBackground2: #1a2733;
+      --fui-colorBrandForeground1: #479ef5;
+      --fui-colorBrandForeground2: #62abf5;
+      --fui-colorBrandStroke1: #2886de;
+      --fui-colorSuccessBackground1: #0f3b14;
+      --fui-colorSuccessForeground1: #54b054;
+      --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.28), 0 2px 4px rgba(0, 0, 0, 0.32);
+      --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.28), 0 4px 8px rgba(0, 0, 0, 0.32);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -25,537 +66,511 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      font-family: var(--fui-fontFamily);
+      background-color: var(--fui-colorNeutralBackground2);
+      color: var(--fui-colorNeutralForeground1);
       min-height: 100vh;
-      color: #f8fafc;
-      padding: 2rem 1rem;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    .sp-page-header {
-      max-width: 1400px;
-      margin: 0 auto 2rem auto;
+    .sp-header {
+      background-color: var(--fui-colorNeutralBackground1);
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
       padding: 1rem 2rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: var(--fui-shadow4);
     }
 
     .sp-badge {
-      background: rgba(0, 120, 212, 0.25);
-      border: 1px solid rgba(0, 120, 212, 0.5);
-      color: #38bdf8;
-      padding: 4px 12px;
-      border-radius: 20px;
+      background-color: var(--fui-colorBrandBackground2);
+      color: var(--fui-colorBrandForeground1);
+      border: 1px solid var(--fui-colorBrandStroke1);
+      padding: 4px 10px;
+      border-radius: var(--fui-borderRadiusCircular);
       font-size: 0.8rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
     }
 
-    /* FULL WIDTH CONTAINER SIMULATION (Full Bleed) */
-    .sp-canvas-full-bleed {
-      width: 100vw;
-      position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
-      overflow: hidden;
-    }
-
-    /* Glassmorphism Styles matching FullWidthContainer.module.scss */
-    .fw-root {
+    /* FULL WIDTH CONTAINER (Full Bleed) */
+    .sp-full-bleed-container {
       width: 100%;
-      padding: 2.5rem 3rem;
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-      color: #f8fafc;
+      background-color: var(--fui-colorNeutralBackground2);
+      box-sizing: border-box;
     }
 
-    .fw-header {
-      margin-bottom: 2rem;
+    .fui-root {
+      width: 100%;
+      padding: 2rem;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1.5rem;
+    }
+
+    /* Fluent 2 Header */
+    .fui-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      justify-content: space-between;
     }
 
     @media (min-width: 768px) {
-      .fw-header {
+      .fui-header {
         flex-direction: row;
-        justify-content: space-between;
         align-items: flex-end;
       }
     }
 
-    .fw-title {
-      font-size: 2.25rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
+    .fui-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 2.25rem;
+      color: var(--fui-colorNeutralForeground1);
     }
 
-    .fw-subtitle {
-      font-size: 1.05rem;
-      color: #94a3b8;
-      margin-top: 0.4rem;
+    .fui-subtitle {
+      font-size: 0.95rem;
+      color: var(--fui-colorNeutralForeground3);
+      margin-top: 0.25rem;
     }
 
-    .fw-controls {
+    .fui-controls {
       display: flex;
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
     }
 
-    .fw-search-box {
+    /* Fluent 2 Input */
+    .fui-input-box {
       position: relative;
       display: flex;
       align-items: center;
     }
 
-    .fw-search-input {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 9999px;
-      padding: 0.6rem 1rem 0.6rem 2.4rem;
-      color: #f8fafc;
+    .fui-input {
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-bottom: 2px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusMedium);
+      padding: 0.45rem 0.75rem 0.45rem 2rem;
+      color: var(--fui-colorNeutralForeground1);
+      font-family: var(--fui-fontFamily);
       font-size: 0.9rem;
       outline: none;
-      transition: all 0.2s ease;
-      width: 220px;
+      transition: border-color 0.15s ease;
+      min-width: 220px;
     }
 
-    .fw-search-input:focus {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
-      width: 260px;
+    .fui-input:focus {
+      border-bottom-color: var(--fui-colorBrandBackground);
     }
 
-    .fw-search-icon {
+    .fui-input-icon {
       position: absolute;
-      left: 0.85rem;
-      color: #94a3b8;
+      left: 0.65rem;
+      color: var(--fui-colorNeutralForeground3);
+      font-size: 0.85rem;
       pointer-events: none;
     }
 
-    .fw-mode-toggle {
+    /* Fluent 2 Mode Switcher TabList */
+    .fui-mode-tabs {
       display: flex;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 9999px;
-      padding: 3px;
+      background-color: var(--fui-colorNeutralBackground3);
+      border-radius: var(--fui-borderRadiusMedium);
+      padding: 2px;
     }
 
-    .fw-mode-btn {
+    .fui-mode-tab {
       background: transparent;
       border: none;
-      color: #94a3b8;
-      padding: 0.45rem 0.9rem;
-      border-radius: 9999px;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--fui-borderRadiusSmall);
+      color: var(--fui-colorNeutralForeground2);
+      font-family: var(--fui-fontFamily);
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
-    .fw-mode-btn.active {
-      background: #0078d4;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+    .fui-mode-tab.active {
+      background-color: var(--fui-colorNeutralBackground1);
+      color: var(--fui-colorBrandForeground1);
+      box-shadow: var(--fui-shadow4);
     }
 
-    /* Tabs Styling */
-    .fw-tabs-nav {
+    /* Fluent 2 Navigation TabList */
+    .fui-tablist {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
+      padding-bottom: 0.25rem;
       overflow-x: auto;
-      padding-bottom: 0.75rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      scrollbar-width: thin;
     }
 
-    .fw-tab-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 0.75rem 1.25rem;
-      color: #cbd5e1;
+    .fui-tab {
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.6rem 1rem;
+      color: var(--fui-colorNeutralForeground2);
+      font-family: var(--fui-fontFamily);
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
       white-space: nowrap;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.15s ease;
     }
 
-    .fw-tab-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      transform: translateY(-2px);
+    .fui-tab:hover {
+      color: var(--fui-colorNeutralForeground1);
     }
 
-    .fw-tab-btn.active {
-      background: linear-gradient(135deg, rgba(0, 120, 212, 0.9) 0%, rgba(30, 58, 138, 0.9) 100%);
-      border-color: rgba(56, 189, 248, 0.5);
-      color: #ffffff;
-      box-shadow: 0 8px 20px -4px rgba(0, 120, 212, 0.5);
+    .fui-tab.active {
+      color: var(--fui-colorBrandForeground1);
+      border-bottom-color: var(--fui-colorBrandBackground);
     }
 
-    .fw-tab-badge {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 2px 7px;
-      border-radius: 10px;
-      font-size: 0.75rem;
-    }
-
-    /* Grid & Cards */
-    .fw-grid {
+    /* Fluent 2 Card Grid */
+    .fui-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
+      gap: 1.25rem;
+      width: 100%;
     }
 
-    .fw-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.5rem;
+    /* Fluent 2 Card Component */
+    .fui-card {
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusLarge);
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+      box-shadow: var(--fui-shadow4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
-    .fw-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(56, 189, 248, 0.4);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15);
+    .fui-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--fui-shadow8);
+      border-color: var(--fui-colorBrandStroke1);
     }
 
-    .fw-card-header {
+    .fui-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
-    .fw-card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(0, 120, 212, 0.2);
-      border: 1px solid rgba(0, 120, 212, 0.4);
-      color: #38bdf8;
+    .fui-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--fui-borderRadiusMedium);
+      background-color: var(--fui-colorBrandBackground2);
+      color: var(--fui-colorBrandForeground1);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: 1.1rem;
     }
 
-    .fw-card-badge {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: #38bdf8;
-      padding: 3px 8px;
-      border-radius: 6px;
+    /* Fluent 2 Badge */
+    .fui-badge {
+      background-color: var(--fui-colorBrandBackground2);
+      color: var(--fui-colorBrandForeground1);
+      padding: 2px 8px;
+      border-radius: var(--fui-borderRadiusSmall);
       font-size: 0.75rem;
       font-weight: 600;
     }
 
-    .fw-card-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #f8fafc;
-      margin-bottom: 0.5rem;
+    .fui-badge-success {
+      background-color: var(--fui-colorSuccessBackground1);
+      color: var(--fui-colorSuccessForeground1);
     }
 
-    .fw-card-desc {
-      font-size: 0.92rem;
-      color: #94a3b8;
-      line-height: 1.5;
-      margin-bottom: 1.25rem;
+    .fui-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fui-colorNeutralForeground1);
+      margin-bottom: 0.4rem;
     }
 
-    .fw-card-tags {
+    .fui-card-desc {
+      font-size: 0.9rem;
+      color: var(--fui-colorNeutralForeground2);
+      line-height: 1.45;
+      margin-bottom: 1rem;
+    }
+
+    .fui-card-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1.25rem;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
     }
 
-    .fw-tag {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #cbd5e1;
-      padding: 2px 8px;
-      border-radius: 4px;
+    .fui-tag {
+      background-color: var(--fui-colorNeutralBackground3);
+      border: 1px solid var(--fui-colorNeutralStroke2);
+      color: var(--fui-colorNeutralForeground2);
+      padding: 2px 6px;
+      border-radius: var(--fui-borderRadiusSmall);
       font-size: 0.75rem;
     }
 
-    .fw-card-action {
+    /* Fluent 2 Button */
+    .fui-btn-subtle {
+      background: transparent;
+      border: none;
+      color: var(--fui-colorBrandForeground1);
+      font-family: var(--fui-fontFamily);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      color: #38bdf8;
+      gap: 0.4rem;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: gap 0.2s ease;
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--fui-borderRadiusMedium);
+      transition: background-color 0.15s ease;
+      align-self: flex-start;
     }
 
-    .fw-card-action:hover {
-      gap: 0.75rem;
-      color: #7dd3fc;
+    .fui-btn-subtle:hover {
+      background-color: var(--fui-colorNeutralBackground3);
     }
 
-    /* Metric Cards £ */
-    .fw-metric-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+    /* Fluent 2 Metric Card (£) */
+    .fui-metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--fui-colorBrandForeground1);
+      margin: 0.4rem 0 0.2rem 0;
+      line-height: 2.25rem;
     }
 
-    .fw-metric-value {
-      font-size: 2.25rem;
-      font-weight: 800;
-      color: #38bdf8;
-      margin: 0.5rem 0 0.25rem 0;
-      letter-spacing: -0.02em;
-    }
-
-    .fw-metric-delta {
+    .fui-metric-trend {
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #4ade80;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
-    /* Accordion View */
-    .fw-accordion-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .fw-accordion-item {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
+    /* Fluent 2 Accordion Component */
+    .fui-accordion-item {
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusMedium);
+      margin-bottom: 0.5rem;
       overflow: hidden;
-      transition: all 0.3s ease;
     }
 
-    .fw-accordion-header {
+    .fui-accordion-header {
       width: 100%;
-      padding: 1.25rem 1.5rem;
+      padding: 0.9rem 1.25rem;
       background: transparent;
       border: none;
-      color: #f8fafc;
+      color: var(--fui-colorNeutralForeground1);
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-family: var(--fui-fontFamily);
       text-align: left;
     }
 
-    .fw-accordion-header:hover {
-      background: rgba(255, 255, 255, 0.03);
+    .fui-accordion-header:hover {
+      background-color: var(--fui-colorNeutralBackground3);
     }
 
-    .fw-accordion-header-left {
+    .fui-accordion-left {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    .fw-accordion-title {
-      font-size: 1.15rem;
-      font-weight: 700;
+    .fui-accordion-panel {
+      padding: 1.25rem;
+      border-top: 1px solid var(--fui-colorNeutralStroke2);
+      background-color: var(--fui-colorNeutralBackground2);
     }
 
-    .fw-accordion-content {
-      padding: 1.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(0, 0, 0, 0.15);
-    }
-
-    .fw-accordion-toolbar {
+    .fui-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
       margin-bottom: 1rem;
-      padding: 0.5rem 0.75rem;
-      color: #94a3b8;
-      font-size: 0.9rem;
+      color: var(--fui-colorNeutralForeground3);
+      font-size: 0.85rem;
     }
 
-    .fw-toolbar-btn {
+    .theme-toggle-btn {
       background: transparent;
-      border: none;
-      color: #38bdf8;
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusMedium);
+      padding: 0.4rem 0.75rem;
+      color: var(--fui-colorNeutralForeground1);
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: 600;
-      margin-left: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- SharePoint Workbench Navigation Simulation -->
-  <div class="sp-page-header">
-    <div>
-      <h2>Microsoft SharePoint Modern Page</h2>
-      <p style="color: #94a3b8; font-size: 0.9rem;">Full-Bleed Zone Canvas with Glassmorphism Theme</p>
+  <!-- SharePoint Site Header Simulation -->
+  <div class="sp-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="fa-solid fa-shapes" style="font-size: 1.5rem; color: var(--fui-colorBrandBackground);"></i>
+      <div>
+        <h2 style="font-size: 1.15rem; font-weight: 600;">SharePoint Online — Modern Communication Site</h2>
+        <p style="font-size: 0.85rem; color: var(--fui-colorNeutralForeground3);">Fluent UI 2 (@fluentui/react-components) Full-Width Section</p>
+      </div>
     </div>
     <div style="display: flex; gap: 0.75rem; align-items: center;">
-      <span class="sp-badge">SPFx v1.23.2</span>
-      <span class="sp-badge" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #34d399;">Full-Width Bleed Active</span>
+      <button class="theme-toggle-btn" id="btn-theme-toggle" onclick="toggleTheme()">
+        <i class="fa-solid fa-circle-half-stroke"></i>
+        <span>Toggle Theme</span>
+      </button>
+      <span class="sp-badge">Fluent 2 Active</span>
     </div>
   </div>
 
-  <!-- FULL BLEED CONTAINER MOUNT POINT -->
-  <div class="sp-canvas-full-bleed">
+  <!-- Full Width SharePoint Section -->
+  <div class="sp-full-bleed-container">
     <div id="spfx-root"></div>
   </div>
 
   <script>
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
     const defaultSections = [
       {
-        id: 'sec-strategy',
-        title: 'Strategy & Governance',
-        description: 'Strategic frameworks, governance charters, and executive roadmaps.',
-        iconName: 'fa-chess-rook',
+        id: 'sec-playbooks',
+        title: 'Playbooks & Guidance',
+        iconName: 'fa-book-open',
         badge: 'Core',
+        description: 'Centralised operational methodologies, service line playbooks, and best practice frameworks.',
         blocks: [
           {
-            id: 'blk-strat-1',
+            id: 'blk-1',
             type: 'card',
-            title: 'Enterprise Architecture Framework',
-            description: 'Standard operating principles and architecture blueprint for scalable solutions.',
-            iconName: 'fa-layer-group',
+            title: 'Commercial Advisory Playbook',
+            description: 'Standardized delivery lifecycle, contract governance, and commercial risk matrices.',
             badge: 'P1 Mandatory',
-            tags: ['Architecture', 'Governance', 'Best Practice'],
-            actionText: 'View Guidance',
+            iconName: 'fa-file-lines',
+            tags: ['Commercial', 'Advisory', 'P0'],
+            actionText: 'Open Playbook',
             actionUrl: '#'
           },
           {
-            id: 'blk-strat-2',
+            id: 'blk-2',
             type: 'metric',
-            title: 'Q1 UK Operational Budget',
-            description: 'Total allocated financial expenditure for current financial quarter.',
-            metricValue: '£420,000',
-            metricDelta: '+8.4% YoY',
-            tags: ['Budget', 'GBP', 'Finance'],
-            actionText: 'View Ledger',
-            actionUrl: '#'
+            title: 'Q1 Programme Expenditure',
+            description: 'Total approved commercial capital burn-down in current quarter.',
+            metricValue: '£1,420,000',
+            metricTrend: '+6.2% vs baseline',
+            tags: ['Budget', 'GBP', 'Finance']
           },
           {
-            id: 'blk-strat-3',
+            id: 'blk-3',
             type: 'card',
-            title: 'Policy Compliance Checklist',
-            description: 'Step-by-step verification checklist for ISO 27001 and Cyber Essentials Plus.',
-            iconName: 'fa-shield-halved',
-            badge: 'Audited',
-            tags: ['Security', 'Compliance', 'Audit'],
-            actionText: 'Open Checklist',
+            title: 'Project Assurance Checklist',
+            description: 'Mandatory gateway reviews, milestone verification, and stakeholder sign-off criteria.',
+            badge: 'Compliance',
+            iconName: 'fa-circle-check',
+            tags: ['Assurance', 'Quality'],
+            actionText: 'View Checklist',
             actionUrl: '#'
           }
         ]
       },
       {
-        id: 'sec-analytics',
-        title: 'Analytics & Financials',
-        description: 'Key performance indicators and regional metric tracking in GBP (£).',
-        iconName: 'fa-chart-line',
-        badge: 'Live Data',
+        id: 'sec-metrics',
+        title: 'Programme Metrics (£)',
+        iconName: 'fa-chart-simple',
+        badge: 'Real-time',
+        description: 'Executive overview of programme financials, budget burn-down, and delivery milestones in GBP (£).',
         blocks: [
           {
-            id: 'blk-ana-1',
+            id: 'blk-m1',
             type: 'metric',
-            title: 'Annual Cost Savings',
-            description: 'Direct savings achieved through automation and workflow enhancements.',
-            metricValue: '£1,250,000',
-            metricDelta: '+24.5% Ahead of Target',
-            tags: ['Cost Saving', 'Efficiency', 'GBP'],
-            actionText: 'Download Report',
-            actionUrl: '#'
+            title: 'Total Portfolio Budget',
+            metricValue: '£42,850,000',
+            metricTrend: '+3.2% vs Q2 forecast',
+            description: 'Approved capital allocation across active commissions in GBP',
+            tags: ['Portfolio', 'GBP', 'Capital']
           },
           {
-            id: 'blk-ana-2',
+            id: 'blk-m2',
             type: 'metric',
-            title: 'Average Task Turnaround',
-            description: 'Mean elapsed cycle time from ticket submission to delivery.',
-            metricValue: '1.4 Days',
-            metricDelta: '-38% vs Q4 baseline',
-            tags: ['KPI', 'Speed', 'Operations'],
-            actionText: 'Inspect SLA',
-            actionUrl: '#'
+            title: 'Efficiency Savings Realised',
+            metricValue: '£3,420,000',
+            metricTrend: '+18.4% ahead of target',
+            description: 'Value engineering and procurement optimization savings',
+            tags: ['Savings', 'GBP', 'Efficiency']
           },
           {
-            id: 'blk-ana-3',
+            id: 'blk-m3',
+            type: 'metric',
+            title: 'Commissions on Schedule',
+            metricValue: '94.8%',
+            metricTrend: '+1.5% from last period',
+            description: 'Critical path milestone tracking across 48 projects',
+            tags: ['SLA', 'Milestone']
+          }
+        ]
+      },
+      {
+        id: 'sec-embeds',
+        title: 'Live Tools & Portals',
+        iconName: 'fa-window-restore',
+        badge: 'Interactive',
+        description: 'Integrated live data feeds, external calculators, and interactive dashboards.',
+        blocks: [
+          {
+            id: 'blk-e1',
             type: 'card',
-            title: 'Power BI Performance Dashboard',
+            title: 'Cost Estimation Calculator',
+            description: 'Real-time NRM1/NRM2 benchmarking model with automated inflation indices.',
+            badge: 'Tool',
+            iconName: 'fa-calculator',
+            tags: ['Cost', 'NRM', 'Live'],
+            actionText: 'Open Calculator',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-e2',
+            type: 'card',
+            title: 'Power BI Performance Feed',
             description: 'Interactive analytics dashboard embedded directly within the container.',
-            iconName: 'fa-chart-pie',
             badge: 'Power BI',
-            tags: ['Reporting', 'Power BI', 'Real-time'],
+            iconName: 'fa-chart-pie',
+            tags: ['Reporting', 'Power BI'],
             actionText: 'Launch Dashboard',
-            actionUrl: '#'
-          }
-        ]
-      },
-      {
-        id: 'sec-operations',
-        title: 'Operations & Playbooks',
-        description: 'Standard operating procedures, deployment checklists, and project logs.',
-        iconName: 'fa-gears',
-        blocks: [
-          {
-            id: 'blk-ops-1',
-            type: 'card',
-            title: 'SPFx Deployment Pipeline',
-            description: 'Automated CI/CD build scripts, dev certificate trust, and package workflows.',
-            iconName: 'fa-terminal',
-            badge: 'Automated',
-            tags: ['DevOps', 'SPFx', 'CI/CD'],
-            actionText: 'View Pipeline',
-            actionUrl: '#'
-          },
-          {
-            id: 'blk-ops-2',
-            type: 'card',
-            title: 'Incident Response SOP',
-            description: 'Critical service outage escalation path, RACI matrix, and stakeholder communications.',
-            iconName: 'fa-triangle-exclamation',
-            badge: 'Critical',
-            tags: ['Operations', 'SOP', 'Support'],
-            actionText: 'Read Playbook',
             actionUrl: '#'
           }
         ]
@@ -564,9 +579,9 @@
 
     function App() {
       const [layoutMode, setLayoutMode] = React.useState('tabs');
-      const [activeTabId, setActiveTabId] = React.useState('sec-strategy');
+      const [activeTabId, setActiveTabId] = React.useState('sec-playbooks');
       const [searchQuery, setSearchQuery] = React.useState('');
-      const [openAccordionIds, setOpenAccordionIds] = React.useState({ 'sec-strategy': true });
+      const [openAccordionIds, setOpenAccordionIds] = React.useState({ 'sec-playbooks': true });
 
       const toggleAccordion = (id) => {
         setOpenAccordionIds(prev => ({ ...prev, [id]: !prev[id] }));
@@ -595,35 +610,35 @@
         );
       };
 
-      return React.createElement('div', { className: 'fw-root' },
+      return React.createElement('div', { className: 'fui-root' },
         // Header
-        React.createElement('div', { className: 'fw-header' },
+        React.createElement('div', { className: 'fui-header' },
           React.createElement('div', null,
-            React.createElement('h1', { className: 'fw-title' }, 'Interactive Content Hub'),
-            React.createElement('p', { className: 'fw-subtitle' }, 'Full-width SharePoint container with fluid tabs, collapsible accordions, and metric cards in GBP (£)')
+            React.createElement('h1', { className: 'fui-title' }, 'Interactive Content Hub'),
+            React.createElement('p', { className: 'fui-subtitle' }, 'Built entirely using Microsoft Fluent UI 2 (@fluentui/react-components) with native SharePoint theme inheritance')
           ),
-          React.createElement('div', { className: 'fw-controls' },
-            // Search Box
-            React.createElement('div', { className: 'fw-search-box' },
-              React.createElement('i', { className: 'fa-solid fa-magnifying-glass fw-search-icon' }),
+          React.createElement('div', { className: 'fui-controls' },
+            // Fluent 2 Input
+            React.createElement('div', { className: 'fui-input-box' },
+              React.createElement('i', { className: 'fa-solid fa-magnifying-glass fui-input-icon' }),
               React.createElement('input', {
                 type: 'text',
-                className: 'fw-search-input',
+                className: 'fui-input',
                 placeholder: 'Filter items, tags, GBP...',
                 value: searchQuery,
                 onChange: (e) => setSearchQuery(e.target.value)
               })
             ),
-            // Layout Mode Switcher
-            React.createElement('div', { className: 'fw-mode-toggle' },
+            // Fluent 2 Layout Switcher
+            React.createElement('div', { className: 'fui-mode-tabs' },
               React.createElement('button', {
                 id: 'btn-mode-tabs',
-                className: 'fw-mode-btn ' + (layoutMode === 'tabs' ? 'active' : ''),
+                className: 'fui-mode-tab ' + (layoutMode === 'tabs' ? 'active' : ''),
                 onClick: () => setLayoutMode('tabs')
               }, React.createElement('i', { className: 'fa-solid fa-folder' }), 'Tabs'),
               React.createElement('button', {
                 id: 'btn-mode-accordion',
-                className: 'fw-mode-btn ' + (layoutMode === 'accordion' ? 'active' : ''),
+                className: 'fui-mode-tab ' + (layoutMode === 'accordion' ? 'active' : ''),
                 onClick: () => setLayoutMode('accordion')
               }, React.createElement('i', { className: 'fa-solid fa-list' }), 'Accordion')
             )
@@ -632,60 +647,57 @@
 
         // Tabs View
         layoutMode === 'tabs' ? React.createElement('div', null,
-          React.createElement('div', { className: 'fw-tabs-nav', role: 'tablist' },
+          React.createElement('div', { className: 'fui-tablist', role: 'tablist' },
             defaultSections.map(sec => 
               React.createElement('button', {
                 key: sec.id,
                 id: 'tab-' + sec.id,
-                className: 'fw-tab-btn ' + (sec.id === activeTabId ? 'active' : ''),
+                className: 'fui-tab ' + (sec.id === activeTabId ? 'active' : ''),
                 onClick: () => setActiveTabId(sec.id),
                 role: 'tab',
                 'aria-selected': sec.id === activeTabId
               },
                 React.createElement('i', { className: 'fa-solid ' + sec.iconName }),
                 React.createElement('span', null, sec.title),
-                sec.badge && React.createElement('span', { className: 'fw-tab-badge' }, sec.badge)
+                sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
               )
             )
           ),
-          React.createElement('div', { className: 'fw-grid' },
-            filterBlocks(activeSection.blocks).map(block => 
-              block.type === 'metric' ?
-              React.createElement('div', { key: block.id, className: 'fw-card fw-metric-card' },
-                React.createElement('div', null,
-                  React.createElement('div', { className: 'fw-card-header' },
-                    React.createElement('h3', { className: 'fw-card-title' }, block.title),
-                    block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
-                  ),
-                  React.createElement('div', { className: 'fw-metric-value' }, block.metricValue),
-                  React.createElement('div', { className: 'fw-metric-delta' },
-                    React.createElement('i', { className: 'fa-solid fa-arrow-trend-up' }),
-                    block.metricDelta
-                  ),
-                  React.createElement('p', { className: 'fw-card-desc' }, block.description)
-                ),
-                React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
-                  block.actionText,
-                  React.createElement('i', { className: 'fa-solid fa-arrow-right' })
-                )
-              ) :
-              React.createElement('div', { key: block.id, className: 'fw-card' },
-                React.createElement('div', null,
-                  React.createElement('div', { className: 'fw-card-header' },
-                    React.createElement('div', { className: 'fw-card-icon' },
-                      React.createElement('i', { className: 'fa-solid ' + block.iconName })
+          React.createElement('div', { style: { marginTop: '1.25rem' } },
+            React.createElement('div', { className: 'fui-grid' },
+              filterBlocks(activeSection.blocks).map(block => 
+                block.type === 'metric' ?
+                React.createElement('div', { key: block.id, className: 'fui-card' },
+                  React.createElement('div', null,
+                    React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                    React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
+                    React.createElement('div', { className: 'fui-metric-trend' },
+                      React.createElement('span', { className: 'fui-badge fui-badge-success' },
+                        React.createElement('i', { className: 'fa-solid fa-arrow-trend-up', style: { marginRight: '4px' } }),
+                        block.metricTrend
+                      )
                     ),
-                    block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
-                  ),
-                  React.createElement('h3', { className: 'fw-card-title' }, block.title),
-                  React.createElement('p', { className: 'fw-card-desc' }, block.description),
-                  block.tags && React.createElement('div', { className: 'fw-card-tags' },
-                    block.tags.map(t => React.createElement('span', { key: t, className: 'fw-tag' }, t))
+                    React.createElement('p', { className: 'fui-card-desc' }, block.description)
                   )
-                ),
-                React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
-                  block.actionText,
-                  React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                ) :
+                React.createElement('div', { key: block.id, className: 'fui-card' },
+                  React.createElement('div', null,
+                    React.createElement('div', { className: 'fui-card-header' },
+                      React.createElement('div', { className: 'fui-icon-box' },
+                        React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                      ),
+                      block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
+                    ),
+                    React.createElement('h3', { className: 'fui-card-title' }, block.title),
+                    React.createElement('p', { className: 'fui-card-desc' }, block.description),
+                    block.tags && React.createElement('div', { className: 'fui-card-tags' },
+                      block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
+                    )
+                  ),
+                  React.createElement('a', { href: block.actionUrl, className: 'fui-btn-subtle' },
+                    block.actionText,
+                    React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
+                  )
                 )
               )
             )
@@ -694,85 +706,78 @@
 
         // Accordion View
         React.createElement('div', null,
-          React.createElement('div', { className: 'fw-accordion-toolbar' },
+          React.createElement('div', { className: 'fui-toolbar' },
             React.createElement('span', null, defaultSections.length + ' Sections'),
-            React.createElement('div', null,
-              React.createElement('button', { className: 'fw-toolbar-btn', onClick: expandAll },
+            React.createElement('div', { style: { display: 'flex', gap: '0.5rem' } },
+              React.createElement('button', { className: 'fui-btn-subtle', onClick: expandAll },
                 React.createElement('i', { className: 'fa-solid fa-angles-down' }), ' Expand All'
               ),
-              React.createElement('button', { className: 'fw-toolbar-btn', onClick: collapseAll },
+              React.createElement('button', { className: 'fui-btn-subtle', onClick: collapseAll },
                 React.createElement('i', { className: 'fa-solid fa-angles-up' }), ' Collapse All'
               )
             )
           ),
-          React.createElement('div', { className: 'fw-accordion-list' },
-            defaultSections.map(sec => {
-              const isOpen = !!openAccordionIds[sec.id];
-              const blocks = filterBlocks(sec.blocks);
-              return React.createElement('div', { key: sec.id, className: 'fw-accordion-item' },
-                React.createElement('button', {
-                  className: 'fw-accordion-header',
-                  onClick: () => toggleAccordion(sec.id)
-                },
-                  React.createElement('div', { className: 'fw-accordion-header-left' },
-                    React.createElement('i', { className: 'fa-solid ' + sec.iconName, style: { color: '#38bdf8' } }),
-                    React.createElement('span', { className: 'fw-accordion-title' }, sec.title)
-                  ),
-                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
-                    sec.badge && React.createElement('span', { className: 'fw-tab-badge' }, sec.badge),
-                    React.createElement('i', {
-                      className: 'fa-solid fa-chevron-down',
-                      style: { transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }
-                    })
-                  )
+          defaultSections.map(sec => {
+            const isOpen = !!openAccordionIds[sec.id];
+            const blocks = filterBlocks(sec.blocks);
+            return React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
+              React.createElement('button', {
+                className: 'fui-accordion-header',
+                onClick: () => toggleAccordion(sec.id)
+              },
+                React.createElement('div', { className: 'fui-accordion-left' },
+                  React.createElement('i', { className: 'fa-solid ' + sec.iconName, style: { color: 'var(--fui-colorBrandForeground1)' } }),
+                  React.createElement('span', { style: { fontWeight: 600 } }, sec.title)
                 ),
-                isOpen && React.createElement('div', { className: 'fw-accordion-content' },
-                  React.createElement('div', { className: 'fw-grid' },
-                    blocks.map(block => 
-                      block.type === 'metric' ?
-                      React.createElement('div', { key: block.id, className: 'fw-card fw-metric-card' },
-                        React.createElement('div', null,
-                          React.createElement('div', { className: 'fw-card-header' },
-                            React.createElement('h3', { className: 'fw-card-title' }, block.title),
-                            block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
-                          ),
-                          React.createElement('div', { className: 'fw-metric-value' }, block.metricValue),
-                          React.createElement('div', { className: 'fw-metric-delta' },
-                            React.createElement('i', { className: 'fa-solid fa-arrow-trend-up' }),
-                            block.metricDelta
-                          ),
-                          React.createElement('p', { className: 'fw-card-desc' }, block.description)
-                        ),
-                        React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
-                          block.actionText,
-                          React.createElement('i', { className: 'fa-solid fa-arrow-right' })
-                        )
-                      ) :
-                      React.createElement('div', { key: block.id, className: 'fw-card' },
-                        React.createElement('div', null,
-                          React.createElement('div', { className: 'fw-card-header' },
-                            React.createElement('div', { className: 'fw-card-icon' },
-                              React.createElement('i', { className: 'fa-solid ' + block.iconName })
-                            ),
-                            block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
-                          ),
-                          React.createElement('h3', { className: 'fw-card-title' }, block.title),
-                          React.createElement('p', { className: 'fw-card-desc' }, block.description),
-                          block.tags && React.createElement('div', { className: 'fw-card-tags' },
-                            block.tags.map(t => React.createElement('span', { key: t, className: 'fw-tag' }, t))
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
+                  sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge),
+                  React.createElement('i', {
+                    className: 'fa-solid fa-chevron-down',
+                    style: { transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }
+                  })
+                )
+              ),
+              isOpen && React.createElement('div', { className: 'fui-accordion-panel' },
+                React.createElement('div', { className: 'fui-grid' },
+                  blocks.map(block => 
+                    block.type === 'metric' ?
+                    React.createElement('div', { key: block.id, className: 'fui-card' },
+                      React.createElement('div', null,
+                        React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                        React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
+                        React.createElement('div', { className: 'fui-metric-trend' },
+                          React.createElement('span', { className: 'fui-badge fui-badge-success' },
+                            React.createElement('i', { className: 'fa-solid fa-arrow-trend-up', style: { marginRight: '4px' } }),
+                            block.metricTrend
                           )
                         ),
-                        React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
-                          block.actionText,
-                          React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                        React.createElement('p', { className: 'fui-card-desc' }, block.description)
+                      )
+                    ) :
+                    React.createElement('div', { key: block.id, className: 'fui-card' },
+                      React.createElement('div', null,
+                        React.createElement('div', { className: 'fui-card-header' },
+                          React.createElement('div', { className: 'fui-icon-box' },
+                            React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                          ),
+                          block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
+                        ),
+                        React.createElement('h3', { className: 'fui-card-title' }, block.title),
+                        React.createElement('p', { className: 'fui-card-desc' }, block.description),
+                        block.tags && React.createElement('div', { className: 'fui-card-tags' },
+                          block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
                         )
+                      ),
+                      React.createElement('a', { href: block.actionUrl, className: 'fui-btn-subtle' },
+                        block.actionText,
+                        React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
                       )
                     )
                   )
                 )
-              );
-            })
-          )
+              )
+            );
+          })
         )
       );
     }

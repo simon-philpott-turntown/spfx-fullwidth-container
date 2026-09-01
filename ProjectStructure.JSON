@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "projectName": "spfx-fullwidth-container",
   "description": "Full-width responsive container web part supporting tabs, accordions, and custom cards/embeds for SharePoint Online.",
-  "architecture": "SPFx v1.22+ Heft Toolchain with React and Fluent UI / Glassmorphism Design System",
+  "architecture": "SPFx v1.23+ Heft Toolchain with React 17 and Microsoft Fluent UI 2 (@fluentui/react-components)",
   "root": "d:/Playbook/spfx-fullwidth-container",
   "modules": [
     {
@@ -11,34 +11,34 @@
       "role": "Entrypoint SPFx WebPart class managing lifecycle, theme variants, property pane, and rendering React root."
     },
     {
+      "name": "ThemeBridge",
+      "path": "src/webparts/fullWidthContainer/utils/themeBridge.ts",
+      "role": "Bridges SharePoint SPFx IReadonlyTheme / semanticColors to Fluent UI 2 Theme tokens for FluentProvider."
+    },
+    {
       "name": "FullWidthContainer",
       "path": "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
-      "role": "Root React container component handling state, layout switching (Tabs/Accordion), filtering, and search."
+      "role": "Root React container component wrapping hierarchy in FluentProvider, handling layout switching, filtering, and search."
     },
     {
       "name": "TabsContainer",
       "path": "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
-      "role": "Pill & underline tabbed navigation view with micro-animations and active indicators."
+      "role": "Fluent 2 TabList and Tab navigation view with active indicators and responsive card grid."
     },
     {
       "name": "AccordionContainer",
       "path": "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
-      "role": "Collapsible accordion panels with smooth height transitions and multi/single expand modes."
+      "role": "Fluent 2 Accordion, AccordionItem, and AccordionHeader collapsible layout with Expand/Collapse All toolbar."
     },
     {
       "name": "BlockRenderer",
       "path": "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
-      "role": "Renders child content items (Rich Cards, Embeds/iFrames, Key Metrics in GBP £, Quick Links)."
+      "role": "Renders child content items using Fluent 2 Card, Badge, Button, and Key Metrics in GBP £."
     },
     {
       "name": "ContainerModels",
       "path": "src/webparts/fullWidthContainer/models/IContainerModels.ts",
-      "role": "Type definitions for panels, tabs, items, layout configuration, and theme tokens."
-    },
-    {
-      "name": "Styles",
-      "path": "src/webparts/fullWidthContainer/components/FullWidthContainer.module.scss",
-      "role": "SCSS module delivering Antigravity Glassmorphism, backdrop filters, responsive grids, and dark/light tokens."
+      "role": "Type definitions for panels, tabs, items, layout configuration, and default UK datasets."
     }
   ]
 }

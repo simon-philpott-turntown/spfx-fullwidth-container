@@ -1,118 +1,161 @@
 /**
  * @file TabsContainer.tsx
- * @description Tabbed navigation layout with pill buttons, active indicators, and child grid.
+ * @description Tabbed navigation layout using Fluent UI 2 TabList and Tab components.
+ * Follows the Microsoft Fluent 2 Design System (https://fluent2.microsoft.design/).
  */
 
 import * as React from 'react';
 import { IContainerSection } from '../models/IContainerModels';
-import { FontIcon } from '@fluentui/react';
 import { BlockRenderer } from './BlockRenderer';
-import styles from './FullWidthContainer.module.scss.css';
+import {
+  TabList,
+  Tab,
+  Badge,
+  SelectTabData,
+  SelectTabEvent,
+  TabValue,
+  makeStyles,
+  shorthands,
+  tokens,
+  Body1
+} from '@fluentui/react-components';
+import {
+  BookRegular,
+  MoneyRegular,
+  AppsRegular,
+  ShieldCheckmarkRegular,
+  FolderRegular,
+  InfoRegular
+} from '@fluentui/react-icons';
+
+const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.spacingVerticalL)
+  },
+  tabList: {
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
+    paddingBottom: tokens.spacingVerticalXS,
+    overflowX: 'auto',
+    scrollbarWidth: 'thin'
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    ...shorthands.gap(tokens.spacingHorizontalL),
+    width: '100%'
+  },
+  emptyState: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shorthands.padding(tokens.spacingVerticalXXL),
+    color: tokens.colorNeutralForeground3,
+    ...shorthands.gap(tokens.spacingVerticalS)
+  }
+});
 
 export interface ITabsContainerProps {
   sections: IContainerSection[];
-  enableAnimation: boolean;
   searchQuery: string;
+}
+
+function renderTabIcon(name?: string): React.ReactElement {
+  switch (name) {
+    case 'BookAnswers':
+      return <BookRegular fontSize={18} />;
+    case 'Financial':
+    case 'Money':
+      return <MoneyRegular fontSize={18} />;
+    case 'AppIconDefault':
+      return <AppsRegular fontSize={18} />;
+    case 'ComplianceAudit':
+    case 'Shield':
+      return <ShieldCheckmarkRegular fontSize={18} />;
+    default:
+      return <FolderRegular fontSize={18} />;
+  }
 }
 
 export const TabsContainer: React.FC<ITabsContainerProps> = ({
   sections,
-  enableAnimation,
   searchQuery
 }) => {
-  const [activeTabId, setActiveTabId] = React.useState<string>(
+  const styles = useStyles();
+  const [selectedTab, setSelectedTab] = React.useState<TabValue>(() =>
     sections.length > 0 ? sections[0].id : ''
   );
 
-  const activeSection = sections.find((s) => s.id === activeTabId) || sections[0];
+  const handleTabSelect = (event: SelectTabEvent, data: SelectTabData): void => {
+    setSelectedTab(data.value);
+  };
 
-  const filteredBlocks = React.useMemo(() => {
-    if (!activeSection) return [];
-    if (!searchQuery.trim()) return activeSection.blocks;
-
-    const q = searchQuery.toLowerCase();
-    return activeSection.blocks.filter(
-      (b) =>
-        b.title.toLowerCase().includes(q) ||
-        (b.description && b.description.toLowerCase().includes(q)) ||
-        (b.badge && b.badge.toLowerCase().includes(q)) ||
-        (b.tags && b.tags.some((t) => t.toLowerCase().includes(q)))
-    );
-  }, [activeSection, searchQuery]);
+  const activeSection =
+    sections.find((s) => s.id === selectedTab) || (sections.length > 0 ? sections[0] : undefined);
 
   if (!sections || sections.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <FontIcon iconName="Info" className={styles.emptyIcon} />
-        <p>No container tabs configured.</p>
+        <InfoRegular fontSize={24} />
+        <Body1>No sections configured.</Body1>
       </div>
     );
   }
 
+  // Filter blocks by search query
+  const q = searchQuery.toLowerCase().trim();
+  const filteredBlocks =
+    activeSection && q
+      ? activeSection.blocks.filter(
+          (b) =>
+            b.title.toLowerCase().includes(q) ||
+            (b.description && b.description.toLowerCase().includes(q)) ||
+            (b.badge && b.badge.toLowerCase().includes(q)) ||
+            (b.tags && b.tags.some((t) => t.toLowerCase().includes(q)))
+        )
+      : activeSection
+      ? activeSection.blocks
+      : [];
+
   return (
-    <div className={styles.tabsLayoutWrap}>
-      {/* Navigation Pills */}
-      <nav className={styles.tabNavList} role="tablist" aria-label="Container Sections">
-        {sections.map((section) => {
-          const isActive = section.id === (activeSection ? activeSection.id : '');
-          return (
-            <button
-              key={section.id}
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`tabpanel-${section.id}`}
-              id={`tab-${section.id}`}
-              className={`${styles.tabPillButton} ${isActive ? styles.tabPillButtonActive : ''}`}
-              onClick={() => setActiveTabId(section.id)}
-            >
-              {section.iconName && (
-                <FontIcon iconName={section.iconName} className={styles.tabPillIcon} />
-              )}
-              <span className={styles.tabPillLabel}>{section.title}</span>
-              {section.badge && (
-                <span
-                  className={`${styles.tabPillBadge} ${
-                    isActive ? styles.tabPillBadgeActive : ''
-                  }`}
-                >
-                  {section.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
+    <div className={styles.container}>
+      {/* Fluent 2 TabList */}
+      <TabList
+        selectedValue={selectedTab}
+        onTabSelect={handleTabSelect}
+        size="medium"
+        appearance="subtle"
+        className={styles.tabList}
+      >
+        {sections.map((section) => (
+          <Tab
+            key={section.id}
+            value={section.id}
+            icon={renderTabIcon(section.iconName)}
+          >
+            {section.title}
+            {section.badge && (
+              <Badge appearance="filled" size="small" style={{ marginLeft: tokens.spacingHorizontalXS }}>
+                {section.badge}
+              </Badge>
+            )}
+          </Tab>
+        ))}
+      </TabList>
 
-      {/* Active Tab Panel */}
-      {activeSection && (
-        <div
-          id={`tabpanel-${activeSection.id}`}
-          role="tabpanel"
-          aria-labelledby={`tab-${activeSection.id}`}
-          className={styles.tabPanelContainer}
-        >
-          {activeSection.description && (
-            <div className={styles.sectionHeaderBanner}>
-              <p className={styles.sectionDescription}>{activeSection.description}</p>
-            </div>
-          )}
-
-          {filteredBlocks.length > 0 ? (
-            <div className={styles.cardsGrid}>
-              {filteredBlocks.map((block) => (
-                <BlockRenderer
-                  key={block.id}
-                  block={block}
-                  enableAnimation={enableAnimation}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.emptyState}>
-              <FontIcon iconName="SearchIssue" className={styles.emptyIcon} />
-              <p>No matching content blocks found in &quot;{activeSection.title}&quot;.</p>
-            </div>
-          )}
+      {/* Cards Grid */}
+      {filteredBlocks.length > 0 ? (
+        <div className={styles.grid}>
+          {filteredBlocks.map((block) => (
+            <BlockRenderer key={block.id} block={block} />
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <InfoRegular fontSize={24} />
+          <Body1>No content items found matching &quot;{searchQuery}&quot; in this section.</Body1>
         </div>
       )}
     </div>

@@ -1,89 +1,192 @@
 /**
  * @file AccordionContainer.tsx
- * @description Accordion collapsible panels view for the Full-Width Container Web Part.
+ * @description Collapsible accordion layout using Fluent UI 2 Accordion components.
+ * Follows the Microsoft Fluent 2 Design System (https://fluent2.microsoft.design/).
  */
 
 import * as React from 'react';
 import { IContainerSection } from '../models/IContainerModels';
-import { FontIcon } from '@fluentui/react';
 import { BlockRenderer } from './BlockRenderer';
-import styles from './FullWidthContainer.module.scss.css';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionHeader,
+  AccordionPanel,
+  AccordionToggleEventHandler,
+  AccordionToggleData,
+  AccordionToggleEvent,
+  Badge,
+  Button,
+  makeStyles,
+  shorthands,
+  tokens,
+  Body1,
+  Caption1,
+  Text
+} from '@fluentui/react-components';
+import {
+  ChevronDoubleDownRegular,
+  ChevronDoubleUpRegular,
+  InfoRegular,
+  FolderRegular,
+  BookRegular,
+  MoneyRegular,
+  AppsRegular,
+  ShieldCheckmarkRegular
+} from '@fluentui/react-icons';
+
+const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.spacingVerticalM)
+  },
+  toolbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: tokens.spacingVerticalS,
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2)
+  },
+  toolbarActions: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.spacingHorizontalS)
+  },
+  accordionItem: {
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    backgroundColor: tokens.colorNeutralBackground1,
+    marginBottom: tokens.spacingVerticalS,
+    overflow: 'hidden'
+  },
+  headerContent: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.spacingHorizontalM),
+    width: '100%'
+  },
+  headerTextCol: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  },
+  headerBadges: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.spacingHorizontalXS),
+    marginLeft: 'auto',
+    marginRight: tokens.spacingHorizontalM
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    ...shorthands.gap(tokens.spacingHorizontalL),
+    ...shorthands.padding(tokens.spacingVerticalM, '0')
+  },
+  emptyState: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shorthands.padding(tokens.spacingVerticalXXL),
+    color: tokens.colorNeutralForeground3,
+    ...shorthands.gap(tokens.spacingVerticalS)
+  }
+});
 
 export interface IAccordionContainerProps {
   sections: IContainerSection[];
-  enableAnimation: boolean;
   searchQuery: string;
+}
+
+function renderSectionIcon(name?: string): React.ReactElement {
+  switch (name) {
+    case 'BookAnswers':
+      return <BookRegular fontSize={20} />;
+    case 'Financial':
+    case 'Money':
+      return <MoneyRegular fontSize={20} />;
+    case 'AppIconDefault':
+      return <AppsRegular fontSize={20} />;
+    case 'ComplianceAudit':
+    case 'Shield':
+      return <ShieldCheckmarkRegular fontSize={20} />;
+    default:
+      return <FolderRegular fontSize={20} />;
+  }
 }
 
 export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   sections,
-  enableAnimation,
   searchQuery
 }) => {
-  // Store set of open section IDs
-  const [openSectionIds, setOpenSectionIds] = React.useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    if (sections.length > 0) {
-      initial[sections[0].id] = true; // open first section by default
-    }
-    return initial;
-  });
+  const styles = useStyles();
+  const [openItems, setOpenItems] = React.useState<string[]>(() =>
+    sections.length > 0 ? [sections[0].id] : []
+  );
 
-  const toggleSection = (id: string): void => {
-    setOpenSectionIds((prev) => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+  const handleToggle: AccordionToggleEventHandler<string> = (
+    event: AccordionToggleEvent,
+    data: AccordionToggleData<string>
+  ) => {
+    setOpenItems(data.openItems);
   };
 
   const expandAll = (): void => {
-    const allOpen: Record<string, boolean> = {};
-    sections.forEach((s) => {
-      allOpen[s.id] = true;
-    });
-    setOpenSectionIds(allOpen);
+    setOpenItems(sections.map((s) => s.id));
   };
 
   const collapseAll = (): void => {
-    setOpenSectionIds({});
+    setOpenItems([]);
   };
 
   if (!sections || sections.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <FontIcon iconName="Info" className={styles.emptyIcon} />
-        <p>No accordion sections configured.</p>
+        <InfoRegular fontSize={24} />
+        <Body1>No accordion sections configured.</Body1>
       </div>
     );
   }
 
+  const q = searchQuery.toLowerCase().trim();
+
   return (
-    <div className={styles.accordionLayoutWrap}>
-      {/* Global Expand / Collapse Toolbar */}
-      <div className={styles.accordionToolbar}>
-        <span className={styles.toolbarCount}>
+    <div className={styles.container}>
+      {/* Global Toolbar */}
+      <div className={styles.toolbar}>
+        <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
           {sections.length} {sections.length === 1 ? 'Section' : 'Sections'}
-        </span>
-        <div className={styles.toolbarButtons}>
-          <button type="button" className={styles.toolbarLink} onClick={expandAll}>
-            <FontIcon iconName="DoubleChevronDown" />
-            <span>Expand All</span>
-          </button>
-          <span className={styles.toolbarDivider}>•</span>
-          <button type="button" className={styles.toolbarLink} onClick={collapseAll}>
-            <FontIcon iconName="DoubleChevronUp" />
-            <span>Collapse All</span>
-          </button>
+        </Caption1>
+        <div className={styles.toolbarActions}>
+          <Button
+            appearance="subtle"
+            size="small"
+            icon={<ChevronDoubleDownRegular />}
+            onClick={expandAll}
+          >
+            Expand All
+          </Button>
+          <Button
+            appearance="subtle"
+            size="small"
+            icon={<ChevronDoubleUpRegular />}
+            onClick={collapseAll}
+          >
+            Collapse All
+          </Button>
         </div>
       </div>
 
-      {/* Accordion Panels List */}
-      <div className={styles.accordionList}>
+      {/* Fluent 2 Accordion */}
+      <Accordion
+        collapsible
+        multiple
+        openItems={openItems}
+        onToggle={handleToggle}
+      >
         {sections.map((section) => {
-          const isOpen = !!openSectionIds[section.id];
-
-          // Filter blocks by search query
-          const q = searchQuery.toLowerCase().trim();
           const filteredBlocks = q
             ? section.blocks.filter(
                 (b) =>
@@ -94,70 +197,53 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
               )
             : section.blocks;
 
-          // If search is active and matches exist in this section, force open
-          const showOpen = q && filteredBlocks.length > 0 ? true : isOpen;
-
           return (
-            <div
+            <AccordionItem
               key={section.id}
-              className={`${styles.accordionItem} ${showOpen ? styles.accordionItemExpanded : ''}`}
+              value={section.id}
+              className={styles.accordionItem}
             >
-              <button
-                type="button"
-                className={styles.accordionHeaderBtn}
-                onClick={() => toggleSection(section.id)}
-                aria-expanded={showOpen}
-              >
-                <div className={styles.accordionHeaderLeft}>
-                  {section.iconName && (
-                    <div className={styles.accordionIconCircle}>
-                      <FontIcon iconName={section.iconName} className={styles.accordionSectionIcon} />
-                    </div>
-                  )}
-                  <div className={styles.accordionHeaderText}>
-                    <h3 className={styles.accordionTitle}>{section.title}</h3>
+              <AccordionHeader expandIconPosition="end">
+                <div className={styles.headerContent}>
+                  {renderSectionIcon(section.iconName)}
+                  <div className={styles.headerTextCol}>
+                    <Text weight="semibold">{section.title}</Text>
                     {section.description && (
-                      <span className={styles.accordionSubtitle}>{section.description}</span>
+                      <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                        {section.description}
+                      </Caption1>
                     )}
                   </div>
-                </div>
-
-                <div className={styles.accordionHeaderRight}>
-                  {section.badge && (
-                    <span className={styles.accordionBadge}>{section.badge}</span>
-                  )}
-                  <span className={styles.blockCountBadge}>
-                    {section.blocks.length} {section.blocks.length === 1 ? 'item' : 'items'}
-                  </span>
-                  <div className={`${styles.chevronWrapper} ${showOpen ? styles.chevronRotated : ''}`}>
-                    <FontIcon iconName="ChevronDown" />
+                  <div className={styles.headerBadges}>
+                    {section.badge && (
+                      <Badge appearance="tint" color="brand" size="small">
+                        {section.badge}
+                      </Badge>
+                    )}
+                    <Badge appearance="outline" size="small">
+                      {section.blocks.length} {section.blocks.length === 1 ? 'item' : 'items'}
+                    </Badge>
                   </div>
                 </div>
-              </button>
+              </AccordionHeader>
 
-              {showOpen && (
-                <div className={styles.accordionContent}>
-                  {filteredBlocks.length > 0 ? (
-                    <div className={styles.cardsGrid}>
-                      {filteredBlocks.map((block) => (
-                        <BlockRenderer
-                          key={block.id}
-                          block={block}
-                          enableAnimation={enableAnimation}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={styles.emptyState}>
-                      <p>No content items matching your search in this section.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+              <AccordionPanel>
+                {filteredBlocks.length > 0 ? (
+                  <div className={styles.grid}>
+                    {filteredBlocks.map((block) => (
+                      <BlockRenderer key={block.id} block={block} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <Caption1>No items matching &quot;{searchQuery}&quot; in this section.</Caption1>
+                  </div>
+                )}
+              </AccordionPanel>
+            </AccordionItem>
           );
         })}
-      </div>
+      </Accordion>
     </div>
   );
 };

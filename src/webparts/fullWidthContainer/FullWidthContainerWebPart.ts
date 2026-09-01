@@ -16,7 +16,7 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import FullWidthContainer from './components/FullWidthContainer';
+import { FullWidthContainer } from './components/FullWidthContainer';
 import { IFullWidthContainerProps } from './components/IFullWidthContainerProps';
 import {
   DEFAULT_CONTAINER_SECTIONS,
@@ -39,6 +39,7 @@ export interface IFullWidthContainerWebPartProps {
 
 export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFullWidthContainerWebPartProps> {
   private _isDarkTheme: boolean = false;
+  private _currentTheme: IReadonlyTheme | undefined;
 
   public render(): void {
     let activeSections: IContainerSection[] = DEFAULT_CONTAINER_SECTIONS;
@@ -68,7 +69,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         showSearch: this.properties.showSearch !== false,
         sections: activeSections,
         isDarkTheme: this._isDarkTheme,
-        userDisplayName: this.context.pageContext.user.displayName
+        userDisplayName: this.context.pageContext.user.displayName,
+        spfxTheme: this._currentTheme
       }
     );
 
@@ -80,6 +82,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       return;
     }
 
+    this._currentTheme = currentTheme;
     const theme = currentTheme as IReadonlyTheme & { isInverted?: boolean };
     this._isDarkTheme = !!theme.isInverted;
     const semanticColors = currentTheme.semanticColors;
@@ -89,6 +92,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.domElement.style.setProperty('--link', semanticColors.link || null);
       this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
     }
+
+    this.render();
   }
 
   protected onDispose(): void {
