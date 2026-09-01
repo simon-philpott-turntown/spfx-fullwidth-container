@@ -208,3 +208,105 @@ export const DEFAULT_CONTAINER_SECTIONS: IContainerSection[] = [
     ]
   }
 ];
+
+export const PRESET_TEMPLATES: Record<string, { name: string; sections: IContainerSection[] }> = {
+  commercial: {
+    name: 'Commercial & Financial Hub (Default - GBP)',
+    sections: DEFAULT_CONTAINER_SECTIONS
+  },
+  governance: {
+    name: 'Assurance & Governance Portal',
+    sections: [
+      {
+        id: 'sec-gov-1',
+        title: 'Policy Frameworks',
+        iconName: 'Shield',
+        badge: 'P0 Core',
+        description: 'Mandatory statutory requirements and enterprise standards.',
+        blocks: [
+          {
+            id: 'blk-g-1',
+            type: 'card',
+            title: 'ISO 27001 Information Security',
+            description: 'Data classification guidelines, access governance, and incident protocols.',
+            badge: 'Mandatory',
+            iconName: 'Lock',
+            linkText: 'Open Policy',
+            linkUrl: '#',
+            tags: ['Security', 'ISO']
+          },
+          {
+            id: 'blk-g-2',
+            type: 'metric',
+            title: 'Audit Compliance Score',
+            metricValue: '99.4%',
+            metricTrend: '+0.8% YoY',
+            metricTrendPositive: true,
+            description: 'Year-to-date compliance rating across all live business units'
+          }
+        ]
+      },
+      {
+        id: 'sec-gov-2',
+        title: 'Risk Registers & Audits',
+        iconName: 'ComplianceAudit',
+        badge: 'Real-time',
+        description: 'Live mitigation tracking and scheduled assurance reviews.',
+        blocks: [
+          {
+            id: 'blk-r-1',
+            type: 'card',
+            title: 'Q1 Enterprise Risk Matrix',
+            description: 'Active commercial, operational, and supply chain risk registers.',
+            badge: 'Q1 2026',
+            linkText: 'View Matrix',
+            linkUrl: '#',
+            tags: ['Risk', 'Governance']
+          }
+        ]
+      }
+    ]
+  },
+  starter: {
+    name: 'Blank 2-Section Starter',
+    sections: [
+      {
+        id: 'sec-start-1',
+        title: 'Overview & Guidance',
+        iconName: 'BookAnswers',
+        badge: 'Core',
+        description: 'Add your custom guidelines and cards here.',
+        blocks: [
+          {
+            id: 'blk-s-1',
+            type: 'card',
+            title: 'Welcome to your Container',
+            description: 'Use the SharePoint properties sidebar on the right to edit sections, badges, and card items.',
+            badge: 'Getting Started',
+            linkText: 'Learn More',
+            linkUrl: '#',
+            tags: ['Guide']
+          }
+        ]
+      },
+      {
+        id: 'sec-start-2',
+        title: 'Key Statistics (£)',
+        iconName: 'Financial',
+        badge: 'Live',
+        description: 'Key performance indicators in GBP.',
+        blocks: [
+          {
+            id: 'blk-s-2',
+            type: 'metric',
+            title: 'Target Delivery Budget',
+            metricValue: '£500,000',
+            metricTrend: 'On target',
+            metricTrendPositive: true,
+            description: 'Configurable directly in the properties sidebar'
+          }
+        ]
+      }
+    ]
+  }
+};

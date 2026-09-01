@@ -17,5 +17,7 @@ export interface IFullWidthContainerProps {
   sections: IContainerSection[];
   isDarkTheme: boolean;
   userDisplayName: string;
-  spfxTheme?: any;
+  spfxTheme?: unknown;
+  isEditMode?: boolean;
+  onOpenPropertyPane?: () => void;
 }

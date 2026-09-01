@@ -17,6 +17,9 @@ import {
   Tab,
   Title1,
   Subtitle2,
+  Badge,
+  Button,
+  Text,
   makeStyles,
   shorthands,
   tokens
@@ -74,6 +77,22 @@ const useStyles = makeStyles({
   modeSwitcher: {
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
     backgroundColor: tokens.colorNeutralBackground3
+  },
+  editBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
+    backgroundColor: tokens.colorBrandBackground2,
+    ...shorthands.border('1px', 'dashed', tokens.colorBrandStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.gap(tokens.spacingHorizontalM)
+  },
+  editBannerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.spacingHorizontalS)
   }
 });
 
@@ -86,7 +105,9 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     showSearch,
     sections,
     isDarkTheme,
-    spfxTheme
+    spfxTheme,
+    isEditMode,
+    onOpenPropertyPane
   } = props;
 
   const styles = useStyles();
@@ -108,6 +129,27 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
   return (
     <FluentProvider theme={fluentTheme} className={styles.root}>
       <div className={`${styles.inner} ${compactPadding ? styles.innerCompact : ''}`}>
+        {/* Edit Mode Helper Notification Bar */}
+        {isEditMode && (
+          <div className={styles.editBanner}>
+            <div className={styles.editBannerLeft}>
+              <Badge appearance="filled" color="brand">SharePoint Edit Mode</Badge>
+              <Text size={200} style={{ color: tokens.colorNeutralForeground2 }}>
+                Customise content sections, badges, British metrics (£), and layout in the properties sidebar.
+              </Text>
+            </div>
+            {onOpenPropertyPane && (
+              <Button
+                size="small"
+                appearance="outline"
+                onClick={onOpenPropertyPane}
+              >
+                Open Properties Sidebar
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Header with Title & Controls */}
         <div className={styles.header}>
           <div className={styles.headerTextCol}>

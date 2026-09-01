@@ -47,10 +47,11 @@
     {
       "id": "FEAT-005",
       "name": "PropertyPaneCustomisation",
-      "description": "Intuitive SharePoint property pane controls for title, container theme, layout mode, search toggle, and sample data presets.",
+      "description": "Comprehensive 3-page interactive SharePoint properties sidebar for configuring layout, sections, badges (Core, Real-time, Interactive, etc.), British financial metrics (£), cards, and presets in Edit Mode.",
       "status": "Active",
       "implementedIn": [
-        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx"
       ]
     }
   ]

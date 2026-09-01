@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SharePoint Full-Width Container — Fluent UI 2</title>
+  <title>SharePoint Full-Width Container — Fluent UI 2 & Property Sidebar</title>
   <!-- React 17 & ReactDOM -->
   <script src="https://unpkg.com/react@17.0.2/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js" crossorigin></script>
-  <!-- FontAwesome for preview icons -->
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
     :root {
-      /* Fluent 2 Design Tokens (Light Theme) */
       --fui-colorNeutralBackground1: #ffffff;
       --fui-colorNeutralBackground2: #fafafa;
       --fui-colorNeutralBackground3: #f5f5f5;
+      --fui-colorNeutralBackground4: #ebebeb;
       --fui-colorNeutralForeground1: #242424;
       --fui-colorNeutralForeground2: #424242;
       --fui-colorNeutralForeground3: #616161;
@@ -35,6 +35,7 @@
       --fui-borderRadiusCircular: 9999px;
       --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
       --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.14);
+      --fui-shadow16: 0 0 2px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.14);
       --fui-fontFamily: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -42,6 +43,7 @@
       --fui-colorNeutralBackground1: #1f1f1f;
       --fui-colorNeutralBackground2: #141414;
       --fui-colorNeutralBackground3: #292929;
+      --fui-colorNeutralBackground4: #333333;
       --fui-colorNeutralForeground1: #ffffff;
       --fui-colorNeutralForeground2: #d6d6d6;
       --fui-colorNeutralForeground3: #adadad;
@@ -57,49 +59,174 @@
       --fui-colorSuccessForeground1: #54b054;
       --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.28), 0 2px 4px rgba(0, 0, 0, 0.32);
       --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.28), 0 4px 8px rgba(0, 0, 0, 0.32);
+      --fui-shadow16: 0 0 2px rgba(0, 0, 0, 0.35), 0 8px 16px rgba(0, 0, 0, 0.35);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: var(--fui-fontFamily);
       background-color: var(--fui-colorNeutralBackground2);
       color: var(--fui-colorNeutralForeground1);
       min-height: 100vh;
+      overflow-x: hidden;
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
+    /* SharePoint Shell Top Navigation */
     .sp-header {
       background-color: var(--fui-colorNeutralBackground1);
       border-bottom: 1px solid var(--fui-colorNeutralStroke2);
-      padding: 1rem 2rem;
+      padding: 0.75rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--fui-shadow4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .sp-badge {
-      background-color: var(--fui-colorBrandBackground2);
-      color: var(--fui-colorBrandForeground1);
-      border: 1px solid var(--fui-colorBrandStroke1);
-      padding: 4px 10px;
-      border-radius: var(--fui-borderRadiusCircular);
+    .sp-btn {
+      background-color: var(--fui-colorBrandBackground);
+      color: #fff;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: var(--fui-borderRadiusMedium);
+      font-family: var(--fui-fontFamily);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.15s ease;
+    }
+
+    .sp-btn:hover { opacity: 0.9; }
+
+    .sp-btn-secondary {
+      background-color: var(--fui-colorNeutralBackground3);
+      color: var(--fui-colorNeutralForeground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+    }
+
+    /* Main Layout with Property Pane Sidebar */
+    .main-workspace {
+      display: flex;
+      width: 100%;
+      min-height: calc(100vh - 60px);
+      position: relative;
+    }
+
+    .page-canvas {
+      flex: 1;
+      min-width: 0;
+      transition: margin-right 0.25s ease;
+    }
+
+    /* Property Pane Sidebar */
+    .sp-property-pane {
+      width: 360px;
+      background-color: var(--fui-colorNeutralBackground1);
+      border-left: 1px solid var(--fui-colorNeutralStroke1);
+      box-shadow: var(--fui-shadow16);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px);
+      position: sticky;
+      top: 60px;
+      overflow-y: auto;
+      z-index: 90;
+      transition: transform 0.25s ease;
+    }
+
+    .pane-header {
+      padding: 1.25rem 1rem 0.75rem 1rem;
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .pane-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fui-colorNeutralForeground1);
+    }
+
+    .pane-desc {
+      font-size: 0.8rem;
+      color: var(--fui-colorNeutralForeground3);
+      margin-top: 0.2rem;
+    }
+
+    .pane-nav {
+      display: flex;
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
+      background-color: var(--fui-colorNeutralBackground3);
+    }
+
+    .pane-nav-tab {
+      flex: 1;
+      padding: 0.6rem 0.5rem;
+      border: none;
+      background: transparent;
       font-size: 0.8rem;
       font-weight: 600;
+      color: var(--fui-colorNeutralForeground2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      text-align: center;
     }
 
-    /* FULL WIDTH CONTAINER (Full Bleed) */
-    .sp-full-bleed-container {
-      width: 100%;
-      background-color: var(--fui-colorNeutralBackground2);
-      box-sizing: border-box;
+    .pane-nav-tab.active {
+      background-color: var(--fui-colorNeutralBackground1);
+      color: var(--fui-colorBrandForeground1);
+      border-bottom-color: var(--fui-colorBrandBackground);
     }
 
+    .pane-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--fui-colorNeutralForeground2);
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusSmall);
+      padding: 0.45rem 0.6rem;
+      font-family: var(--fui-fontFamily);
+      font-size: 0.85rem;
+      color: var(--fui-colorNeutralForeground1);
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--fui-colorBrandBackground);
+    }
+
+    .form-switch {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Container Web Part Elements */
     .fui-root {
       width: 100%;
       padding: 2rem;
@@ -109,7 +236,18 @@
       gap: 1.5rem;
     }
 
-    /* Fluent 2 Header */
+    .edit-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background-color: var(--fui-colorBrandBackground2);
+      border: 1px dashed var(--fui-colorBrandStroke1);
+      border-radius: var(--fui-borderRadiusMedium);
+      font-size: 0.85rem;
+      gap: 1rem;
+    }
+
     .fui-header {
       display: flex;
       flex-direction: column;
@@ -144,7 +282,6 @@
       flex-wrap: wrap;
     }
 
-    /* Fluent 2 Input */
     .fui-input-box {
       position: relative;
       display: flex;
@@ -161,13 +298,10 @@
       font-family: var(--fui-fontFamily);
       font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.15s ease;
       min-width: 220px;
     }
 
-    .fui-input:focus {
-      border-bottom-color: var(--fui-colorBrandBackground);
-    }
+    .fui-input:focus { border-bottom-color: var(--fui-colorBrandBackground); }
 
     .fui-input-icon {
       position: absolute;
@@ -177,7 +311,6 @@
       pointer-events: none;
     }
 
-    /* Fluent 2 Mode Switcher TabList */
     .fui-mode-tabs {
       display: flex;
       background-color: var(--fui-colorNeutralBackground3);
@@ -207,7 +340,6 @@
       box-shadow: var(--fui-shadow4);
     }
 
-    /* Fluent 2 Navigation TabList */
     .fui-tablist {
       display: flex;
       gap: 0.5rem;
@@ -233,16 +365,27 @@
       transition: all 0.15s ease;
     }
 
-    .fui-tab:hover {
-      color: var(--fui-colorNeutralForeground1);
-    }
+    .fui-tab:hover { color: var(--fui-colorNeutralForeground1); }
 
     .fui-tab.active {
       color: var(--fui-colorBrandForeground1);
       border-bottom-color: var(--fui-colorBrandBackground);
     }
 
-    /* Fluent 2 Card Grid */
+    .fui-badge {
+      background-color: var(--fui-colorBrandBackground2);
+      color: var(--fui-colorBrandForeground1);
+      padding: 2px 8px;
+      border-radius: var(--fui-borderRadiusSmall);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .fui-badge-success {
+      background-color: var(--fui-colorSuccessBackground1);
+      color: var(--fui-colorSuccessForeground1);
+    }
+
     .fui-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -250,7 +393,6 @@
       width: 100%;
     }
 
-    /* Fluent 2 Card Component */
     .fui-card {
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
@@ -288,21 +430,6 @@
       font-size: 1.1rem;
     }
 
-    /* Fluent 2 Badge */
-    .fui-badge {
-      background-color: var(--fui-colorBrandBackground2);
-      color: var(--fui-colorBrandForeground1);
-      padding: 2px 8px;
-      border-radius: var(--fui-borderRadiusSmall);
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .fui-badge-success {
-      background-color: var(--fui-colorSuccessBackground1);
-      color: var(--fui-colorSuccessForeground1);
-    }
-
     .fui-card-title {
       font-size: 1.1rem;
       font-weight: 600;
@@ -333,7 +460,6 @@
       font-size: 0.75rem;
     }
 
-    /* Fluent 2 Button */
     .fui-btn-subtle {
       background: transparent;
       border: none;
@@ -356,7 +482,6 @@
       background-color: var(--fui-colorNeutralBackground3);
     }
 
-    /* Fluent 2 Metric Card (£) */
     .fui-metric-value {
       font-size: 2rem;
       font-weight: 700;
@@ -372,7 +497,6 @@
       margin-bottom: 0.75rem;
     }
 
-    /* Fluent 2 Accordion Component */
     .fui-accordion-item {
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
@@ -395,79 +519,168 @@
       text-align: left;
     }
 
-    .fui-accordion-header:hover {
-      background-color: var(--fui-colorNeutralBackground3);
-    }
-
-    .fui-accordion-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .fui-accordion-header:hover { background-color: var(--fui-colorNeutralBackground3); }
 
     .fui-accordion-panel {
       padding: 1.25rem;
       border-top: 1px solid var(--fui-colorNeutralStroke2);
       background-color: var(--fui-colorNeutralBackground2);
     }
-
-    .fui-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
-      margin-bottom: 1rem;
-      color: var(--fui-colorNeutralForeground3);
-      font-size: 0.85rem;
-    }
-
-    .theme-toggle-btn {
-      background: transparent;
-      border: 1px solid var(--fui-colorNeutralStroke1);
-      border-radius: var(--fui-borderRadiusMedium);
-      padding: 0.4rem 0.75rem;
-      color: var(--fui-colorNeutralForeground1);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
   </style>
 </head>
 <body>
 
-  <!-- SharePoint Site Header Simulation -->
+  <!-- SharePoint Top Bar with Edit Toggle -->
   <div class="sp-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-      <i class="fa-solid fa-shapes" style="font-size: 1.5rem; color: var(--fui-colorBrandBackground);"></i>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <i class="fa-solid fa-shapes" style="font-size: 1.4rem; color: var(--fui-colorBrandBackground);"></i>
       <div>
-        <h2 style="font-size: 1.15rem; font-weight: 600;">SharePoint Online — Modern Communication Site</h2>
-        <p style="font-size: 0.85rem; color: var(--fui-colorNeutralForeground3);">Fluent UI 2 (@fluentui/react-components) Full-Width Section</p>
+        <div style="font-size: 0.95rem; font-weight: 600;">SharePoint Online — Commercial Advisory Hub</div>
+        <div style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground3);">Full-Width Section Container • Microsoft Fluent UI 2</div>
       </div>
     </div>
-    <div style="display: flex; gap: 0.75rem; align-items: center;">
-      <button class="theme-toggle-btn" id="btn-theme-toggle" onclick="toggleTheme()">
-        <i class="fa-solid fa-circle-half-stroke"></i>
-        <span>Toggle Theme</span>
+
+    <div style="display: flex; gap: 0.6rem; align-items: center;">
+      <button class="sp-btn sp-btn-secondary" id="btn-theme-toggle" onclick="toggleTheme()">
+        <i class="fa-solid fa-circle-half-stroke"></i> Theme
       </button>
-      <span class="sp-badge">Fluent 2 Active</span>
+      <button class="sp-btn" id="btn-edit-toggle" onclick="toggleEditMode()">
+        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-mode-label">Edit Page</span>
+      </button>
     </div>
   </div>
 
-  <!-- Full Width SharePoint Section -->
-  <div class="sp-full-bleed-container">
-    <div id="spfx-root"></div>
+  <!-- Main Container Workspace with Property Pane Sidebar -->
+  <div class="main-workspace">
+    <div class="page-canvas">
+      <div id="spfx-root"></div>
+    </div>
+
+    <!-- Properties Sidebar Simulation -->
+    <div class="sp-property-pane" id="property-pane">
+      <div class="pane-header">
+        <div>
+          <div class="pane-title">Container Properties</div>
+          <div class="pane-desc">Full-Width Section Configuration</div>
+        </div>
+        <button class="fui-btn-subtle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- 3-Page Navigation -->
+      <div class="pane-nav">
+        <button class="pane-nav-tab active" id="tab-p1" onclick="setPanePage(1)">1. Layout</button>
+        <button class="pane-nav-tab" id="tab-p2" onclick="setPanePage(2)">2. Sections</button>
+        <button class="pane-nav-tab" id="tab-p3" onclick="setPanePage(3)">3. Cards (£)</button>
+      </div>
+
+      <!-- Page 1: Layout -->
+      <div class="pane-body" id="pane-page-1">
+        <div class="form-group">
+          <label class="form-label">Container Title</label>
+          <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Interactive Content Hub" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subtitle / Description</label>
+          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)">Centralised operational methodologies, metrics, and resources</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Default Layout Mode</label>
+          <select class="form-select" id="sel-layout" onchange="updateLayoutMode(this.value)">
+            <option value="tabs">Tabbed View (Pill & Indicator)</option>
+            <option value="accordion">Accordion View (Collapsible Panels)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quick Preset Template</label>
+          <select class="form-select" id="sel-preset" onchange="loadPreset(this.value)">
+            <option value="commercial">Commercial & Financial Hub (GBP £)</option>
+            <option value="governance">Assurance & Governance Portal</option>
+            <option value="starter">Blank 2-Section Starter</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Page 2: Sections & Badges -->
+      <div class="pane-body" id="pane-page-2" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Select Section to Edit</label>
+          <select class="form-select" id="sel-section" onchange="selectSection(this.value)"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section Title</label>
+          <input type="text" class="form-input" id="inp-sec-title" oninput="updateSecTitle(this.value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section Type / Badge</label>
+          <select class="form-select" id="sel-sec-badge" onchange="updateSecBadge(this.value)">
+            <option value="Core">Core (Standard)</option>
+            <option value="Real-time">Real-time (Live Feed)</option>
+            <option value="Interactive">Interactive (Tool / Portal)</option>
+            <option value="Compliance">Compliance / Mandatory</option>
+            <option value="Finance">Finance / Metrics (£)</option>
+            <option value="Verified">Verified Standards</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section Guidance / Subtitle</label>
+          <textarea class="form-textarea" id="inp-sec-desc" rows="2" oninput="updateSecDesc(this.value)"></textarea>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <button class="sp-btn" style="flex: 1;" onclick="addSection()">+ Add Section</button>
+          <button class="sp-btn sp-btn-secondary" onclick="deleteSection()">Delete</button>
+        </div>
+      </div>
+
+      <!-- Page 3: Cards & Financial Metrics -->
+      <div class="pane-body" id="pane-page-3" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Target Section</label>
+          <select class="form-select" id="sel-card-sec" onchange="selectCardSection(this.value)"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Item to Edit</label>
+          <select class="form-select" id="sel-card-idx" onchange="selectCard(this.value)"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Item Type</label>
+          <select class="form-select" id="sel-card-type" onchange="updateCardType(this.value)">
+            <option value="card">Standard Card with Action Link</option>
+            <option value="metric">Financial Metric Stat (£)</option>
+            <option value="embed">Embedded Tool / Portal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Item Title</label>
+          <input type="text" class="form-input" id="inp-card-title" oninput="updateCardTitle(this.value)" />
+        </div>
+        <div class="form-group" id="grp-card-metric" style="display: none;">
+          <label class="form-label">Metric Value in GBP (£)</label>
+          <input type="text" class="form-input" id="inp-card-metric-val" placeholder="e.g. £1,420,000" oninput="updateCardMetricVal(this.value)" />
+        </div>
+        <div class="form-group" id="grp-card-trend" style="display: none;">
+          <label class="form-label">Metric Trend</label>
+          <input type="text" class="form-input" id="inp-card-metric-trend" placeholder="e.g. +18.4% ahead of target" oninput="updateCardMetricTrend(this.value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Badge Label</label>
+          <input type="text" class="form-input" id="inp-card-badge" placeholder="e.g. P1 Mandatory, Live" oninput="updateCardBadge(this.value)" />
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <button class="sp-btn" style="flex: 1;" onclick="addCard()">+ Add Card</button>
+          <button class="sp-btn sp-btn-secondary" onclick="deleteCard()">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    function toggleTheme() {
-      document.body.classList.toggle('dark-mode');
-    }
-
-    const defaultSections = [
+    let isEditMode = true;
+    let isSidebarOpen = true;
+    let currentSections = [
       {
         id: 'sec-playbooks',
         title: 'Playbooks & Guidance',
@@ -490,7 +703,7 @@
             id: 'blk-2',
             type: 'metric',
             title: 'Q1 Programme Expenditure',
-            description: 'Total approved commercial capital burn-down in current quarter.',
+            description: 'Total approved commercial capital burn-down in current quarter in GBP.',
             metricValue: '£1,420,000',
             metricTrend: '+6.2% vs baseline',
             tags: ['Budget', 'GBP', 'Finance']
@@ -577,31 +790,238 @@
       }
     ];
 
+    let state = {
+      title: 'Interactive Content Hub',
+      subtitle: 'Centralised operational methodologies, metrics, and resources',
+      layoutMode: 'tabs',
+      activeTabId: 'sec-playbooks',
+      searchQuery: '',
+      activeSecIdx: 0,
+      activeCardSecIdx: 0,
+      activeCardIdx: 0
+    };
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      document.getElementById('edit-mode-label').textContent = isEditMode ? 'Exit Edit' : 'Edit Page';
+      document.getElementById('property-pane').style.display = isEditMode ? 'flex' : 'none';
+      render();
+    }
+
+    function toggleSidebar() {
+      isSidebarOpen = !isSidebarOpen;
+      document.getElementById('property-pane').style.display = isSidebarOpen ? 'flex' : 'none';
+    }
+
+    function setPanePage(page) {
+      document.getElementById('pane-page-1').style.display = page === 1 ? 'flex' : 'none';
+      document.getElementById('pane-page-2').style.display = page === 2 ? 'flex' : 'none';
+      document.getElementById('pane-page-3').style.display = page === 3 ? 'flex' : 'none';
+      document.getElementById('tab-p1').classList.toggle('active', page === 1);
+      document.getElementById('tab-p2').classList.toggle('active', page === 2);
+      document.getElementById('tab-p3').classList.toggle('active', page === 3);
+      syncSidebar();
+    }
+
+    function updateTitle(val) { state.title = val; render(); }
+    function updateSubtitle(val) { state.subtitle = val; render(); }
+    function updateLayoutMode(val) { state.layoutMode = val; render(); }
+
+    function syncSidebar() {
+      // Sync Section Dropdown
+      const selSec = document.getElementById('sel-section');
+      selSec.innerHTML = '';
+      currentSections.forEach((s, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${s.title} (${s.badge || 'Section'})`;
+        selSec.appendChild(opt);
+      });
+      selSec.value = state.activeSecIdx;
+
+      const curSec = currentSections[state.activeSecIdx] || currentSections[0];
+      if (curSec) {
+        document.getElementById('inp-sec-title').value = curSec.title || '';
+        document.getElementById('sel-sec-badge').value = curSec.badge || 'Core';
+        document.getElementById('inp-sec-desc').value = curSec.description || '';
+      }
+
+      // Sync Card Target Section & Cards
+      const selCardSec = document.getElementById('sel-card-sec');
+      selCardSec.innerHTML = '';
+      currentSections.forEach((s, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${s.title}`;
+        selCardSec.appendChild(opt);
+      });
+      selCardSec.value = state.activeCardSecIdx;
+
+      const targetSec = currentSections[state.activeCardSecIdx] || currentSections[0];
+      const selCardIdx = document.getElementById('sel-card-idx');
+      selCardIdx.innerHTML = '';
+      if (targetSec && targetSec.blocks) {
+        targetSec.blocks.forEach((b, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `${idx + 1}. ${b.title} [${b.type}]`;
+          selCardIdx.appendChild(opt);
+        });
+        selCardIdx.value = state.activeCardIdx;
+
+        const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
+        if (curCard) {
+          document.getElementById('sel-card-type').value = curCard.type || 'card';
+          document.getElementById('inp-card-title').value = curCard.title || '';
+          document.getElementById('inp-card-desc').value = curCard.description || '';
+          document.getElementById('inp-card-badge').value = curCard.badge || '';
+          document.getElementById('inp-card-metric-val').value = curCard.metricValue || '';
+          document.getElementById('inp-card-metric-trend').value = curCard.metricTrend || '';
+          
+          const isMetric = curCard.type === 'metric';
+          document.getElementById('grp-card-metric').style.display = isMetric ? 'flex' : 'none';
+          document.getElementById('grp-card-trend').style.display = isMetric ? 'flex' : 'none';
+        }
+      }
+    }
+
+    function selectSection(idx) { state.activeSecIdx = Number(idx); syncSidebar(); }
+    function updateSecTitle(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].title = val; render(); }
+    function updateSecBadge(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].badge = val; render(); }
+    function updateSecDesc(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].description = val; render(); }
+
+    function addSection() {
+      const newSec = {
+        id: 'sec-' + Date.now(),
+        title: 'New Section ' + (currentSections.length + 1),
+        iconName: 'fa-folder',
+        badge: 'Core',
+        description: 'New section description',
+        blocks: [
+          {
+            id: 'blk-' + Date.now(),
+            type: 'card',
+            title: 'Sample Card',
+            description: 'Customise this item in Page 3',
+            badge: 'New',
+            actionText: 'Open',
+            actionUrl: '#'
+          }
+        ]
+      };
+      currentSections.push(newSec);
+      state.activeSecIdx = currentSections.length - 1;
+      state.activeTabId = newSec.id;
+      syncSidebar();
+      render();
+    }
+
+    function deleteSection() {
+      if (currentSections.length <= 1) return;
+      currentSections.splice(state.activeSecIdx, 1);
+      state.activeSecIdx = Math.max(0, state.activeSecIdx - 1);
+      state.activeTabId = currentSections[0].id;
+      syncSidebar();
+      render();
+    }
+
+    function selectCardSection(idx) {
+      state.activeCardSecIdx = Number(idx);
+      state.activeCardIdx = 0;
+      syncSidebar();
+    }
+
+    function selectCard(idx) {
+      state.activeCardIdx = Number(idx);
+      syncSidebar();
+    }
+
+    function updateCardType(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].type = val;
+        syncSidebar();
+        render();
+      }
+    }
+
+    function updateCardTitle(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].title = val;
+        render();
+      }
+    }
+
+    function updateCardMetricVal(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].metricValue = val;
+        render();
+      }
+    }
+
+    function updateCardMetricTrend(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].metricTrend = val;
+        render();
+      }
+    }
+
+    function updateCardDesc(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].description = val;
+        render();
+      }
+    }
+
+    function updateCardBadge(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].badge = val;
+        render();
+      }
+    }
+
+    function addCard() {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (!targetSec) return;
+      const newCard = {
+        id: 'blk-' + Date.now(),
+        type: 'card',
+        title: 'New Card ' + (targetSec.blocks.length + 1),
+        description: 'Card description in GBP (£)',
+        badge: 'Live',
+        actionText: 'View Details',
+        actionUrl: '#'
+      };
+      targetSec.blocks.push(newCard);
+      state.activeCardIdx = targetSec.blocks.length - 1;
+      syncSidebar();
+      render();
+    }
+
+    function deleteCard() {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (!targetSec || targetSec.blocks.length <= 1) return;
+      targetSec.blocks.splice(state.activeCardIdx, 1);
+      state.activeCardIdx = Math.max(0, state.activeCardIdx - 1);
+      syncSidebar();
+      render();
+    }
+
     function App() {
-      const [layoutMode, setLayoutMode] = React.useState('tabs');
-      const [activeTabId, setActiveTabId] = React.useState('sec-playbooks');
-      const [searchQuery, setSearchQuery] = React.useState('');
-      const [openAccordionIds, setOpenAccordionIds] = React.useState({ 'sec-playbooks': true });
-
-      const toggleAccordion = (id) => {
-        setOpenAccordionIds(prev => ({ ...prev, [id]: !prev[id] }));
-      };
-
-      const expandAll = () => {
-        const all = {};
-        defaultSections.forEach(s => all[s.id] = true);
-        setOpenAccordionIds(all);
-      };
-
-      const collapseAll = () => {
-        setOpenAccordionIds({});
-      };
-
-      const activeSection = defaultSections.find(s => s.id === activeTabId) || defaultSections[0];
+      const activeSection = currentSections.find(s => s.id === state.activeTabId) || currentSections[0];
 
       const filterBlocks = (blocks) => {
-        if (!searchQuery.trim()) return blocks;
-        const q = searchQuery.toLowerCase().trim();
+        if (!state.searchQuery.trim()) return blocks;
+        const q = state.searchQuery.toLowerCase().trim();
         return blocks.filter(b => 
           b.title.toLowerCase().includes(q) ||
           (b.description && b.description.toLowerCase().includes(q)) ||
@@ -611,53 +1031,61 @@
       };
 
       return React.createElement('div', { className: 'fui-root' },
+        // Edit Mode Banner
+        isEditMode ? React.createElement('div', { className: 'edit-banner' },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
+            React.createElement('span', { className: 'fui-badge', style: { backgroundColor: 'var(--fui-colorBrandBackground)', color: '#fff' } }, 'SharePoint Edit Mode'),
+            React.createElement('span', null, 'Authoring active: Customise sections, cards, British metrics (£), and layout in the sidebar.')
+          ),
+          React.createElement('button', {
+            className: 'fui-btn-subtle',
+            style: { border: '1px solid var(--fui-colorBrandStroke1)', padding: '0.3rem 0.6rem' },
+            onClick: () => { document.getElementById('property-pane').style.display = 'flex'; }
+          }, React.createElement('i', { className: 'fa-solid fa-sliders' }), ' Open Sidebar')
+        ) : null,
+
         // Header
         React.createElement('div', { className: 'fui-header' },
           React.createElement('div', null,
-            React.createElement('h1', { className: 'fui-title' }, 'Interactive Content Hub'),
-            React.createElement('p', { className: 'fui-subtitle' }, 'Built entirely using Microsoft Fluent UI 2 (@fluentui/react-components) with native SharePoint theme inheritance')
+            React.createElement('h1', { className: 'fui-title' }, state.title),
+            React.createElement('p', { className: 'fui-subtitle' }, state.subtitle)
           ),
           React.createElement('div', { className: 'fui-controls' },
-            // Fluent 2 Input
+            // Search Box
             React.createElement('div', { className: 'fui-input-box' },
               React.createElement('i', { className: 'fa-solid fa-magnifying-glass fui-input-icon' }),
               React.createElement('input', {
                 type: 'text',
                 className: 'fui-input',
                 placeholder: 'Filter items, tags, GBP...',
-                value: searchQuery,
-                onChange: (e) => setSearchQuery(e.target.value)
+                value: state.searchQuery,
+                onChange: (e) => { state.searchQuery = e.target.value; render(); }
               })
             ),
-            // Fluent 2 Layout Switcher
+            // Layout Switcher
             React.createElement('div', { className: 'fui-mode-tabs' },
               React.createElement('button', {
-                id: 'btn-mode-tabs',
-                className: 'fui-mode-tab ' + (layoutMode === 'tabs' ? 'active' : ''),
-                onClick: () => setLayoutMode('tabs')
+                className: 'fui-mode-tab ' + (state.layoutMode === 'tabs' ? 'active' : ''),
+                onClick: () => { state.layoutMode = 'tabs'; render(); }
               }, React.createElement('i', { className: 'fa-solid fa-folder' }), 'Tabs'),
               React.createElement('button', {
-                id: 'btn-mode-accordion',
-                className: 'fui-mode-tab ' + (layoutMode === 'accordion' ? 'active' : ''),
-                onClick: () => setLayoutMode('accordion')
+                className: 'fui-mode-tab ' + (state.layoutMode === 'accordion' ? 'active' : ''),
+                onClick: () => { state.layoutMode = 'accordion'; render(); }
               }, React.createElement('i', { className: 'fa-solid fa-list' }), 'Accordion')
             )
           )
         ),
 
         // Tabs View
-        layoutMode === 'tabs' ? React.createElement('div', null,
-          React.createElement('div', { className: 'fui-tablist', role: 'tablist' },
-            defaultSections.map(sec => 
+        state.layoutMode === 'tabs' ? React.createElement('div', null,
+          React.createElement('div', { className: 'fui-tablist' },
+            currentSections.map(sec => 
               React.createElement('button', {
                 key: sec.id,
-                id: 'tab-' + sec.id,
-                className: 'fui-tab ' + (sec.id === activeTabId ? 'active' : ''),
-                onClick: () => setActiveTabId(sec.id),
-                role: 'tab',
-                'aria-selected': sec.id === activeTabId
+                className: 'fui-tab ' + (sec.id === state.activeTabId ? 'active' : ''),
+                onClick: () => { state.activeTabId = sec.id; render(); }
               },
-                React.createElement('i', { className: 'fa-solid ' + sec.iconName }),
+                React.createElement('i', { className: 'fa-solid ' + (sec.iconName || 'fa-folder') }),
                 React.createElement('span', null, sec.title),
                 sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
               )
@@ -684,7 +1112,7 @@
                   React.createElement('div', null,
                     React.createElement('div', { className: 'fui-card-header' },
                       React.createElement('div', { className: 'fui-icon-box' },
-                        React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                        React.createElement('i', { className: 'fa-solid ' + (block.iconName || 'fa-file-lines') })
                       ),
                       block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                     ),
@@ -694,8 +1122,8 @@
                       block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
                     )
                   ),
-                  React.createElement('a', { href: block.actionUrl, className: 'fui-btn-subtle' },
-                    block.actionText,
+                  React.createElement('a', { href: block.actionUrl || '#', className: 'fui-btn-subtle' },
+                    block.actionText || 'Open',
                     React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
                   )
                 )
@@ -706,50 +1134,28 @@
 
         // Accordion View
         React.createElement('div', null,
-          React.createElement('div', { className: 'fui-toolbar' },
-            React.createElement('span', null, defaultSections.length + ' Sections'),
-            React.createElement('div', { style: { display: 'flex', gap: '0.5rem' } },
-              React.createElement('button', { className: 'fui-btn-subtle', onClick: expandAll },
-                React.createElement('i', { className: 'fa-solid fa-angles-down' }), ' Expand All'
-              ),
-              React.createElement('button', { className: 'fui-btn-subtle', onClick: collapseAll },
-                React.createElement('i', { className: 'fa-solid fa-angles-up' }), ' Collapse All'
-              )
-            )
-          ),
-          defaultSections.map(sec => {
-            const isOpen = !!openAccordionIds[sec.id];
-            const blocks = filterBlocks(sec.blocks);
-            return React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
-              React.createElement('button', {
-                className: 'fui-accordion-header',
-                onClick: () => toggleAccordion(sec.id)
-              },
-                React.createElement('div', { className: 'fui-accordion-left' },
-                  React.createElement('i', { className: 'fa-solid ' + sec.iconName, style: { color: 'var(--fui-colorBrandForeground1)' } }),
+          currentSections.map(sec => 
+            React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
+              React.createElement('button', { className: 'fui-accordion-header' },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
+                  React.createElement('i', { className: 'fa-solid ' + (sec.iconName || 'fa-folder'), style: { color: 'var(--fui-colorBrandForeground1)' } }),
                   React.createElement('span', { style: { fontWeight: 600 } }, sec.title)
                 ),
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
                   sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge),
-                  React.createElement('i', {
-                    className: 'fa-solid fa-chevron-down',
-                    style: { transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }
-                  })
+                  React.createElement('i', { className: 'fa-solid fa-chevron-down' })
                 )
               ),
-              isOpen && React.createElement('div', { className: 'fui-accordion-panel' },
+              React.createElement('div', { className: 'fui-accordion-panel' },
                 React.createElement('div', { className: 'fui-grid' },
-                  blocks.map(block => 
+                  filterBlocks(sec.blocks).map(block => 
                     block.type === 'metric' ?
                     React.createElement('div', { key: block.id, className: 'fui-card' },
                       React.createElement('div', null,
                         React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
                         React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
                         React.createElement('div', { className: 'fui-metric-trend' },
-                          React.createElement('span', { className: 'fui-badge fui-badge-success' },
-                            React.createElement('i', { className: 'fa-solid fa-arrow-trend-up', style: { marginRight: '4px' } }),
-                            block.metricTrend
-                          )
+                          React.createElement('span', { className: 'fui-badge fui-badge-success' }, block.metricTrend)
                         ),
                         React.createElement('p', { className: 'fui-card-desc' }, block.description)
                       )
@@ -758,31 +1164,29 @@
                       React.createElement('div', null,
                         React.createElement('div', { className: 'fui-card-header' },
                           React.createElement('div', { className: 'fui-icon-box' },
-                            React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                            React.createElement('i', { className: 'fa-solid ' + (block.iconName || 'fa-file-lines') })
                           ),
                           block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                         ),
                         React.createElement('h3', { className: 'fui-card-title' }, block.title),
-                        React.createElement('p', { className: 'fui-card-desc' }, block.description),
-                        block.tags && React.createElement('div', { className: 'fui-card-tags' },
-                          block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
-                        )
-                      ),
-                      React.createElement('a', { href: block.actionUrl, className: 'fui-btn-subtle' },
-                        block.actionText,
-                        React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
+                        React.createElement('p', { className: 'fui-card-desc' }, block.description)
                       )
                     )
                   )
                 )
               )
-            );
-          })
+            )
+          )
         )
       );
     }
 
-    ReactDOM.render(React.createElement(App), document.getElementById('spfx-root'));
+    function render() {
+      ReactDOM.render(React.createElement(App), document.getElementById('spfx-root'));
+    }
+
+    syncSidebar();
+    render();
   </script>
 </body>
 </html>
