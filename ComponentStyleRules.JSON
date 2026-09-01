@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "designSystem": "Google Antigravity Premium (Glassmorphism)",
+  "tokens": {
+    "colors": {
+      "glassBackgroundLight": "rgba(255, 255, 255, 0.75)",
+      "glassBackgroundDark": "rgba(15, 23, 42, 0.75)",
+      "glassBorderLight": "rgba(255, 255, 255, 0.45)",
+      "glassBorderDark": "rgba(255, 255, 255, 0.12)",
+      "primaryAccent": "#0078d4",
+      "accentGlow": "rgba(0, 120, 212, 0.25)",
+      "textPrimaryLight": "#1e293b",
+      "textPrimaryDark": "#f8fafc",
+      "textMuted": "#64748b"
+    },
+    "effects": {
+      "backdropBlur": "blur(16px)",
+      "glassShadow": "0 8px 32px 0 rgba(0, 0, 0, 0.08)",
+      "cardHoverShadow": "0 14px 40px -8px rgba(0, 120, 212, 0.22)",
+      "borderRadii": {
+        "container": "16px",
+        "card": "12px",
+        "tabPill": "9999px",
+        "badge": "6px"
+      },
+      "transitions": {
+        "standard": "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+        "spring": "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)"
+      }
+    }
+  },
+  "components": {
+    "ContainerShell": {
+      "classes": ["fullWidthContainer", "glassContainer"],
+      "aesthetic": "Edge-to-edge full bleed container with subtle gradient border and backdrop blur."
+    },
+    "TabNavigation": {
+      "classes": ["tabNav", "tabButton", "tabButtonActive"],
+      "aesthetic": "Rounded pill tabs with active accent glow and active indicator."
+    },
+    "AccordionPanel": {
+      "classes": ["accordionItem", "accordionHeader", "accordionContent"],
+      "aesthetic": "Frosted glass collapsible cards with rotating chevron and smooth expansion."
+    },
+    "ContentCard": {
+      "classes": ["contentCard", "cardHeader", "cardBadge", "cardActionButton"],
+      "aesthetic": "Elevated glass card with hover lift, micro-animation, and direct CTA links."
+    },
+    "MetricStat": {
+      "classes": ["metricCard", "metricValue", "metricLabel"],
+      "aesthetic": "High-contrast statistic cards formatted with GBP (£) currency and percentage trends."
+    }
+  }
+}

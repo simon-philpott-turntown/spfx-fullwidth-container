@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "projectName": "spfx-fullwidth-container",
+  "description": "Full-width responsive container web part supporting tabs, accordions, and custom cards/embeds for SharePoint Online.",
+  "architecture": "SPFx v1.22+ Heft Toolchain with React and Fluent UI / Glassmorphism Design System",
+  "root": "d:/Playbook/spfx-fullwidth-container",
+  "modules": [
+    {
+      "name": "FullWidthContainerWebPart",
+      "path": "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+      "role": "Entrypoint SPFx WebPart class managing lifecycle, theme variants, property pane, and rendering React root."
+    },
+    {
+      "name": "FullWidthContainer",
+      "path": "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+      "role": "Root React container component handling state, layout switching (Tabs/Accordion), filtering, and search."
+    },
+    {
+      "name": "TabsContainer",
+      "path": "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+      "role": "Pill & underline tabbed navigation view with micro-animations and active indicators."
+    },
+    {
+      "name": "AccordionContainer",
+      "path": "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+      "role": "Collapsible accordion panels with smooth height transitions and multi/single expand modes."
+    },
+    {
+      "name": "BlockRenderer",
+      "path": "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+      "role": "Renders child content items (Rich Cards, Embeds/iFrames, Key Metrics in GBP £, Quick Links)."
+    },
+    {
+      "name": "ContainerModels",
+      "path": "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+      "role": "Type definitions for panels, tabs, items, layout configuration, and theme tokens."
+    },
+    {
+      "name": "Styles",
+      "path": "src/webparts/fullWidthContainer/components/FullWidthContainer.module.scss",
+      "role": "SCSS module delivering Antigravity Glassmorphism, backdrop filters, responsive grids, and dark/light tokens."
+    }
+  ]
+}

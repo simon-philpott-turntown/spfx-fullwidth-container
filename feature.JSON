@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "project": "spfx-fullwidth-container",
+  "version": "1.0.0",
+  "features": [
+    {
+      "id": "FEAT-001",
+      "name": "FullBleedLayout",
+      "description": "supportsFullBleed flag in manifest allowing seamless placement in full-width modern SharePoint section columns.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.manifest.json"
+      ]
+    },
+    {
+      "id": "FEAT-002",
+      "name": "DualLayoutModes",
+      "description": "Toggle dynamically between Tabbed View (pill/underline) and Accordion View (collapsible panels).",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx"
+      ]
+    },
+    {
+      "id": "FEAT-003",
+      "name": "ChildContentBlocks",
+      "description": "Configurable child content slots supporting Rich Cards, Embed/iFrame tools, British Metric Stats (£), and Quick Links.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts"
+      ]
+    },
+    {
+      "id": "FEAT-004",
+      "name": "GlassmorphismTheme",
+      "description": "Antigravity Google Premium aesthetic with translucent frosted glass, subtle borders, glowing accent pills, and dark/light adaptive tokens.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.module.scss",
+        "ComponentStyleRules.JSON"
+      ]
+    },
+    {
+      "id": "FEAT-005",
+      "name": "PropertyPaneCustomisation",
+      "description": "Intuitive SharePoint property pane controls for title, container theme, layout mode, search toggle, and sample data presets.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-fullwidth-container-client-side-solution",
+    "id": "c1cba106-4abf-4977-947a-99d7a695a96e",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-fullwidth-container description"
+      },
+      "longDescription": {
+        "default": "spfx-fullwidth-container description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-fullwidth-container Feature",
+        "description": "The feature that activates elements of the spfx-fullwidth-container solution.",
+        "id": "8f8d0922-3225-4af9-8d9f-d70c4755c4a4",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-fullwidth-container.sppkg"
+  }
+}

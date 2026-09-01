@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SharePoint Full-Width Container Web Part — Preview</title>
+  <!-- React 17 & ReactDOM -->
+  <script src="https://unpkg.com/react@17.0.2/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js" crossorigin></script>
+  <!-- Fluent UI React & Icons -->
+  <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.1.0/css/fabric.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <style>
+    :root {
+      --bodyText: #0f172a;
+      --link: #0078d4;
+      --linkHovered: #004578;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #f8fafc;
+      padding: 2rem 1rem;
+    }
+
+    .sp-page-header {
+      max-width: 1400px;
+      margin: 0 auto 2rem auto;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sp-badge {
+      background: rgba(0, 120, 212, 0.25);
+      border: 1px solid rgba(0, 120, 212, 0.5);
+      color: #38bdf8;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* FULL WIDTH CONTAINER SIMULATION (Full Bleed) */
+    .sp-canvas-full-bleed {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      overflow: hidden;
+    }
+
+    /* Glassmorphism Styles matching FullWidthContainer.module.scss */
+    .fw-root {
+      width: 100%;
+      padding: 2.5rem 3rem;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      color: #f8fafc;
+    }
+
+    .fw-header {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 768px) {
+      .fw-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+    }
+
+    .fw-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .fw-subtitle {
+      font-size: 1.05rem;
+      color: #94a3b8;
+      margin-top: 0.4rem;
+    }
+
+    .fw-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .fw-search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .fw-search-input {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      padding: 0.6rem 1rem 0.6rem 2.4rem;
+      color: #f8fafc;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 220px;
+    }
+
+    .fw-search-input:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+      width: 260px;
+    }
+
+    .fw-search-icon {
+      position: absolute;
+      left: 0.85rem;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .fw-mode-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      padding: 3px;
+    }
+
+    .fw-mode-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 0.45rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .fw-mode-btn.active {
+      background: #0078d4;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+    }
+
+    /* Tabs Styling */
+    .fw-tabs-nav {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.75rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      scrollbar-width: thin;
+    }
+
+    .fw-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fw-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .fw-tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 120, 212, 0.9) 0%, rgba(30, 58, 138, 0.9) 100%);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #ffffff;
+      box-shadow: 0 8px 20px -4px rgba(0, 120, 212, 0.5);
+    }
+
+    .fw-tab-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+
+    /* Grid & Cards */
+    .fw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .fw-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fw-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+
+    .fw-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .fw-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(0, 120, 212, 0.2);
+      border: 1px solid rgba(0, 120, 212, 0.4);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .fw-card-badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .fw-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 0.5rem;
+    }
+
+    .fw-card-desc {
+      font-size: 0.92rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .fw-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .fw-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .fw-card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: gap 0.2s ease;
+    }
+
+    .fw-card-action:hover {
+      gap: 0.75rem;
+      color: #7dd3fc;
+    }
+
+    /* Metric Cards £ */
+    .fw-metric-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .fw-metric-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin: 0.5rem 0 0.25rem 0;
+      letter-spacing: -0.02em;
+    }
+
+    .fw-metric-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4ade80;
+      margin-bottom: 1rem;
+    }
+
+    /* Accordion View */
+    .fw-accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .fw-accordion-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .fw-accordion-header {
+      width: 100%;
+      padding: 1.25rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: #f8fafc;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .fw-accordion-header:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .fw-accordion-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .fw-accordion-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .fw-accordion-content {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .fw-accordion-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.75rem;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .fw-toolbar-btn {
+      background: transparent;
+      border: none;
+      color: #38bdf8;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SharePoint Workbench Navigation Simulation -->
+  <div class="sp-page-header">
+    <div>
+      <h2>Microsoft SharePoint Modern Page</h2>
+      <p style="color: #94a3b8; font-size: 0.9rem;">Full-Bleed Zone Canvas with Glassmorphism Theme</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <span class="sp-badge">SPFx v1.23.2</span>
+      <span class="sp-badge" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #34d399;">Full-Width Bleed Active</span>
+    </div>
+  </div>
+
+  <!-- FULL BLEED CONTAINER MOUNT POINT -->
+  <div class="sp-canvas-full-bleed">
+    <div id="spfx-root"></div>
+  </div>
+
+  <script>
+    const defaultSections = [
+      {
+        id: 'sec-strategy',
+        title: 'Strategy & Governance',
+        description: 'Strategic frameworks, governance charters, and executive roadmaps.',
+        iconName: 'fa-chess-rook',
+        badge: 'Core',
+        blocks: [
+          {
+            id: 'blk-strat-1',
+            type: 'card',
+            title: 'Enterprise Architecture Framework',
+            description: 'Standard operating principles and architecture blueprint for scalable solutions.',
+            iconName: 'fa-layer-group',
+            badge: 'P1 Mandatory',
+            tags: ['Architecture', 'Governance', 'Best Practice'],
+            actionText: 'View Guidance',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-strat-2',
+            type: 'metric',
+            title: 'Q1 UK Operational Budget',
+            description: 'Total allocated financial expenditure for current financial quarter.',
+            metricValue: '£420,000',
+            metricDelta: '+8.4% YoY',
+            tags: ['Budget', 'GBP', 'Finance'],
+            actionText: 'View Ledger',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-strat-3',
+            type: 'card',
+            title: 'Policy Compliance Checklist',
+            description: 'Step-by-step verification checklist for ISO 27001 and Cyber Essentials Plus.',
+            iconName: 'fa-shield-halved',
+            badge: 'Audited',
+            tags: ['Security', 'Compliance', 'Audit'],
+            actionText: 'Open Checklist',
+            actionUrl: '#'
+          }
+        ]
+      },
+      {
+        id: 'sec-analytics',
+        title: 'Analytics & Financials',
+        description: 'Key performance indicators and regional metric tracking in GBP (£).',
+        iconName: 'fa-chart-line',
+        badge: 'Live Data',
+        blocks: [
+          {
+            id: 'blk-ana-1',
+            type: 'metric',
+            title: 'Annual Cost Savings',
+            description: 'Direct savings achieved through automation and workflow enhancements.',
+            metricValue: '£1,250,000',
+            metricDelta: '+24.5% Ahead of Target',
+            tags: ['Cost Saving', 'Efficiency', 'GBP'],
+            actionText: 'Download Report',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-ana-2',
+            type: 'metric',
+            title: 'Average Task Turnaround',
+            description: 'Mean elapsed cycle time from ticket submission to delivery.',
+            metricValue: '1.4 Days',
+            metricDelta: '-38% vs Q4 baseline',
+            tags: ['KPI', 'Speed', 'Operations'],
+            actionText: 'Inspect SLA',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-ana-3',
+            type: 'card',
+            title: 'Power BI Performance Dashboard',
+            description: 'Interactive analytics dashboard embedded directly within the container.',
+            iconName: 'fa-chart-pie',
+            badge: 'Power BI',
+            tags: ['Reporting', 'Power BI', 'Real-time'],
+            actionText: 'Launch Dashboard',
+            actionUrl: '#'
+          }
+        ]
+      },
+      {
+        id: 'sec-operations',
+        title: 'Operations & Playbooks',
+        description: 'Standard operating procedures, deployment checklists, and project logs.',
+        iconName: 'fa-gears',
+        blocks: [
+          {
+            id: 'blk-ops-1',
+            type: 'card',
+            title: 'SPFx Deployment Pipeline',
+            description: 'Automated CI/CD build scripts, dev certificate trust, and package workflows.',
+            iconName: 'fa-terminal',
+            badge: 'Automated',
+            tags: ['DevOps', 'SPFx', 'CI/CD'],
+            actionText: 'View Pipeline',
+            actionUrl: '#'
+          },
+          {
+            id: 'blk-ops-2',
+            type: 'card',
+            title: 'Incident Response SOP',
+            description: 'Critical service outage escalation path, RACI matrix, and stakeholder communications.',
+            iconName: 'fa-triangle-exclamation',
+            badge: 'Critical',
+            tags: ['Operations', 'SOP', 'Support'],
+            actionText: 'Read Playbook',
+            actionUrl: '#'
+          }
+        ]
+      }
+    ];
+
+    function App() {
+      const [layoutMode, setLayoutMode] = React.useState('tabs');
+      const [activeTabId, setActiveTabId] = React.useState('sec-strategy');
+      const [searchQuery, setSearchQuery] = React.useState('');
+      const [openAccordionIds, setOpenAccordionIds] = React.useState({ 'sec-strategy': true });
+
+      const toggleAccordion = (id) => {
+        setOpenAccordionIds(prev => ({ ...prev, [id]: !prev[id] }));
+      };
+
+      const expandAll = () => {
+        const all = {};
+        defaultSections.forEach(s => all[s.id] = true);
+        setOpenAccordionIds(all);
+      };
+
+      const collapseAll = () => {
+        setOpenAccordionIds({});
+      };
+
+      const activeSection = defaultSections.find(s => s.id === activeTabId) || defaultSections[0];
+
+      const filterBlocks = (blocks) => {
+        if (!searchQuery.trim()) return blocks;
+        const q = searchQuery.toLowerCase().trim();
+        return blocks.filter(b => 
+          b.title.toLowerCase().includes(q) ||
+          (b.description && b.description.toLowerCase().includes(q)) ||
+          (b.badge && b.badge.toLowerCase().includes(q)) ||
+          (b.tags && b.tags.some(t => t.toLowerCase().includes(q)))
+        );
+      };
+
+      return React.createElement('div', { className: 'fw-root' },
+        // Header
+        React.createElement('div', { className: 'fw-header' },
+          React.createElement('div', null,
+            React.createElement('h1', { className: 'fw-title' }, 'Interactive Content Hub'),
+            React.createElement('p', { className: 'fw-subtitle' }, 'Full-width SharePoint container with fluid tabs, collapsible accordions, and metric cards in GBP (£)')
+          ),
+          React.createElement('div', { className: 'fw-controls' },
+            // Search Box
+            React.createElement('div', { className: 'fw-search-box' },
+              React.createElement('i', { className: 'fa-solid fa-magnifying-glass fw-search-icon' }),
+              React.createElement('input', {
+                type: 'text',
+                className: 'fw-search-input',
+                placeholder: 'Filter items, tags, GBP...',
+                value: searchQuery,
+                onChange: (e) => setSearchQuery(e.target.value)
+              })
+            ),
+            // Layout Mode Switcher
+            React.createElement('div', { className: 'fw-mode-toggle' },
+              React.createElement('button', {
+                id: 'btn-mode-tabs',
+                className: 'fw-mode-btn ' + (layoutMode === 'tabs' ? 'active' : ''),
+                onClick: () => setLayoutMode('tabs')
+              }, React.createElement('i', { className: 'fa-solid fa-folder' }), 'Tabs'),
+              React.createElement('button', {
+                id: 'btn-mode-accordion',
+                className: 'fw-mode-btn ' + (layoutMode === 'accordion' ? 'active' : ''),
+                onClick: () => setLayoutMode('accordion')
+              }, React.createElement('i', { className: 'fa-solid fa-list' }), 'Accordion')
+            )
+          )
+        ),
+
+        // Tabs View
+        layoutMode === 'tabs' ? React.createElement('div', null,
+          React.createElement('div', { className: 'fw-tabs-nav', role: 'tablist' },
+            defaultSections.map(sec => 
+              React.createElement('button', {
+                key: sec.id,
+                id: 'tab-' + sec.id,
+                className: 'fw-tab-btn ' + (sec.id === activeTabId ? 'active' : ''),
+                onClick: () => setActiveTabId(sec.id),
+                role: 'tab',
+                'aria-selected': sec.id === activeTabId
+              },
+                React.createElement('i', { className: 'fa-solid ' + sec.iconName }),
+                React.createElement('span', null, sec.title),
+                sec.badge && React.createElement('span', { className: 'fw-tab-badge' }, sec.badge)
+              )
+            )
+          ),
+          React.createElement('div', { className: 'fw-grid' },
+            filterBlocks(activeSection.blocks).map(block => 
+              block.type === 'metric' ?
+              React.createElement('div', { key: block.id, className: 'fw-card fw-metric-card' },
+                React.createElement('div', null,
+                  React.createElement('div', { className: 'fw-card-header' },
+                    React.createElement('h3', { className: 'fw-card-title' }, block.title),
+                    block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
+                  ),
+                  React.createElement('div', { className: 'fw-metric-value' }, block.metricValue),
+                  React.createElement('div', { className: 'fw-metric-delta' },
+                    React.createElement('i', { className: 'fa-solid fa-arrow-trend-up' }),
+                    block.metricDelta
+                  ),
+                  React.createElement('p', { className: 'fw-card-desc' }, block.description)
+                ),
+                React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
+                  block.actionText,
+                  React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                )
+              ) :
+              React.createElement('div', { key: block.id, className: 'fw-card' },
+                React.createElement('div', null,
+                  React.createElement('div', { className: 'fw-card-header' },
+                    React.createElement('div', { className: 'fw-card-icon' },
+                      React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                    ),
+                    block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
+                  ),
+                  React.createElement('h3', { className: 'fw-card-title' }, block.title),
+                  React.createElement('p', { className: 'fw-card-desc' }, block.description),
+                  block.tags && React.createElement('div', { className: 'fw-card-tags' },
+                    block.tags.map(t => React.createElement('span', { key: t, className: 'fw-tag' }, t))
+                  )
+                ),
+                React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
+                  block.actionText,
+                  React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                )
+              )
+            )
+          )
+        ) :
+
+        // Accordion View
+        React.createElement('div', null,
+          React.createElement('div', { className: 'fw-accordion-toolbar' },
+            React.createElement('span', null, defaultSections.length + ' Sections'),
+            React.createElement('div', null,
+              React.createElement('button', { className: 'fw-toolbar-btn', onClick: expandAll },
+                React.createElement('i', { className: 'fa-solid fa-angles-down' }), ' Expand All'
+              ),
+              React.createElement('button', { className: 'fw-toolbar-btn', onClick: collapseAll },
+                React.createElement('i', { className: 'fa-solid fa-angles-up' }), ' Collapse All'
+              )
+            )
+          ),
+          React.createElement('div', { className: 'fw-accordion-list' },
+            defaultSections.map(sec => {
+              const isOpen = !!openAccordionIds[sec.id];
+              const blocks = filterBlocks(sec.blocks);
+              return React.createElement('div', { key: sec.id, className: 'fw-accordion-item' },
+                React.createElement('button', {
+                  className: 'fw-accordion-header',
+                  onClick: () => toggleAccordion(sec.id)
+                },
+                  React.createElement('div', { className: 'fw-accordion-header-left' },
+                    React.createElement('i', { className: 'fa-solid ' + sec.iconName, style: { color: '#38bdf8' } }),
+                    React.createElement('span', { className: 'fw-accordion-title' }, sec.title)
+                  ),
+                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
+                    sec.badge && React.createElement('span', { className: 'fw-tab-badge' }, sec.badge),
+                    React.createElement('i', {
+                      className: 'fa-solid fa-chevron-down',
+                      style: { transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }
+                    })
+                  )
+                ),
+                isOpen && React.createElement('div', { className: 'fw-accordion-content' },
+                  React.createElement('div', { className: 'fw-grid' },
+                    blocks.map(block => 
+                      block.type === 'metric' ?
+                      React.createElement('div', { key: block.id, className: 'fw-card fw-metric-card' },
+                        React.createElement('div', null,
+                          React.createElement('div', { className: 'fw-card-header' },
+                            React.createElement('h3', { className: 'fw-card-title' }, block.title),
+                            block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
+                          ),
+                          React.createElement('div', { className: 'fw-metric-value' }, block.metricValue),
+                          React.createElement('div', { className: 'fw-metric-delta' },
+                            React.createElement('i', { className: 'fa-solid fa-arrow-trend-up' }),
+                            block.metricDelta
+                          ),
+                          React.createElement('p', { className: 'fw-card-desc' }, block.description)
+                        ),
+                        React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
+                          block.actionText,
+                          React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                        )
+                      ) :
+                      React.createElement('div', { key: block.id, className: 'fw-card' },
+                        React.createElement('div', null,
+                          React.createElement('div', { className: 'fw-card-header' },
+                            React.createElement('div', { className: 'fw-card-icon' },
+                              React.createElement('i', { className: 'fa-solid ' + block.iconName })
+                            ),
+                            block.badge && React.createElement('span', { className: 'fw-card-badge' }, block.badge)
+                          ),
+                          React.createElement('h3', { className: 'fw-card-title' }, block.title),
+                          React.createElement('p', { className: 'fw-card-desc' }, block.description),
+                          block.tags && React.createElement('div', { className: 'fw-card-tags' },
+                            block.tags.map(t => React.createElement('span', { key: t, className: 'fw-tag' }, t))
+                          )
+                        ),
+                        React.createElement('a', { href: block.actionUrl, className: 'fw-card-action' },
+                          block.actionText,
+                          React.createElement('i', { className: 'fa-solid fa-arrow-right' })
+                        )
+                      )
+                    )
+                  )
+                )
+              );
+            })
+          )
+        )
+      );
+    }
+
+    ReactDOM.render(React.createElement(App), document.getElementById('spfx-root'));
+  </script>
+</body>
+</html>
