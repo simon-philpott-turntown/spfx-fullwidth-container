@@ -1,18 +1,12 @@
 /**
  * @file CardEditDialog.tsx
- * @description In-place Fluent UI 2 Modal Dialog for editing all card properties directly on canvas.
+ * @description In-place Fluent UI 2 Right-Hand Side Property Panel for editing all card properties.
+ * Slides in from the right matching the native SharePoint Property Pane architecture (Screenshot 2).
  * Integrates Fluent UI 2 Visual Icon Picker with search and Global Term Store taxonomy tags.
- * Follows the Microsoft Fluent 2 Design System.
  */
 
 import * as React from 'react';
 import {
-  Dialog,
-  DialogSurface,
-  DialogTitle,
-  DialogBody,
-  DialogContent,
-  DialogActions,
   Button,
   Input,
   Textarea,
@@ -21,7 +15,9 @@ import {
   Option,
   makeStyles,
   shorthands,
-  tokens
+  tokens,
+  Subtitle2,
+  Caption1
 } from '@fluentui/react-components';
 import {
   DismissRegular,
@@ -50,19 +46,51 @@ import { TermStorePicker } from './TermStorePicker';
 import { FluentIconPicker } from './FluentIconPicker';
 
 const useStyles = makeStyles({
-  dialogSurface: {
-    maxWidth: '580px',
-    width: '92vw',
-    maxHeight: '88vh',
-    overflowY: 'auto',
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
-    backgroundColor: tokens.colorNeutralBackground1,
-    boxShadow: tokens.shadow28
+  backdrop: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.32)',
+    backdropFilter: 'blur(2px)',
+    zIndex: 999,
+    display: 'flex',
+    justifyContent: 'flex-end'
   },
-  contentGrid: {
+  sidePanel: {
+    width: '380px',
+    maxWidth: '92vw',
+    height: '100vh',
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.borderLeft('1px', 'solid', tokens.colorNeutralStroke1),
+    boxShadow: tokens.shadow28,
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box'
+  },
+  panelHeader: {
+    padding: '16px 18px 12px 18px',
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start'
+  },
+  panelBody: {
+    flex: 1,
+    padding: '16px 18px',
+    overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
     ...shorthands.gap(tokens.spacingVerticalM)
+  },
+  panelFooter: {
+    padding: '12px 18px',
+    ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke2),
+    backgroundColor: tokens.colorNeutralBackground2,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    ...shorthands.gap('8px')
   },
   fieldRow: {
     display: 'flex',
@@ -101,42 +129,25 @@ export interface ICardEditDialogProps {
   onDismiss: () => void;
 }
 
-export const renderFluentIconPreview = (iconKey?: string): React.ReactElement => {
+export const renderFluentIconPreview = (iconKey?: string): JSX.Element => {
   switch (iconKey) {
-    case 'Financial':
-      return <MoneyRegular />;
-    case 'ReceiptMoney':
-      return <ReceiptMoneyRegular />;
-    case 'TimelineProgress':
-      return <ArrowTrendingLinesRegular />;
-    case 'ChartMultiple':
-      return <ChartMultipleRegular />;
-    case 'ComplianceAudit':
-      return <ShieldCheckmarkRegular />;
-    case 'CheckList':
-      return <CheckmarkCircleRegular />;
-    case 'Calculator':
-      return <WrenchRegular />;
-    case 'AppIconDefault':
-      return <AppsRegular />;
-    case 'Lock':
-      return <LockClosedRegular />;
-    case 'Globe':
-      return <GlobeRegular />;
-    case 'Document':
-      return <DocumentRegular />;
-    case 'Folder':
-      return <FolderRegular />;
-    case 'Sparkle':
-      return <SparkleRegular />;
-    case 'People':
-      return <PeopleRegular />;
-    case 'Building':
-      return <BuildingRegular />;
-    case 'Megaphone':
-      return <MegaphoneRegular />;
-    case 'Star':
-      return <StarRegular />;
+    case 'Document': return <DocumentRegular />;
+    case 'Folder': return <FolderRegular />;
+    case 'Financial': return <MoneyRegular />;
+    case 'ReceiptMoney': return <ReceiptMoneyRegular />;
+    case 'TimelineProgress': return <ArrowTrendingLinesRegular />;
+    case 'ChartMultiple': return <ChartMultipleRegular />;
+    case 'ComplianceAudit': return <ShieldCheckmarkRegular />;
+    case 'CheckList': return <CheckmarkCircleRegular />;
+    case 'Lock': return <LockClosedRegular />;
+    case 'Globe': return <GlobeRegular />;
+    case 'Wrench': return <WrenchRegular />;
+    case 'People': return <PeopleRegular />;
+    case 'Building': return <BuildingRegular />;
+    case 'Megaphone': return <MegaphoneRegular />;
+    case 'Sparkle': return <SparkleRegular />;
+    case 'Star': return <StarRegular />;
+    case 'AppIconDefault': return <AppsRegular />;
     case 'BookAnswers':
     default:
       return <BookOpenRegular />;
@@ -153,354 +164,387 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 }) => {
   const styles = useStyles();
 
+  // Local form state
   const [formData, setFormData] = React.useState<Partial<IContentBlock>>({});
+  const [tagsInput, setTagsInput] = React.useState<string>('');
   const [isIconPickerOpen, setIsIconPickerOpen] = React.useState<boolean>(false);
 
-  const effectiveMaxCols = Math.max(1, maxColumns > 0 ? maxColumns : 4);
-  const effectiveMaxRows = Math.max(1, maxRows > 0 ? maxRows : 5);
-
+  // Sync state when block changes
   React.useEffect(() => {
     if (block) {
       setFormData({
         ...block,
-        colSpan: Math.min(block.colSpan || 1, effectiveMaxCols),
-        rowSpan: Math.min(block.rowSpan || 1, effectiveMaxRows)
+        colSpan: block.colSpan || 1,
+        rowSpan: block.rowSpan || 1,
+        heightMode: block.heightMode || 'default',
+        type: block.type || 'card'
       });
+      setTagsInput(block.tags ? block.tags.join(', ') : '');
     }
-  }, [block, effectiveMaxCols, effectiveMaxRows]);
+  }, [block, isOpen]);
 
   if (!isOpen || !block) {
     return null;
   }
 
+  const effectiveMaxCols = Math.max(1, maxColumns);
+  const effectiveMaxRows = Math.max(1, maxRows);
+
+  const colOptions = [];
+  for (let c = 1; c <= effectiveMaxCols; c++) {
+    colOptions.push(c);
+  }
+
+  const rowOptions = [];
+  for (let r = 1; r <= effectiveMaxRows; r++) {
+    rowOptions.push(r);
+  }
+
   const handleSave = (): void => {
-    if (block && formData) {
-      onSave({
-        ...block,
-        ...formData,
-        colSpan: Math.min(formData.colSpan || 1, effectiveMaxCols),
-        rowSpan: Math.min(formData.rowSpan || 1, effectiveMaxRows)
-      } as IContentBlock);
-    }
+    const parsedTags = tagsInput
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    const updated: IContentBlock = {
+      ...block,
+      ...formData,
+      tags: parsedTags.length > 0 ? parsedTags : undefined
+    } as IContentBlock;
+
+    onSave(updated);
     onDismiss();
   };
 
-  const colOptions = Array.from({ length: effectiveMaxCols }, (_, i) => i + 1);
-  const rowOptions = Array.from({ length: effectiveMaxRows }, (_, i) => i + 1);
-
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={(e, data) => { if (!data.open) onDismiss(); }}>
-        <DialogSurface className={styles.dialogSurface}>
-          <DialogTitle
-            action={
-              <Button
-                appearance="subtle"
-                aria-label="close"
-                icon={<DismissRegular />}
-                onClick={onDismiss}
-              />
-            }
-          >
-            Edit Card & Metric Properties
-          </DialogTitle>
+      <div className={styles.backdrop} onClick={onDismiss}>
+        <div
+          className={styles.sidePanel}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className={styles.panelHeader}>
+            <div>
+              <Subtitle2 style={{ fontWeight: 700, color: tokens.colorNeutralForeground1, display: 'block' }}>
+                Edit Card & Metric Properties
+              </Subtitle2>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                Configure card layout, icons, metrics, and tags on the right pane.
+              </Caption1>
+            </div>
+            <Button
+              appearance="subtle"
+              size="small"
+              icon={<DismissRegular />}
+              onClick={onDismiss}
+              aria-label="Close panel"
+            />
+          </div>
 
-          <DialogBody>
-            <DialogContent className={styles.contentGrid}>
-              {/* Block Type & Fluent 2 Icon Visual Selection */}
+          {/* Body */}
+          <div className={styles.panelBody}>
+            {/* Block Type */}
+            <div className={styles.fieldRow}>
+              <Label required weight="semibold">Card type</Label>
+              <Dropdown
+                value={
+                  formData.type === 'metric'
+                    ? 'British metric stat (£)'
+                    : formData.type === 'embed'
+                    ? 'Embed or tool'
+                    : 'Standard content card'
+                }
+                onOptionSelect={(e, data) => {
+                  setFormData({ ...formData, type: data.optionValue as BlockType });
+                }}
+              >
+                <Option value="card">Standard content card</Option>
+                <Option value="metric">British metric stat (£)</Option>
+                <Option value="embed">Embed or tool</Option>
+              </Dropdown>
+            </div>
+
+            {/* Fluent UI 2 Icon Picker */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Fluent UI 2 Icon</Label>
+              <div className={styles.iconPreviewBox}>
+                <div className={styles.iconDisplay}>
+                  {renderFluentIconPreview(formData.iconName)}
+                  <span style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground1, fontWeight: 500 }}>
+                    {formData.iconName || 'BookAnswers'}
+                  </span>
+                </div>
+                <Button
+                  size="small"
+                  appearance="outline"
+                  onClick={() => setIsIconPickerOpen(true)}
+                >
+                  Browse Icons...
+                </Button>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className={styles.fieldRow}>
+              <Label required weight="semibold">Title</Label>
+              <Input
+                value={formData.title || ''}
+                placeholder="Card title"
+                onChange={(e, data) => setFormData({ ...formData, title: data.value })}
+              />
+            </div>
+
+            {/* Description */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Description or body text</Label>
+              <Textarea
+                rows={3}
+                value={formData.description || ''}
+                placeholder="Card summary"
+                onChange={(e, data) => setFormData({ ...formData, description: data.value })}
+              />
+            </div>
+
+            {/* Metric Fields (if type === 'metric') */}
+            {formData.type === 'metric' && (
               <div className={styles.twoColRow}>
                 <div className={styles.fieldRow}>
-                  <Label required weight="semibold">Card type</Label>
-                  <Dropdown
-                    value={
-                      formData.type === 'metric'
-                        ? 'British metric stat (£)'
-                        : formData.type === 'embed'
-                        ? 'Embed or tool'
-                        : 'Standard content card'
-                    }
-                    onOptionSelect={(e, data) => {
-                      setFormData({ ...formData, type: data.optionValue as BlockType });
-                    }}
-                  >
-                    <Option value="card">Standard content card</Option>
-                    <Option value="metric">British metric stat (£)</Option>
-                    <Option value="embed">Embed or tool</Option>
-                  </Dropdown>
-                </div>
-
-                {/* Fluent UI 2 Icon Picker */}
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Fluent UI 2 Icon</Label>
-                  <div className={styles.iconPreviewBox}>
-                    <div className={styles.iconDisplay}>
-                      {renderFluentIconPreview(formData.iconName)}
-                      <span style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground1, fontWeight: 500 }}>
-                        {formData.iconName || 'BookAnswers'}
-                      </span>
-                    </div>
-                    <Button
-                      size="small"
-                      appearance="outline"
-                      onClick={() => setIsIconPickerOpen(true)}
-                    >
-                      Browse Icons...
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Title */}
-              <div className={styles.fieldRow}>
-                <Label required weight="semibold">Title</Label>
-                <Input
-                  value={formData.title || ''}
-                  placeholder="Card title"
-                  onChange={(e, data) => setFormData({ ...formData, title: data.value })}
-                />
-              </div>
-
-              {/* Description */}
-              <div className={styles.fieldRow}>
-                <Label weight="semibold">Description or body text</Label>
-                <Textarea
-                  rows={3}
-                  value={formData.description || ''}
-                  placeholder="Card summary"
-                  onChange={(e, data) => setFormData({ ...formData, description: data.value })}
-                />
-              </div>
-
-              {/* Metric Fields (if type === 'metric') */}
-              {formData.type === 'metric' && (
-                <div className={styles.twoColRow}>
-                  <div className={styles.fieldRow}>
-                    <Label weight="semibold">Metric value (GBP £)</Label>
-                    <Input
-                      value={formData.metricValue || ''}
-                      placeholder="£1,420,000"
-                      onChange={(e, data) => setFormData({ ...formData, metricValue: data.value })}
-                    />
-                  </div>
-                  <div className={styles.fieldRow}>
-                    <Label weight="semibold">Trend badge</Label>
-                    <Input
-                      value={formData.metricTrend || ''}
-                      placeholder="+10%"
-                      onChange={(e, data) => setFormData({ ...formData, metricTrend: data.value })}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Embed URL (if type === 'embed') */}
-              {formData.type === 'embed' && (
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">iFrame embed URL</Label>
+                  <Label weight="semibold">Metric value (GBP £)</Label>
                   <Input
-                    value={formData.embedUrl || ''}
-                    placeholder="https://..."
-                    onChange={(e, data) => setFormData({ ...formData, embedUrl: data.value })}
+                    value={formData.metricValue || ''}
+                    placeholder="£1,420,000"
+                    onChange={(e, data) => setFormData({ ...formData, metricValue: data.value })}
                   />
                 </div>
-              )}
-
-              {/* Card Layout & Grid Sizing (Dynamic based on container columns/rows) */}
-              <div className={styles.twoColRow}>
                 <div className={styles.fieldRow}>
-                  <Label weight="semibold">Column span (Max {effectiveMaxCols})</Label>
-                  <Dropdown
-                    value={
-                      formData.colSpan === 1
-                        ? '1 column (standard)'
-                        : `Span ${formData.colSpan || 1} columns`
-                    }
-                    onOptionSelect={(e, data) => {
-                      setFormData({ ...formData, colSpan: Number(data.optionValue) || 1 });
-                    }}
-                  >
-                    {colOptions.map((c) => (
-                      <Option key={c} value={String(c)}>
-                        {c === 1 ? '1 column (standard)' : c === effectiveMaxCols ? `Span ${c} columns (full width)` : `Span ${c} columns`}
-                      </Option>
-                    ))}
-                  </Dropdown>
-                </div>
-
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Row span (Max {effectiveMaxRows})</Label>
-                  <Dropdown
-                    value={
-                      formData.rowSpan === 1
-                        ? '1 row (standard)'
-                        : `Span ${formData.rowSpan || 1} rows`
-                    }
-                    onOptionSelect={(e, data) => {
-                      setFormData({ ...formData, rowSpan: Number(data.optionValue) || 1 });
-                    }}
-                  >
-                    {rowOptions.map((r) => (
-                      <Option key={r} value={String(r)}>
-                        {r === 1 ? '1 row (standard)' : `Span ${r} rows`}
-                      </Option>
-                    ))}
-                  </Dropdown>
+                  <Label weight="semibold">Trend badge</Label>
+                  <Input
+                    value={formData.metricTrend || ''}
+                    placeholder="+10%"
+                    onChange={(e, data) => setFormData({ ...formData, metricTrend: data.value })}
+                  />
                 </div>
               </div>
+            )}
 
-              {/* Height Mode Behavior */}
+            {/* Embed URL (if type === 'embed') */}
+            {formData.type === 'embed' && (
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Card height behavior</Label>
+                <Label weight="semibold">iFrame embed URL</Label>
+                <Input
+                  value={formData.embedUrl || ''}
+                  placeholder="https://..."
+                  onChange={(e, data) => setFormData({ ...formData, embedUrl: data.value })}
+                />
+              </div>
+            )}
+
+            {/* Grid Spanning */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Column span (Max {effectiveMaxCols})</Label>
                 <Dropdown
                   value={
-                    formData.heightMode === 'equal'
-                      ? 'Equal row height (match tallest)'
-                      : formData.heightMode === 'auto'
-                      ? 'Fit content height (independent)'
-                      : 'Inherit container setting'
+                    formData.colSpan && formData.colSpan > 1
+                      ? `Span ${formData.colSpan} cols`
+                      : '1 column (standard)'
                   }
                   onOptionSelect={(e, data) => {
-                    setFormData({ ...formData, heightMode: data.optionValue as 'default' | 'auto' | 'equal' });
+                    setFormData({ ...formData, colSpan: Number(data.optionValue) || 1 });
                   }}
                 >
-                  <Option value="default">Inherit container setting</Option>
-                  <Option value="auto">Fit content height (independent)</Option>
-                  <Option value="equal">Equal row height (match tallest)</Option>
+                  {colOptions.map((c) => (
+                    <Option key={c} value={c.toString()}>
+                      {c === 1 ? '1 column (standard)' : `Span ${c} columns`}
+                    </Option>
+                  ))}
                 </Dropdown>
               </div>
 
-              {/* Global Term Store Taxonomy Tags */}
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Global term store • Intranet taxonomy tags</Label>
-                <TermStorePicker
-                  selectedTags={formData.termStoreTags || []}
-                  onChange={(tags) => setFormData({ ...formData, termStoreTags: tags })}
-                  isEditMode={true}
-                />
-              </div>
-
-              {/* Live Data API Configuration */}
-              <div className={styles.fieldRow}>
-                <Label weight="semibold">Real-time live data API (optional)</Label>
-                <div
-                  style={{
-                    padding: '10px',
-                    borderRadius: tokens.borderRadiusMedium,
-                    backgroundColor: tokens.colorNeutralBackground2,
-                    border: `1px solid ${tokens.colorNeutralStroke2}`,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px'
+                <Label weight="semibold">Row span (Max {effectiveMaxRows})</Label>
+                <Dropdown
+                  value={
+                    formData.rowSpan && formData.rowSpan > 1
+                      ? `Span ${formData.rowSpan} rows`
+                      : '1 row (standard)'
+                  }
+                  onOptionSelect={(e, data) => {
+                    setFormData({ ...formData, rowSpan: Number(data.optionValue) || 1 });
                   }}
                 >
+                  {rowOptions.map((r) => (
+                    <Option key={r} value={r.toString()}>
+                      {r === 1 ? '1 row (standard)' : `Span ${r} rows`}
+                    </Option>
+                  ))}
+                </Dropdown>
+              </div>
+            </div>
+
+            {/* Card Height Behavior */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Card height behavior</Label>
+              <Dropdown
+                value={
+                  formData.heightMode === 'auto'
+                    ? 'Fit content height (independent)'
+                    : formData.heightMode === 'equal'
+                    ? 'Equal row height (match tallest)'
+                    : 'Inherit container setting'
+                }
+                onOptionSelect={(e, data) => {
+                  setFormData({
+                    ...formData,
+                    heightMode: data.optionValue as 'default' | 'auto' | 'equal'
+                  });
+                }}
+              >
+                <Option value="default">Inherit container setting</Option>
+                <Option value="auto">Fit content height (independent)</Option>
+                <Option value="equal">Equal row height (match tallest)</Option>
+              </Dropdown>
+            </div>
+
+            {/* Global Term Store Taxonomy Integration */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Global term store • Intranet taxonomy tags</Label>
+              <TermStorePicker
+                selectedTags={formData.termStoreTags || []}
+                onChange={(tags) => setFormData({ ...formData, termStoreTags: tags })}
+                isEditMode={true}
+              />
+            </div>
+
+            {/* Real-Time Live Data API */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Real-time live data API (optional)</Label>
+              <div
+                style={{
+                  padding: '10px',
+                  borderRadius: tokens.borderRadiusMedium,
+                  backgroundColor: tokens.colorNeutralBackground2,
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}
+              >
+                <Input
+                  placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)"
+                  value={formData.liveDataConfig?.apiUrl || ''}
+                  onChange={(e, data) => {
+                    setFormData({
+                      ...formData,
+                      liveDataConfig: {
+                        apiUrl: data.value,
+                        jsonPath: formData.liveDataConfig?.jsonPath || 'value',
+                        prefix: formData.liveDataConfig?.prefix || '£',
+                        refreshIntervalSeconds: formData.liveDataConfig?.refreshIntervalSeconds || 30
+                      }
+                    });
+                  }}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <Input
-                    size="small"
-                    placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)"
-                    value={formData.liveDataConfig?.apiUrl || ''}
+                    placeholder="JSON path (e.g. data.metric)"
+                    value={formData.liveDataConfig?.jsonPath || ''}
                     onChange={(e, data) => {
-                      setFormData({
-                        ...formData,
-                        liveDataConfig: {
-                          apiUrl: data.value,
-                          jsonPath: formData.liveDataConfig?.jsonPath || 'value',
-                          prefix: formData.liveDataConfig?.prefix || '£',
-                          refreshIntervalSeconds: formData.liveDataConfig?.refreshIntervalSeconds || 30
-                        }
-                      });
+                      if (formData.liveDataConfig) {
+                        setFormData({
+                          ...formData,
+                          liveDataConfig: {
+                            ...formData.liveDataConfig,
+                            jsonPath: data.value
+                          }
+                        });
+                      }
                     }}
                   />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    <Input
-                      size="small"
-                      placeholder="JSON path (e.g. data.metric)"
-                      value={formData.liveDataConfig?.jsonPath || ''}
-                      onChange={(e, data) => {
-                        if (formData.liveDataConfig) {
-                          setFormData({
-                            ...formData,
-                            liveDataConfig: { ...formData.liveDataConfig, jsonPath: data.value }
-                          });
-                        }
-                      }}
-                    />
-                    <Input
-                      size="small"
-                      placeholder="Prefix (e.g. £)"
-                      value={formData.liveDataConfig?.prefix || ''}
-                      onChange={(e, data) => {
-                        if (formData.liveDataConfig) {
-                          setFormData({
-                            ...formData,
-                            liveDataConfig: { ...formData.liveDataConfig, prefix: data.value }
-                          });
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Badge & Tags */}
-              <div className={styles.twoColRow}>
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Status or category badge</Label>
                   <Input
-                    value={formData.badge || ''}
-                    placeholder="Badge"
-                    onChange={(e, data) => setFormData({ ...formData, badge: data.value })}
-                  />
-                </div>
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Additional tags (comma-separated)</Label>
-                  <Input
-                    value={formData.tags ? formData.tags.join(', ') : ''}
-                    placeholder="Tag 1, Tag 2"
+                    placeholder="Prefix (e.g. £)"
+                    value={formData.liveDataConfig?.prefix || ''}
                     onChange={(e, data) => {
-                      const splitTags = data.value.split(',').map((t) => t.trim()).filter((t) => !!t);
-                      setFormData({ ...formData, tags: splitTags });
+                      if (formData.liveDataConfig) {
+                        setFormData({
+                          ...formData,
+                          liveDataConfig: {
+                            ...formData.liveDataConfig,
+                            prefix: data.value
+                          }
+                        });
+                      }
                     }}
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Link & Action */}
-              <div className={styles.twoColRow}>
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Button or link text</Label>
-                  <Input
-                    value={formData.linkText || ''}
-                    placeholder="Action link"
-                    onChange={(e, data) => setFormData({ ...formData, linkText: data.value })}
-                  />
-                </div>
-                <div className={styles.fieldRow}>
-                  <Label weight="semibold">Destination URL</Label>
-                  <Input
-                    value={formData.linkUrl || ''}
-                    placeholder="https://..."
-                    onChange={(e, data) => setFormData({ ...formData, linkUrl: data.value })}
-                  />
-                </div>
+            {/* Badge & Tags */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Status or category badge</Label>
+                <Input
+                  value={formData.badge || ''}
+                  placeholder="Badge label"
+                  onChange={(e, data) => setFormData({ ...formData, badge: data.value })}
+                />
               </div>
-            </DialogContent>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Additional tags (comma-separated)</Label>
+                <Input
+                  value={tagsInput}
+                  placeholder="Tag 1, Tag 2"
+                  onChange={(e, data) => setTagsInput(data.value)}
+                />
+              </div>
+            </div>
 
-            <DialogActions>
-              <Button appearance="secondary" onClick={onDismiss}>
-                Cancel
-              </Button>
-              <Button appearance="primary" icon={<SaveRegular />} onClick={handleSave}>
-                Save Card
-              </Button>
-            </DialogActions>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
+            {/* Actions / Links */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Button or link text</Label>
+                <Input
+                  value={formData.linkText || ''}
+                  placeholder="Action link"
+                  onChange={(e, data) => setFormData({ ...formData, linkText: data.value })}
+                />
+              </div>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Destination URL</Label>
+                <Input
+                  value={formData.linkUrl || ''}
+                  placeholder="#"
+                  onChange={(e, data) => setFormData({ ...formData, linkUrl: data.value })}
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Fluent UI 2 Visual Icon Picker Modal */}
+          {/* Footer */}
+          <div className={styles.panelFooter}>
+            <Button appearance="secondary" onClick={onDismiss}>
+              Cancel
+            </Button>
+            <Button
+              appearance="primary"
+              icon={<SaveRegular />}
+              onClick={handleSave}
+            >
+              Save Card
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Fluent UI 2 Icon Picker */}
       <FluentIconPicker
         isOpen={isIconPickerOpen}
         selectedIconKey={formData.iconName || 'BookAnswers'}
-        onSelectIcon={(iconKey) => setFormData({ ...formData, iconName: iconKey })}
+        onSelectIcon={(iconKey) => {
+          setFormData({ ...formData, iconName: iconKey });
+        }}
         onDismiss={() => setIsIconPickerOpen(false)}
       />
     </>
