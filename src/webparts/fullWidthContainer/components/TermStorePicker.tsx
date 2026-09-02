@@ -21,7 +21,6 @@ import {
   SearchRegular,
   FolderRegular,
   FolderOpenRegular,
-  DismissRegular,
   CheckmarkRegular,
   DeleteRegular
 } from '@fluentui/react-icons';

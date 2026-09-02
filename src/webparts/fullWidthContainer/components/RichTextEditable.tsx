@@ -89,6 +89,13 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
     }
   };
 
+  const handleInput = (): void => {
+    if (elementRef.current) {
+      const newHtml = elementRef.current.innerHTML;
+      onChange(newHtml);
+    }
+  };
+
   const handleFormat = (command: string, value?: string): void => {
     if (elementRef.current) {
       elementRef.current.focus();
@@ -102,13 +109,6 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
       document.execCommand(command, false, value);
       handleInput();
       handleSelectionSave();
-    }
-  };
-
-  const handleInput = (): void => {
-    if (elementRef.current) {
-      const newHtml = elementRef.current.innerHTML;
-      onChange(newHtml);
     }
   };
 
