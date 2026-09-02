@@ -1740,6 +1740,10 @@
     /* Rich Text Formatting Toolbar Component with mousedown default prevention */
     function RichTextFloatingToolbar(props) {
       const [showColorPicker, setShowColorPicker] = React.useState(false);
+      const [showStyleMenu, setShowStyleMenu] = React.useState(false);
+      const [showFontMenu, setShowFontMenu] = React.useState(false);
+      const [selectedStyle, setSelectedStyle] = React.useState('Style');
+      const [selectedFont, setSelectedFont] = React.useState('Font');
 
       const handleCmd = (cmd, val) => {
         document.execCommand(cmd, false, val);
@@ -1751,17 +1755,53 @@
         e.stopPropagation();
       };
 
-      const themeColors = [
-        { name: 'Brand Primary', hex: '#0078d4' },
-        { name: 'Dark Theme', hex: '#106ebe' },
-        { name: 'Light Brand', hex: '#2b88d8' },
-        { name: 'Dark Neutral', hex: '#242424' },
-        { name: 'Neutral Secondary', hex: '#616161' },
-        { name: 'Success Green', hex: '#107c10' },
-        { name: 'Warning Gold', hex: '#d83b01' },
-        { name: 'Error Crimson', hex: '#a80000' },
-        { name: 'Royal Blue', hex: '#004e8c' },
-        { name: 'Deep Purple', hex: '#5c2d91' }
+      const textStyles = [
+        { label: 'Header 1', tag: '<h1>' },
+        { label: 'Header 2', tag: '<h2>' },
+        { label: 'Header 3', tag: '<h3>' },
+        { label: 'Header 4', tag: '<h4>' },
+        { label: 'Body text', tag: '<p>' },
+        { label: 'Quote', tag: '<blockquote>' },
+        { label: 'Code block', tag: '<pre>' }
+      ];
+
+      const fonts = [
+        { name: 'Segoe UI', value: 'Segoe UI, sans-serif' },
+        { name: 'Aptos', value: 'Aptos, sans-serif' },
+        { name: 'Arial', value: 'Arial, sans-serif' },
+        { name: 'Calibri', value: 'Calibri, sans-serif' },
+        { name: 'Georgia', value: 'Georgia, serif' },
+        { name: 'Tahoma', value: 'Tahoma, sans-serif' },
+        { name: 'Trebuchet MS', value: 'Trebuchet MS, sans-serif' },
+        { name: 'Times New Roman', value: 'Times New Roman, serif' },
+        { name: 'Courier New', value: 'Courier New, monospace' }
+      ];
+
+      const siteThemePalette = [
+        { group: 'Site Theme', colors: [
+          { name: 'Theme Darker', hex: '#004578' },
+          { name: 'Theme Dark', hex: '#005a9e' },
+          { name: 'Brand Primary', hex: '#0078d4' },
+          { name: 'Theme Light', hex: '#2b88d8' },
+          { name: 'Theme Lighter', hex: '#c7e0f4' },
+          { name: 'Theme Tint', hex: '#eff6fc' }
+        ]},
+        { group: 'Neutrals & Text', colors: [
+          { name: 'Black / Dark', hex: '#242424' },
+          { name: 'Neutral Dark', hex: '#323130' },
+          { name: 'Neutral Primary', hex: '#424242' },
+          { name: 'Neutral Secondary', hex: '#605e5c' },
+          { name: 'Neutral Tertiary', hex: '#a19f9d' },
+          { name: 'White', hex: '#ffffff' }
+        ]},
+        { group: 'Accents', colors: [
+          { name: 'Success Green', hex: '#107c10' },
+          { name: 'Warning Gold', hex: '#d83b01' },
+          { name: 'Error Crimson', hex: '#a80000' },
+          { name: 'Royal Blue', hex: '#004e8c' },
+          { name: 'Deep Purple', hex: '#5c2d91' },
+          { name: 'Teal', hex: '#038387' }
+        ]}
       ];
 
       return React.createElement('div', {
@@ -1769,21 +1809,93 @@
         onMouseDown: preventBlur,
         onClick: (e) => e.stopPropagation()
       },
+        // Text Styles Dropdown
+        React.createElement('div', { style: { position: 'relative' } },
+          React.createElement('button', {
+            className: 'fui-toolbar-btn',
+            style: { width: 'auto', padding: '0 6px', fontSize: '0.78rem', fontWeight: 600, display: 'flex', gap: '3px' },
+            title: 'Text Style (Header 1, 2, 3, Body)',
+            onMouseDown: preventBlur,
+            onClick: () => { setShowStyleMenu(!showStyleMenu); setShowFontMenu(false); setShowColorPicker(false); }
+          }, selectedStyle, React.createElement('i', { className: 'fa-solid fa-chevron-down', style: { fontSize: '0.65rem' } })),
+          showStyleMenu ? React.createElement('div', {
+            style: {
+              position: 'absolute', top: '32px', left: 0, zIndex: 350,
+              background: 'var(--fui-colorNeutralBackground1)', border: '1px solid var(--fui-colorNeutralStroke1)',
+              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', minWidth: '130px', padding: '4px'
+            },
+            onMouseDown: preventBlur
+          },
+            textStyles.map(st => React.createElement('div', {
+              key: st.label,
+              style: { padding: '5px 8px', fontSize: '0.8rem', cursor: 'pointer', borderRadius: '4px' },
+              onMouseDown: preventBlur,
+              onClick: () => { handleCmd('formatBlock', st.tag); setSelectedStyle(st.label); setShowStyleMenu(false); }
+            }, st.label))
+          ) : null
+        ),
+
+        // Font Family Dropdown
+        React.createElement('div', { style: { position: 'relative' } },
+          React.createElement('button', {
+            className: 'fui-toolbar-btn',
+            style: { width: 'auto', padding: '0 6px', fontSize: '0.78rem', fontWeight: 600, display: 'flex', gap: '3px' },
+            title: 'Font Family',
+            onMouseDown: preventBlur,
+            onClick: () => { setShowFontMenu(!showFontMenu); setShowStyleMenu(false); setShowColorPicker(false); }
+          }, selectedFont, React.createElement('i', { className: 'fa-solid fa-chevron-down', style: { fontSize: '0.65rem' } })),
+          showFontMenu ? React.createElement('div', {
+            style: {
+              position: 'absolute', top: '32px', left: 0, zIndex: 350,
+              background: 'var(--fui-colorNeutralBackground1)', border: '1px solid var(--fui-colorNeutralStroke1)',
+              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', minWidth: '140px', padding: '4px', maxHeight: '200px', overflowY: 'auto'
+            },
+            onMouseDown: preventBlur
+          },
+            fonts.map(f => React.createElement('div', {
+              key: f.name,
+              style: { padding: '5px 8px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: f.value, borderRadius: '4px' },
+              onMouseDown: preventBlur,
+              onClick: () => { handleCmd('fontName', f.value); setSelectedFont(f.name); setShowFontMenu(false); }
+            }, f.name))
+          ) : null
+        ),
+
+        React.createElement('span', { style: { width: '1px', height: '18px', background: 'var(--fui-colorNeutralStroke2)', margin: '0 3px' } }),
+
+        // Bold, Italic, Underline, Strikethrough
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Bold', onMouseDown: preventBlur, onClick: () => handleCmd('bold') }, React.createElement('i', { className: 'fa-solid fa-bold' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Italic', onMouseDown: preventBlur, onClick: () => handleCmd('italic') }, React.createElement('i', { className: 'fa-solid fa-italic' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Underline', onMouseDown: preventBlur, onClick: () => handleCmd('underline') }, React.createElement('i', { className: 'fa-solid fa-underline' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Strikethrough', onMouseDown: preventBlur, onClick: () => handleCmd('strikeThrough') }, React.createElement('i', { className: 'fa-solid fa-strikethrough' })),
-        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Font Theme Colour', onMouseDown: preventBlur, onClick: () => setShowColorPicker(!showColorPicker) }, React.createElement('i', { className: 'fa-solid fa-palette' })),
-        showColorPicker ? React.createElement('div', { className: 'fui-color-palette-popover', onMouseDown: preventBlur },
-          themeColors.map(c => React.createElement('div', {
-            key: c.name,
-            className: 'fui-color-dot',
-            style: { backgroundColor: c.hex },
-            title: c.name,
-            onMouseDown: preventBlur,
-            onClick: () => { handleCmd('foreColor', c.hex); setShowColorPicker(false); }
-          }))
-        ) : null,
+        
+        // Grouped SharePoint Theme Color Palette
+        React.createElement('div', { style: { position: 'relative' } },
+          React.createElement('button', { className: 'fui-toolbar-btn', title: 'SharePoint Site Theme Colour', onMouseDown: preventBlur, onClick: () => { setShowColorPicker(!showColorPicker); setShowStyleMenu(false); setShowFontMenu(false); } }, React.createElement('i', { className: 'fa-solid fa-palette' })),
+          showColorPicker ? React.createElement('div', {
+            style: {
+              position: 'absolute', top: '32px', left: 0, zIndex: 350,
+              background: 'var(--fui-colorNeutralBackground1)', border: '1px solid var(--fui-colorNeutralStroke1)',
+              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', width: '190px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px'
+            },
+            onMouseDown: preventBlur
+          },
+            siteThemePalette.map(grp => React.createElement('div', { key: grp.group },
+              React.createElement('div', { style: { fontSize: '0.68rem', fontWeight: 700, color: 'var(--fui-colorNeutralForeground3)', textTransform: 'uppercase', marginBottom: '3px' } }, grp.group),
+              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' } },
+                grp.colors.map(c => React.createElement('div', {
+                  key: c.name,
+                  className: 'fui-color-dot',
+                  style: { backgroundColor: c.hex, width: '20px', height: '20px' },
+                  title: c.name,
+                  onMouseDown: preventBlur,
+                  onClick: () => { handleCmd('foreColor', c.hex); setShowColorPicker(false); }
+                }))
+              )
+            ))
+          ) : null
+        ),
+
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Highlight Yellow', onMouseDown: preventBlur, onClick: () => handleCmd('hiliteColor', '#fff176') }, React.createElement('i', { className: 'fa-solid fa-highlighter' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Left', onMouseDown: preventBlur, onClick: () => handleCmd('justifyLeft') }, React.createElement('i', { className: 'fa-solid fa-align-left' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Centre', onMouseDown: preventBlur, onClick: () => handleCmd('justifyCenter') }, React.createElement('i', { className: 'fa-solid fa-align-center' })),
