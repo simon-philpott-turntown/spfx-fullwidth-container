@@ -22,6 +22,7 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { FullWidthContainer } from './components/FullWidthContainer';
 import { IFullWidthContainerProps } from './components/IFullWidthContainerProps';
 import {
@@ -101,8 +102,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
 
   public render(): void {
     const activeSections = this._getActiveSections();
+    const userDisplayName = this.context?.pageContext?.user?.displayName || 'User';
 
-    const element: React.ReactElement<IFullWidthContainerProps> = React.createElement(
+    const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
       FullWidthContainer,
       {
         title: this.properties.title || 'Interactive Content Hub',
@@ -117,14 +119,24 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         showSearch: this.properties.showSearch !== false,
         sections: activeSections,
         isDarkTheme: this._isDarkTheme,
-        userDisplayName: this.context.pageContext.user.displayName,
+        userDisplayName: userDisplayName,
         spfxTheme: this._currentTheme,
         isEditMode: this.displayMode === DisplayMode.Edit,
-        onOpenPropertyPane: () => this.context.propertyPane.open()
+        onOpenPropertyPane: () => {
+          if (this.context && this.context.propertyPane) {
+            this.context.propertyPane.open();
+          }
+        }
       }
     );
 
-    ReactDom.render(element, this.domElement);
+    const rootElement = React.createElement(
+      ErrorBoundary,
+      { fallbackTitle: 'Full-Width Container' },
+      containerElement
+    );
+
+    ReactDom.render(rootElement, this.domElement);
   }
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {

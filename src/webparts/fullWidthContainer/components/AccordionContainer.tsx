@@ -150,7 +150,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
     );
   }
 
-  const q = searchQuery.toLowerCase().trim();
+  const q = searchQuery ? searchQuery.toLowerCase().trim() : '';
 
   return (
     <div className={styles.container}>
@@ -187,15 +187,16 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         onToggle={handleToggle}
       >
         {sections.map((section) => {
+          const blocks = (section && Array.isArray(section.blocks)) ? section.blocks : [];
           const filteredBlocks = q
-            ? section.blocks.filter(
+            ? blocks.filter(
                 (b) =>
-                  b.title.toLowerCase().includes(q) ||
+                  (b.title && b.title.toLowerCase().includes(q)) ||
                   (b.description && b.description.toLowerCase().includes(q)) ||
                   (b.badge && b.badge.toLowerCase().includes(q)) ||
-                  (b.tags && b.tags.some((t) => t.toLowerCase().includes(q)))
+                  (b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q)))
               )
-            : section.blocks;
+            : blocks;
 
           return (
             <AccordionItem

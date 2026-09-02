@@ -105,19 +105,17 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
   }
 
   // Filter blocks by search query
-  const q = searchQuery.toLowerCase().trim();
-  const filteredBlocks =
-    activeSection && q
-      ? activeSection.blocks.filter(
-          (b) =>
-            b.title.toLowerCase().includes(q) ||
-            (b.description && b.description.toLowerCase().includes(q)) ||
-            (b.badge && b.badge.toLowerCase().includes(q)) ||
-            (b.tags && b.tags.some((t) => t.toLowerCase().includes(q)))
-        )
-      : activeSection
-      ? activeSection.blocks
-      : [];
+  const q = searchQuery ? searchQuery.toLowerCase().trim() : '';
+  const blocks = (activeSection && Array.isArray(activeSection.blocks)) ? activeSection.blocks : [];
+  const filteredBlocks = q
+    ? blocks.filter(
+        (b) =>
+          (b.title && b.title.toLowerCase().includes(q)) ||
+          (b.description && b.description.toLowerCase().includes(q)) ||
+          (b.badge && b.badge.toLowerCase().includes(q)) ||
+          (b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q)))
+      )
+    : blocks;
 
   return (
     <div className={styles.container}>
