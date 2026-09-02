@@ -22,7 +22,8 @@ import {
   Caption1,
   makeStyles,
   shorthands,
-  tokens
+  tokens,
+  mergeClasses
 } from '@fluentui/react-components';
 import {
   SearchRegular,
@@ -31,18 +32,23 @@ import {
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
-  root: {
+  rootBase: {
     width: '100%',
     boxSizing: 'border-box',
-    backgroundColor: tokens.colorNeutralBackground2,
     color: tokens.colorNeutralForeground1,
-    minHeight: '120px'
+    minHeight: '120px',
+    transitionProperty: 'background-color, border-color, box-shadow',
+    transitionDuration: '250ms'
+  },
+  rootStandard: {
+    backgroundColor: tokens.colorNeutralBackground2,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2)
   },
   rootGlassmorphism: {
-    backgroundColor: 'rgba(255, 255, 255, 0.72)',
-    backdropFilter: 'blur(16px)',
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.4)'),
-    boxShadow: tokens.shadow8
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.5)'),
+    boxShadow: tokens.shadow16
   },
   rootBranded: {
     backgroundColor: tokens.colorBrandBackground2,
@@ -51,6 +57,10 @@ const useStyles = makeStyles({
   rootMinimal: {
     backgroundColor: 'transparent',
     ...shorthands.border('none')
+  },
+  rootGradient: {
+    backgroundImage: 'linear-gradient(135deg, rgba(0, 120, 212, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%)',
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2)
   },
   inner: {
     width: '100%',
@@ -209,10 +219,12 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
       ? styles.rootBranded
       : containerStyle === 'minimal'
       ? styles.rootMinimal
-      : styles.root;
+      : containerStyle === 'gradient'
+      ? styles.rootGradient
+      : styles.rootStandard;
 
   return (
-    <FluentProvider theme={fluentTheme} className={`${styles.root} ${styleClass}`}>
+    <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, styleClass)}>
       <div className={`${styles.inner} ${compactPadding ? styles.innerCompact : ''}`}>
         {/* Edit Mode Helper Notification Bar */}
         {isEditMode && (

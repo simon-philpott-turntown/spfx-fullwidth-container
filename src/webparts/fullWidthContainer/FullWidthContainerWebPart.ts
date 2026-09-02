@@ -109,6 +109,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     return super.onInit();
   }
 
+  protected get disableReactivePropertyChanges(): boolean {
+    return false;
+  }
+
+  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
+    this.render();
+  }
+
   public render(): void {
     if (!this.domElement) {
       return;

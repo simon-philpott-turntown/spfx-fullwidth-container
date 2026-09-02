@@ -234,6 +234,44 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      transition: background 250ms, border-color 250ms, box-shadow 250ms;
+      border-radius: var(--fui-borderRadiusLarge);
+    }
+
+    .fui-root.style-standard {
+      background-color: var(--fui-colorNeutralBackground2);
+      border: 1px solid var(--fui-colorNeutralStroke2);
+    }
+
+    .fui-root.style-glassmorphism {
+      background-color: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+    body.dark-mode .fui-root.style-glassmorphism {
+      background-color: rgba(24, 24, 24, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .fui-root.style-branded {
+      background-color: var(--fui-colorBrandBackground2);
+      border: 1px solid var(--fui-colorBrandStroke2);
+    }
+
+    .fui-root.style-minimal {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .fui-root.style-gradient {
+      background: linear-gradient(135deg, rgba(0, 120, 212, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid var(--fui-colorNeutralStroke2);
+    }
+    body.dark-mode .fui-root.style-gradient {
+      background: linear-gradient(135deg, rgba(0, 120, 212, 0.15) 0%, rgba(24, 24, 24, 0.95) 100%);
     }
 
     .edit-banner {
@@ -595,6 +633,16 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Container Surface Style</label>
+          <select class="form-select" id="sel-container-style" onchange="updateContainerStyle(this.value)">
+            <option value="standard">Standard Fluent 2 (Solid Layered Surface)</option>
+            <option value="glassmorphism">Acrylic Glassmorphism (Frosted Translucent)</option>
+            <option value="branded">Branded Tint (Inherited Site Palette)</option>
+            <option value="minimal">Minimal (Clean Transparent)</option>
+            <option value="gradient">Gradient Ambient</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Quick Preset Template</label>
           <select class="form-select" id="sel-preset" onchange="loadPreset(this.value)">
             <option value="commercial">Commercial & Financial Hub (GBP £)</option>
@@ -798,6 +846,7 @@
       title: 'Content title',
       subtitle: 'Centralised operational methodologies, metrics, and resources',
       layoutMode: 'tabs',
+      containerStyle: 'standard',
       activeTabId: 'sec-playbooks',
       searchQuery: '',
       activeSecIdx: 0,
@@ -834,6 +883,7 @@
     function updateTitle(val) { state.title = val; render(); }
     function updateSubtitle(val) { state.subtitle = val; render(); }
     function updateLayoutMode(val) { state.layoutMode = val; render(); }
+    function updateContainerStyle(val) { state.containerStyle = val; render(); }
 
     function syncSidebar() {
       // Sync Section Dropdown
@@ -1034,7 +1084,7 @@
         );
       };
 
-      return React.createElement('div', { className: 'fui-root' },
+      return React.createElement('div', { className: 'fui-root style-' + (state.containerStyle || 'standard') },
         // Edit Mode Banner
         isEditMode ? React.createElement('div', { className: 'edit-banner' },
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
