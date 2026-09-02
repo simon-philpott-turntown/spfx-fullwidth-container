@@ -214,15 +214,17 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
               value={tag.id}
               shape="rounded"
               appearance="outline"
-              icon={<TagRegular />}
+              size="extra-small"
+              icon={<TagRegular style={{ fontSize: '10px', width: '10px', height: '10px' }} />}
               dismissible={isEditMode}
+              style={{
+                fontSize: '0.68rem',
+                lineHeight: '0.9rem',
+                padding: '1px 5px',
+                height: '19px'
+              }}
             >
               {tag.label}
-              {tag.termSetName && (
-                <span style={{ fontSize: '0.7rem', opacity: 0.7, marginLeft: '4px' }}>
-                  ({tag.termSetName})
-                </span>
-              )}
             </Tag>
           ))}
 
@@ -230,7 +232,8 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
             <Button
               size="small"
               appearance="subtle"
-              icon={isPickerOpen ? <DismissRegular /> : <AddRegular />}
+              style={{ fontSize: '0.72rem', height: '20px', padding: '0 6px' }}
+              icon={isPickerOpen ? <DismissRegular style={{ fontSize: '11px' }} /> : <AddRegular style={{ fontSize: '11px' }} />}
               onClick={() => setIsPickerOpen(!isPickerOpen)}
             >
               {isPickerOpen ? 'Done' : '+ Add Global Term Store Tag'}
