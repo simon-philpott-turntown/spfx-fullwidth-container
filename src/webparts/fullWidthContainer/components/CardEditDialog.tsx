@@ -186,7 +186,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               <Label required weight="semibold">Title</Label>
               <Input
                 value={formData.title || ''}
-                placeholder="Enter title..."
+                placeholder="Card title"
                 onChange={(e, data) => setFormData({ ...formData, title: data.value })}
               />
             </div>
@@ -197,7 +197,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               <Textarea
                 rows={3}
                 value={formData.description || ''}
-                placeholder="Enter description..."
+                placeholder="Card description summary"
                 onChange={(e, data) => setFormData({ ...formData, description: data.value })}
               />
             </div>
@@ -209,7 +209,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   <Label weight="semibold">Metric Value (GBP £)</Label>
                   <Input
                     value={formData.metricValue || ''}
-                    placeholder="e.g. £450,000"
+                    placeholder="£100,000"
                     onChange={(e, data) => setFormData({ ...formData, metricValue: data.value })}
                   />
                 </div>
@@ -217,7 +217,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   <Label weight="semibold">Trend Badge</Label>
                   <Input
                     value={formData.metricTrend || ''}
-                    placeholder="e.g. +14.2% YoY"
+                    placeholder="+10%"
                     onChange={(e, data) => setFormData({ ...formData, metricTrend: data.value })}
                   />
                 </div>
@@ -242,7 +242,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <Label weight="semibold">Status / Category Badge</Label>
                 <Input
                   value={formData.badge || ''}
-                  placeholder="e.g. Core Framework, New, Guidance"
+                  placeholder="Badge"
                   onChange={(e, data) => setFormData({ ...formData, badge: data.value })}
                 />
               </div>
@@ -250,7 +250,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <Label weight="semibold">Tags (comma-separated)</Label>
                 <Input
                   value={formData.tags ? formData.tags.join(', ') : ''}
-                  placeholder="e.g. ISO 19650, BIM, Standards"
+                  placeholder="Tag 1, Tag 2"
                   onChange={(e, data) => {
                     const splitTags = data.value.split(',').map((t) => t.trim()).filter((t) => !!t);
                     setFormData({ ...formData, tags: splitTags });
@@ -265,7 +265,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <Label weight="semibold">Button / Link Text</Label>
                 <Input
                   value={formData.linkText || ''}
-                  placeholder="e.g. Open Playbook, Learn More"
+                  placeholder="Learn more"
                   onChange={(e, data) => setFormData({ ...formData, linkText: data.value })}
                 />
               </div>

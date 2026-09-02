@@ -32,7 +32,8 @@
       },
       "officeFabricIconFontName": "GroupedList",
       "properties": {
-        "title": "Content title",
+        "title": "Container title",
+        "subtitle": "Container subtitle / description",
         "layoutMode": "tabs",
         "containerStyle": "standard",
         "accentColor": "#0078d4",

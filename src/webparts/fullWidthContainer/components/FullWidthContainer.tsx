@@ -264,20 +264,20 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               <input
                 className={styles.inlineTitleInput}
                 value={title || ''}
-                placeholder="Click to enter Container Title..."
+                placeholder="Container title"
                 onFocus={() => setFocusedField('title')}
                 onBlur={() => setTimeout(() => setFocusedField(null), 250)}
                 onChange={(e) => onTitleChange(e.target.value)}
               />
             ) : (
-              <Title1>{title || 'Content title'}</Title1>
+              <Title1>{title || 'Container title'}</Title1>
             )}
 
             {isEditMode && onSubtitleChange ? (
               <input
                 className={styles.inlineSubtitleInput}
                 value={subtitle || ''}
-                placeholder="Click to enter Subtitle / description..."
+                placeholder="Container subtitle / description"
                 onFocus={() => setFocusedField('subtitle')}
                 onBlur={() => setTimeout(() => setFocusedField(null), 250)}
                 onChange={(e) => onSubtitleChange(e.target.value)}

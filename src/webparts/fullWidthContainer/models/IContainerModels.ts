@@ -272,38 +272,38 @@ export const PRESET_TEMPLATES: Record<string, { name: string; sections: IContain
     sections: [
       {
         id: 'sec-start-1',
-        title: 'Overview & Guidance',
+        title: 'Section title',
         iconName: 'BookAnswers',
-        badge: 'Core',
-        description: 'Add your custom guidelines and cards here.',
+        badge: 'Badge',
+        description: 'Section description summary',
         blocks: [
           {
             id: 'blk-s-1',
             type: 'card',
-            title: 'Welcome to your Container',
-            description: 'Use the SharePoint properties sidebar on the right to edit sections, badges, and card items.',
-            badge: 'Getting Started',
-            linkText: 'Learn More',
+            title: 'Card title',
+            description: 'Card description summary',
+            badge: 'Badge',
+            linkText: 'Learn more',
             linkUrl: '#',
-            tags: ['Guide']
+            tags: ['Tag 1', 'Tag 2']
           }
         ]
       },
       {
         id: 'sec-start-2',
-        title: 'Key Statistics (£)',
+        title: 'Metric section title',
         iconName: 'Financial',
-        badge: 'Live',
-        description: 'Key performance indicators in GBP.',
+        badge: 'Badge',
+        description: 'Metric section description summary',
         blocks: [
           {
             id: 'blk-s-2',
             type: 'metric',
-            title: 'Target Delivery Budget',
-            metricValue: '£500,000',
-            metricTrend: 'On target',
+            title: 'Metric title',
+            metricValue: '£100,000',
+            metricTrend: '+10%',
             metricTrendPositive: true,
-            description: 'Configurable directly in the properties sidebar'
+            description: 'Metric description summary'
           }
         ]
       }

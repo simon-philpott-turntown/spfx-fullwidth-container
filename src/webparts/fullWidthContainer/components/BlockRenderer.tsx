@@ -260,7 +260,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             className={styles.inlineInput}
             style={{ fontWeight: 600, fontSize: '1rem' }}
             value={block.title || ''}
-            placeholder="Metric Title..."
+            placeholder="Metric title"
             onChange={(e) => onUpdate({ title: e.target.value })}
           />
         ) : (
@@ -278,7 +278,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               marginBottom: '4px'
             }}
             value={block.metricValue || ''}
-            placeholder="e.g. £450,000"
+            placeholder="£100,000"
             onChange={(e) => onUpdate({ metricValue: e.target.value })}
           />
         ) : (
@@ -303,7 +303,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             className={styles.inlineInput}
             style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
             value={block.description || ''}
-            placeholder="Metric description..."
+            placeholder="Metric description summary"
             onChange={(e) => onUpdate({ description: e.target.value })}
           />
         ) : (
@@ -335,7 +335,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   className={styles.inlineInput}
                   style={{ fontWeight: 600, fontSize: '1.1rem' }}
                   value={block.title || ''}
-                  placeholder="Tool Title..."
+                  placeholder="Tool title"
                   onChange={(e) => onUpdate({ title: e.target.value })}
                 />
               ) : (
@@ -348,7 +348,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   className={styles.inlineInput}
                   style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
                   value={block.description || ''}
-                  placeholder="Tool Description..."
+                  placeholder="Tool description summary"
                   onChange={(e) => onUpdate({ description: e.target.value })}
                 />
               ) : (
@@ -400,7 +400,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 className={styles.inlineInput}
                 style={{ fontWeight: 600, fontSize: '1.1rem' }}
                 value={block.title || ''}
-                placeholder="Card Title..."
+                placeholder="Card title"
                 onChange={(e) => onUpdate({ title: e.target.value })}
               />
             ) : (
@@ -432,7 +432,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 resize: 'vertical'
               }}
               value={block.description || ''}
-              placeholder="Card Description..."
+              placeholder="Card description summary"
               onFocus={() => setIsFocused(true)}
               onBlur={() => {
                 setTimeout(() => setIsFocused(false), 250);

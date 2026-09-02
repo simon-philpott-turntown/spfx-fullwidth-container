@@ -619,11 +619,11 @@
       <div class="pane-body" id="pane-page-1">
         <div class="form-group">
           <label class="form-label">Container Title</label>
-          <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Content title" />
+          <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Container title" placeholder="Container title" />
         </div>
         <div class="form-group">
           <label class="form-label">Subtitle / Description</label>
-          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)">Centralised operational methodologies, metrics, and resources</textarea>
+          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)" placeholder="Container subtitle / description">Container subtitle / description</textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Default Layout Mode</label>
@@ -843,8 +843,8 @@
     ];
 
     let state = {
-      title: 'Content title',
-      subtitle: 'Centralised operational methodologies, metrics, and resources',
+      title: 'Container title',
+      subtitle: 'Container subtitle / description',
       layoutMode: 'tabs',
       containerStyle: 'standard',
       activeTabId: 'sec-playbooks',
@@ -915,18 +915,17 @@
       });
       selCardSec.value = state.activeCardSecIdx;
 
-      const targetSec = currentSections[state.activeCardSecIdx] || currentSections[0];
-      const selCardIdx = document.getElementById('sel-card-idx');
-      selCardIdx.innerHTML = '';
-      if (targetSec && targetSec.blocks) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      const selCard = document.getElementById('sel-card');
+      selCard.innerHTML = '';
+      if (targetSec && targetSec.blocks.length > 0) {
         targetSec.blocks.forEach((b, idx) => {
           const opt = document.createElement('option');
           opt.value = idx;
           opt.textContent = `${idx + 1}. ${b.title} [${b.type}]`;
-          selCardIdx.appendChild(opt);
+          selCard.appendChild(opt);
         });
-        selCardIdx.value = state.activeCardIdx;
-
+        selCard.value = state.activeCardIdx;
         const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
         if (curCard) {
           document.getElementById('sel-card-type').value = curCard.type || 'card';
@@ -935,7 +934,9 @@
           document.getElementById('inp-card-badge').value = curCard.badge || '';
           document.getElementById('inp-card-metric-val').value = curCard.metricValue || '';
           document.getElementById('inp-card-metric-trend').value = curCard.metricTrend || '';
-          
+          document.getElementById('inp-card-link-text').value = curCard.actionText || '';
+          document.getElementById('inp-card-link-url').value = curCard.actionUrl || '';
+
           const isMetric = curCard.type === 'metric';
           document.getElementById('grp-card-metric').style.display = isMetric ? 'flex' : 'none';
           document.getElementById('grp-card-trend').style.display = isMetric ? 'flex' : 'none';
@@ -951,18 +952,18 @@
     function addSection() {
       const newSec = {
         id: 'sec-' + Date.now(),
-        title: 'New Section ' + (currentSections.length + 1),
+        title: 'Section title',
         iconName: 'fa-folder',
-        badge: 'Core',
-        description: 'New section description',
+        badge: 'Badge',
+        description: 'Section description summary',
         blocks: [
           {
             id: 'blk-' + Date.now(),
             type: 'card',
-            title: 'Sample Card',
-            description: 'Customise this item in Page 3',
-            badge: 'New',
-            actionText: 'Open',
+            title: 'Card title',
+            description: 'Card description summary',
+            badge: 'Badge',
+            actionText: 'Learn more',
             actionUrl: '#'
           }
         ]
@@ -1043,16 +1044,32 @@
       }
     }
 
+    function updateCardLinkText(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].actionText = val;
+        render();
+      }
+    }
+
+    function updateCardLinkUrl(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].actionUrl = val;
+        render();
+      }
+    }
+
     function addCard() {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (!targetSec) return;
       const newCard = {
         id: 'blk-' + Date.now(),
         type: 'card',
-        title: 'New Card ' + (targetSec.blocks.length + 1),
-        description: 'Card description in GBP (£)',
-        badge: 'Live',
-        actionText: 'View Details',
+        title: 'Card title',
+        description: 'Card description summary',
+        badge: 'Badge',
+        actionText: 'Learn more',
         actionUrl: '#'
       };
       targetSec.blocks.push(newCard);

@@ -131,10 +131,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
         FullWidthContainer,
         {
-          title: props.title || 'Content title',
+          title: props.title || 'Container title',
           subtitle: props.subtitle !== undefined
             ? props.subtitle
-            : 'Centralised operational methodologies, metrics, and resources',
+            : 'Container subtitle / description',
           layoutMode: props.layoutMode || 'tabs',
           containerStyle: props.containerStyle || 'standard',
           accentColor: props.accentColor || '#0078d4',
@@ -188,10 +188,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               sec.blocks.push({
                 id: `blk-${Date.now()}`,
                 type: 'card',
-                title: 'New Card Item',
-                description: 'Click on this text to edit, or use the toolbar to configure properties.',
-                badge: 'New',
-                linkText: 'Learn More',
+                title: 'Card title',
+                description: 'Card description summary',
+                badge: 'Badge',
+                linkText: 'Learn more',
                 linkUrl: '#'
               });
               this._saveSections(sections);
@@ -365,18 +365,18 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     const sections = this._getActiveSections();
     const newSection: IContainerSection = {
       id: `sec-${Date.now()}`,
-      title: `New Section ${sections.length + 1}`,
+      title: 'Section title',
       iconName: 'Document',
-      badge: 'Core',
-      description: 'Section description and instructions',
+      badge: 'Badge',
+      description: 'Section description summary',
       blocks: [
         {
           id: `blk-${Date.now()}`,
           type: 'card',
-          title: 'Sample Card Item',
-          description: 'Customise this item using Page 3 in the properties sidebar.',
-          badge: 'New',
-          linkText: 'Learn More',
+          title: 'Card title',
+          description: 'Card description summary',
+          badge: 'Badge',
+          linkText: 'Learn more',
           linkUrl: '#'
         }
       ]
@@ -417,12 +417,12 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     const newBlock: IContentBlock = {
       id: `blk-${Date.now()}`,
       type: 'card',
-      title: `New Card ${sections[secIdx].blocks.length + 1}`,
-      description: 'Enter your card description here in the properties sidebar.',
-      badge: 'Interactive',
-      linkText: 'View Details',
+      title: 'Card title',
+      description: 'Card description summary',
+      badge: 'Badge',
+      linkText: 'Learn more',
       linkUrl: '#',
-      tags: ['New']
+      tags: ['Tag 1']
     };
 
     sections[secIdx].blocks.push(newBlock);
