@@ -7,20 +7,25 @@ import { ITermStoreTag } from '../models/IContainerModels';
 
 export class TaxonomyService {
   private static _cachedTerms: ITermStoreTag[] = [
-    { id: 't-comm', label: 'Commercial advisory', termSetName: 'Commercial governance' },
-    { id: 't-adv', label: 'Advisory services', termSetName: 'Commercial governance' },
-    { id: 't-p0', label: 'Priority 1 mandatory', termSetName: 'Priority class' },
-    { id: 't-p1', label: 'Standard priority', termSetName: 'Priority class' },
-    { id: 't-comp', label: 'Compliance assurance', termSetName: 'Quality assurance' },
-    { id: 't-qual', label: 'Quality standard', termSetName: 'Quality assurance' },
-    { id: 't-bim', label: 'Digital engineering', termSetName: 'Technical standards' },
-    { id: 't-iso', label: 'ISO 19650 standard', termSetName: 'Technical standards' },
-    { id: 't-safe', label: 'Health and safety', termSetName: 'Safety governance' },
-    { id: 't-hse', label: 'Safety compliance', termSetName: 'Safety governance' },
-    { id: 't-fin', label: 'Financial controls (£)', termSetName: 'Financial governance' },
-    { id: 't-ops', label: 'Operational delivery', termSetName: 'Service delivery' },
-    { id: 't-strat', label: 'Executive strategy', termSetName: 'Executive board' },
-    { id: 't-risk', label: 'Risk management', termSetName: 'Risk register' }
+    // Intranet -> Our Sectors
+    { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors' },
+    { id: 'sec-energy', label: 'Energy and utilities', termSetName: 'Our Sectors' },
+    { id: 'sec-prop', label: 'Real estate and property', termSetName: 'Our Sectors' },
+    { id: 'sec-def', label: 'Defence and security', termSetName: 'Our Sectors' },
+    { id: 'sec-av', label: 'Aviation and transport', termSetName: 'Our Sectors' },
+    { id: 'sec-health', label: 'Healthcare and science', termSetName: 'Our Sectors' },
+    { id: 'sec-gov', label: 'Government and public sector', termSetName: 'Our Sectors' },
+    { id: 'sec-tech', label: 'Technology and digital', termSetName: 'Our Sectors' },
+
+    // Intranet -> Our Segments
+    { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments' },
+    { id: 'seg-prog', label: 'Programme management', termSetName: 'Our Segments' },
+    { id: 'seg-proj', label: 'Project controls', termSetName: 'Our Segments' },
+    { id: 'seg-cost', label: 'Cost and commercial management', termSetName: 'Our Segments' },
+    { id: 'seg-strat', label: 'Strategic advisory', termSetName: 'Our Segments' },
+    { id: 'seg-esg', label: 'Sustainability, ESG and net zero', termSetName: 'Our Segments' },
+    { id: 'seg-proc', label: 'Procurement and supply chain', termSetName: 'Our Segments' },
+    { id: 'seg-disp', label: 'Dispute resolution', termSetName: 'Our Segments' }
   ];
 
   private static _isFetched: boolean = false;
@@ -28,7 +33,7 @@ export class TaxonomyService {
   /**
    * Fetches terms from SharePoint Global Term Store on the tenant or fallback terms.
    */
-  public static async getTerms(filterQuery?: string): Promise<ITermStoreTag[]> {
+  public static async getTerms(filterQuery?: string, termSetFilter?: string): Promise<ITermStoreTag[]> {
     if (!this._isFetched && typeof window !== 'undefined') {
       try {
         const spCtx = (window as unknown as { _spPageContextInfo?: { webAbsoluteUrl?: string } })._spPageContextInfo;
@@ -47,7 +52,7 @@ export class TaxonomyService {
             if (data && Array.isArray(data.value)) {
               const liveTerms: ITermStoreTag[] = [];
               data.value.forEach((set: { id: string; localizedNames?: Array<{ name: string }>; terms?: Array<{ id: string; labels?: Array<{ name: string }> }> }) => {
-                const setName = set.localizedNames && set.localizedNames[0] ? set.localizedNames[0].name : 'Global terms';
+                const setName = set.localizedNames && set.localizedNames[0] ? set.localizedNames[0].name : 'Intranet';
                 if (Array.isArray(set.terms)) {
                   set.terms.forEach((term) => {
                     const termLabel = term.labels && term.labels[0] ? term.labels[0].name : 'Term';
@@ -73,20 +78,37 @@ export class TaxonomyService {
       }
     }
 
+    let results = this._cachedTerms;
+
+    if (termSetFilter && termSetFilter !== 'all') {
+      results = results.filter((t) => t.termSetName?.toLowerCase() === termSetFilter.toLowerCase());
+    }
+
     if (!filterQuery) {
-      return this._cachedTerms;
+      return results;
     }
 
     const q = filterQuery.toLowerCase();
-    return this._cachedTerms.filter(
+    return results.filter(
       (t) => t.label.toLowerCase().indexOf(q) !== -1 || (t.termSetName && t.termSetName.toLowerCase().indexOf(q) !== -1)
     );
   }
 
   /**
+   * Returns list of unique term sets available in the Intranet taxonomy group.
+   */
+  public static getAvailableTermSets(): string[] {
+    const sets = new Set<string>();
+    this._cachedTerms.forEach((t) => {
+      if (t.termSetName) sets.add(t.termSetName);
+    });
+    return Array.from(sets);
+  }
+
+  /**
    * Adds a custom term to local term cache for authoring flexibility.
    */
-  public static addTerm(label: string, termSetName: string = 'Custom terms'): ITermStoreTag {
+  public static addTerm(label: string, termSetName: string = 'Our Segments'): ITermStoreTag {
     const newTerm: ITermStoreTag = {
       id: `t-${Date.now()}`,
       label: label.trim(),

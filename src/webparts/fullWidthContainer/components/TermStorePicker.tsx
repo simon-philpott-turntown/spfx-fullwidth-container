@@ -41,11 +41,21 @@ const useStyles = makeStyles({
     gap: '8px',
     marginTop: '6px'
   },
+  termSetFilterRow: {
+    display: 'flex',
+    gap: '6px',
+    flexWrap: 'wrap',
+    marginBottom: '4px'
+  },
+  filterPill: {
+    fontSize: '0.75rem',
+    cursor: 'pointer'
+  },
   suggestionsList: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: '6px',
-    maxHeight: '130px',
+    maxHeight: '160px',
     overflowY: 'auto',
     ...shorthands.padding('4px')
   },
@@ -77,6 +87,7 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
   const styles = useStyles();
   const [isPickerOpen, setIsPickerOpen] = React.useState<boolean>(false);
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [selectedTermSet, setSelectedTermSet] = React.useState<string>('all');
   const [allTerms, setAllTerms] = React.useState<ITermStoreTag[]>([]);
   const [newTermInput, setNewTermInput] = React.useState<string>('');
 
@@ -96,7 +107,8 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
 
   const handleCreateTerm = (): void => {
     if (!newTermInput.trim()) return;
-    const created = TaxonomyService.addTerm(newTermInput.trim());
+    const targetSet = selectedTermSet !== 'all' ? selectedTermSet : 'Our Segments';
+    const created = TaxonomyService.addTerm(newTermInput.trim(), targetSet);
     setAllTerms([...allTerms, created]);
     handleSelectTerm(created);
     setNewTermInput('');
@@ -105,7 +117,8 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
   const filteredSuggestions = allTerms.filter(
     (t) =>
       !selectedTags.some((st) => st.label.toLowerCase() === t.label.toLowerCase()) &&
-      (!searchQuery || t.label.toLowerCase().includes(searchQuery.toLowerCase()))
+      (selectedTermSet === 'all' || t.termSetName?.toLowerCase() === selectedTermSet.toLowerCase()) &&
+      (!searchQuery || t.label.toLowerCase().includes(searchQuery.toLowerCase()) || (t.termSetName && t.termSetName.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
   return (
@@ -122,6 +135,11 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
               dismissible={isEditMode}
             >
               {tag.label}
+              {tag.termSetName && tag.termSetName !== 'Intranet' && (
+                <span style={{ fontSize: '0.7rem', opacity: 0.7, marginLeft: '4px' }}>
+                  ({tag.termSetName})
+                </span>
+              )}
             </Tag>
           ))}
 
@@ -132,7 +150,7 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
               icon={<AddRegular />}
               onClick={() => setIsPickerOpen(!isPickerOpen)}
             >
-              {isPickerOpen ? 'Done' : '+ Add Term Store Tag'}
+              {isPickerOpen ? 'Done' : '+ Add Global Term Store Tag'}
             </Button>
           )}
         </div>
@@ -140,13 +158,47 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
 
       {isEditMode && isPickerOpen && (
         <div className={styles.pickerBox}>
-          <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-            Select tags from SharePoint Global Term Store:
-          </Caption1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Caption1 style={{ color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
+              Global term store • Intranet term sets
+            </Caption1>
+            <Caption1 style={{ color: tokens.colorNeutralForeground4, fontSize: '0.75rem' }}>
+              Tenant taxonomy
+            </Caption1>
+          </div>
+
+          {/* Term Set Filter Tabs (Our Sectors & Our Segments) */}
+          <div className={styles.termSetFilterRow}>
+            <Button
+              size="small"
+              appearance={selectedTermSet === 'all' ? 'primary' : 'secondary'}
+              className={styles.filterPill}
+              onClick={() => setSelectedTermSet('all')}
+            >
+              All Intranet terms
+            </Button>
+            <Button
+              size="small"
+              appearance={selectedTermSet === 'our sectors' ? 'primary' : 'secondary'}
+              className={styles.filterPill}
+              onClick={() => setSelectedTermSet('our sectors')}
+            >
+              🏢 Our Sectors
+            </Button>
+            <Button
+              size="small"
+              appearance={selectedTermSet === 'our segments' ? 'primary' : 'secondary'}
+              className={styles.filterPill}
+              onClick={() => setSelectedTermSet('our segments')}
+            >
+              📊 Our Segments
+            </Button>
+          </div>
+
           <Input
             size="small"
             contentBefore={<SearchRegular />}
-            placeholder="Search Term Store..."
+            placeholder="Search Intranet terms (e.g. Infrastructure, Commercial)..."
             value={searchQuery}
             onChange={(_, data) => setSearchQuery(data.value)}
           />
@@ -161,11 +213,16 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
                 onClick={() => handleSelectTerm(term)}
               >
                 + {term.label}
+                {term.termSetName && (
+                  <span style={{ fontSize: '0.68rem', opacity: 0.75, marginLeft: '4px' }}>
+                    [{term.termSetName}]
+                  </span>
+                )}
               </Tag>
             ))}
             {filteredSuggestions.length === 0 && (
               <Caption1 style={{ color: tokens.colorNeutralForeground4 }}>
-                No matching terms. Create a custom tag below.
+                No matching terms in this term set. Add a new term below.
               </Caption1>
             )}
           </div>
@@ -173,7 +230,7 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
           <div className={styles.addNewRow}>
             <Input
               size="small"
-              placeholder="New term label..."
+              placeholder={`New term for ${selectedTermSet !== 'all' ? selectedTermSet : 'Our Segments'}...`}
               value={newTermInput}
               onChange={(_, data) => setNewTermInput(data.value)}
               onKeyDown={(e) => {

@@ -228,7 +228,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 }) => {
   const styles = useStyles();
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
-  const [isFocused, setIsFocused] = React.useState<boolean>(false);
+  const [focusedField, setFocusedField] = React.useState<string | null>(null);
 
   const renderFluent2Icon = (iconName?: string): React.ReactElement => {
     switch (iconName) {
@@ -318,13 +318,13 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
       ] : undefined,
       liveDataConfig: itemType === 'liveData' ? {
         apiUrl: 'demo-api/metric',
-        jsonPath: 'value',
+        jsonPath: 'data.metric',
         prefix: '£',
         refreshIntervalSeconds: 30
       } : undefined,
       termStoreTags: itemType === 'termStoreTags' ? [
-        { id: 't-comm', label: 'Commercial' },
-        { id: 't-p0', label: 'P0 Critical' }
+        { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors' },
+        { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments' }
       ] : undefined
     };
 
@@ -353,9 +353,42 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'text' && (
-          <Body1 style={{ color: tokens.colorNeutralForeground2 }}>
-            {item.text || 'Text section content'}
-          </Body1>
+          <div>
+            {isEditMode && focusedField === item.id && (
+              <div style={{ marginBottom: '6px' }}>
+                <FloatingTextToolbar />
+              </div>
+            )}
+            {isEditMode && onUpdate ? (
+              <textarea
+                className={styles.inlineInput}
+                rows={2}
+                style={{
+                  color: tokens.colorNeutralForeground1,
+                  fontFamily: tokens.fontFamilyBase,
+                  fontSize: '0.95rem',
+                  resize: 'vertical'
+                }}
+                value={item.text || ''}
+                placeholder="Text section content"
+                onFocus={() => setFocusedField(item.id)}
+                onBlur={() => {
+                  setTimeout(() => setFocusedField(null), 250);
+                }}
+                onChange={(e) => {
+                  if (block.items && onUpdate) {
+                    const updatedItems = [...block.items];
+                    updatedItems[idx].text = e.target.value;
+                    onUpdate({ items: updatedItems });
+                  }
+                }}
+              />
+            ) : (
+              <Body1 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
+                {item.text || 'Text section content'}
+              </Body1>
+            )}
+          </div>
         )}
 
         {item.type === 'button' && (
@@ -437,7 +470,111 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'liveData' && item.liveDataConfig && (
-          <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
+          <div>
+            {isEditMode ? (
+              <div
+                style={{
+                  padding: '10px',
+                  borderRadius: tokens.borderRadiusMedium,
+                  backgroundColor: tokens.colorNeutralBackground2,
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  marginBottom: '8px'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Caption1 style={{ color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
+                    Real-time live data API (optional)
+                  </Caption1>
+                  <Badge appearance="tint" color="brand" size="small">
+                    Live REST
+                  </Badge>
+                </div>
+                <input
+                  className={styles.inlineInput}
+                  style={{
+                    backgroundColor: tokens.colorNeutralBackground1,
+                    border: `1px solid ${tokens.colorNeutralStroke1}`,
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem'
+                  }}
+                  placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)"
+                  value={item.liveDataConfig.apiUrl || ''}
+                  onChange={(e) => {
+                    if (block.items && onUpdate) {
+                      const updatedItems = [...block.items];
+                      updatedItems[idx].liveDataConfig = {
+                        ...item.liveDataConfig,
+                        apiUrl: e.target.value,
+                        jsonPath: item.liveDataConfig?.jsonPath || 'value',
+                        prefix: item.liveDataConfig?.prefix || '£',
+                        refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
+                      };
+                      onUpdate({ items: updatedItems });
+                    }
+                  }}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <input
+                    className={styles.inlineInput}
+                    style={{
+                      backgroundColor: tokens.colorNeutralBackground1,
+                      border: `1px solid ${tokens.colorNeutralStroke1}`,
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '0.85rem'
+                    }}
+                    placeholder="JSON path (e.g. data.metric)"
+                    value={item.liveDataConfig.jsonPath || ''}
+                    onChange={(e) => {
+                      if (block.items && onUpdate) {
+                        const updatedItems = [...block.items];
+                        updatedItems[idx].liveDataConfig = {
+                          ...item.liveDataConfig,
+                          apiUrl: item.liveDataConfig?.apiUrl || '',
+                          jsonPath: e.target.value,
+                          prefix: item.liveDataConfig?.prefix || '£',
+                          refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
+                        };
+                        onUpdate({ items: updatedItems });
+                      }
+                    }}
+                  />
+                  <input
+                    className={styles.inlineInput}
+                    style={{
+                      backgroundColor: tokens.colorNeutralBackground1,
+                      border: `1px solid ${tokens.colorNeutralStroke1}`,
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '0.85rem'
+                    }}
+                    placeholder="Prefix (e.g. £)"
+                    value={item.liveDataConfig.prefix || ''}
+                    onChange={(e) => {
+                      if (block.items && onUpdate) {
+                        const updatedItems = [...block.items];
+                        updatedItems[idx].liveDataConfig = {
+                          ...item.liveDataConfig,
+                          apiUrl: item.liveDataConfig?.apiUrl || '',
+                          jsonPath: item.liveDataConfig?.jsonPath || 'value',
+                          prefix: e.target.value,
+                          refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
+                        };
+                        onUpdate({ items: updatedItems });
+                      }
+                    }}
+                  />
+                </div>
+                <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
+              </div>
+            ) : (
+              <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
+            )}
+          </div>
         )}
 
         {item.type === 'termStoreTags' && (
@@ -480,15 +617,33 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
           {isEditMode && onUpdate ? (
-            <input
-              className={styles.inlineInput}
-              style={{ fontWeight: 600, fontSize: '1rem' }}
-              value={block.title || ''}
-              placeholder="Metric title"
-              onChange={(e) => onUpdate({ title: e.target.value })}
-            />
+            <div>
+              {focusedField === 'metric-title' && (
+                <div style={{ marginBottom: '6px' }}>
+                  <FloatingTextToolbar />
+                </div>
+              )}
+              <input
+                className={styles.inlineInput}
+                style={{
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  color: tokens.colorNeutralForeground1,
+                  fontFamily: tokens.fontFamilyBase
+                }}
+                value={block.title || ''}
+                placeholder="Metric title"
+                onFocus={() => setFocusedField('metric-title')}
+                onBlur={() => {
+                  setTimeout(() => setFocusedField(null), 250);
+                }}
+                onChange={(e) => onUpdate({ title: e.target.value })}
+              />
+            </div>
           ) : (
-            <Subtitle2>{block.title}</Subtitle2>
+            <Subtitle2 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
+              {block.title}
+            </Subtitle2>
           )}
 
           {block.liveDataConfig ? (
@@ -502,6 +657,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 fontSize: '1.75rem',
                 fontWeight: 700,
                 color: tokens.colorBrandForeground1,
+                fontFamily: tokens.fontFamilyBase,
                 lineHeight: '2rem',
                 margin: '4px 0'
               }}
@@ -527,16 +683,31 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           )}
 
           {isEditMode && onUpdate ? (
-            <input
-              className={styles.inlineInput}
-              style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
-              value={block.description || ''}
-              placeholder="Metric summary"
-              onChange={(e) => onUpdate({ description: e.target.value })}
-            />
+            <div>
+              {focusedField === 'metric-desc' && (
+                <div style={{ marginBottom: '6px' }}>
+                  <FloatingTextToolbar />
+                </div>
+              )}
+              <input
+                className={styles.inlineInput}
+                style={{
+                  fontSize: '0.85rem',
+                  color: tokens.colorNeutralForeground3,
+                  fontFamily: tokens.fontFamilyBase
+                }}
+                value={block.description || ''}
+                placeholder="Metric summary"
+                onFocus={() => setFocusedField('metric-desc')}
+                onBlur={() => {
+                  setTimeout(() => setFocusedField(null), 250);
+                }}
+                onChange={(e) => onUpdate({ description: e.target.value })}
+              />
+            </div>
           ) : (
             block.description && (
-              <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, fontFamily: tokens.fontFamilyBase }}>
                 {block.description}
               </Caption1>
             )
@@ -580,28 +751,52 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             }
             header={
               isEditMode && onUpdate ? (
-                <input
-                  className={styles.inlineInput}
-                  style={{ fontWeight: 600, fontSize: '1.1rem' }}
-                  value={block.title || ''}
-                  placeholder="Tool title"
-                  onChange={(e) => onUpdate({ title: e.target.value })}
-                />
+                <div>
+                  {focusedField === 'embed-title' && (
+                    <div style={{ marginBottom: '6px' }}>
+                      <FloatingTextToolbar />
+                    </div>
+                  )}
+                  <input
+                    className={styles.inlineInput}
+                    style={{
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      color: tokens.colorNeutralForeground1,
+                      fontFamily: tokens.fontFamilyBase
+                    }}
+                    value={block.title || ''}
+                    placeholder="Tool title"
+                    onFocus={() => setFocusedField('embed-title')}
+                    onBlur={() => {
+                      setTimeout(() => setFocusedField(null), 250);
+                    }}
+                    onChange={(e) => onUpdate({ title: e.target.value })}
+                  />
+                </div>
               ) : (
-                <Title3>{block.title}</Title3>
+                <Title3 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
+                  {block.title}
+                </Title3>
               )
             }
             description={
               isEditMode && onUpdate ? (
                 <input
                   className={styles.inlineInput}
-                  style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
+                  style={{
+                    fontSize: '0.85rem',
+                    color: tokens.colorNeutralForeground3,
+                    fontFamily: tokens.fontFamilyBase
+                  }}
                   value={block.description || ''}
                   placeholder="Tool summary"
                   onChange={(e) => onUpdate({ description: e.target.value })}
                 />
               ) : (
-                <Caption1>{block.description}</Caption1>
+                <Caption1 style={{ color: tokens.colorNeutralForeground3, fontFamily: tokens.fontFamilyBase }}>
+                  {block.description}
+                </Caption1>
               )
             }
           />
@@ -654,15 +849,33 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           }
           header={
             isEditMode && onUpdate ? (
-              <input
-                className={styles.inlineInput}
-                style={{ fontWeight: 600, fontSize: '1.1rem' }}
-                value={block.title || ''}
-                placeholder="Card title"
-                onChange={(e) => onUpdate({ title: e.target.value })}
-              />
+              <div style={{ width: '100%' }}>
+                {focusedField === 'card-title' && (
+                  <div style={{ marginBottom: '6px' }}>
+                    <FloatingTextToolbar />
+                  </div>
+                )}
+                <input
+                  className={styles.inlineInput}
+                  style={{
+                    fontWeight: 600,
+                    fontSize: '1.15rem',
+                    color: tokens.colorNeutralForeground1,
+                    fontFamily: tokens.fontFamilyBase
+                  }}
+                  value={block.title || ''}
+                  placeholder="Card title"
+                  onFocus={() => setFocusedField('card-title')}
+                  onBlur={() => {
+                    setTimeout(() => setFocusedField(null), 250);
+                  }}
+                  onChange={(e) => onUpdate({ title: e.target.value })}
+                />
+              </div>
             ) : (
-              <Title3>{block.title}</Title3>
+              <Title3 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
+                {block.title}
+              </Title3>
             )
           }
           action={
@@ -677,7 +890,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {/* Card Body Description */}
         {isEditMode && onUpdate ? (
           <div>
-            {isFocused && (
+            {focusedField === 'card-description' && (
               <div style={{ marginBottom: '6px' }}>
                 <FloatingTextToolbar />
               </div>
@@ -687,21 +900,22 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               rows={2}
               style={{
                 color: tokens.colorNeutralForeground2,
+                fontFamily: tokens.fontFamilyBase,
                 marginTop: tokens.spacingVerticalS,
                 resize: 'vertical'
               }}
               value={block.description || ''}
               placeholder="Card summary"
-              onFocus={() => setIsFocused(true)}
+              onFocus={() => setFocusedField('card-description')}
               onBlur={() => {
-                setTimeout(() => setIsFocused(false), 250);
+                setTimeout(() => setFocusedField(null), 250);
               }}
               onChange={(e) => onUpdate({ description: e.target.value })}
             />
           </div>
         ) : (
           block.description && (
-            <Body1 style={{ color: tokens.colorNeutralForeground2, marginTop: tokens.spacingVerticalS }}>
+            <Body1 style={{ color: tokens.colorNeutralForeground2, fontFamily: tokens.fontFamilyBase, marginTop: tokens.spacingVerticalS }}>
               {block.description}
             </Body1>
           )

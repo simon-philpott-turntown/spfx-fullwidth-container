@@ -795,10 +795,34 @@
           <label class="form-label">Card summary or description</label>
           <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)" placeholder="Card summary"></textarea>
         </div>
+
+        <!-- Real-time Live Data API Group (Matching Screenshot 1) -->
         <div class="form-group">
-          <label class="form-label">Global term store tags</label>
-          <input type="text" class="form-input" id="inp-card-term-tags" placeholder="Tag 1, Tag 2" oninput="updateCardTermTags(this.value)" />
+          <label class="form-label">Real-time live data API (optional)</label>
+          <div style="background: var(--fui-colorNeutralBackground2); border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <input type="text" class="form-input" id="inp-card-live-api" placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)" oninput="updateCardLiveApi(this.value)" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <input type="text" class="form-input" id="inp-card-live-path" placeholder="JSON path (e.g. data.metric)" oninput="updateCardLivePath(this.value)" />
+              <input type="text" class="form-input" id="inp-card-live-prefix" placeholder="Prefix (e.g. £)" oninput="updateCardLivePrefix(this.value)" />
+            </div>
+          </div>
         </div>
+
+        <!-- Global Term Store Selector (Matching Screenshot 2 - Intranet Our Sectors / Our Segments) -->
+        <div class="form-group">
+          <label class="form-label">Global term store • Intranet term sets</label>
+          <div style="background: var(--fui-colorNeutralBackground2); border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <button type="button" class="fui-badge" style="cursor: pointer; border: 1px solid var(--fui-colorBrandStroke1); background: var(--fui-colorBrandBackground2);" onclick="filterTermStoreCategory('all')">All terms</button>
+              <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Sectors')">🏢 Our Sectors</button>
+              <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Segments')">📊 Our Segments</button>
+            </div>
+            <div id="term-store-chips" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto;">
+              <!-- Dynamic chips rendered via JS -->
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Badge label</label>
           <input type="text" class="form-input" id="inp-card-badge" placeholder="Badge" oninput="updateCardBadge(this.value)" />
@@ -1068,15 +1092,115 @@
             setVal('inp-card-badge', curCard.badge || '');
             setVal('inp-card-metric-val', curCard.metricValue || '');
             setVal('inp-card-metric-trend', curCard.metricTrend || '');
-            setVal('inp-card-term-tags', curCard.termStoreTags ? curCard.termStoreTags.map(t => t.label).join(', ') : (curCard.tags ? curCard.tags.join(', ') : ''));
+            setVal('inp-card-live-api', curCard.liveDataConfig?.apiUrl || '');
+            setVal('inp-card-live-path', curCard.liveDataConfig?.jsonPath || '');
+            setVal('inp-card-live-prefix', curCard.liveDataConfig?.prefix || '');
 
             const isMetric = curCard.type === 'metric';
             const grpMetric = document.getElementById('grp-card-metric');
             const grpTrend = document.getElementById('grp-card-trend');
             if (grpMetric) grpMetric.style.display = isMetric ? 'flex' : 'none';
             if (grpTrend) grpTrend.style.display = isMetric ? 'flex' : 'none';
+
+            renderTermStoreChips();
           }
         }
+      }
+    }
+
+    const intranetTerms = [
+      { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors' },
+      { id: 'sec-energy', label: 'Energy and utilities', termSetName: 'Our Sectors' },
+      { id: 'sec-prop', label: 'Real estate and property', termSetName: 'Our Sectors' },
+      { id: 'sec-def', label: 'Defence and security', termSetName: 'Our Sectors' },
+      { id: 'sec-av', label: 'Aviation and transport', termSetName: 'Our Sectors' },
+      { id: 'sec-health', label: 'Healthcare and science', termSetName: 'Our Sectors' },
+      { id: 'sec-gov', label: 'Government and public sector', termSetName: 'Our Sectors' },
+      { id: 'sec-tech', label: 'Technology and digital', termSetName: 'Our Sectors' },
+      { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments' },
+      { id: 'seg-prog', label: 'Programme management', termSetName: 'Our Segments' },
+      { id: 'seg-proj', label: 'Project controls', termSetName: 'Our Segments' },
+      { id: 'seg-cost', label: 'Cost and commercial management', termSetName: 'Our Segments' },
+      { id: 'seg-strat', label: 'Strategic advisory', termSetName: 'Our Segments' },
+      { id: 'seg-esg', label: 'Sustainability, ESG and net zero', termSetName: 'Our Segments' },
+      { id: 'seg-proc', label: 'Procurement and supply chain', termSetName: 'Our Segments' },
+      { id: 'seg-disp', label: 'Dispute resolution', termSetName: 'Our Segments' }
+    ];
+
+    let activeTermCategory = 'all';
+
+    function filterTermStoreCategory(cat) {
+      activeTermCategory = cat;
+      renderTermStoreChips();
+    }
+
+    function renderTermStoreChips() {
+      const container = document.getElementById('term-store-chips');
+      if (!container) return;
+      container.innerHTML = '';
+      const targetSec = currentSections[state.activeCardSecIdx];
+      const curCard = targetSec && targetSec.blocks ? targetSec.blocks[state.activeCardIdx] : null;
+      const selectedTags = curCard && curCard.termStoreTags ? curCard.termStoreTags : [];
+
+      const filtered = intranetTerms.filter(t => activeTermCategory === 'all' || t.termSetName.toLowerCase() === activeTermCategory.toLowerCase());
+
+      filtered.forEach(term => {
+        const isSelected = selectedTags.some(st => st.id === term.id || st.label.toLowerCase() === term.label.toLowerCase());
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'fui-tag';
+        chip.style.cursor = 'pointer';
+        chip.style.backgroundColor = isSelected ? 'var(--fui-colorBrandBackground2)' : 'var(--fui-colorNeutralBackground1)';
+        chip.style.borderColor = isSelected ? 'var(--fui-colorBrandStroke1)' : 'var(--fui-colorNeutralStroke1)';
+        chip.style.color = isSelected ? 'var(--fui-colorBrandForeground1)' : 'var(--fui-colorNeutralForeground1)';
+        chip.innerHTML = `${isSelected ? '✓ ' : '+ '}${term.label} <small style="opacity: 0.7;">[${term.termSetName}]</small>`;
+        chip.onclick = () => toggleCardTerm(term);
+        container.appendChild(chip);
+      });
+    }
+
+    function toggleCardTerm(term) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (!targetSec || !targetSec.blocks[state.activeCardIdx]) return;
+      const curCard = targetSec.blocks[state.activeCardIdx];
+      if (!curCard.termStoreTags) curCard.termStoreTags = [];
+      const idx = curCard.termStoreTags.findIndex(t => t.id === term.id || t.label.toLowerCase() === term.label.toLowerCase());
+      if (idx >= 0) {
+        curCard.termStoreTags.splice(idx, 1);
+      } else {
+        curCard.termStoreTags.push(term);
+      }
+      renderTermStoreChips();
+      render();
+    }
+
+    function updateCardLiveApi(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (!curCard.liveDataConfig) curCard.liveDataConfig = { apiUrl: '', jsonPath: 'value', prefix: '£' };
+        curCard.liveDataConfig.apiUrl = val;
+        render();
+      }
+    }
+
+    function updateCardLivePath(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (!curCard.liveDataConfig) curCard.liveDataConfig = { apiUrl: '', jsonPath: 'value', prefix: '£' };
+        curCard.liveDataConfig.jsonPath = val;
+        render();
+      }
+    }
+
+    function updateCardLivePrefix(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (!curCard.liveDataConfig) curCard.liveDataConfig = { apiUrl: '', jsonPath: 'value', prefix: '£' };
+        curCard.liveDataConfig.prefix = val;
+        render();
       }
     }
 
