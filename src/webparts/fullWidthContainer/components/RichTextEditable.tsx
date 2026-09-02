@@ -14,9 +14,15 @@ const useStyles = makeStyles({
     width: '100%'
   },
   toolbarWrapper: {
-    position: 'relative',
-    marginBottom: '6px',
-    zIndex: 50
+    position: 'absolute',
+    bottom: 'calc(100% + 4px)',
+    left: 0,
+    marginBottom: '2px',
+    zIndex: 1000,
+    width: 'max-content',
+    minWidth: 'max-content',
+    maxWidth: 'none',
+    whiteSpace: 'nowrap'
   },
   editable: {
     outlineStyle: 'none',

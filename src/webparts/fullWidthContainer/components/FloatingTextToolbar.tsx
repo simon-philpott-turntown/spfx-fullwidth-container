@@ -46,11 +46,15 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    boxShadow: tokens.shadow16,
+    boxShadow: tokens.shadow28,
     ...shorthands.gap('2px'),
-    zIndex: 100,
+    zIndex: 1000,
     marginBottom: tokens.spacingVerticalXS,
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+    width: 'max-content',
+    minWidth: 'max-content',
+    maxWidth: 'none',
     userSelect: 'none'
   },
   dragHandle: {

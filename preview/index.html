@@ -534,18 +534,24 @@
     /* Floating Formatting Toolbar */
     .fui-floating-toolbar {
       position: absolute;
-      top: -46px;
+      bottom: calc(100% + 6px);
+      top: auto;
       left: 0;
-      z-index: 200;
+      z-index: 1000;
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
       border-radius: var(--fui-borderRadiusMedium);
-      box-shadow: var(--fui-shadow16);
-      display: flex;
+      box-shadow: var(--fui-shadow28);
+      display: inline-flex;
       align-items: center;
       gap: 2px;
-      padding: 4px 6px;
+      padding: 3px 6px;
       user-select: none;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      width: max-content;
+      min-width: max-content;
+      max-width: none;
     }
 
     .fui-toolbar-btn {
