@@ -222,7 +222,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                       </Badge>
                     )}
                     <Badge appearance="outline" size="small">
-                      {section.blocks.length} {section.blocks.length === 1 ? 'item' : 'items'}
+                      {(section.blocks ? section.blocks.length : 0)} {(section.blocks && section.blocks.length === 1) ? 'item' : 'items'}
                     </Badge>
                   </div>
                 </div>

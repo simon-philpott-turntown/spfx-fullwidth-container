@@ -13,24 +13,45 @@ export interface IErrorBoundaryProps {
 export interface IErrorBoundaryState {
   hasError: boolean;
   error?: Error;
+  retryCount: number;
 }
 
 export class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBoundaryState> {
+  private _retryTimer: number | undefined;
+
   constructor(props: IErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, retryCount: 0 };
   }
 
-  public static getDerivedStateFromError(error: Error): IErrorBoundaryState {
+  public static getDerivedStateFromError(error: Error): Partial<IErrorBoundaryState> {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    // Log error internally
+    // Automatically perform a silent self-healing retry if initial mount had a race condition
+    if (this.state.retryCount < 2) {
+      if (this._retryTimer) {
+        window.clearTimeout(this._retryTimer);
+      }
+      this._retryTimer = window.setTimeout(() => {
+        this.setState((prev) => ({
+          hasError: false,
+          error: undefined,
+          retryCount: prev.retryCount + 1
+        }));
+      }, 50);
+    }
+  }
+
+  public componentWillUnmount(): void {
+    if (this._retryTimer) {
+      window.clearTimeout(this._retryTimer);
+    }
   }
 
   public render(): React.ReactNode {
-    if (this.state.hasError) {
+    if (this.state.hasError && this.state.retryCount >= 2) {
       return (
         <div style={{
           padding: '24px',
@@ -41,7 +62,7 @@ export class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBo
           fontFamily: 'Segoe UI, sans-serif'
         }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>
-            {this.props.fallbackTitle || 'Full-Width Container Error'}
+            {this.props.fallbackTitle || 'Full-Width Container'}
           </h3>
           <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>
             {this.state.error?.message || 'An unexpected rendering error occurred.'}
@@ -55,12 +76,17 @@ export class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBo
               borderRadius: '4px',
               cursor: 'pointer'
             }}
-            onClick={() => this.setState({ hasError: false, error: undefined })}
+            onClick={() => this.setState({ hasError: false, error: undefined, retryCount: 0 })}
           >
             Retry Rendering
           </button>
         </div>
       );
+    }
+
+    if (this.state.hasError) {
+      // Return null or placeholder while silent auto-recovery runs
+      return null;
     }
 
     return this.props.children;

@@ -134,9 +134,9 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <div className={styles.editBanner}>
             <div className={styles.editBannerLeft}>
               <Badge appearance="filled" color="brand">SharePoint Edit Mode</Badge>
-              <Text size={200} style={{ color: tokens.colorNeutralForeground2 }}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
                 Customise content sections, badges, British metrics (£), and layout in the properties sidebar.
-              </Text>
+              </Caption1>
             </div>
             {onOpenPropertyPane && (
               <Button
