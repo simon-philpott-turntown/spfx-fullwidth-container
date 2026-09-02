@@ -38,6 +38,20 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground1,
     minHeight: '120px'
   },
+  rootGlassmorphism: {
+    backgroundColor: 'rgba(255, 255, 255, 0.72)',
+    backdropFilter: 'blur(16px)',
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.4)'),
+    boxShadow: tokens.shadow8
+  },
+  rootBranded: {
+    backgroundColor: tokens.colorBrandBackground2,
+    ...shorthands.border('1px', 'solid', tokens.colorBrandStroke2)
+  },
+  rootMinimal: {
+    backgroundColor: 'transparent',
+    ...shorthands.border('none')
+  },
   inner: {
     width: '100%',
     boxSizing: 'border-box',
@@ -101,6 +115,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     title,
     subtitle,
     layoutMode: initialLayoutMode,
+    containerStyle = 'standard',
     compactPadding,
     showSearch,
     sections,
@@ -126,8 +141,17 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     return getFluent2Theme(spfxTheme, isDarkTheme);
   }, [spfxTheme, isDarkTheme]);
 
+  const styleClass =
+    containerStyle === 'glassmorphism'
+      ? styles.rootGlassmorphism
+      : containerStyle === 'branded'
+      ? styles.rootBranded
+      : containerStyle === 'minimal'
+      ? styles.rootMinimal
+      : styles.root;
+
   return (
-    <FluentProvider theme={fluentTheme} className={styles.root}>
+    <FluentProvider theme={fluentTheme} className={`${styles.root} ${styleClass}`}>
       <div className={`${styles.inner} ${compactPadding ? styles.innerCompact : ''}`}>
         {/* Edit Mode Helper Notification Bar */}
         {isEditMode && (

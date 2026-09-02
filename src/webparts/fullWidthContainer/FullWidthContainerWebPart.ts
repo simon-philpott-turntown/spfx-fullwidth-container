@@ -430,6 +430,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 'tabs', text: 'Tabbed View', iconProps: { officeFabricIconFontName: 'Tab' } },
                     { key: 'accordion', text: 'Accordion View', iconProps: { officeFabricIconFontName: 'GroupList' } }
                   ]
+                }),
+                PropertyPaneDropdown('containerStyle', {
+                  label: 'Container Surface Style',
+                  selectedKey: this.properties.containerStyle || 'standard',
+                  options: [
+                    { key: 'standard', text: 'Standard Fluent 2 (Solid Layered Surface)' },
+                    { key: 'glassmorphism', text: 'Acrylic Glassmorphism (Frosted Translucent)' },
+                    { key: 'branded', text: 'Branded Tint (Inherited Site Palette)' },
+                    { key: 'minimal', text: 'Minimal (Clean Transparent)' }
+                  ]
                 })
               ]
             },
