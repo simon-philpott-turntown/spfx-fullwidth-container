@@ -105,6 +105,12 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
     backgroundColor: tokens.colorBrandBackground2,
     color: tokens.colorBrandForeground2
+  },
+  badge: {
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    display: 'inline-flex',
+    alignItems: 'center'
   }
 });
 
@@ -161,6 +167,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({ block }) => {
               appearance="tint"
               color={block.metricTrendPositive ? 'success' : 'informative'}
               icon={<ArrowTrendingLinesRegular />}
+              className={styles.badge}
             >
               {block.metricTrend}
             </Badge>
@@ -227,7 +234,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({ block }) => {
         header={<Title3>{block.title}</Title3>}
         action={
           block.badge ? (
-            <Badge appearance="tint" color="brand">
+            <Badge appearance="tint" color="brand" className={styles.badge}>
               {block.badge}
             </Badge>
           ) : undefined
@@ -243,7 +250,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({ block }) => {
       {block.tags && block.tags.length > 0 && (
         <div className={styles.tagsWrapper}>
           {block.tags.map((tag) => (
-            <Badge key={tag} appearance="outline" size="small">
+            <Badge key={tag} appearance="outline" size="small" className={styles.badge}>
               {tag}
             </Badge>
           ))}

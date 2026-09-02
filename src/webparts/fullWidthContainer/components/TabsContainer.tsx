@@ -54,6 +54,13 @@ const useStyles = makeStyles({
     ...shorthands.padding(tokens.spacingVerticalXXL),
     color: tokens.colorNeutralForeground3,
     ...shorthands.gap(tokens.spacingVerticalS)
+  },
+  badge: {
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    display: 'inline-flex',
+    alignItems: 'center',
+    marginLeft: tokens.spacingHorizontalXS
   }
 });
 
@@ -135,7 +142,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
           >
             {section.title}
             {section.badge && (
-              <Badge appearance="filled" size="small" style={{ marginLeft: tokens.spacingHorizontalXS }}>
+              <Badge appearance="filled" size="small" className={styles.badge}>
                 {section.badge}
               </Badge>
             )}

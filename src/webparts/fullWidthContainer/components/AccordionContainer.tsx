@@ -76,7 +76,14 @@ const useStyles = makeStyles({
     alignItems: 'center',
     ...shorthands.gap(tokens.spacingHorizontalXS),
     marginLeft: 'auto',
-    marginRight: tokens.spacingHorizontalM
+    marginRight: tokens.spacingHorizontalM,
+    flexShrink: 0
+  },
+  badge: {
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    display: 'inline-flex',
+    alignItems: 'center'
   },
   grid: {
     display: 'grid',
@@ -217,11 +224,11 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                   </div>
                   <div className={styles.headerBadges}>
                     {section.badge && (
-                      <Badge appearance="tint" color="brand" size="small">
+                      <Badge appearance="tint" color="brand" size="small" className={styles.badge}>
                         {section.badge}
                       </Badge>
                     )}
-                    <Badge appearance="outline" size="small">
+                    <Badge appearance="outline" size="small" className={styles.badge}>
                       {(section.blocks ? section.blocks.length : 0)} {(section.blocks && section.blocks.length === 1) ? 'item' : 'items'}
                     </Badge>
                   </div>
