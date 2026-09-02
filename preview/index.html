@@ -207,21 +207,66 @@
     .form-label {
       font-size: 0.8rem;
       font-weight: 600;
-      color: var(--fui-colorNeutralForeground2);
+      color: var(--fui-colorNeutralForeground1);
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .form-input, .form-select, .form-textarea {
+    .form-input, .form-textarea {
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
-      border-radius: var(--fui-borderRadiusSmall);
-      padding: 0.45rem 0.6rem;
+      border-bottom: 2px solid var(--fui-colorNeutralStrokeAccessible);
+      border-radius: var(--fui-borderRadiusMedium);
+      padding: 0.5rem 0.75rem;
       font-family: var(--fui-fontFamily);
       font-size: 0.85rem;
       color: var(--fui-colorNeutralForeground1);
       outline: none;
+      box-shadow: var(--fui-shadow2);
+      transition: all 0.15s ease;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      border-color: var(--fui-colorBrandBackground);
+    .form-input:hover, .form-textarea:hover {
+      border-color: var(--fui-colorNeutralStroke1Hover);
+      background-color: var(--fui-colorNeutralBackground1Hover);
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--fui-colorBrandStroke1);
+      border-bottom-color: var(--fui-colorBrandBackground);
+      box-shadow: 0 0 0 1px var(--fui-colorBrandStroke1);
+    }
+
+    .form-select {
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-bottom: 2px solid var(--fui-colorNeutralStrokeAccessible);
+      border-radius: var(--fui-borderRadiusMedium);
+      padding: 0.5rem 2.2rem 0.5rem 0.75rem;
+      font-family: var(--fui-fontFamily);
+      font-size: 0.85rem;
+      color: var(--fui-colorNeutralForeground1);
+      outline: none;
+      box-shadow: var(--fui-shadow2);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23605e5c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .form-select:hover {
+      border-color: var(--fui-colorNeutralStroke1Hover);
+      background-color: var(--fui-colorNeutralBackground1Hover);
+    }
+    .form-select:focus {
+      border-color: var(--fui-colorBrandStroke1);
+      border-bottom-color: var(--fui-colorBrandBackground);
+      box-shadow: 0 0 0 1px var(--fui-colorBrandStroke1);
+    }
+    .form-select option {
+      background-color: var(--fui-colorNeutralBackground1);
+      color: var(--fui-colorNeutralForeground1);
+      padding: 6px;
     }
 
     /* Container Web Part Styles */
@@ -467,9 +512,25 @@
       background-color: var(--fui-colorNeutralBackground2);
       border: 1px solid var(--fui-colorNeutralStroke1);
       color: var(--fui-colorNeutralForeground2);
-      font-size: 0.75rem;
-      padding: 2px 6px;
+      font-size: 0.68rem;
+      padding: 1px 6px;
       border-radius: var(--fui-borderRadiusSmall);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1.1rem;
+    }
+    .fui-tag-delete {
+      cursor: pointer;
+      font-size: 0.65rem;
+      color: var(--fui-colorNeutralForeground3);
+      display: inline-flex;
+      align-items: center;
+      margin-left: 2px;
+      transition: color 0.1s ease;
+    }
+    .fui-tag-delete:hover {
+      color: var(--fui-colorPaletteRedForeground1);
     }
 
     .fui-btn-subtle {

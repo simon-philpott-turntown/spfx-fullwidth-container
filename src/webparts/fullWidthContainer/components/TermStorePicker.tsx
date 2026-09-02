@@ -21,7 +21,9 @@ import {
   SearchRegular,
   FolderRegular,
   FolderOpenRegular,
-  DismissRegular
+  DismissRegular,
+  CheckmarkRegular,
+  DeleteRegular
 } from '@fluentui/react-icons';
 import { ITermStoreTag } from '../models/IContainerModels';
 import { TaxonomyService, ITermGroup } from '../services/TaxonomyService';
@@ -217,6 +219,7 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
               size="extra-small"
               icon={<TagRegular style={{ fontSize: '10px', width: '10px', height: '10px' }} />}
               dismissible={isEditMode}
+              dismissIcon={isEditMode ? <DeleteRegular style={{ fontSize: '10px', width: '10px', height: '10px', cursor: 'pointer' }} /> : undefined}
               style={{
                 fontSize: '0.68rem',
                 lineHeight: '0.9rem',
@@ -233,7 +236,7 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
               size="small"
               appearance="subtle"
               style={{ fontSize: '0.72rem', height: '20px', padding: '0 6px' }}
-              icon={isPickerOpen ? <DismissRegular style={{ fontSize: '11px' }} /> : <AddRegular style={{ fontSize: '11px' }} />}
+              icon={isPickerOpen ? <CheckmarkRegular style={{ fontSize: '11px' }} /> : <AddRegular style={{ fontSize: '11px' }} />}
               onClick={() => setIsPickerOpen(!isPickerOpen)}
             >
               {isPickerOpen ? 'Done' : '+ Add Global Term Store Tag'}
