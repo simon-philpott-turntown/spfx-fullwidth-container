@@ -32,8 +32,8 @@
       },
       "officeFabricIconFontName": "GroupedList",
       "properties": {
-        "title": "Container title",
-        "subtitle": "Container subtitle / description",
+        "title": "Dashboard title",
+        "subtitle": "Dashboard subtitle / description",
         "layoutMode": "tabs",
         "containerStyle": "standard",
         "accentColor": "#0078d4",
