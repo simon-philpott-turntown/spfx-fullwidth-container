@@ -59,7 +59,7 @@ const useStyles = makeStyles({
     justifyContent: 'flex-end'
   },
   sidePanel: {
-    width: '380px',
+    position: 'relative',
     maxWidth: '92vw',
     height: '100vh',
     backgroundColor: tokens.colorNeutralBackground1,
@@ -68,6 +68,21 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box'
+  },
+  leftResizeHandle: {
+    position: 'absolute',
+    left: '-4px',
+    top: 0,
+    bottom: 0,
+    width: '8px',
+    cursor: 'ew-resize',
+    zIndex: 100,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ':hover': {
+      backgroundColor: tokens.colorBrandStroke1
+    }
   },
   panelHeader: {
     padding: '16px 18px 12px 18px',
@@ -168,6 +183,28 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
   const [formData, setFormData] = React.useState<Partial<IContentBlock>>({});
   const [tagsInput, setTagsInput] = React.useState<string>('');
   const [isIconPickerOpen, setIsIconPickerOpen] = React.useState<boolean>(false);
+  const [panelWidth, setPanelWidth] = React.useState<number>(400);
+
+  const startResizeDrag = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent): void => {
+      const deltaX = startX - moveEvent.clientX;
+      const newWidth = Math.min(850, Math.max(340, startWidth + deltaX));
+      setPanelWidth(newWidth);
+    };
+
+    const onMouseUp = (): void => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 
   // Sync state when block changes
   React.useEffect(() => {
@@ -221,8 +258,15 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
       <div className={styles.backdrop} onClick={onDismiss}>
         <div
           className={styles.sidePanel}
+          style={{ width: `${panelWidth}px` }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Left-edge draggable resize bar */}
+          <div
+            className={styles.leftResizeHandle}
+            onMouseDown={startResizeDrag}
+            title="Drag to adjust sidebar width"
+          />
           {/* Header */}
           <div className={styles.panelHeader}>
             <div>

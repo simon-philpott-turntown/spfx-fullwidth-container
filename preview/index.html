@@ -132,7 +132,10 @@
     }
 
     .sp-property-pane {
-      width: 370px;
+      width: 380px;
+      min-width: 320px;
+      max-width: 90vw;
+      position: relative;
       background-color: var(--fui-colorNeutralBackground1);
       border-left: 1px solid var(--fui-colorNeutralStroke1);
       box-shadow: var(--fui-shadow16);
@@ -144,6 +147,19 @@
       overflow-y: auto;
       z-index: 90;
       transition: transform 0.25s ease;
+    }
+    .sp-property-pane-resizer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: ew-resize;
+      z-index: 100;
+      transition: background-color 0.15s ease;
+    }
+    .sp-property-pane-resizer:hover, .sp-property-pane-resizer.active {
+      background-color: var(--fui-colorBrandStroke1);
     }
 
     .pane-header {
@@ -828,6 +844,7 @@
 
     <!-- Properties Sidebar Simulation -->
     <div class="sp-property-pane" id="property-pane">
+      <div class="sp-property-pane-resizer" onmousedown="startSidebarResize(event)" title="Drag to adjust sidebar width"></div>
       <div class="pane-header">
         <div>
           <div class="pane-title">Dashboard properties</div>
@@ -1812,6 +1829,33 @@
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
         syncSidebar();
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    }
+
+    let sidebarWidth = 380;
+    function startSidebarResize(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const startX = e.clientX;
+      const pane = document.getElementById('property-pane');
+      const startW = pane.offsetWidth;
+      const resizer = document.querySelector('.sp-property-pane-resizer');
+      if (resizer) resizer.classList.add('active');
+
+      const onMouseMove = (moveEvent) => {
+        const deltaX = startX - moveEvent.clientX;
+        const newWidth = Math.min(850, Math.max(320, startW + deltaX));
+        sidebarWidth = newWidth;
+        pane.style.width = newWidth + 'px';
+      };
+
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+        if (resizer) resizer.classList.remove('active');
       };
 
       window.addEventListener('mousemove', onMouseMove);
