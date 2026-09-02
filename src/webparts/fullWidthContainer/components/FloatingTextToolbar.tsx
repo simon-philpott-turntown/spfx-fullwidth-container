@@ -26,7 +26,7 @@ import {
   TextAlignCenterRegular,
   TextAlignRightRegular,
   TextBulletListRegular,
-  TextNumberListRegular,
+  TextNumberListLtrRegular,
   LineHorizontal1Regular
 } from '@fluentui/react-icons';
 
@@ -222,7 +222,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
       <Button
         size="small"
         appearance="subtle"
-        icon={<TextNumberListRegular />}
+        icon={<TextNumberListLtrRegular />}
         title="Numbered List"
         onClick={() => handleCommand('insertOrderedList')}
       />

@@ -643,6 +643,30 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Grid Columns per Row</label>
+          <select class="form-select" id="sel-grid-cols" onchange="updateGridCols(this.value)">
+            <option value="0">Auto-Fit Responsive (Dynamic)</option>
+            <option value="1">1 Column (Stacked Full-Width)</option>
+            <option value="2">2 Columns (50% / 50%)</option>
+            <option value="3">3 Columns (33% / 33% / 33%)</option>
+            <option value="4">4 Columns (25% / 25% / 25% / 25%)</option>
+            <option value="5">5 Columns</option>
+            <option value="6">6 Columns</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grid Rows per Container</label>
+          <select class="form-select" id="sel-grid-rows" onchange="updateGridRows(this.value)">
+            <option value="0">Auto / Dynamic (Unlimited)</option>
+            <option value="1">1 Row (Single Row)</option>
+            <option value="2">2 Rows</option>
+            <option value="3">3 Rows</option>
+            <option value="4">4 Rows</option>
+            <option value="5">5 Rows</option>
+            <option value="6">6 Rows</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Quick Preset Template</label>
           <select class="form-select" id="sel-preset" onchange="loadPreset(this.value)">
             <option value="commercial">Commercial & Financial Hub (GBP £)</option>
@@ -701,6 +725,16 @@
             <option value="embed">Embedded Tool / Portal</option>
           </select>
         </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label class="form-label" id="lbl-card-colspan">Column Span</label>
+            <select class="form-select" id="sel-card-colspan" onchange="updateCardColSpan(this.value)"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="lbl-card-rowspan">Row Span</label>
+            <select class="form-select" id="sel-card-rowspan" onchange="updateCardRowSpan(this.value)"></select>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Item Title</label>
           <input type="text" class="form-input" id="inp-card-title" oninput="updateCardTitle(this.value)" />
@@ -716,6 +750,10 @@
         <div class="form-group">
           <label class="form-label">Description</label>
           <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Global Term Store Tags</label>
+          <input type="text" class="form-input" id="inp-card-term-tags" placeholder="e.g. Commercial, Advisory, P0" oninput="updateCardTermTags(this.value)" />
         </div>
         <div class="form-group">
           <label class="form-label">Badge Label</label>
@@ -847,6 +885,8 @@
       subtitle: 'Container subtitle / description',
       layoutMode: 'tabs',
       containerStyle: 'standard',
+      gridCols: 0,
+      gridRows: 0,
       activeTabId: 'sec-playbooks',
       searchQuery: '',
       activeSecIdx: 0,
@@ -884,6 +924,8 @@
     function updateSubtitle(val) { state.subtitle = val; render(); }
     function updateLayoutMode(val) { state.layoutMode = val; render(); }
     function updateContainerStyle(val) { state.containerStyle = val; render(); }
+    function updateGridCols(val) { state.gridCols = Number(val) || 0; syncSidebar(); render(); }
+    function updateGridRows(val) { state.gridRows = Number(val) || 0; syncSidebar(); render(); }
 
     function syncSidebar() {
       // Sync Section Dropdown
@@ -916,7 +958,7 @@
       selCardSec.value = state.activeCardSecIdx;
 
       const targetSec = currentSections[state.activeCardSecIdx];
-      const selCard = document.getElementById('sel-card');
+      const selCard = document.getElementById('sel-card-idx');
       selCard.innerHTML = '';
       if (targetSec && targetSec.blocks.length > 0) {
         targetSec.blocks.forEach((b, idx) => {
@@ -928,14 +970,44 @@
         selCard.value = state.activeCardIdx;
         const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
         if (curCard) {
+          // Dynamic Column Span Options based on Container Grid Columns
+          const effectiveMaxCols = Math.max(1, state.gridCols > 0 ? state.gridCols : 4);
+          const effectiveMaxRows = Math.max(1, state.gridRows > 0 ? state.gridRows : 5);
+
+          const selColSpan = document.getElementById('sel-card-colspan');
+          selColSpan.innerHTML = '';
+          for (let c = 1; c <= effectiveMaxCols; c++) {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c === 1 ? '1 Col (Standard)' : (c === effectiveMaxCols ? `Span ${c} Cols (Full)` : `Span ${c} Cols`);
+            selColSpan.appendChild(opt);
+          }
+          const clampedCol = Math.min(curCard.colSpan || 1, effectiveMaxCols);
+          curCard.colSpan = clampedCol;
+          selColSpan.value = clampedCol;
+          document.getElementById('lbl-card-colspan').textContent = `Column Span (Max ${effectiveMaxCols})`;
+
+          // Dynamic Row Span Options based on Container Grid Rows
+          const selRowSpan = document.getElementById('sel-card-rowspan');
+          selRowSpan.innerHTML = '';
+          for (let r = 1; r <= effectiveMaxRows; r++) {
+            const opt = document.createElement('option');
+            opt.value = r;
+            opt.textContent = r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`;
+            selRowSpan.appendChild(opt);
+          }
+          const clampedRow = Math.min(curCard.rowSpan || 1, effectiveMaxRows);
+          curCard.rowSpan = clampedRow;
+          selRowSpan.value = clampedRow;
+          document.getElementById('lbl-card-rowspan').textContent = `Row Span (Max ${effectiveMaxRows})`;
+
           document.getElementById('sel-card-type').value = curCard.type || 'card';
           document.getElementById('inp-card-title').value = curCard.title || '';
           document.getElementById('inp-card-desc').value = curCard.description || '';
           document.getElementById('inp-card-badge').value = curCard.badge || '';
           document.getElementById('inp-card-metric-val').value = curCard.metricValue || '';
           document.getElementById('inp-card-metric-trend').value = curCard.metricTrend || '';
-          document.getElementById('inp-card-link-text').value = curCard.actionText || '';
-          document.getElementById('inp-card-link-url').value = curCard.actionUrl || '';
+          document.getElementById('inp-card-term-tags').value = curCard.termStoreTags ? curCard.termStoreTags.map(t => t.label).join(', ') : (curCard.tags ? curCard.tags.join(', ') : '');
 
           const isMetric = curCard.type === 'metric';
           document.getElementById('grp-card-metric').style.display = isMetric ? 'flex' : 'none';
@@ -1004,6 +1076,22 @@
       }
     }
 
+    function updateCardColSpan(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].colSpan = Number(val) || 1;
+        render();
+      }
+    }
+
+    function updateCardRowSpan(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].rowSpan = Number(val) || 1;
+        render();
+      }
+    }
+
     function updateCardTitle(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -1044,18 +1132,11 @@
       }
     }
 
-    function updateCardLinkText(val) {
+    function updateCardTermTags(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].actionText = val;
-        render();
-      }
-    }
-
-    function updateCardLinkUrl(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].actionUrl = val;
+        const split = val.split(',').map(s => s.trim()).filter(Boolean);
+        targetSec.blocks[state.activeCardIdx].termStoreTags = split.map((s, i) => ({ id: 't-' + i, label: s }));
         render();
       }
     }
@@ -1070,7 +1151,9 @@
         description: 'Card description summary',
         badge: 'Badge',
         actionText: 'Learn more',
-        actionUrl: '#'
+        actionUrl: '#',
+        colSpan: 1,
+        rowSpan: 1
       };
       targetSec.blocks.push(newCard);
       state.activeCardIdx = targetSec.blocks.length - 1;
@@ -1101,12 +1184,16 @@
         );
       };
 
+      const gridInlineStyle = {
+        gridTemplateColumns: state.gridCols > 0 ? `repeat(${state.gridCols}, 1fr)` : 'repeat(auto-fill, minmax(320px, 1fr))'
+      };
+
       return React.createElement('div', { className: 'fui-root style-' + (state.containerStyle || 'standard') },
         // Edit Mode Banner
         isEditMode ? React.createElement('div', { className: 'edit-banner' },
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
             React.createElement('span', { className: 'fui-badge', style: { backgroundColor: 'var(--fui-colorBrandBackground)', color: '#fff' } }, 'SharePoint Edit Mode'),
-            React.createElement('span', null, 'Authoring active: Customise sections, cards, British metrics (£), and layout in the sidebar.')
+            React.createElement('span', null, 'Click text to edit, hover between items to insert new content (+), or click ✏️ to customize card properties and grid span.')
           ),
           React.createElement('button', {
             className: 'fui-btn-subtle',
@@ -1163,12 +1250,19 @@
             )
           ),
           React.createElement('div', { style: { marginTop: '1.25rem' } },
-            React.createElement('div', { className: 'fui-grid' },
-              filterBlocks(activeSection.blocks).map(block => 
-                block.type === 'metric' ?
-                React.createElement('div', { key: block.id, className: 'fui-card' },
+            React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
+              filterBlocks(activeSection.blocks).map((block, bIdx) => {
+                const cardSpanStyle = {
+                  gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
+                  gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined
+                };
+                return block.type === 'metric' ?
+                React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
                   React.createElement('div', null,
-                    React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                      React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                      isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
+                    ),
                     React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
                     React.createElement('div', { className: 'fui-metric-trend' },
                       React.createElement('span', { className: 'fui-badge fui-badge-success' },
@@ -1176,29 +1270,39 @@
                         block.metricTrend
                       )
                     ),
-                    React.createElement('p', { className: 'fui-card-desc' }, block.description)
+                    React.createElement('p', { className: 'fui-card-desc' }, block.description),
+                    block.termStoreTags && React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
+                      block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
+                    )
                   )
                 ) :
-                React.createElement('div', { key: block.id, className: 'fui-card' },
+                React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
                   React.createElement('div', null,
                     React.createElement('div', { className: 'fui-card-header' },
                       React.createElement('div', { className: 'fui-icon-box' },
                         React.createElement('i', { className: 'fa-solid ' + (block.iconName || 'fa-file-lines') })
                       ),
-                      block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
+                      React.createElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } },
+                        block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge),
+                        isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
+                      )
                     ),
                     React.createElement('h3', { className: 'fui-card-title' }, block.title),
                     React.createElement('p', { className: 'fui-card-desc' }, block.description),
-                    block.tags && React.createElement('div', { className: 'fui-card-tags' },
-                      block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
+                    block.termStoreTags ? React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
+                      block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
+                    ) : (
+                      block.tags && React.createElement('div', { className: 'fui-card-tags' },
+                        block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
+                      )
                     )
                   ),
                   React.createElement('a', { href: block.actionUrl || '#', className: 'fui-btn-subtle' },
                     block.actionText || 'Open',
                     React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
                   )
-                )
-              )
+                );
+              })
             )
           )
         ) :
@@ -1218,10 +1322,14 @@
                 )
               ),
               React.createElement('div', { className: 'fui-accordion-panel' },
-                React.createElement('div', { className: 'fui-grid' },
-                  filterBlocks(sec.blocks).map(block => 
-                    block.type === 'metric' ?
-                    React.createElement('div', { key: block.id, className: 'fui-card' },
+                React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
+                  filterBlocks(sec.blocks).map((block, bIdx) => {
+                    const cardSpanStyle = {
+                      gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
+                      gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined
+                    };
+                    return block.type === 'metric' ?
+                    React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
                       React.createElement('div', null,
                         React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
                         React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
@@ -1231,7 +1339,7 @@
                         React.createElement('p', { className: 'fui-card-desc' }, block.description)
                       )
                     ) :
-                    React.createElement('div', { key: block.id, className: 'fui-card' },
+                    React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
                       React.createElement('div', null,
                         React.createElement('div', { className: 'fui-card-header' },
                           React.createElement('div', { className: 'fui-icon-box' },
@@ -1242,8 +1350,8 @@
                         React.createElement('h3', { className: 'fui-card-title' }, block.title),
                         React.createElement('p', { className: 'fui-card-desc' }, block.description)
                       )
-                    )
-                  )
+                    );
+                  })
                 )
               )
             )

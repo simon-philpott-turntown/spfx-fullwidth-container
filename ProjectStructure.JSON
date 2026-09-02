@@ -46,6 +46,36 @@
       "role": "Floating contextual formatting ribbon modeled after the native SharePoint Text Web Part toolbar."
     },
     {
+      "name": "InsertionBar",
+      "path": "src/webparts/fullWidthContainer/components/InsertionBar.tsx",
+      "role": "Hover-activated (+) insertion bar for adding content items directly onto the canvas."
+    },
+    {
+      "name": "ToolboxModal",
+      "path": "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+      "role": "Content toolbox modal displaying Microsoft SharePoint authoring tools for insertion into cards."
+    },
+    {
+      "name": "TermStorePicker",
+      "path": "src/webparts/fullWidthContainer/components/TermStorePicker.tsx",
+      "role": "SharePoint Global Term Store taxonomy browser and interactive Fluent UI 2 tag pill selector."
+    },
+    {
+      "name": "LiveDataRenderer",
+      "path": "src/webparts/fullWidthContainer/components/LiveDataRenderer.tsx",
+      "role": "Dynamic real-time REST/Graph API text and metric renderer with connectivity status and refresh."
+    },
+    {
+      "name": "TaxonomyService",
+      "path": "src/webparts/fullWidthContainer/services/TaxonomyService.ts",
+      "role": "Service managing SharePoint Term Store taxonomy queries and metadata fallback terms."
+    },
+    {
+      "name": "LiveDataService",
+      "path": "src/webparts/fullWidthContainer/services/LiveDataService.ts",
+      "role": "Service handling dynamic REST API execution, JSONPath extraction, and formatting."
+    },
+    {
       "name": "ContainerModels",
       "path": "src/webparts/fullWidthContainer/models/IContainerModels.ts",
       "role": "Type definitions for panels, tabs, items, layout configuration, and default UK datasets."

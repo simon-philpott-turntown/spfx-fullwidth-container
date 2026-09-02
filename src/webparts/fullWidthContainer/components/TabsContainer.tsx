@@ -87,6 +87,8 @@ const useStyles = makeStyles({
 export interface ITabsContainerProps {
   sections: IContainerSection[];
   searchQuery: string;
+  gridColumns?: number;
+  gridRows?: number;
   isEditMode?: boolean;
   onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
   onDeleteBlock?: (sectionId: string, blockId: string) => void;
@@ -116,6 +118,8 @@ function renderTabIcon(name?: string): React.ReactElement {
 export const TabsContainer: React.FC<ITabsContainerProps> = ({
   sections,
   searchQuery,
+  gridColumns,
+  gridRows,
   isEditMode,
   onUpdateBlock,
   onDeleteBlock,
@@ -159,6 +163,13 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
       )
     : blocks;
 
+  const gridStyle: React.CSSProperties = {
+    gridTemplateColumns:
+      gridColumns && gridColumns > 0
+        ? `repeat(${gridColumns}, 1fr)`
+        : 'repeat(auto-fill, minmax(320px, 1fr))'
+  };
+
   return (
     <div className={styles.container}>
       {/* Fluent 2 TabList */}
@@ -186,11 +197,13 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
       </TabList>
 
       {/* Cards Grid */}
-      <div className={styles.grid}>
+      <div className={styles.grid} style={gridStyle}>
         {filteredBlocks.map((block, blkIdx) => (
           <BlockRenderer
             key={block.id}
             block={block}
+            containerGridColumns={gridColumns}
+            containerGridRows={gridRows}
             isEditMode={isEditMode}
             onUpdate={(fields) => {
               if (activeSection && onUpdateBlock) {

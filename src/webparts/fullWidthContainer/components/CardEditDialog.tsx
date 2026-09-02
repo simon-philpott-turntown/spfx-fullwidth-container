@@ -36,6 +36,7 @@ import {
   CheckmarkCircleRegular
 } from '@fluentui/react-icons';
 import { IContentBlock, BlockType } from '../models/IContainerModels';
+import { TermStorePicker } from './TermStorePicker';
 
 const useStyles = makeStyles({
   dialogSurface: {
@@ -48,13 +49,12 @@ const useStyles = makeStyles({
   contentGrid: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
-    marginTop: tokens.spacingVerticalS
+    ...shorthands.gap(tokens.spacingVerticalM)
   },
   fieldRow: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXS)
+    ...shorthands.gap(tokens.spacingVerticalXXS)
   },
   twoColRow: {
     display: 'grid',
@@ -74,7 +74,9 @@ const useStyles = makeStyles({
 
 export interface ICardEditDialogProps {
   isOpen: boolean;
-  block: IContentBlock | null;
+  block: IContentBlock | undefined;
+  maxColumns?: number;
+  maxRows?: number;
   onSave: (updatedBlock: IContentBlock) => void;
   onDismiss: () => void;
 }
@@ -94,6 +96,8 @@ const AVAILABLE_ICONS = [
 export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
   isOpen,
   block,
+  maxColumns = 4,
+  maxRows = 5,
   onSave,
   onDismiss
 }) => {
@@ -101,11 +105,18 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 
   const [formData, setFormData] = React.useState<Partial<IContentBlock>>({});
 
+  const effectiveMaxCols = Math.max(1, maxColumns > 0 ? maxColumns : 4);
+  const effectiveMaxRows = Math.max(1, maxRows > 0 ? maxRows : 5);
+
   React.useEffect(() => {
     if (block) {
-      setFormData({ ...block });
+      setFormData({
+        ...block,
+        colSpan: Math.min(block.colSpan || 1, effectiveMaxCols),
+        rowSpan: Math.min(block.rowSpan || 1, effectiveMaxRows)
+      });
     }
-  }, [block]);
+  }, [block, effectiveMaxCols, effectiveMaxRows]);
 
   if (!isOpen || !block) {
     return null;
@@ -115,11 +126,16 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
     if (block && formData) {
       onSave({
         ...block,
-        ...formData
+        ...formData,
+        colSpan: Math.min(formData.colSpan || 1, effectiveMaxCols),
+        rowSpan: Math.min(formData.rowSpan || 1, effectiveMaxRows)
       } as IContentBlock);
     }
     onDismiss();
   };
+
+  const colOptions = Array.from({ length: effectiveMaxCols }, (_, i) => i + 1);
+  const rowOptions = Array.from({ length: effectiveMaxRows }, (_, i) => i + 1);
 
   return (
     <Dialog open={isOpen} onOpenChange={(e, data) => { if (!data.open) onDismiss(); }}>
@@ -236,6 +252,120 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </div>
             )}
 
+            {/* Card Layout & Grid Sizing (Dynamic based on container columns/rows) */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Column Span (Max {effectiveMaxCols})</Label>
+                <Dropdown
+                  value={
+                    formData.colSpan === 1
+                      ? '1 Column (Standard)'
+                      : `Span ${formData.colSpan || 1} Columns`
+                  }
+                  onOptionSelect={(e, data) => {
+                    setFormData({ ...formData, colSpan: Number(data.optionValue) || 1 });
+                  }}
+                >
+                  {colOptions.map((c) => (
+                    <Option key={c} value={String(c)}>
+                      {c === 1 ? '1 Column (Standard)' : c === effectiveMaxCols ? `Span ${c} Columns (Full Width)` : `Span ${c} Columns`}
+                    </Option>
+                  ))}
+                </Dropdown>
+              </div>
+
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Row Span (Max {effectiveMaxRows})</Label>
+                <Dropdown
+                  value={
+                    formData.rowSpan === 1
+                      ? '1 Row (Standard)'
+                      : `Span ${formData.rowSpan || 1} Rows`
+                  }
+                  onOptionSelect={(e, data) => {
+                    setFormData({ ...formData, rowSpan: Number(data.optionValue) || 1 });
+                  }}
+                >
+                  {rowOptions.map((r) => (
+                    <Option key={r} value={String(r)}>
+                      {r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`}
+                    </Option>
+                  ))}
+                </Dropdown>
+              </div>
+            </div>
+
+            {/* Global Term Store Tags */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Global Term Store Tags</Label>
+              <TermStorePicker
+                selectedTags={formData.termStoreTags || []}
+                onChange={(tags) => setFormData({ ...formData, termStoreTags: tags })}
+                isEditMode={true}
+              />
+            </div>
+
+            {/* Live Data API Configuration */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Real-Time Live Data API (Optional)</Label>
+              <div
+                style={{
+                  padding: '10px',
+                  borderRadius: tokens.borderRadiusMedium,
+                  backgroundColor: tokens.colorNeutralBackground2,
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}
+              >
+                <Input
+                  size="small"
+                  placeholder="API Endpoint URL (e.g. https://api... or demo-api/burnDown)"
+                  value={formData.liveDataConfig?.apiUrl || ''}
+                  onChange={(e, data) => {
+                    setFormData({
+                      ...formData,
+                      liveDataConfig: {
+                        apiUrl: data.value,
+                        jsonPath: formData.liveDataConfig?.jsonPath || 'value',
+                        prefix: formData.liveDataConfig?.prefix || '£',
+                        refreshIntervalSeconds: formData.liveDataConfig?.refreshIntervalSeconds || 30
+                      }
+                    });
+                  }}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <Input
+                    size="small"
+                    placeholder="JSON Path (e.g. data.metric)"
+                    value={formData.liveDataConfig?.jsonPath || ''}
+                    onChange={(e, data) => {
+                      if (formData.liveDataConfig) {
+                        setFormData({
+                          ...formData,
+                          liveDataConfig: { ...formData.liveDataConfig, jsonPath: data.value }
+                        });
+                      }
+                    }}
+                  />
+                  <Input
+                    size="small"
+                    placeholder="Prefix (e.g. £)"
+                    value={formData.liveDataConfig?.prefix || ''}
+                    onChange={(e, data) => {
+                      if (formData.liveDataConfig) {
+                        setFormData({
+                          ...formData,
+                          liveDataConfig: { ...formData.liveDataConfig, prefix: data.value }
+                        });
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Badge & Tags */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
@@ -247,7 +377,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 />
               </div>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Tags (comma-separated)</Label>
+                <Label weight="semibold">Additional Tags (comma-separated)</Label>
                 <Input
                   value={formData.tags ? formData.tags.join(', ') : ''}
                   placeholder="Tag 1, Tag 2"

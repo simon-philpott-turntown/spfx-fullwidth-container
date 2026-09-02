@@ -66,6 +66,56 @@
         "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
       ]
+    },
+    {
+      "id": "FEAT-007",
+      "name": "ComposableInnerCardsAndHoverToolbox",
+      "description": "Inner composable items for cards (Text, Button, CTA, Divider, Editorial, Hero, Image, Gallery, Video) with contextual (+) hover insertion bars and toolbox popover.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/InsertionBar.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts"
+      ]
+    },
+    {
+      "id": "FEAT-008",
+      "name": "SharePointGlobalTermStoreIntegration",
+      "description": "Integration with SharePoint Global Term Store taxonomy terms for selecting and rendering interactive managed metadata tag pills.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/services/TaxonomyService.ts",
+        "src/webparts/fullWidthContainer/components/TermStorePicker.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx"
+      ]
+    },
+    {
+      "id": "FEAT-009",
+      "name": "LiveDataAPIFields",
+      "description": "Dynamic real-time text and metric fields bound to REST/Graph APIs with JSONPath parsing, auto-refresh intervals, and GBP (£) formatting.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/services/LiveDataService.ts",
+        "src/webparts/fullWidthContainer/components/LiveDataRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx"
+      ]
+    },
+    {
+      "id": "FEAT-010",
+      "name": "CardGridSpanningAndContainerLayout",
+      "description": "Card-level CSS grid spanning (1-4 columns, 1-2 rows) and container-level grid column management (1-4 columns or auto-fit).",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+      ]
     }
   ]
 }

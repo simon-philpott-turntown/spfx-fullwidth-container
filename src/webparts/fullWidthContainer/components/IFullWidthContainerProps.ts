@@ -14,6 +14,8 @@ export interface IFullWidthContainerProps {
   enableAnimation: boolean;
   compactPadding: boolean;
   showSearch: boolean;
+  gridColumns?: number;
+  gridRows?: number;
   sections: IContainerSection[];
   isDarkTheme: boolean;
   userDisplayName: string;

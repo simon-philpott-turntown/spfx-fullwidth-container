@@ -179,6 +179,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     containerStyle = 'standard',
     compactPadding,
     showSearch,
+    gridColumns,
+    gridRows,
     sections,
     isDarkTheme,
     spfxTheme,
@@ -212,36 +214,42 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     return getFluent2Theme(spfxTheme, isDarkTheme);
   }, [spfxTheme, isDarkTheme]);
 
-  const styleClass =
-    containerStyle === 'glassmorphism'
-      ? styles.rootGlassmorphism
-      : containerStyle === 'branded'
-      ? styles.rootBranded
-      : containerStyle === 'minimal'
-      ? styles.rootMinimal
-      : containerStyle === 'gradient'
-      ? styles.rootGradient
-      : styles.rootStandard;
+  const rootStyleClass = React.useMemo(() => {
+    switch (containerStyle) {
+      case 'glassmorphism':
+        return styles.rootGlassmorphism;
+      case 'branded':
+        return styles.rootBranded;
+      case 'minimal':
+        return styles.rootMinimal;
+      case 'gradient':
+        return styles.rootGradient;
+      case 'standard':
+      default:
+        return styles.rootStandard;
+    }
+  }, [containerStyle, styles]);
 
   return (
-    <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, styleClass)}>
-      <div className={`${styles.inner} ${compactPadding ? styles.innerCompact : ''}`}>
-        {/* Edit Mode Helper Notification Bar */}
+    <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, rootStyleClass)}>
+      <div className={mergeClasses(styles.inner, compactPadding ? styles.innerCompact : undefined)}>
+        {/* Visual Edit Mode Indicator */}
         {isEditMode && (
           <div className={styles.editBanner}>
             <div className={styles.editBannerLeft}>
-              <Badge appearance="filled" color="brand">SharePoint Edit Mode</Badge>
+              <Badge appearance="filled" color="brand" size="small">SharePoint Authoring Mode</Badge>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
-                Click text on canvas to format with the toolbar, or click ✏️ on any card to edit its properties in-place.
+                Full-width container active. Click on titles to edit or hover between items to add content.
               </Caption1>
             </div>
             {onOpenPropertyPane && (
               <Button
+                appearance="subtle"
                 size="small"
-                appearance="outline"
                 onClick={onOpenPropertyPane}
+                style={{ border: `1px solid ${tokens.colorBrandStroke1}` }}
               >
-                Open Properties Sidebar
+                Configure Web Part
               </Button>
             )}
           </div>
@@ -327,6 +335,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <TabsContainer
             sections={sections}
             searchQuery={searchQuery}
+            gridColumns={gridColumns}
+            gridRows={gridRows}
             isEditMode={isEditMode}
             onUpdateBlock={onUpdateBlock}
             onDeleteBlock={onDeleteBlock}
@@ -339,6 +349,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <AccordionContainer
             sections={sections}
             searchQuery={searchQuery}
+            gridColumns={gridColumns}
+            gridRows={gridRows}
             isEditMode={isEditMode}
             onUpdateBlock={onUpdateBlock}
             onDeleteBlock={onDeleteBlock}

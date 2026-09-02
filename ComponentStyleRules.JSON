@@ -58,6 +58,22 @@
     "FloatingTextToolbar": {
       "classes": ["Button", "Dropdown", "Divider"],
       "aesthetic": "Subtle floating pill toolbar with active formatting indicators, drag handle, and shadow8."
+    },
+    "InsertionBar": {
+      "classes": ["InsertionBar", "AddRegular"],
+      "aesthetic": "Hover-activated horizontal line with centered circular (+) add button modeled after SharePoint section adder."
+    },
+    "ToolboxModal": {
+      "classes": ["Dialog", "DialogSurface", "DialogTitle", "DialogBody"],
+      "aesthetic": "Grid of SharePoint authoring tools (Button, CTA, Divider, Editorial, Hero, Image, Video, Live Data, Term Store)."
+    },
+    "TermStorePicker": {
+      "classes": ["TagGroup", "Tag", "Input", "Button"],
+      "aesthetic": "Managed metadata taxonomy browser with rounded tag pills and search filtering."
+    },
+    "LiveDataRenderer": {
+      "classes": ["Badge", "Spinner", "Button"],
+      "aesthetic": "Real-time API dynamic value display with live connectivity badge and refresh trigger."
     }
   }
 }

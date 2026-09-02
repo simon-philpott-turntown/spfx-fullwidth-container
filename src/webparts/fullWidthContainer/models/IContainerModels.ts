@@ -10,6 +10,73 @@ export type TabStyle = 'pills' | 'underline' | 'cards';
 export type BlockType = 'card' | 'metric' | 'embed' | 'richText' | 'quickLinks';
 
 /**
+ * Inner composable item types for cards (matching Screenshot 1).
+ */
+export type ICardItemType =
+  | 'text'
+  | 'button'
+  | 'cta'
+  | 'divider'
+  | 'editorial'
+  | 'hero'
+  | 'image'
+  | 'gallery'
+  | 'link'
+  | 'quickLinks'
+  | 'video'
+  | 'liveData'
+  | 'termStoreTags';
+
+/**
+ * Term Store Tag reference.
+ */
+export interface ITermStoreTag {
+  id: string;
+  label: string;
+  path?: string;
+  termSetId?: string;
+  termSetName?: string;
+}
+
+/**
+ * Dynamic REST / Graph API Live Data Configuration.
+ */
+export interface ILiveDataConfig {
+  apiUrl: string;
+  method?: 'GET' | 'POST';
+  jsonPath: string;
+  prefix?: string;
+  suffix?: string;
+  refreshIntervalSeconds?: number;
+  fallbackText?: string;
+}
+
+/**
+ * Nested inner item within a composable card.
+ */
+export interface ICardItem {
+  id: string;
+  type: ICardItemType;
+  text?: string;
+  buttonLabel?: string;
+  buttonUrl?: string;
+  buttonVariant?: 'primary' | 'subtle' | 'outline';
+  ctaHeading?: string;
+  ctaDescription?: string;
+  ctaButtonText?: string;
+  ctaButtonUrl?: string;
+  dividerStyle?: 'solid' | 'dashed';
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
+  galleryImages?: Array<{ url: string; caption?: string }>;
+  quickLinks?: Array<{ label: string; url: string; icon?: string }>;
+  videoUrl?: string;
+  liveDataConfig?: ILiveDataConfig;
+  termStoreTags?: ITermStoreTag[];
+}
+
+/**
  * Interface representing a child content block inside a container section.
  */
 export interface IContentBlock {
@@ -27,6 +94,11 @@ export interface IContentBlock {
   embedUrl?: string;
   richContent?: string;
   tags?: string[];
+  termStoreTags?: ITermStoreTag[];
+  liveDataConfig?: ILiveDataConfig;
+  colSpan?: number; // 1, 2, 3, 4 columns
+  rowSpan?: number; // 1, 2 rows
+  items?: ICardItem[]; // Composable nested elements
 }
 
 /**

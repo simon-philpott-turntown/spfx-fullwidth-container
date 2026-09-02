@@ -44,7 +44,9 @@ export interface IFullWidthContainerWebPartProps {
   enableAnimation: boolean;
   compactPadding: boolean;
   showSearch: boolean;
-  presetTemplate: string;
+  gridColumns?: number;
+  gridRows?: number;
+  presetTemplate?: string;
   sectionsJson: string;
 
   // Active section editor state in Property Pane
@@ -113,11 +115,6 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     return false;
   }
 
-  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
-    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
-    this.render();
-  }
-
   public render(): void {
     if (!this.domElement) {
       return;
@@ -141,6 +138,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           enableAnimation: props.enableAnimation !== false,
           compactPadding: !!props.compactPadding,
           showSearch: props.showSearch !== false,
+          gridColumns: props.gridColumns,
+          gridRows: props.gridRows,
           sections: activeSections,
           isDarkTheme: this._isDarkTheme,
           userDisplayName: userDisplayName,
@@ -517,6 +516,32 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                 PropertyPaneToggle('compactPadding', {
                   label: 'Compact Vertical Padding',
                   checked: !!this.properties.compactPadding
+                }),
+                PropertyPaneDropdown('gridColumns', {
+                  label: 'Grid Columns per Row',
+                  selectedKey: this.properties.gridColumns || 0,
+                  options: [
+                    { key: 0, text: 'Auto-Fit Responsive (Dynamic)' },
+                    { key: 1, text: '1 Column (Stacked Full-Width)' },
+                    { key: 2, text: '2 Columns (50% / 50%)' },
+                    { key: 3, text: '3 Columns (33% / 33% / 33%)' },
+                    { key: 4, text: '4 Columns (25% / 25% / 25% / 25%)' },
+                    { key: 5, text: '5 Columns' },
+                    { key: 6, text: '6 Columns' }
+                  ]
+                }),
+                PropertyPaneDropdown('gridRows', {
+                  label: 'Grid Rows per Container',
+                  selectedKey: this.properties.gridRows || 0,
+                  options: [
+                    { key: 0, text: 'Auto / Dynamic (Unlimited)' },
+                    { key: 1, text: '1 Row (Single Row)' },
+                    { key: 2, text: '2 Rows' },
+                    { key: 3, text: '3 Rows' },
+                    { key: 4, text: '4 Rows' },
+                    { key: 5, text: '5 Rows' },
+                    { key: 6, text: '6 Rows' }
+                  ]
                 })
               ]
             },

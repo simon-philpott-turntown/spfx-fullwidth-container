@@ -21,8 +21,7 @@ import {
   shorthands,
   tokens,
   Body1,
-  Caption1,
-  Text
+  Caption1
 } from '@fluentui/react-components';
 import {
   ChevronDoubleDownRegular,
@@ -125,6 +124,8 @@ const useStyles = makeStyles({
 export interface IAccordionContainerProps {
   sections: IContainerSection[];
   searchQuery: string;
+  gridColumns?: number;
+  gridRows?: number;
   isEditMode?: boolean;
   onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
   onDeleteBlock?: (sectionId: string, blockId: string) => void;
@@ -154,6 +155,8 @@ function renderSectionIcon(name?: string): React.ReactElement {
 export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   sections,
   searchQuery,
+  gridColumns,
+  gridRows,
   isEditMode,
   onUpdateBlock,
   onDeleteBlock,
@@ -190,6 +193,13 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   }
 
   const q = searchQuery ? searchQuery.toLowerCase().trim() : '';
+
+  const gridStyle: React.CSSProperties = {
+    gridTemplateColumns:
+      gridColumns && gridColumns > 0
+        ? `repeat(${gridColumns}, 1fr)`
+        : 'repeat(auto-fill, minmax(320px, 1fr))'
+  };
 
   return (
     <div className={styles.container}>
@@ -268,11 +278,13 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
               </AccordionHeader>
 
               <AccordionPanel>
-                <div className={styles.grid}>
+                <div className={styles.grid} style={gridStyle}>
                   {filteredBlocks.map((block, blkIdx) => (
                     <BlockRenderer
                       key={block.id}
                       block={block}
+                      containerGridColumns={gridColumns}
+                      containerGridRows={gridRows}
                       isEditMode={isEditMode}
                       onUpdate={(fields) => {
                         if (onUpdateBlock) {
