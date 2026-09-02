@@ -195,6 +195,65 @@ const useStyles = makeStyles({
     display: 'flex',
     flexWrap: 'wrap',
     gap: '6px'
+  },
+  resizeHandleRight: {
+    position: 'absolute',
+    top: '15%',
+    right: '-5px',
+    width: '10px',
+    height: '70%',
+    cursor: 'ew-resize',
+    zIndex: 35,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ':hover': {
+      backgroundColor: tokens.colorBrandBackground2,
+      ...shorthands.borderRadius('4px')
+    }
+  },
+  resizeHandleBottom: {
+    position: 'absolute',
+    bottom: '-5px',
+    left: '15%',
+    width: '70%',
+    height: '10px',
+    cursor: 'ns-resize',
+    zIndex: 35,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ':hover': {
+      backgroundColor: tokens.colorBrandBackground2,
+      ...shorthands.borderRadius('4px')
+    }
+  },
+  resizeHandleCorner: {
+    position: 'absolute',
+    bottom: '-6px',
+    right: '-6px',
+    width: '16px',
+    height: '16px',
+    cursor: 'nwse-resize',
+    zIndex: 40,
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border('1.5px', 'solid', tokens.colorBrandStroke1),
+    ...shorthands.borderRadius('4px'),
+    boxShadow: tokens.shadow4,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ':hover': {
+      backgroundColor: tokens.colorBrandBackground,
+      ...shorthands.borderColor(tokens.colorBrandBackground)
+    }
+  },
+  resizeLiveBadge: {
+    position: 'absolute',
+    bottom: '8px',
+    left: '8px',
+    zIndex: 50,
+    pointerEvents: 'none'
   }
 });
 
@@ -221,6 +280,107 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 }) => {
   const styles = useStyles();
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
+  const [isDraggingBoundary, setIsDraggingBoundary] = React.useState<boolean>(false);
+  const [liveColSpan, setLiveColSpan] = React.useState<number>(block.colSpan || 1);
+  const [liveRowSpan, setLiveRowSpan] = React.useState<number>(block.rowSpan || 1);
+  const cardWrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    setLiveColSpan(block.colSpan || 1);
+    setLiveRowSpan(block.rowSpan || 1);
+  }, [block.colSpan, block.rowSpan]);
+
+  const startBoundaryDrag = (e: React.MouseEvent, type: 'right' | 'bottom' | 'corner'): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startCols = block.colSpan || 1;
+    const startRows = block.rowSpan || 1;
+    const maxCols = containerGridColumns || 4;
+    const maxRows = containerGridRows || 5;
+
+    const cardRect = cardWrapperRef.current?.getBoundingClientRect();
+    const cellWidth = cardRect ? (cardRect.width / startCols) : 320;
+    const cellHeight = cardRect ? (cardRect.height / startRows) : 220;
+
+    setIsDraggingBoundary(true);
+    let currentCols = startCols;
+    let currentRows = startRows;
+
+    const onMouseMove = (moveEvent: MouseEvent): void => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      if (type === 'right' || type === 'corner') {
+        const colDelta = Math.round(deltaX / Math.max(100, cellWidth * 0.7));
+        currentCols = Math.max(1, Math.min(maxCols, startCols + colDelta));
+        setLiveColSpan(currentCols);
+      }
+
+      if (type === 'bottom' || type === 'corner') {
+        const rowDelta = Math.round(deltaY / Math.max(80, cellHeight * 0.7));
+        currentRows = Math.max(1, Math.min(maxRows, startRows + rowDelta));
+        setLiveRowSpan(currentRows);
+      }
+    };
+
+    const onMouseUp = (): void => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      setIsDraggingBoundary(false);
+
+      if (onUpdate && (currentCols !== (block.colSpan || 1) || currentRows !== (block.rowSpan || 1))) {
+        onUpdate({ colSpan: currentCols, rowSpan: currentRows });
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  const renderResizeHandles = (): React.ReactElement | null => {
+    if (!isEditMode) return null;
+    return (
+      <>
+        {/* Right Boundary Drag Handle */}
+        <div
+          className={styles.resizeHandleRight}
+          onMouseDown={(e) => startBoundaryDrag(e, 'right')}
+          title="Drag boundary to adjust column span"
+        >
+          <div style={{ width: '3px', height: '24px', backgroundColor: tokens.colorBrandStroke1, borderRadius: '2px', opacity: 0.8 }} />
+        </div>
+
+        {/* Bottom Boundary Drag Handle */}
+        <div
+          className={styles.resizeHandleBottom}
+          onMouseDown={(e) => startBoundaryDrag(e, 'bottom')}
+          title="Drag boundary to adjust row span"
+        >
+          <div style={{ width: '24px', height: '3px', backgroundColor: tokens.colorBrandStroke1, borderRadius: '2px', opacity: 0.8 }} />
+        </div>
+
+        {/* Corner Boundary Drag Handle */}
+        <div
+          className={styles.resizeHandleCorner}
+          onMouseDown={(e) => startBoundaryDrag(e, 'corner')}
+          title="Drag corner to adjust column & row span"
+        >
+          <div style={{ width: '4px', height: '4px', backgroundColor: tokens.colorBrandBackground, borderRadius: '50%' }} />
+        </div>
+
+        {isDraggingBoundary && (
+          <div className={styles.resizeLiveBadge}>
+            <Badge appearance="filled" color="brand" size="small">
+              📐 Span {liveColSpan} cols × {liveRowSpan} rows
+            </Badge>
+          </div>
+        )}
+      </>
+    );
+  };
 
   const renderCardToolbar = (): React.ReactElement | null => {
     if (!isEditMode) return null;
@@ -554,7 +714,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   // Metric Block
   if (block.type === 'metric') {
     return (
-      <div className={styles.cardWrapper} style={wrapperGridStyle}>
+      <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
+        {renderResizeHandles()}
         <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
           {/* Metric Title with Rich Text Editing */}
@@ -649,7 +810,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   // Embed Block
   if (block.type === 'embed') {
     return (
-      <div className={styles.cardWrapper} style={wrapperGridStyle}>
+      <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
+        {renderResizeHandles()}
         <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
           <CardHeader
@@ -729,7 +891,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 
   // Standard / Composable Card Block
   return (
-    <div className={styles.cardWrapper} style={wrapperGridStyle}>
+    <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
+      {renderResizeHandles()}
       <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
         {renderCardToolbar()}
         <CardHeader
