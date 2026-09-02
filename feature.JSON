@@ -53,6 +53,19 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx"
       ]
+    },
+    {
+      "id": "FEAT-006",
+      "name": "InlineCanvasAndCardEditing",
+      "description": "Direct WYSIWYG in-place editing for container title, subtitle, card titles, descriptions, and metrics on the canvas in Edit Mode, paired with contextual floating card action toolbars.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+      ]
     }
   ]
 }

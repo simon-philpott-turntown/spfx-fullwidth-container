@@ -25,7 +25,8 @@ import {
   AppsRegular,
   ShieldCheckmarkRegular,
   FolderRegular,
-  InfoRegular
+  InfoRegular,
+  AddRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -45,6 +46,25 @@ const useStyles = makeStyles({
     gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
     ...shorthands.gap(tokens.spacingHorizontalL),
     width: '100%'
+  },
+  addCardButton: {
+    minHeight: '140px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shorthands.border('2px', 'dashed', tokens.colorBrandStroke2),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    backgroundColor: tokens.colorNeutralBackground1,
+    color: tokens.colorBrandForeground1,
+    cursor: 'pointer',
+    ...shorthands.gap(tokens.spacingVerticalXS),
+    transitionProperty: 'border-color, background-color',
+    transitionDuration: '150ms',
+    ':hover': {
+      ...shorthands.borderColor(tokens.colorBrandBackground),
+      backgroundColor: tokens.colorBrandBackground2
+    }
   },
   emptyState: {
     display: 'flex',
@@ -67,6 +87,13 @@ const useStyles = makeStyles({
 export interface ITabsContainerProps {
   sections: IContainerSection[];
   searchQuery: string;
+  isEditMode?: boolean;
+  onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
+  onDeleteBlock?: (sectionId: string, blockId: string) => void;
+  onAddBlock?: (sectionId: string) => void;
+  onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
+  onAddSection?: () => void;
+  onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
 }
 
 function renderTabIcon(name?: string): React.ReactElement {
@@ -88,7 +115,12 @@ function renderTabIcon(name?: string): React.ReactElement {
 
 export const TabsContainer: React.FC<ITabsContainerProps> = ({
   sections,
-  searchQuery
+  searchQuery,
+  isEditMode,
+  onUpdateBlock,
+  onDeleteBlock,
+  onAddBlock,
+  onEditBlockProperties
 }) => {
   const styles = useStyles();
   const [selectedTab, setSelectedTab] = React.useState<TabValue>(() =>
@@ -99,8 +131,11 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
     setSelectedTab(data.value);
   };
 
-  const activeSection =
-    sections.find((s) => s.id === selectedTab) || (sections.length > 0 ? sections[0] : undefined);
+  const activeSectionIndex = Math.max(
+    0,
+    sections.findIndex((s) => s.id === selectedTab)
+  );
+  const activeSection = sections[activeSectionIndex] || (sections.length > 0 ? sections[0] : undefined);
 
   if (!sections || sections.length === 0) {
     return (
@@ -151,13 +186,44 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
       </TabList>
 
       {/* Cards Grid */}
-      {filteredBlocks.length > 0 ? (
-        <div className={styles.grid}>
-          {filteredBlocks.map((block) => (
-            <BlockRenderer key={block.id} block={block} />
-          ))}
-        </div>
-      ) : (
+      <div className={styles.grid}>
+        {filteredBlocks.map((block, blkIdx) => (
+          <BlockRenderer
+            key={block.id}
+            block={block}
+            isEditMode={isEditMode}
+            onUpdate={(fields) => {
+              if (activeSection && onUpdateBlock) {
+                onUpdateBlock(activeSection.id, block.id, fields);
+              }
+            }}
+            onDelete={() => {
+              if (activeSection && onDeleteBlock) {
+                onDeleteBlock(activeSection.id, block.id);
+              }
+            }}
+            onEditProperties={() => {
+              if (onEditBlockProperties) {
+                onEditBlockProperties(activeSectionIndex, blkIdx);
+              }
+            }}
+          />
+        ))}
+
+        {/* Quick Add Card Action in Edit Mode */}
+        {isEditMode && activeSection && onAddBlock && (
+          <div
+            className={styles.addCardButton}
+            onClick={() => onAddBlock(activeSection.id)}
+            title="Add a new card to this section"
+          >
+            <AddRegular fontSize={24} />
+            <Body1 style={{ fontWeight: 600 }}>Add New Card</Body1>
+          </div>
+        )}
+      </div>
+
+      {filteredBlocks.length === 0 && !isEditMode && (
         <div className={styles.emptyState}>
           <InfoRegular fontSize={24} />
           <Body1>No content items found matching &quot;{searchQuery}&quot; in this section.</Body1>

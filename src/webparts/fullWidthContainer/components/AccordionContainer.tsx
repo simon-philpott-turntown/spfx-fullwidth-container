@@ -32,7 +32,8 @@ import {
   BookRegular,
   MoneyRegular,
   AppsRegular,
-  ShieldCheckmarkRegular
+  ShieldCheckmarkRegular,
+  AddRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -91,6 +92,25 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.spacingHorizontalL),
     ...shorthands.padding(tokens.spacingVerticalM, '0')
   },
+  addCardButton: {
+    minHeight: '140px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shorthands.border('2px', 'dashed', tokens.colorBrandStroke2),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    backgroundColor: tokens.colorNeutralBackground1,
+    color: tokens.colorBrandForeground1,
+    cursor: 'pointer',
+    ...shorthands.gap(tokens.spacingVerticalXS),
+    transitionProperty: 'border-color, background-color',
+    transitionDuration: '150ms',
+    ':hover': {
+      ...shorthands.borderColor(tokens.colorBrandBackground),
+      backgroundColor: tokens.colorBrandBackground2
+    }
+  },
   emptyState: {
     display: 'flex',
     flexDirection: 'column',
@@ -105,6 +125,13 @@ const useStyles = makeStyles({
 export interface IAccordionContainerProps {
   sections: IContainerSection[];
   searchQuery: string;
+  isEditMode?: boolean;
+  onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
+  onDeleteBlock?: (sectionId: string, blockId: string) => void;
+  onAddBlock?: (sectionId: string) => void;
+  onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
+  onAddSection?: () => void;
+  onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
 }
 
 function renderSectionIcon(name?: string): React.ReactElement {
@@ -126,7 +153,12 @@ function renderSectionIcon(name?: string): React.ReactElement {
 
 export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   sections,
-  searchQuery
+  searchQuery,
+  isEditMode,
+  onUpdateBlock,
+  onDeleteBlock,
+  onAddBlock,
+  onEditBlockProperties
 }) => {
   const styles = useStyles();
   const [openItems, setOpenItems] = React.useState<string[]>(() =>
@@ -193,7 +225,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         openItems={openItems}
         onToggle={handleToggle}
       >
-        {sections.map((section) => {
+        {sections.map((section, secIdx) => {
           const blocks = (section && Array.isArray(section.blocks)) ? section.blocks : [];
           const filteredBlocks = q
             ? blocks.filter(
@@ -211,11 +243,11 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
               value={section.id}
               className={styles.accordionItem}
             >
-              <AccordionHeader expandIconPosition="end">
+              <AccordionHeader>
                 <div className={styles.headerContent}>
                   {renderSectionIcon(section.iconName)}
                   <div className={styles.headerTextCol}>
-                    <Text weight="semibold">{section.title}</Text>
+                    <Body1 style={{ fontWeight: 600 }}>{section.title}</Body1>
                     {section.description && (
                       <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
                         {section.description}
@@ -236,13 +268,44 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
               </AccordionHeader>
 
               <AccordionPanel>
-                {filteredBlocks.length > 0 ? (
-                  <div className={styles.grid}>
-                    {filteredBlocks.map((block) => (
-                      <BlockRenderer key={block.id} block={block} />
-                    ))}
-                  </div>
-                ) : (
+                <div className={styles.grid}>
+                  {filteredBlocks.map((block, blkIdx) => (
+                    <BlockRenderer
+                      key={block.id}
+                      block={block}
+                      isEditMode={isEditMode}
+                      onUpdate={(fields) => {
+                        if (onUpdateBlock) {
+                          onUpdateBlock(section.id, block.id, fields);
+                        }
+                      }}
+                      onDelete={() => {
+                        if (onDeleteBlock) {
+                          onDeleteBlock(section.id, block.id);
+                        }
+                      }}
+                      onEditProperties={() => {
+                        if (onEditBlockProperties) {
+                          onEditBlockProperties(secIdx, blkIdx);
+                        }
+                      }}
+                    />
+                  ))}
+
+                  {/* Add Card Button in Accordion */}
+                  {isEditMode && onAddBlock && (
+                    <div
+                      className={styles.addCardButton}
+                      onClick={() => onAddBlock(section.id)}
+                      title="Add a new card to this section"
+                    >
+                      <AddRegular fontSize={24} />
+                      <Body1 style={{ fontWeight: 600 }}>Add New Card</Body1>
+                    </div>
+                  )}
+                </div>
+
+                {filteredBlocks.length === 0 && !isEditMode && (
                   <div className={styles.emptyState}>
                     <Caption1>No items matching &quot;{searchQuery}&quot; in this section.</Caption1>
                   </div>

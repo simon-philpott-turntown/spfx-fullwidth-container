@@ -20,4 +20,13 @@ export interface IFullWidthContainerProps {
   spfxTheme?: unknown;
   isEditMode?: boolean;
   onOpenPropertyPane?: () => void;
+  onTitleChange?: (newTitle: string) => void;
+  onSubtitleChange?: (newSubtitle: string) => void;
+  onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
+  onAddSection?: () => void;
+  onDeleteSection?: (sectionId: string) => void;
+  onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
+  onAddBlock?: (sectionId: string) => void;
+  onDeleteBlock?: (sectionId: string, blockId: string) => void;
+  onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
 }

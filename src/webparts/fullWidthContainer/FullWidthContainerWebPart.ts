@@ -122,12 +122,12 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
         FullWidthContainer,
         {
-          title: props.title || 'Interactive Content Hub',
+          title: props.title || 'Content title',
           subtitle: props.subtitle !== undefined
             ? props.subtitle
             : 'Centralised operational methodologies, metrics, and resources',
           layoutMode: props.layoutMode || 'tabs',
-          containerStyle: props.containerStyle || 'glassmorphism',
+          containerStyle: props.containerStyle || 'standard',
           accentColor: props.accentColor || '#0078d4',
           enableAnimation: props.enableAnimation !== false,
           compactPadding: !!props.compactPadding,
@@ -138,6 +138,61 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           spfxTheme: this._currentTheme,
           isEditMode: this.displayMode === DisplayMode.Edit,
           onOpenPropertyPane: () => {
+            if (this.context && this.context.propertyPane) {
+              this.context.propertyPane.open();
+            }
+          },
+          onTitleChange: (newTitle: string) => {
+            this.properties.title = newTitle;
+            this.render();
+          },
+          onSubtitleChange: (newSubtitle: string) => {
+            this.properties.subtitle = newSubtitle;
+            this.render();
+          },
+          onUpdateBlock: (sectionId: string, blockId: string, updatedFields: Partial<IContentBlock>) => {
+            const sections = this._getActiveSections();
+            const sec = sections.find((s) => s.id === sectionId);
+            if (sec && Array.isArray(sec.blocks)) {
+              const blk = sec.blocks.find((b) => b.id === blockId);
+              if (blk) {
+                Object.assign(blk, updatedFields);
+                this._saveSections(sections);
+              }
+            }
+          },
+          onDeleteBlock: (sectionId: string, blockId: string) => {
+            const sections = this._getActiveSections();
+            const sec = sections.find((s) => s.id === sectionId);
+            if (sec && Array.isArray(sec.blocks)) {
+              sec.blocks = sec.blocks.filter((b) => b.id !== blockId);
+              this._saveSections(sections);
+            }
+          },
+          onAddBlock: (sectionId: string) => {
+            const sections = this._getActiveSections();
+            const sec = sections.find((s) => s.id === sectionId);
+            if (sec) {
+              if (!Array.isArray(sec.blocks)) {
+                sec.blocks = [];
+              }
+              sec.blocks.push({
+                id: `blk-${Date.now()}`,
+                type: 'card',
+                title: 'New Card Item',
+                description: 'Click on this text to edit, or use the toolbar to configure properties.',
+                badge: 'New',
+                linkText: 'Learn More',
+                linkUrl: '#'
+              });
+              this._saveSections(sections);
+            }
+          },
+          onEditBlockProperties: (sectionIndex: number, blockIndex: number) => {
+            const sections = this._getActiveSections();
+            this.properties.activeBlockSectionIndex = sectionIndex;
+            this.properties.activeBlockIndex = blockIndex;
+            this._syncBlockFields(sections, sectionIndex, blockIndex);
             if (this.context && this.context.propertyPane) {
               this.context.propertyPane.open();
             }
@@ -418,7 +473,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               groupFields: [
                 PropertyPaneTextField('title', {
                   label: 'Container Title',
-                  value: this.properties.title || 'Interactive Content Hub'
+                  value: this.properties.title || 'Content title'
                 }),
                 PropertyPaneTextField('subtitle', {
                   label: 'Subtitle / Guidance',

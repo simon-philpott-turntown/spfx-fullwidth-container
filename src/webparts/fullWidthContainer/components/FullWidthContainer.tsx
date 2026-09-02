@@ -107,6 +107,55 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     ...shorthands.gap(tokens.spacingHorizontalS)
+  },
+  inlineTitleInput: {
+    backgroundColor: 'transparent',
+    ...shorthands.border('1px', 'dashed', 'transparent'),
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    paddingTop: '2px',
+    paddingBottom: '2px',
+    paddingLeft: '4px',
+    paddingRight: '4px',
+    fontFamily: 'inherit',
+    fontSize: '1.75rem',
+    fontWeight: 700,
+    lineHeight: '2.25rem',
+    color: 'inherit',
+    outline: 'none',
+    width: '100%',
+    boxSizing: 'border-box',
+    ':hover': {
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
+      backgroundColor: tokens.colorNeutralBackground1Hover
+    },
+    ':focus': {
+      ...shorthands.borderColor(tokens.colorBrandBackground),
+      backgroundColor: tokens.colorNeutralBackground1
+    }
+  },
+  inlineSubtitleInput: {
+    backgroundColor: 'transparent',
+    ...shorthands.border('1px', 'dashed', 'transparent'),
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    paddingTop: '2px',
+    paddingBottom: '2px',
+    paddingLeft: '4px',
+    paddingRight: '4px',
+    fontFamily: 'inherit',
+    fontSize: '0.95rem',
+    color: tokens.colorNeutralForeground3,
+    outline: 'none',
+    width: '100%',
+    boxSizing: 'border-box',
+    marginTop: '2px',
+    ':hover': {
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
+      backgroundColor: tokens.colorNeutralBackground1Hover
+    },
+    ':focus': {
+      ...shorthands.borderColor(tokens.colorBrandBackground),
+      backgroundColor: tokens.colorNeutralBackground1
+    }
   }
 });
 
@@ -122,7 +171,16 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     isDarkTheme,
     spfxTheme,
     isEditMode,
-    onOpenPropertyPane
+    onOpenPropertyPane,
+    onTitleChange,
+    onSubtitleChange,
+    onUpdateSection,
+    onAddSection,
+    onDeleteSection,
+    onUpdateBlock,
+    onAddBlock,
+    onDeleteBlock,
+    onEditBlockProperties
   } = props;
 
   const styles = useStyles();
@@ -159,7 +217,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             <div className={styles.editBannerLeft}>
               <Badge appearance="filled" color="brand">SharePoint Edit Mode</Badge>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
-                Customise content sections, badges, British metrics (£), and layout in the properties sidebar.
+                Click text on canvas to edit in-place, or open the sidebar to configure deep properties.
               </Caption1>
             </div>
             {onOpenPropertyPane && (
@@ -177,11 +235,30 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
         {/* Header with Title & Controls */}
         <div className={styles.header}>
           <div className={styles.headerTextCol}>
-            <Title1>{title || 'Interactive Content Hub'}</Title1>
-            {subtitle && (
-              <Subtitle2 style={{ color: tokens.colorNeutralForeground3 }}>
-                {subtitle}
-              </Subtitle2>
+            {isEditMode && onTitleChange ? (
+              <input
+                className={styles.inlineTitleInput}
+                value={title || ''}
+                placeholder="Click to enter Container Title..."
+                onChange={(e) => onTitleChange(e.target.value)}
+              />
+            ) : (
+              <Title1>{title || 'Content title'}</Title1>
+            )}
+
+            {isEditMode && onSubtitleChange ? (
+              <input
+                className={styles.inlineSubtitleInput}
+                value={subtitle || ''}
+                placeholder="Click to enter Subtitle / description..."
+                onChange={(e) => onSubtitleChange(e.target.value)}
+              />
+            ) : (
+              subtitle && (
+                <Subtitle2 style={{ color: tokens.colorNeutralForeground3 }}>
+                  {subtitle}
+                </Subtitle2>
+              )
             )}
           </div>
 
@@ -221,11 +298,25 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <TabsContainer
             sections={sections}
             searchQuery={searchQuery}
+            isEditMode={isEditMode}
+            onUpdateBlock={onUpdateBlock}
+            onDeleteBlock={onDeleteBlock}
+            onAddBlock={onAddBlock}
+            onEditBlockProperties={onEditBlockProperties}
+            onAddSection={onAddSection}
+            onUpdateSection={onUpdateSection}
           />
         ) : (
           <AccordionContainer
             sections={sections}
             searchQuery={searchQuery}
+            isEditMode={isEditMode}
+            onUpdateBlock={onUpdateBlock}
+            onDeleteBlock={onDeleteBlock}
+            onAddBlock={onAddBlock}
+            onEditBlockProperties={onEditBlockProperties}
+            onAddSection={onAddSection}
+            onUpdateSection={onUpdateSection}
           />
         )}
       </div>
