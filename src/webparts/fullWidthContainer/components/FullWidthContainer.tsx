@@ -19,7 +19,7 @@ import {
   Subtitle2,
   Badge,
   Button,
-  Text,
+  Caption1,
   makeStyles,
   shorthands,
   tokens
