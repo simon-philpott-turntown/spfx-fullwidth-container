@@ -209,6 +209,7 @@ export interface IBlockRendererProps {
   block: IContentBlock;
   containerGridColumns?: number;
   containerGridRows?: number;
+  containerCardHeightMode?: 'auto' | 'equal';
   isEditMode?: boolean;
   onEditProperties?: () => void;
   onDelete?: () => void;
@@ -219,6 +220,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   block,
   containerGridColumns,
   containerGridRows,
+  containerCardHeightMode = 'auto',
   isEditMode = false,
   onEditProperties,
   onDelete,
@@ -455,16 +457,27 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     );
   };
 
+  const effectiveHeightMode = (block.heightMode && block.heightMode !== 'default')
+    ? block.heightMode
+    : (containerCardHeightMode || 'auto');
+  const isAutoHeight = effectiveHeightMode === 'auto';
+
   const wrapperGridStyle: React.CSSProperties = {
     gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
-    gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined
+    gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
+    alignSelf: isAutoHeight ? 'start' : 'stretch',
+    height: isAutoHeight ? 'auto' : '100%'
+  };
+
+  const cardDynamicStyle: React.CSSProperties = {
+    height: isAutoHeight ? 'auto' : '100%'
   };
 
   // Metric Block
   if (block.type === 'metric') {
     return (
       <div className={styles.cardWrapper} style={wrapperGridStyle}>
-        <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`}>
+        <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
           {isEditMode && onUpdate ? (
             <input
@@ -489,11 +502,11 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 fontSize: '1.75rem',
                 fontWeight: 700,
                 color: tokens.colorBrandForeground1,
-                marginTop: '4px',
-                marginBottom: '4px'
+                lineHeight: '2rem',
+                margin: '4px 0'
               }}
               value={block.metricValue || ''}
-              placeholder="£100,000"
+              placeholder="£1,420,000"
               onChange={(e) => onUpdate({ metricValue: e.target.value })}
             />
           ) : (
@@ -557,7 +570,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   if (block.type === 'embed') {
     return (
       <div className={styles.cardWrapper} style={wrapperGridStyle}>
-        <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`}>
+        <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
           <CardHeader
             image={
@@ -631,7 +644,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   // Standard / Composable Card Block
   return (
     <div className={styles.cardWrapper} style={wrapperGridStyle}>
-      <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`}>
+      <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
         {renderCardToolbar()}
         <CardHeader
           image={

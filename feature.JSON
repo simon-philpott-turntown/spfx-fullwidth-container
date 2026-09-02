@@ -116,6 +116,22 @@
         "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
       ]
+    },
+    {
+      "id": "FEAT-011",
+      "name": "IndependentCardHeightAndEqualRowScaling",
+      "description": "Configurable card height modes supporting both independent content height scaling (fit-content) and equal row height scaling (match tallest card in row) with container and card-level overrides.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }

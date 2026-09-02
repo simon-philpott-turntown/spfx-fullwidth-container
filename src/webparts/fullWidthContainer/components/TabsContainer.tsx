@@ -95,6 +95,7 @@ export interface ITabsContainerProps {
   searchQuery: string;
   gridColumns?: number;
   gridRows?: number;
+  cardHeightMode?: 'auto' | 'equal';
   isEditMode?: boolean;
   onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
   onDeleteBlock?: (sectionId: string, blockId: string) => void;
@@ -145,6 +146,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
   searchQuery,
   gridColumns,
   gridRows,
+  cardHeightMode = 'auto',
   isEditMode,
   onUpdateBlock,
   onDeleteBlock,
@@ -229,6 +231,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
             block={block}
             containerGridColumns={gridColumns}
             containerGridRows={gridRows}
+            containerCardHeightMode={cardHeightMode}
             isEditMode={isEditMode}
             onUpdate={(fields) => {
               if (activeSection && onUpdateBlock) {

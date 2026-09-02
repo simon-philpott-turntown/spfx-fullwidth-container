@@ -295,6 +295,27 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </div>
             </div>
 
+            {/* Height Mode Behavior */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Card height behavior</Label>
+              <Dropdown
+                value={
+                  formData.heightMode === 'equal'
+                    ? 'Equal row height (match tallest)'
+                    : formData.heightMode === 'auto'
+                    ? 'Fit content height (independent)'
+                    : 'Inherit container setting'
+                }
+                onOptionSelect={(e, data) => {
+                  setFormData({ ...formData, heightMode: data.optionValue as 'default' | 'auto' | 'equal' });
+                }}
+              >
+                <Option value="default">Inherit container setting</Option>
+                <Option value="auto">Fit content height (independent)</Option>
+                <Option value="equal">Equal row height (match tallest)</Option>
+              </Dropdown>
+            </div>
+
             {/* Global Term Store Tags */}
             <div className={styles.fieldRow}>
               <Label weight="semibold">Global term store tags</Label>

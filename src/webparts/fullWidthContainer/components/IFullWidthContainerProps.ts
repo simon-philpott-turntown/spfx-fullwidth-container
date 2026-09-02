@@ -16,6 +16,7 @@ export interface IFullWidthContainerProps {
   showSearch: boolean;
   gridColumns?: number;
   gridRows?: number;
+  cardHeightMode?: 'auto' | 'equal';
   sections: IContainerSection[];
   isDarkTheme: boolean;
   userDisplayName: string;

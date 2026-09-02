@@ -45,7 +45,7 @@
     },
     "Card": {
       "classes": ["Card", "CardHeader", "CardFooter"],
-      "aesthetic": "Elevated Fluent 2 card with subtle border, shadow hover lift, and icon box."
+      "aesthetic": "Elevated Fluent 2 card with subtle border, shadow hover lift, and icon box. Supports both independent height (alignSelf: start, height: auto) and equal row height (alignSelf: stretch, height: 100%)."
     },
     "MetricCard": {
       "classes": ["Card", "Title1", "Badge"],

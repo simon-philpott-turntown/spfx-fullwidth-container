@@ -181,6 +181,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     showSearch,
     gridColumns,
     gridRows,
+    cardHeightMode,
     sections,
     isDarkTheme,
     spfxTheme,
@@ -337,6 +338,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             searchQuery={searchQuery}
             gridColumns={gridColumns}
             gridRows={gridRows}
+            cardHeightMode={cardHeightMode}
             isEditMode={isEditMode}
             onUpdateBlock={onUpdateBlock}
             onDeleteBlock={onDeleteBlock}
@@ -351,6 +353,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             searchQuery={searchQuery}
             gridColumns={gridColumns}
             gridRows={gridRows}
+            cardHeightMode={cardHeightMode}
             isEditMode={isEditMode}
             onUpdateBlock={onUpdateBlock}
             onDeleteBlock={onDeleteBlock}

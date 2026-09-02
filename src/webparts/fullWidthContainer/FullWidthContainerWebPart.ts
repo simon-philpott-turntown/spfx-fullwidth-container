@@ -46,6 +46,7 @@ export interface IFullWidthContainerWebPartProps {
   showSearch: boolean;
   gridColumns?: number;
   gridRows?: number;
+  cardHeightMode?: 'auto' | 'equal';
   presetTemplate?: string;
   sectionsJson: string;
 
@@ -64,6 +65,7 @@ export interface IFullWidthContainerWebPartProps {
   blockDescription: string;
   blockBadge: string;
   blockIcon: string;
+  blockHeightMode: 'default' | 'auto' | 'equal';
   blockMetricValue: string;
   blockMetricTrend: string;
   blockActionText: string;
@@ -141,6 +143,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           showSearch: props.showSearch !== false,
           gridColumns: props.gridColumns,
           gridRows: props.gridRows,
+          cardHeightMode: props.cardHeightMode || 'auto',
           sections: activeSections,
           isDarkTheme: this._isDarkTheme,
           userDisplayName: userDisplayName,
@@ -333,6 +336,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'blockDescription') block.description = String(newValue || '');
         if (propertyPath === 'blockBadge') block.badge = String(newValue || '');
         if (propertyPath === 'blockIcon') block.iconName = String(newValue || '');
+        if (propertyPath === 'blockHeightMode') block.heightMode = newValue as 'default' | 'auto' | 'equal';
         if (propertyPath === 'blockMetricValue') block.metricValue = String(newValue || '');
         if (propertyPath === 'blockMetricTrend') block.metricTrend = String(newValue || '');
         if (propertyPath === 'blockActionText') block.linkText = String(newValue || '');
@@ -364,6 +368,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.blockDescription = blk.description || '';
       this.properties.blockBadge = blk.badge || '';
       this.properties.blockIcon = blk.iconName || 'BookAnswers';
+      this.properties.blockHeightMode = blk.heightMode || 'default';
       this.properties.blockMetricValue = blk.metricValue || '';
       this.properties.blockMetricTrend = blk.metricTrend || '';
       this.properties.blockActionText = blk.linkText || '';
@@ -575,6 +580,14 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 5, text: '5 rows' },
                     { key: 6, text: '6 rows' }
                   ]
+                }),
+                PropertyPaneDropdown('cardHeightMode', {
+                  label: 'Card height alignment',
+                  selectedKey: this.properties.cardHeightMode || 'auto',
+                  options: [
+                    { key: 'auto', text: 'Fit content height (independent)' },
+                    { key: 'equal', text: 'Equal row height (match tallest)' }
+                  ]
                 })
               ]
             },
@@ -707,6 +720,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   label: 'Item icon',
                   options: iconDropdownOptions,
                   selectedKey: currentBlocks[activeBlkIdx]?.iconName || 'BookAnswers'
+                }),
+                PropertyPaneDropdown('blockHeightMode', {
+                  label: 'Card height behavior',
+                  options: [
+                    { key: 'default', text: 'Inherit container setting' },
+                    { key: 'auto', text: 'Fit content height (independent)' },
+                    { key: 'equal', text: 'Equal row height (match tallest)' }
+                  ],
+                  selectedKey: currentBlocks[activeBlkIdx]?.heightMode || 'default'
                 }),
                 PropertyPaneTextField('blockDescription', {
                   label: 'Card summary or description',

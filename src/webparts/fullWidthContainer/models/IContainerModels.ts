@@ -76,6 +76,8 @@ export interface ICardItem {
   termStoreTags?: ITermStoreTag[];
 }
 
+export type CardHeightMode = 'auto' | 'equal';
+
 /**
  * Interface representing a child content block inside a container section.
  */
@@ -98,6 +100,7 @@ export interface IContentBlock {
   liveDataConfig?: ILiveDataConfig;
   colSpan?: number; // 1, 2, 3, 4 columns
   rowSpan?: number; // 1, 2 rows
+  heightMode?: 'default' | 'auto' | 'equal'; // Auto (fit content) vs Equal (match tallest on row)
   items?: ICardItem[]; // Composable nested elements
 }
 

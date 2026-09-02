@@ -132,6 +132,7 @@ export interface IAccordionContainerProps {
   searchQuery: string;
   gridColumns?: number;
   gridRows?: number;
+  cardHeightMode?: 'auto' | 'equal';
   isEditMode?: boolean;
   onUpdateBlock?: (sectionId: string, blockId: string, updatedFields: Partial<import('../models/IContainerModels').IContentBlock>) => void;
   onDeleteBlock?: (sectionId: string, blockId: string) => void;
@@ -182,6 +183,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   searchQuery,
   gridColumns,
   gridRows,
+  cardHeightMode = 'auto',
   isEditMode,
   onUpdateBlock,
   onDeleteBlock,
@@ -310,6 +312,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                       block={block}
                       containerGridColumns={gridColumns}
                       containerGridRows={gridRows}
+                      containerCardHeightMode={cardHeightMode}
                       isEditMode={isEditMode}
                       onUpdate={(fields) => {
                         if (onUpdateBlock) {

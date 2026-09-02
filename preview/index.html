@@ -667,6 +667,13 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Card height alignment</label>
+          <select class="form-select" id="sel-card-height-mode" onchange="updateCardHeightMode(this.value)">
+            <option value="auto">Fit content height (independent)</option>
+            <option value="equal">Equal row height (match tallest)</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Quick preset template</label>
           <select class="form-select" id="sel-preset" onchange="loadPreset(this.value)">
             <option value="commercial">Commercial and financial hub (GBP £)</option>
@@ -752,6 +759,14 @@
             <option value="fa-wrench">Calculator or engineering</option>
             <option value="fa-lock">Lock or security</option>
             <option value="fa-globe">Globe or portal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Card height behavior</label>
+          <select class="form-select" id="sel-card-item-height-mode" onchange="updateCardItemHeightMode(this.value)">
+            <option value="default">Inherit container setting</option>
+            <option value="auto">Fit content height (independent)</option>
+            <option value="equal">Equal row height (match tallest)</option>
           </select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
@@ -916,6 +931,7 @@
       containerStyle: 'standard',
       gridCols: 0,
       gridRows: 0,
+      cardHeightMode: 'auto',
       activeTabId: 'sec-1',
       searchQuery: '',
       activeSecIdx: 0,
@@ -953,8 +969,9 @@
     function updateSubtitle(val) { state.subtitle = val; render(); }
     function updateLayoutMode(val) { state.layoutMode = val; render(); }
     function updateContainerStyle(val) { state.containerStyle = val; render(); }
-    function updateGridCols(val) { state.gridCols = Number(val) || 0; syncSidebar(); render(); }
-    function updateGridRows(val) { state.gridRows = Number(val) || 0; syncSidebar(); render(); }
+    function updateGridCols(val) { state.gridCols = Number(val); render(); syncSidebar(); }
+    function updateGridRows(val) { state.gridRows = Number(val); render(); syncSidebar(); }
+    function updateCardHeightMode(val) { state.cardHeightMode = val; render(); }
 
     function syncSidebar() {
       // Sync Section Dropdown
@@ -1045,6 +1062,7 @@
             const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
             setVal('sel-card-type', curCard.type || 'card');
             setVal('sel-card-icon', curCard.iconName || 'fa-file-lines');
+            setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
@@ -1310,9 +1328,13 @@
           React.createElement('div', { style: { marginTop: '1.25rem' } },
             React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
               filterBlocks(activeSection.blocks).map((block, bIdx) => {
+                const effectiveHeightMode = (block.heightMode && block.heightMode !== 'default') ? block.heightMode : (state.cardHeightMode || 'auto');
+                const isAutoHeight = effectiveHeightMode === 'auto';
                 const cardSpanStyle = {
                   gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
-                  gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined
+                  gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
+                  alignSelf: isAutoHeight ? 'start' : 'stretch',
+                  height: isAutoHeight ? 'auto' : '100%'
                 };
                 return block.type === 'metric' ?
                 React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
@@ -1382,9 +1404,13 @@
               React.createElement('div', { className: 'fui-accordion-panel' },
                 React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
                   filterBlocks(sec.blocks).map((block, bIdx) => {
+                    const effectiveHeightMode = (block.heightMode && block.heightMode !== 'default') ? block.heightMode : (state.cardHeightMode || 'auto');
+                    const isAutoHeight = effectiveHeightMode === 'auto';
                     const cardSpanStyle = {
                       gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
-                      gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined
+                      gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
+                      alignSelf: isAutoHeight ? 'start' : 'stretch',
+                      height: isAutoHeight ? 'auto' : '100%'
                     };
                     return block.type === 'metric' ?
                     React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
