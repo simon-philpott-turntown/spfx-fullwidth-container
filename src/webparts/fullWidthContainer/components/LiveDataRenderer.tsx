@@ -11,7 +11,9 @@ import {
   Badge,
   Button,
   Spinner,
-  Caption1
+  Caption1,
+  Skeleton,
+  SkeletonItem
 } from '@fluentui/react-components';
 import { ArrowSyncRegular, CloudCheckmarkRegular, WarningRegular } from '@fluentui/react-icons';
 import { ILiveDataConfig } from '../models/IContainerModels';
@@ -111,7 +113,13 @@ export const LiveDataRenderer: React.FC<ILiveDataRendererProps> = ({ config, isE
       </div>
 
       <div className={styles.valueDisplay}>
-        {loading && !dataValue ? <Spinner size="tiny" /> : dataValue}
+        {loading ? (
+          <Skeleton aria-label="Loading metric value" style={{ width: '100%', padding: '4px 0' }}>
+            <SkeletonItem style={{ height: '24px', width: '55%', borderRadius: '4px' }} />
+          </Skeleton>
+        ) : (
+          dataValue
+        )}
       </div>
 
       {isEditMode && config.apiUrl && (

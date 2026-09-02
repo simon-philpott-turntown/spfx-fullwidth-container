@@ -135,6 +135,36 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-012",
+      "name": "FluentUI2SkeletonShimmers",
+      "description": "Fluent UI 2 Skeleton and SkeletonItem pulse shimmers replacing empty layout shifts during Live Data metric queries and Term Store taxonomy loading.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/LiveDataRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TermStorePicker.tsx",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-013",
+      "name": "FluentUI2ToastNotifications",
+      "description": "Fluent UI 2 Toast notification system for non-intrusive visual feedback during card boundary resizing, saves, and JSON actions.",
+      "status": "Active",
+      "implementedIn": [
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-014",
+      "name": "DashboardJSONPortability",
+      "description": "Complete dashboard JSON template export and import in Property Pane Page 1 for rapid configuration replication across SharePoint sites.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }

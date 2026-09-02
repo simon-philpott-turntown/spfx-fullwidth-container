@@ -71,6 +71,7 @@ export interface IFullWidthContainerWebPartProps {
   blockActionText: string;
   blockActionUrl: string;
   blockTags: string;
+  importJsonRaw?: string;
 }
 
 export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFullWidthContainerWebPartProps> {
@@ -473,6 +474,35 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     this.context.propertyPane.refresh();
   }
 
+  /**
+   * Action handler: Imports and validates Dashboard JSON template.
+   */
+  private _applyImportedJson(): void {
+    if (!this.properties.importJsonRaw || this.properties.importJsonRaw.trim() === '') return;
+    try {
+      const parsed = JSON.parse(this.properties.importJsonRaw);
+      if (parsed.sectionsJson) {
+        this.properties.sectionsJson = parsed.sectionsJson;
+      } else if (Array.isArray(parsed)) {
+        this.properties.sectionsJson = JSON.stringify(parsed);
+      } else if (parsed.sections && Array.isArray(parsed.sections)) {
+        this.properties.sectionsJson = JSON.stringify(parsed.sections);
+      }
+      if (parsed.title) this.properties.title = parsed.title;
+      if (parsed.subtitle) this.properties.subtitle = parsed.subtitle;
+      if (parsed.layoutMode) this.properties.layoutMode = parsed.layoutMode;
+      if (parsed.containerStyle) this.properties.containerStyle = parsed.containerStyle;
+      if (parsed.gridColumns !== undefined) this.properties.gridColumns = parsed.gridColumns;
+      if (parsed.gridRows !== undefined) this.properties.gridRows = parsed.gridRows;
+      if (parsed.cardHeightMode) this.properties.cardHeightMode = parsed.cardHeightMode;
+
+      this.render();
+      this.context.propertyPane.refresh();
+    } catch {
+      // Invalid JSON syntax handled safely
+    }
+  }
+
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     const sections = this._getActiveSections();
     const activeSecIdx = Math.min(this.properties.activeSectionIndex || 0, Math.max(0, sections.length - 1));
@@ -602,6 +632,23 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 'starter', text: 'Blank 2-section starter' }
                   ],
                   selectedKey: this.properties.presetTemplate || 'commercial'
+                })
+              ]
+            },
+            {
+              groupName: 'Configuration JSON & Portability',
+              groupFields: [
+                PropertyPaneTextField('importJsonRaw', {
+                  label: 'Dashboard JSON Template',
+                  multiline: true,
+                  rows: 3,
+                  placeholder: 'Paste full dashboard JSON to import or view current structure...',
+                  value: this.properties.importJsonRaw || ''
+                }),
+                PropertyPaneButton('applyImportJsonBtn', {
+                  text: '📥 Import & Apply JSON',
+                  buttonType: PropertyPaneButtonType.Normal,
+                  onClick: () => this._applyImportedJson()
                 })
               ]
             }

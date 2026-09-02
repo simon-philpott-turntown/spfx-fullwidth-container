@@ -13,7 +13,9 @@ import {
   TagGroup,
   Input,
   Button,
-  Caption1
+  Caption1,
+  Skeleton,
+  SkeletonItem
 } from '@fluentui/react-components';
 import {
   TagRegular,
@@ -153,10 +155,20 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
     'set-our-segments': false
   });
   const [newTermInput, setNewTermInput] = React.useState<string>('');
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    void TaxonomyService.getTerms().then((terms) => setAllTerms(terms));
-    void TaxonomyService.getTermGroups().then((groups) => setTermGroups(groups));
+    setIsLoading(true);
+    Promise.all([
+      TaxonomyService.getTerms(),
+      TaxonomyService.getTermGroups()
+    ]).then(([terms, groups]) => {
+      setAllTerms(terms);
+      setTermGroups(groups);
+      setIsLoading(false);
+    }).catch(() => {
+      setIsLoading(false);
+    });
   }, []);
 
   const handleSelectTerm = (term: ITermStoreTag): void => {
@@ -323,34 +335,44 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
 
               {/* Results List */}
               <div className={styles.suggestionsList}>
-                {filteredSuggestions.map((term) => (
-                  <div
-                    key={term.id}
-                    className={styles.suggestionItem}
-                    onClick={() => handleSelectTerm(term)}
-                  >
-                    <div>
-                      <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>+ {term.label}</span>
-                      {term.path && (
-                        <Caption1 style={{ display: 'block', color: tokens.colorNeutralForeground4, fontSize: '0.7rem' }}>
-                          {term.path}
-                        </Caption1>
-                      )}
-                    </div>
-                    {term.termSetName && (
-                      <Tag size="small" shape="rounded" appearance="brand">
-                        {term.termSetName}
-                      </Tag>
-                    )}
-                  </div>
-                ))}
+                {isLoading ? (
+                  <Skeleton aria-label="Loading taxonomy terms" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px' }}>
+                    <SkeletonItem style={{ height: '22px', width: '80%', borderRadius: '4px' }} />
+                    <SkeletonItem style={{ height: '22px', width: '65%', borderRadius: '4px' }} />
+                    <SkeletonItem style={{ height: '22px', width: '90%', borderRadius: '4px' }} />
+                  </Skeleton>
+                ) : (
+                  <>
+                    {filteredSuggestions.map((term) => (
+                      <div
+                        key={term.id}
+                        className={styles.suggestionItem}
+                        onClick={() => handleSelectTerm(term)}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>+ {term.label}</span>
+                          {term.path && (
+                            <Caption1 style={{ display: 'block', color: tokens.colorNeutralForeground4, fontSize: '0.7rem' }}>
+                              {term.path}
+                            </Caption1>
+                          )}
+                        </div>
+                        {term.termSetName && (
+                          <Tag size="small" shape="rounded" appearance="brand">
+                            {term.termSetName}
+                          </Tag>
+                        )}
+                      </div>
+                    ))}
 
-                {filteredSuggestions.length === 0 && (
-                  <div style={{ padding: '8px', textAlign: 'center' }}>
-                    <Caption1 style={{ color: tokens.colorNeutralForeground4 }}>
-                      No matching terms in &ldquo;{selectedTermSet}&rdquo;. Create a custom tag below.
-                    </Caption1>
-                  </div>
+                    {filteredSuggestions.length === 0 && (
+                      <div style={{ padding: '8px', textAlign: 'center' }}>
+                        <Caption1 style={{ color: tokens.colorNeutralForeground4 }}>
+                          No matching terms in &ldquo;{selectedTermSet}&rdquo;. Create a custom tag below.
+                        </Caption1>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </>

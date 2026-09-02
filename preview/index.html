@@ -817,6 +817,58 @@
       transition: transform 0.1s ease;
     }
     .fui-color-dot:hover { transform: scale(1.2); }
+
+    /* Fluent UI 2 Skeleton & Shimmer Pulse */
+    .fui-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    .fui-skeleton-item {
+      height: 20px;
+      background: linear-gradient(90deg, var(--fui-colorNeutralBackground3) 25%, var(--fui-colorNeutralBackground1) 50%, var(--fui-colorNeutralBackground3) 75%);
+      background-size: 200% 100%;
+      border-radius: var(--fui-borderRadiusSmall);
+      animation: fui-shimmer 1.5s infinite linear;
+    }
+    @keyframes fui-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Fluent UI 2 Toast Notification */
+    .fui-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .fui-toast {
+      pointer-events: auto;
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-left: 4px solid var(--fui-colorBrandBackground);
+      border-radius: var(--fui-borderRadiusMedium);
+      box-shadow: var(--fui-shadow28);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--fui-colorNeutralForeground1);
+      animation: fui-toast-slide-in 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    @keyframes fui-toast-slide-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -925,6 +977,24 @@
             <option value="governance">Assurance and governance portal</option>
             <option value="starter">Blank 2-section starter</option>
           </select>
+        </div>
+
+        <div style="margin-top: 1.25rem; border-top: 1px solid var(--fui-colorNeutralStroke2); padding-top: 0.85rem;">
+          <label class="form-label" style="font-weight: 700; color: var(--fui-colorNeutralForeground1); margin-bottom: 6px;">Configuration JSON & Portability</label>
+          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button class="sp-btn sp-btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;" onclick="exportDashboardJson()">
+              <i class="fa-solid fa-copy"></i> Copy JSON
+            </button>
+            <button class="sp-btn sp-btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;" onclick="toggleImportJsonBox()">
+              <i class="fa-solid fa-file-import"></i> Import JSON
+            </button>
+          </div>
+          <div id="import-json-box" style="display: none; flex-direction: column; gap: 6px;">
+            <textarea id="inp-import-json" class="form-textarea" rows="3" placeholder="Paste dashboard JSON here..."></textarea>
+            <button class="sp-btn" style="font-size: 0.75rem; padding: 4px 8px;" onclick="applyImportedJson()">
+              <i class="fa-solid fa-check"></i> Apply & Replace
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1829,10 +1899,79 @@
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
         syncSidebar();
+        showToast(`📐 Card span updated: ${block.colSpan || 1} col(s) × ${block.rowSpan || 1} row(s)`, 'fa-up-right-and-down-left-from-center');
       };
 
       window.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
+    }
+
+    function showToast(msg, icon = 'fa-check') {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fui-toast-container';
+        document.body.appendChild(container);
+      }
+      const toast = document.createElement('div');
+      toast.className = 'fui-toast';
+      toast.innerHTML = `<i class="fa-solid ${icon}" style="color: var(--fui-colorBrandForeground1)"></i><span>${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 2400);
+    }
+
+    function exportDashboardJson() {
+      const config = {
+        title: state.title,
+        subtitle: state.subtitle,
+        layoutMode: state.layoutMode,
+        containerStyle: state.containerStyle,
+        gridColumns: state.gridCols,
+        gridRows: state.gridRows,
+        cardHeightMode: state.cardHeightMode,
+        sections: currentSections
+      };
+      const jsonStr = JSON.stringify(config, null, 2);
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(jsonStr);
+      }
+      showToast('✓ Dashboard JSON copied to clipboard!');
+    }
+
+    function toggleImportJsonBox() {
+      const box = document.getElementById('import-json-box');
+      if (box) {
+        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+      }
+    }
+
+    function applyImportedJson() {
+      const raw = document.getElementById('inp-import-json').value;
+      if (!raw || !raw.trim()) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.title) state.title = parsed.title;
+        if (parsed.subtitle) state.subtitle = parsed.subtitle;
+        if (parsed.layoutMode) state.layoutMode = parsed.layoutMode;
+        if (parsed.containerStyle) state.containerStyle = parsed.containerStyle;
+        if (parsed.gridColumns !== undefined) state.gridCols = parsed.gridColumns;
+        if (parsed.gridRows !== undefined) state.gridRows = parsed.gridRows;
+        if (parsed.cardHeightMode) state.cardHeightMode = parsed.cardHeightMode;
+        if (parsed.sections && Array.isArray(parsed.sections)) {
+          currentSections = parsed.sections;
+          state.activeTabId = currentSections[0]?.id || '';
+        }
+        syncSidebar();
+        render();
+        showToast('✓ Dashboard JSON template applied!');
+      } catch (e) {
+        showToast('⚠ Invalid JSON format', 'fa-triangle-exclamation');
+      }
     }
 
     let sidebarWidth = 380;
