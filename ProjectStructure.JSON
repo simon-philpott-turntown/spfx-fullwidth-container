@@ -36,6 +36,16 @@
       "role": "Renders child content items using Fluent 2 Card, Badge, Button, and Key Metrics in GBP £."
     },
     {
+      "name": "CardEditDialog",
+      "path": "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+      "role": "In-place Fluent UI 2 Modal Dialog for editing card type, icon, badge, links, and British financial metrics on canvas."
+    },
+    {
+      "name": "FloatingTextToolbar",
+      "path": "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+      "role": "Floating contextual formatting ribbon modeled after the native SharePoint Text Web Part toolbar."
+    },
+    {
       "name": "ContainerModels",
       "path": "src/webparts/fullWidthContainer/models/IContainerModels.ts",
       "role": "Type definitions for panels, tabs, items, layout configuration, and default UK datasets."

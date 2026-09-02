@@ -159,6 +159,8 @@ const useStyles = makeStyles({
   }
 });
 
+import { FloatingTextToolbar } from './FloatingTextToolbar';
+
 export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) => {
   const {
     title,
@@ -186,6 +188,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
   const styles = useStyles();
   const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(initialLayoutMode || 'tabs');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [focusedField, setFocusedField] = React.useState<'title' | 'subtitle' | null>(null);
 
   // Sync state if property pane changes
   React.useEffect(() => {
@@ -217,7 +220,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             <div className={styles.editBannerLeft}>
               <Badge appearance="filled" color="brand">SharePoint Edit Mode</Badge>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
-                Click text on canvas to edit in-place, or open the sidebar to configure deep properties.
+                Click text on canvas to format with the toolbar, or click ✏️ on any card to edit its properties in-place.
               </Caption1>
             </div>
             {onOpenPropertyPane && (
@@ -235,11 +238,23 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
         {/* Header with Title & Controls */}
         <div className={styles.header}>
           <div className={styles.headerTextCol}>
+            {isEditMode && focusedField && (
+              <div style={{ marginBottom: '8px' }}>
+                <FloatingTextToolbar
+                  currentStyle={focusedField === 'title' ? 'Heading 1' : 'Normal'}
+                  currentSize={focusedField === 'title' ? '24' : '16'}
+                  isBold={focusedField === 'title'}
+                />
+              </div>
+            )}
+
             {isEditMode && onTitleChange ? (
               <input
                 className={styles.inlineTitleInput}
                 value={title || ''}
                 placeholder="Click to enter Container Title..."
+                onFocus={() => setFocusedField('title')}
+                onBlur={() => setTimeout(() => setFocusedField(null), 250)}
                 onChange={(e) => onTitleChange(e.target.value)}
               />
             ) : (
@@ -251,6 +266,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                 className={styles.inlineSubtitleInput}
                 value={subtitle || ''}
                 placeholder="Click to enter Subtitle / description..."
+                onFocus={() => setFocusedField('subtitle')}
+                onBlur={() => setTimeout(() => setFocusedField(null), 250)}
                 onChange={(e) => onSubtitleChange(e.target.value)}
               />
             ) : (

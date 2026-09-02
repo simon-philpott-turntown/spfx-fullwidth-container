@@ -50,6 +50,14 @@
     "MetricCard": {
       "classes": ["Card", "Title1", "Badge"],
       "aesthetic": "High-contrast British financial metrics formatted in GBP (£) with trend badges."
+    },
+    "CardEditDialog": {
+      "classes": ["Dialog", "DialogSurface", "DialogTitle", "DialogBody", "Dropdown", "Input", "Textarea"],
+      "aesthetic": "Elevated modal dialog with shadow28, responsive form layout, icon picker, and action buttons."
+    },
+    "FloatingTextToolbar": {
+      "classes": ["Button", "Dropdown", "Divider"],
+      "aesthetic": "Subtle floating pill toolbar with active formatting indicators, drag handle, and shadow8."
     }
   }
 }

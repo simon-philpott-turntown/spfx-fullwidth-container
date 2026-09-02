@@ -202,6 +202,9 @@ function renderFluent2Icon(name?: string): React.ReactElement {
   }
 }
 
+import { CardEditDialog } from './CardEditDialog';
+import { FloatingTextToolbar } from './FloatingTextToolbar';
+
 export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   block,
   isEditMode,
@@ -210,24 +213,27 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   onEditProperties
 }) => {
   const styles = useStyles();
+  const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
+  const [isFocused, setIsFocused] = React.useState<boolean>(false);
 
   // Floating Edit Mode Quick Action Toolbar
   const renderCardToolbar = (): React.ReactElement | null => {
     if (!isEditMode) return null;
     return (
       <div className={styles.cardToolbar}>
-        {onEditProperties && (
-          <Button
-            size="small"
-            appearance="subtle"
-            icon={<EditRegular />}
-            title="Edit Card Properties in Sidebar"
-            onClick={(e) => {
-              e.stopPropagation();
+        <Button
+          size="small"
+          appearance="subtle"
+          icon={<EditRegular />}
+          title="Edit Card Properties (In-Place Dialog)"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsDialogOpen(true);
+            if (onEditProperties) {
               onEditProperties();
-            }}
-          />
-        )}
+            }
+          }}
+        />
         {onDelete && (
           <Button
             size="small"
@@ -411,18 +417,29 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         />
 
         {isEditMode && onUpdate ? (
-          <textarea
-            className={styles.inlineInput}
-            rows={2}
-            style={{
-              color: tokens.colorNeutralForeground2,
-              marginTop: tokens.spacingVerticalS,
-              resize: 'vertical'
-            }}
-            value={block.description || ''}
-            placeholder="Card Description..."
-            onChange={(e) => onUpdate({ description: e.target.value })}
-          />
+          <div>
+            {isFocused && (
+              <div style={{ marginBottom: '6px' }}>
+                <FloatingTextToolbar />
+              </div>
+            )}
+            <textarea
+              className={styles.inlineInput}
+              rows={2}
+              style={{
+                color: tokens.colorNeutralForeground2,
+                marginTop: tokens.spacingVerticalS,
+                resize: 'vertical'
+              }}
+              value={block.description || ''}
+              placeholder="Card Description..."
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => {
+                setTimeout(() => setIsFocused(false), 250);
+              }}
+              onChange={(e) => onUpdate({ description: e.target.value })}
+            />
+          </div>
         ) : (
           block.description && (
             <Body1 style={{ color: tokens.colorNeutralForeground2, marginTop: tokens.spacingVerticalS }}>
@@ -456,6 +473,18 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           </CardFooter>
         )}
       </Card>
+
+      {/* In-Place Card Edit Dialog */}
+      <CardEditDialog
+        isOpen={isDialogOpen}
+        block={block}
+        onSave={(updated) => {
+          if (onUpdate) {
+            onUpdate(updated);
+          }
+        }}
+        onDismiss={() => setIsDialogOpen(false)}
+      />
     </div>
   );
 };
