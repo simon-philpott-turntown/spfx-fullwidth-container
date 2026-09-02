@@ -265,13 +265,31 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         {sections.map((section, secIdx) => {
           const blocks = (section && Array.isArray(section.blocks)) ? section.blocks : [];
           const filteredBlocks = q
-            ? blocks.filter(
-                (b) =>
-                  (b.title && b.title.toLowerCase().includes(q)) ||
-                  (b.description && b.description.toLowerCase().includes(q)) ||
-                  (b.badge && b.badge.toLowerCase().includes(q)) ||
-                  (b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q)))
-              )
+            ? blocks.filter((b) => {
+                const titleMatch = b.title ? b.title.toLowerCase().includes(q) : false;
+                const descMatch = b.description ? b.description.toLowerCase().includes(q) : false;
+                const badgeMatch = b.badge ? b.badge.toLowerCase().includes(q) : false;
+                const metricMatch = b.metricValue ? b.metricValue.toLowerCase().includes(q) : false;
+                const trendMatch = b.metricTrend ? b.metricTrend.toLowerCase().includes(q) : false;
+                const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q));
+                const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
+                  const labelMatch = t.label ? t.label.toLowerCase().includes(q) : false;
+                  const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(q) : false;
+                  const pathMatch = t.path ? t.path.toLowerCase().includes(q) : false;
+                  return labelMatch || setMatch || pathMatch;
+                });
+                const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
+                  const textMatch = item.text ? item.text.toLowerCase().includes(q) : false;
+                  const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().includes(q) : false;
+                  const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().includes(q) : false;
+                  const innerTermMatch = item.termStoreTags && Array.isArray(item.termStoreTags) && item.termStoreTags.some((t) => {
+                    return (t.label && t.label.toLowerCase().includes(q)) || (t.termSetName && t.termSetName.toLowerCase().includes(q));
+                  });
+                  return textMatch || ctaMatch || btnMatch || innerTermMatch;
+                });
+
+                return titleMatch || descMatch || badgeMatch || metricMatch || trendMatch || tagMatch || termStoreMatch || innerItemsMatch;
+              })
             : blocks;
 
           return (

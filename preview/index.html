@@ -1959,14 +1959,23 @@
       const activeSection = currentSections.find(s => s.id === state.activeTabId) || currentSections[0];
 
       const filterBlocks = (blocks) => {
-        if (!state.searchQuery.trim()) return blocks;
+        if (!state.searchQuery || !state.searchQuery.trim()) return blocks;
         const q = state.searchQuery.toLowerCase().trim();
-        return blocks.filter(b => 
-          b.title.toLowerCase().includes(q) ||
-          (b.description && b.description.toLowerCase().includes(q)) ||
-          (b.badge && b.badge.toLowerCase().includes(q)) ||
-          (b.tags && b.tags.some(t => t.toLowerCase().includes(q)))
-        );
+        return blocks.filter(b => {
+          const titleMatch = b.title ? b.title.toLowerCase().includes(q) : false;
+          const descMatch = b.description ? b.description.toLowerCase().includes(q) : false;
+          const badgeMatch = b.badge ? b.badge.toLowerCase().includes(q) : false;
+          const metricMatch = b.metricValue ? b.metricValue.toLowerCase().includes(q) : false;
+          const trendMatch = b.metricTrend ? b.metricTrend.toLowerCase().includes(q) : false;
+          const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some(t => t.toLowerCase().includes(q));
+          const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some(t => {
+            const labelMatch = t.label ? t.label.toLowerCase().includes(q) : false;
+            const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(q) : false;
+            const pathMatch = t.path ? t.path.toLowerCase().includes(q) : false;
+            return labelMatch || setMatch || pathMatch;
+          });
+          return titleMatch || descMatch || badgeMatch || metricMatch || trendMatch || tagMatch || termStoreMatch;
+        });
       };
 
       const gridInlineStyle = {
