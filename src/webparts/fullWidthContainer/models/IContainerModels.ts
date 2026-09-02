@@ -4,7 +4,7 @@
  */
 
 export type LayoutMode = 'tabs' | 'accordion';
-export type ContainerStyle = 'glassmorphism' | 'gradient' | 'minimal';
+export type ContainerStyle = 'standard' | 'glassmorphism' | 'branded' | 'minimal' | 'gradient';
 export type TabStyle = 'pills' | 'underline' | 'cards';
 
 export type BlockType = 'card' | 'metric' | 'embed' | 'richText' | 'quickLinks';
