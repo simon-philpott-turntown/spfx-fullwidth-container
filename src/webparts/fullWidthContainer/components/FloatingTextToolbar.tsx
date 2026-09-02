@@ -1,7 +1,7 @@
 /**
  * @file FloatingTextToolbar.tsx
- * @description Floating rich formatting toolbar modeled after the native SharePoint Text Web Part ribbon.
- * Follows the Microsoft Fluent 2 Design System.
+ * @description Floating rich text formatting toolbar modeled after the native SharePoint Text Web Part ribbon.
+ * Follows the Microsoft Fluent 2 Design System and inherits site theme palette and typography.
  */
 
 import * as React from 'react';
@@ -11,8 +11,10 @@ import {
   shorthands,
   tokens,
   Divider,
-  Dropdown,
-  Option
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  Caption1
 } from '@fluentui/react-components';
 import {
   TextBoldRegular,
@@ -27,7 +29,9 @@ import {
   TextAlignRightRegular,
   TextBulletListRegular,
   TextNumberListLtrRegular,
-  LineHorizontal1Regular
+  LineHorizontal1Regular,
+  TextStrikethroughRegular,
+  CodeRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -38,11 +42,12 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    boxShadow: tokens.shadow8,
+    boxShadow: tokens.shadow16,
     ...shorthands.gap('2px'),
     zIndex: 100,
     marginBottom: tokens.spacingVerticalXS,
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    userSelect: 'none'
   },
   dragHandle: {
     cursor: 'grab',
@@ -51,90 +56,111 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground3,
     paddingRight: '4px'
   },
-  styleDropdown: {
-    minWidth: '95px',
-    height: '28px'
-  },
-  sizeDropdown: {
-    minWidth: '60px',
-    height: '28px'
-  },
   btnActive: {
     backgroundColor: tokens.colorNeutralBackground1Selected,
     color: tokens.colorBrandForeground1
+  },
+  colorGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    ...shorthands.gap('6px'),
+    ...shorthands.padding('8px')
+  },
+  colorSwatch: {
+    width: '24px',
+    height: '24px',
+    ...shorthands.borderRadius('4px'),
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    cursor: 'pointer',
+    transitionProperty: 'transform, border-color',
+    transitionDuration: '100ms',
+    ':hover': {
+      transform: 'scale(1.15)',
+      ...shorthands.borderColor(tokens.colorBrandStroke1)
+    }
+  },
+  fontSizeBtn: {
+    minWidth: '32px',
+    fontSize: '0.8rem',
+    fontWeight: tokens.fontWeightSemibold,
+    padding: '0 4px',
+    height: '26px'
   }
 });
 
 export interface IFloatingTextToolbarProps {
   onFormat?: (command: string, value?: string) => void;
-  currentStyle?: string;
-  currentSize?: string;
   isBold?: boolean;
   isItalic?: boolean;
   isUnderline?: boolean;
+  isStrikethrough?: boolean;
 }
+
+export const SITE_THEME_COLORS = [
+  { name: 'Brand Primary', hex: '#0078d4' },
+  { name: 'Dark Theme', hex: '#106ebe' },
+  { name: 'Light Brand', hex: '#2b88d8' },
+  { name: 'Dark Neutral', hex: '#242424' },
+  { name: 'Neutral Secondary', hex: '#616161' },
+  { name: 'Success Green', hex: '#107c10' },
+  { name: 'Warning Gold', hex: '#d83b01' },
+  { name: 'Error Crimson', hex: '#a80000' },
+  { name: 'Royal Blue', hex: '#004e8c' },
+  { name: 'Deep Purple', hex: '#5c2d91' }
+];
+
+export const HIGHLIGHT_COLORS = [
+  { name: 'Yellow Highlight', hex: '#fff176' },
+  { name: 'Green Highlight', hex: '#a5d6a7' },
+  { name: 'Cyan Highlight', hex: '#80deea' },
+  { name: 'Lavender Highlight', hex: '#d1c4e9' },
+  { name: 'Peach Highlight', hex: '#ffccbc' }
+];
 
 export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
   onFormat,
-  currentStyle = 'Normal',
-  currentSize = '16',
   isBold = false,
   isItalic = false,
-  isUnderline = false
+  isUnderline = false,
+  isStrikethrough = false
 }) => {
   const styles = useStyles();
 
   const handleCommand = (cmd: string, val?: string): void => {
     if (onFormat) {
       onFormat(cmd, val);
+    } else {
+      document.execCommand(cmd, false, val);
     }
   };
 
+  /**
+   * Prevents mouse down default action so text selection inside contentEditable is NOT blurred or cleared.
+   */
+  const handleToolbarMouseDown = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className={styles.toolbarContainer} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={styles.toolbarContainer}
+      onMouseDown={handleToolbarMouseDown}
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Drag handle */}
       <div className={styles.dragHandle} title="Formatting Tools">
         <LineHorizontal1Regular fontSize={14} />
       </div>
 
-      {/* Style Dropdown */}
-      <Dropdown
-        className={styles.styleDropdown}
-        size="small"
-        value={currentStyle}
-        onOptionSelect={(e, data) => handleCommand('formatBlock', data.optionValue)}
-      >
-        <Option value="Normal">Normal</Option>
-        <Option value="Heading 1">Heading 1</Option>
-        <Option value="Heading 2">Heading 2</Option>
-        <Option value="Heading 3">Heading 3</Option>
-        <Option value="Pull quote">Pull quote</Option>
-      </Dropdown>
-
-      {/* Size Dropdown */}
-      <Dropdown
-        className={styles.sizeDropdown}
-        size="small"
-        value={currentSize}
-        onOptionSelect={(e, data) => handleCommand('fontSize', data.optionValue)}
-      >
-        <Option value="24">24</Option>
-        <Option value="20">20</Option>
-        <Option value="18">18</Option>
-        <Option value="16">16</Option>
-        <Option value="14">14</Option>
-        <Option value="12">12</Option>
-      </Dropdown>
-
-      <Divider vertical style={{ height: '20px', margin: '0 4px' }} />
-
-      {/* Bold, Italic, Underline */}
+      {/* Bold, Italic, Underline, Strikethrough */}
       <Button
         size="small"
         appearance="subtle"
         className={isBold ? styles.btnActive : ''}
         icon={<TextBoldRegular />}
         title="Bold (Ctrl+B)"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('bold')}
       />
       <Button
@@ -143,6 +169,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         className={isItalic ? styles.btnActive : ''}
         icon={<TextItalicRegular />}
         title="Italic (Ctrl+I)"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('italic')}
       />
       <Button
@@ -151,36 +178,109 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         className={isUnderline ? styles.btnActive : ''}
         icon={<TextUnderlineRegular />}
         title="Underline (Ctrl+U)"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('underline')}
       />
+      <Button
+        size="small"
+        appearance="subtle"
+        className={isStrikethrough ? styles.btnActive : ''}
+        icon={<TextStrikethroughRegular />}
+        title="Strikethrough"
+        onMouseDown={handleToolbarMouseDown}
+        onClick={() => handleCommand('strikeThrough')}
+      />
+      <Button
+        size="small"
+        appearance="subtle"
+        icon={<CodeRegular />}
+        title="Code inline"
+        onMouseDown={handleToolbarMouseDown}
+        onClick={() => handleCommand('formatBlock', '<pre>')}
+      />
 
-      {/* Color & Highlight */}
-      <Button
-        size="small"
-        appearance="subtle"
-        icon={<TextColorRegular />}
-        title="Font Colour"
-        onClick={() => handleCommand('foreColor')}
-      />
-      <Button
-        size="small"
-        appearance="subtle"
-        icon={<HighlightRegular />}
-        title="Highlight"
-        onClick={() => handleCommand('hiliteColor')}
-      />
+      <Divider vertical style={{ height: '20px', margin: '0 4px' }} />
+
+      {/* Font Theme Color Picker Popover */}
+      <Popover positioning="below">
+        <PopoverTrigger disableButtonEnhancement>
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<TextColorRegular />}
+            title="Brand & Theme Font Colour"
+            onMouseDown={handleToolbarMouseDown}
+          />
+        </PopoverTrigger>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '8px' }}>
+          <Caption1 style={{ fontWeight: 600, paddingLeft: '8px', display: 'block' }}>
+            Site Theme Palette
+          </Caption1>
+          <div className={styles.colorGrid}>
+            {SITE_THEME_COLORS.map((c) => (
+              <div
+                key={c.name}
+                className={styles.colorSwatch}
+                style={{ backgroundColor: c.hex }}
+                title={c.name}
+                onMouseDown={handleToolbarMouseDown}
+                onClick={() => handleCommand('foreColor', c.hex)}
+              />
+            ))}
+          </div>
+        </PopoverSurface>
+      </Popover>
+
+      {/* Highlight Color Picker Popover */}
+      <Popover positioning="below">
+        <PopoverTrigger disableButtonEnhancement>
+          <Button
+            size="small"
+            appearance="subtle"
+            icon={<HighlightRegular />}
+            title="Highlight Colour"
+            onMouseDown={handleToolbarMouseDown}
+          />
+        </PopoverTrigger>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '8px' }}>
+          <Caption1 style={{ fontWeight: 600, paddingLeft: '8px', display: 'block' }}>
+            Highlight Background
+          </Caption1>
+          <div className={styles.colorGrid}>
+            {HIGHLIGHT_COLORS.map((c) => (
+              <div
+                key={c.name}
+                className={styles.colorSwatch}
+                style={{ backgroundColor: c.hex }}
+                title={c.name}
+                onMouseDown={handleToolbarMouseDown}
+                onClick={() => handleCommand('hiliteColor', c.hex)}
+              />
+            ))}
+          </div>
+        </PopoverSurface>
+      </Popover>
+
+      {/* Insert Link */}
       <Button
         size="small"
         appearance="subtle"
         icon={<LinkRegular />}
-        title="Insert Link"
-        onClick={() => handleCommand('createLink')}
+        title="Insert Hyperlink"
+        onMouseDown={handleToolbarMouseDown}
+        onClick={() => {
+          const url = window.prompt('Enter destination URL:');
+          if (url) handleCommand('createLink', url);
+        }}
       />
+
+      {/* Clear Formatting */}
       <Button
         size="small"
         appearance="subtle"
         icon={<TextClearFormattingRegular />}
         title="Clear Formatting"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('removeFormat')}
       />
 
@@ -192,6 +292,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         appearance="subtle"
         icon={<TextAlignLeftRegular />}
         title="Align Left"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('justifyLeft')}
       />
       <Button
@@ -199,6 +300,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         appearance="subtle"
         icon={<TextAlignCenterRegular />}
         title="Align Centre"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('justifyCenter')}
       />
       <Button
@@ -206,6 +308,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         appearance="subtle"
         icon={<TextAlignRightRegular />}
         title="Align Right"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('justifyRight')}
       />
 
@@ -217,6 +320,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         appearance="subtle"
         icon={<TextBulletListRegular />}
         title="Bullet List"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('insertUnorderedList')}
       />
       <Button
@@ -224,6 +328,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
         appearance="subtle"
         icon={<TextNumberListLtrRegular />}
         title="Numbered List"
+        onMouseDown={handleToolbarMouseDown}
         onClick={() => handleCommand('insertOrderedList')}
       />
     </div>

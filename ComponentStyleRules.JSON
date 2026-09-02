@@ -56,8 +56,16 @@
       "aesthetic": "Elevated modal dialog with shadow28, responsive form layout, icon picker, and action buttons."
     },
     "FloatingTextToolbar": {
-      "classes": ["Button", "Dropdown", "Divider"],
-      "aesthetic": "Subtle floating pill toolbar with active formatting indicators, drag handle, and shadow8."
+      "classes": ["Button", "Dropdown", "Divider", "Popover", "PopoverSurface"],
+      "aesthetic": "Subtle floating pill toolbar with mousedown blur prevention, site theme palette swatches, highlight background colors, and active formatting indicators."
+    },
+    "FluentIconPicker": {
+      "classes": ["Dialog", "DialogSurface", "DialogTitle", "Input", "Badge", "Button"],
+      "aesthetic": "Visual icon selection modal featuring instant search, categorised pill filters, and 40+ Fluent UI 2 icons with hover animations."
+    },
+    "RichTextEditable": {
+      "classes": ["contentEditable", "h1", "h2", "h3", "p", "FloatingTextToolbar"],
+      "aesthetic": "Theme-aware inline WYSIWYG rich text block inheriting site font families and theme colors with real-time selection-anchored ribbon."
     },
     "InsertionBar": {
       "classes": ["InsertionBar", "AddRegular"],

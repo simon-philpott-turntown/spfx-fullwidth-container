@@ -9,6 +9,7 @@ import type { IFullWidthContainerProps } from './IFullWidthContainerProps';
 import { LayoutMode } from '../models/IContainerModels';
 import { TabsContainer } from './TabsContainer';
 import { AccordionContainer } from './AccordionContainer';
+import { RichTextEditable } from './RichTextEditable';
 import { getFluent2Theme } from '../utils/themeBridge';
 import {
   FluentProvider,
@@ -201,7 +202,6 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
   const styles = useStyles();
   const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(initialLayoutMode || 'tabs');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
-  const [focusedField, setFocusedField] = React.useState<'title' | 'subtitle' | null>(null);
 
   // Sync state if property pane changes
   React.useEffect(() => {
@@ -258,46 +258,33 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
 
         {/* Header with Title & Controls */}
         <div className={styles.header}>
-          <div className={styles.headerTextCol}>
-            {isEditMode && focusedField && (
-              <div style={{ marginBottom: '8px' }}>
-                <FloatingTextToolbar
-                  currentStyle={focusedField === 'title' ? 'Heading 1' : 'Normal'}
-                  currentSize={focusedField === 'title' ? '24' : '16'}
-                  isBold={focusedField === 'title'}
-                />
-              </div>
-            )}
+          <div className={styles.headerTextCol} style={{ flex: 1, minWidth: '280px' }}>
+            <RichTextEditable
+              tag="h1"
+              html={title || ''}
+              isEditMode={!!isEditMode}
+              placeholder="Container title"
+              onChange={(newTitle) => onTitleChange && onTitleChange(newTitle)}
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 700,
+                lineHeight: '2.25rem',
+                color: 'inherit'
+              }}
+            />
 
-            {isEditMode && onTitleChange ? (
-              <input
-                className={styles.inlineTitleInput}
-                value={title || ''}
-                placeholder="Container title"
-                onFocus={() => setFocusedField('title')}
-                onBlur={() => setTimeout(() => setFocusedField(null), 250)}
-                onChange={(e) => onTitleChange(e.target.value)}
-              />
-            ) : (
-              <Title1>{title || 'Container title'}</Title1>
-            )}
-
-            {isEditMode && onSubtitleChange ? (
-              <input
-                className={styles.inlineSubtitleInput}
-                value={subtitle || ''}
-                placeholder="Container subtitle or description"
-                onFocus={() => setFocusedField('subtitle')}
-                onBlur={() => setTimeout(() => setFocusedField(null), 250)}
-                onChange={(e) => onSubtitleChange(e.target.value)}
-              />
-            ) : (
-              subtitle && (
-                <Subtitle2 style={{ color: tokens.colorNeutralForeground3 }}>
-                  {subtitle}
-                </Subtitle2>
-              )
-            )}
+            <RichTextEditable
+              tag="p"
+              html={subtitle || ''}
+              isEditMode={!!isEditMode}
+              placeholder="Container subtitle or description"
+              onChange={(newSub) => onSubtitleChange && onSubtitleChange(newSub)}
+              style={{
+                fontSize: '0.95rem',
+                color: tokens.colorNeutralForeground3,
+                marginTop: '4px'
+              }}
+            />
           </div>
 
           <div className={styles.headerControls}>

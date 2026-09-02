@@ -7,7 +7,7 @@
   <!-- React 17 & ReactDOM -->
   <script src="https://unpkg.com/react@17.0.2/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js" crossorigin></script>
-  <!-- FontAwesome -->
+  <!-- FontAwesome for fallback preview icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
@@ -19,6 +19,7 @@
       --fui-colorNeutralForeground1: #242424;
       --fui-colorNeutralForeground2: #424242;
       --fui-colorNeutralForeground3: #616161;
+      --fui-colorNeutralForeground4: #8a8a8a;
       --fui-colorNeutralStroke1: #d1d1d1;
       --fui-colorNeutralStroke2: #e0e0e0;
       --fui-colorBrandBackground: #0078d4;
@@ -27,6 +28,7 @@
       --fui-colorBrandForeground1: #0078d4;
       --fui-colorBrandForeground2: #106ebe;
       --fui-colorBrandStroke1: #0078d4;
+      --fui-colorBrandStroke2: #c7e0f4;
       --fui-colorSuccessBackground1: #dff6dd;
       --fui-colorSuccessForeground1: #107c10;
       --fui-borderRadiusSmall: 4px;
@@ -36,6 +38,7 @@
       --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
       --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.14);
       --fui-shadow16: 0 0 2px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.14);
+      --fui-shadow28: 0 0 8px rgba(0, 0, 0, 0.12), 0 14px 28px rgba(0, 0, 0, 0.18);
       --fui-fontFamily: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -47,6 +50,7 @@
       --fui-colorNeutralForeground1: #ffffff;
       --fui-colorNeutralForeground2: #d6d6d6;
       --fui-colorNeutralForeground3: #adadad;
+      --fui-colorNeutralForeground4: #808080;
       --fui-colorNeutralStroke1: #424242;
       --fui-colorNeutralStroke2: #333333;
       --fui-colorBrandBackground: #2886de;
@@ -55,11 +59,13 @@
       --fui-colorBrandForeground1: #479ef5;
       --fui-colorBrandForeground2: #62abf5;
       --fui-colorBrandStroke1: #2886de;
+      --fui-colorBrandStroke2: #1f496e;
       --fui-colorSuccessBackground1: #0f3b14;
       --fui-colorSuccessForeground1: #54b054;
       --fui-shadow4: 0 0 2px rgba(0, 0, 0, 0.28), 0 2px 4px rgba(0, 0, 0, 0.32);
       --fui-shadow8: 0 0 2px rgba(0, 0, 0, 0.28), 0 4px 8px rgba(0, 0, 0, 0.32);
       --fui-shadow16: 0 0 2px rgba(0, 0, 0, 0.35), 0 8px 16px rgba(0, 0, 0, 0.35);
+      --fui-shadow28: 0 0 8px rgba(0, 0, 0, 0.35), 0 14px 28px rgba(0, 0, 0, 0.45);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,7 +79,7 @@
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    /* SharePoint Shell Top Navigation */
+    /* Top SharePoint Nav Header */
     .sp-header {
       background-color: var(--fui-colorNeutralBackground1);
       border-bottom: 1px solid var(--fui-colorNeutralStroke2);
@@ -102,7 +108,6 @@
       gap: 0.4rem;
       transition: opacity 0.15s ease;
     }
-
     .sp-btn:hover { opacity: 0.9; }
 
     .sp-btn-secondary {
@@ -111,7 +116,7 @@
       border: 1px solid var(--fui-colorNeutralStroke1);
     }
 
-    /* Main Layout with Property Pane Sidebar */
+    /* Main Workspace & Sidebar */
     .main-workspace {
       display: flex;
       width: 100%;
@@ -122,12 +127,12 @@
     .page-canvas {
       flex: 1;
       min-width: 0;
+      padding: 1.5rem;
       transition: margin-right 0.25s ease;
     }
 
-    /* Property Pane Sidebar */
     .sp-property-pane {
-      width: 360px;
+      width: 370px;
       background-color: var(--fui-colorNeutralBackground1);
       border-left: 1px solid var(--fui-colorNeutralStroke1);
       box-shadow: var(--fui-shadow16);
@@ -215,18 +220,11 @@
       color: var(--fui-colorNeutralForeground1);
       outline: none;
     }
-
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       border-color: var(--fui-colorBrandBackground);
     }
 
-    .form-switch {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Container Web Part Elements */
+    /* Container Web Part Styles */
     .fui-root {
       width: 100%;
       padding: 2rem;
@@ -270,9 +268,6 @@
       background: linear-gradient(135deg, rgba(0, 120, 212, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
       border: 1px solid var(--fui-colorNeutralStroke2);
     }
-    body.dark-mode .fui-root.style-gradient {
-      background: linear-gradient(135deg, rgba(0, 120, 212, 0.15) 0%, rgba(24, 24, 24, 0.95) 100%);
-    }
 
     .edit-banner {
       display: flex;
@@ -292,25 +287,11 @@
       gap: 1rem;
       justify-content: space-between;
     }
-
     @media (min-width: 768px) {
       .fui-header {
         flex-direction: row;
         align-items: flex-end;
       }
-    }
-
-    .fui-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      line-height: 2.25rem;
-      color: var(--fui-colorNeutralForeground1);
-    }
-
-    .fui-subtitle {
-      font-size: 0.95rem;
-      color: var(--fui-colorNeutralForeground3);
-      margin-top: 0.25rem;
     }
 
     .fui-controls {
@@ -338,7 +319,6 @@
       outline: none;
       min-width: 220px;
     }
-
     .fui-input:focus { border-bottom-color: var(--fui-colorBrandBackground); }
 
     .fui-input-icon {
@@ -371,7 +351,6 @@
       gap: 0.4rem;
       transition: all 0.15s ease;
     }
-
     .fui-mode-tab.active {
       background-color: var(--fui-colorNeutralBackground1);
       color: var(--fui-colorBrandForeground1);
@@ -402,9 +381,7 @@
       white-space: nowrap;
       transition: all 0.15s ease;
     }
-
     .fui-tab:hover { color: var(--fui-colorNeutralForeground1); }
-
     .fui-tab.active {
       color: var(--fui-colorBrandForeground1);
       border-bottom-color: var(--fui-colorBrandBackground);
@@ -422,7 +399,6 @@
       display: inline-flex;
       align-items: center;
     }
-
     .fui-badge-success {
       background-color: var(--fui-colorSuccessBackground1);
       color: var(--fui-colorSuccessForeground1);
@@ -445,8 +421,8 @@
       justify-content: space-between;
       box-shadow: var(--fui-shadow4);
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
     }
-
     .fui-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--fui-shadow8);
@@ -461,45 +437,39 @@
     }
 
     .fui-icon-box {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: var(--fui-borderRadiusMedium);
       background-color: var(--fui-colorBrandBackground2);
       color: var(--fui-colorBrandForeground1);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
-    .fui-card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--fui-colorNeutralForeground1);
-      margin-bottom: 0.4rem;
-    }
-
-    .fui-card-desc {
-      font-size: 0.9rem;
-      color: var(--fui-colorNeutralForeground2);
-      line-height: 1.45;
-      margin-bottom: 1rem;
+    .fui-metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--fui-colorBrandForeground1);
+      line-height: 2.25rem;
+      margin: 0.5rem 0 0.25rem 0;
     }
 
     .fui-card-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 0.35rem;
-      margin-bottom: 1rem;
+      margin-top: 0.75rem;
     }
 
     .fui-tag {
-      background-color: var(--fui-colorNeutralBackground3);
-      border: 1px solid var(--fui-colorNeutralStroke2);
+      background-color: var(--fui-colorNeutralBackground2);
+      border: 1px solid var(--fui-colorNeutralStroke1);
       color: var(--fui-colorNeutralForeground2);
+      font-size: 0.75rem;
       padding: 2px 6px;
       border-radius: var(--fui-borderRadiusSmall);
-      font-size: 0.75rem;
     }
 
     .fui-btn-subtle {
@@ -512,91 +482,215 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      text-decoration: none;
-      padding: 0.4rem 0.6rem;
-      border-radius: var(--fui-borderRadiusMedium);
-      transition: background-color 0.15s ease;
-      align-self: flex-start;
+      gap: 0.35rem;
+      padding: 0.35rem 0;
+      margin-top: 1rem;
     }
+    .fui-btn-subtle:hover { text-decoration: underline; }
 
-    .fui-btn-subtle:hover {
-      background-color: var(--fui-colorNeutralBackground3);
-    }
-
-    .fui-metric-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--fui-colorBrandForeground1);
-      margin: 0.4rem 0 0.2rem 0;
-      line-height: 2.25rem;
-    }
-
-    .fui-metric-trend {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      margin-bottom: 0.75rem;
-    }
-
+    /* Accordion styles */
     .fui-accordion-item {
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
       border-radius: var(--fui-borderRadiusMedium);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       overflow: hidden;
     }
 
     .fui-accordion-header {
       width: 100%;
-      padding: 0.9rem 1.25rem;
+      padding: 1rem 1.25rem;
       background: transparent;
       border: none;
-      color: var(--fui-colorNeutralForeground1);
-      cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      cursor: pointer;
       font-family: var(--fui-fontFamily);
-      text-align: left;
+      font-size: 1rem;
+      color: var(--fui-colorNeutralForeground1);
     }
-
-    .fui-accordion-header:hover { background-color: var(--fui-colorNeutralBackground3); }
 
     .fui-accordion-panel {
-      padding: 1.25rem;
+      padding: 0 1.25rem 1.25rem 1.25rem;
       border-top: 1px solid var(--fui-colorNeutralStroke2);
-      background-color: var(--fui-colorNeutralBackground2);
     }
+
+    /* WYSIWYG Editable Text Element Styling */
+    .fui-editable {
+      outline: none;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    .fui-editable:hover {
+      background-color: var(--fui-colorBrandBackground2);
+    }
+    .fui-editable:focus {
+      background-color: var(--fui-colorNeutralBackground1);
+      box-shadow: 0 0 0 1.5px var(--fui-colorBrandStroke1);
+    }
+
+    /* Floating Formatting Toolbar */
+    .fui-floating-toolbar {
+      position: absolute;
+      top: -46px;
+      left: 0;
+      z-index: 200;
+      background-color: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: var(--fui-borderRadiusMedium);
+      box-shadow: var(--fui-shadow16);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 6px;
+      user-select: none;
+    }
+
+    .fui-toolbar-btn {
+      background: transparent;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      color: var(--fui-colorNeutralForeground1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+    .fui-toolbar-btn:hover {
+      background-color: var(--fui-colorNeutralBackground3);
+      color: var(--fui-colorBrandForeground1);
+    }
+
+    /* Icon Picker Modal */
+    .fui-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fui-modal-surface {
+      background-color: var(--fui-colorNeutralBackground1);
+      border-radius: var(--fui-borderRadiusLarge);
+      box-shadow: var(--fui-shadow28);
+      width: 650px;
+      max-width: 92vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--fui-colorNeutralStroke1);
+    }
+
+    .fui-modal-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--fui-colorNeutralStroke2);
+    }
+
+    .fui-modal-body {
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .fui-icon-grid-picker {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+      gap: 0.5rem;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .fui-icon-grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 0.4rem;
+      border: 1px solid var(--fui-colorNeutralStroke2);
+      border-radius: var(--fui-borderRadiusMedium);
+      background-color: var(--fui-colorNeutralBackground1);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .fui-icon-grid-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--fui-colorBrandStroke1);
+      background-color: var(--fui-colorNeutralBackground2);
+      box-shadow: var(--fui-shadow4);
+    }
+    .fui-icon-grid-item.active {
+      background-color: var(--fui-colorBrandBackground2);
+      border-color: var(--fui-colorBrandStroke1);
+      box-shadow: var(--fui-shadow4);
+    }
+
+    .fui-color-palette-popover {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      padding: 8px;
+      background: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: 6px;
+      box-shadow: var(--fui-shadow16);
+      position: absolute;
+      top: 34px;
+      left: 0;
+      z-index: 300;
+    }
+    .fui-color-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .fui-color-dot:hover { transform: scale(1.2); }
   </style>
 </head>
 <body>
-
-  <!-- SharePoint Top Bar with Edit Toggle -->
-  <div class="sp-header">
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <i class="fa-solid fa-shapes" style="font-size: 1.4rem; color: var(--fui-colorBrandBackground);"></i>
-      <div>
-        <div style="font-size: 0.95rem; font-weight: 600;">SharePoint Online — Full-width container hub</div>
-        <div style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground3);">Full-width section container • Microsoft Fluent UI 2</div>
-      </div>
+  <!-- SharePoint Shell Navigation -->
+  <header class="sp-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="fa-solid fa-shapes" style="color: var(--fui-colorBrandForeground1); font-size: 1.4rem;"></i>
+      <span style="font-size: 1.1rem; font-weight: 700;">Contoso Intranet • Full-Width Container</span>
     </div>
-
-    <div style="display: flex; gap: 0.6rem; align-items: center;">
-      <button class="sp-btn sp-btn-secondary" id="btn-theme-toggle" onclick="toggleTheme()">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <button class="sp-btn sp-btn-secondary" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
         <i class="fa-solid fa-circle-half-stroke"></i> Theme
       </button>
-      <button class="sp-btn" id="btn-edit-toggle" onclick="toggleEditMode()">
-        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-mode-label">Edit page</span>
+      <button class="sp-btn" onclick="toggleEditMode()" id="btn-edit-mode">
+        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-mode-label">Exit Edit</span>
       </button>
     </div>
-  </div>
+  </header>
 
-  <!-- Main Container Workspace with Property Pane Sidebar -->
   <div class="main-workspace">
-    <div class="page-canvas">
+    <!-- Page Canvas -->
+    <main class="page-canvas">
       <div id="spfx-root"></div>
-    </div>
+    </main>
 
     <!-- Properties Sidebar Simulation -->
     <div class="sp-property-pane" id="property-pane">
@@ -695,17 +789,12 @@
         </div>
         <div class="form-group">
           <label class="form-label">Section icon</label>
-          <select class="form-select" id="sel-sec-icon" onchange="updateSecIcon(this.value)">
-            <option value="fa-book-open">Book or documentation</option>
-            <option value="fa-sterling-sign">Financial or pound (£)</option>
-            <option value="fa-shapes">Apps or tool grid</option>
-            <option value="fa-shield-halved">Shield or governance</option>
-            <option value="fa-circle-check">Checklist or verified</option>
-            <option value="fa-chart-line">Timeline or trending metrics</option>
-            <option value="fa-wrench">Calculator or engineering</option>
-            <option value="fa-lock">Lock or security</option>
-            <option value="fa-globe">Globe or portal</option>
-          </select>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span id="txt-sec-icon" style="font-size: 0.85rem; font-weight: 600; color: var(--fui-colorBrandForeground1);">BookAnswers</span>
+            <button class="sp-btn sp-btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="openVisualIconPicker('section')">
+              <i class="fa-solid fa-icons"></i> Browse Icons...
+            </button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Section badge</label>
@@ -748,18 +837,13 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Item icon</label>
-          <select class="form-select" id="sel-card-icon" onchange="updateCardIcon(this.value)">
-            <option value="fa-file-lines">Book or documentation</option>
-            <option value="fa-sterling-sign">Financial or pound (£)</option>
-            <option value="fa-shapes">Apps or tool grid</option>
-            <option value="fa-shield-halved">Shield or governance</option>
-            <option value="fa-circle-check">Checklist or verified</option>
-            <option value="fa-chart-line">Timeline or trending metrics</option>
-            <option value="fa-wrench">Calculator or engineering</option>
-            <option value="fa-lock">Lock or security</option>
-            <option value="fa-globe">Globe or portal</option>
-          </select>
+          <label class="form-label">Fluent UI 2 Icon</label>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span id="txt-card-icon" style="font-size: 0.85rem; font-weight: 600; color: var(--fui-colorBrandForeground1);">BookAnswers</span>
+            <button class="sp-btn sp-btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="openVisualIconPicker('card')">
+              <i class="fa-solid fa-icons"></i> Browse Icons...
+            </button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Card height behavior</label>
@@ -796,7 +880,7 @@
           <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)" placeholder="Card summary"></textarea>
         </div>
 
-        <!-- Real-time Live Data API Group (Matching Screenshot 1) -->
+        <!-- Real-time Live Data API Group -->
         <div class="form-group">
           <label class="form-label">Real-time live data API (optional)</label>
           <div style="background: var(--fui-colorNeutralBackground2); border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
@@ -808,17 +892,34 @@
           </div>
         </div>
 
-        <!-- Global Term Store Selector (Matching Screenshot 2 - Intranet Our Sectors / Our Segments) -->
+        <!-- Global Term Store Selector (Direct Tenant Integration) -->
         <div class="form-group">
-          <label class="form-label">Global term store • Intranet term sets</label>
+          <label class="form-label">Global term store • Intranet taxonomy tags</label>
           <div style="background: var(--fui-colorNeutralBackground2); border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-              <button type="button" class="fui-badge" style="cursor: pointer; border: 1px solid var(--fui-colorBrandStroke1); background: var(--fui-colorBrandBackground2);" onclick="filterTermStoreCategory('all')">All terms</button>
-              <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Sectors')">🏢 Our Sectors</button>
-              <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Segments')">📊 Our Segments</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                <button type="button" class="fui-badge" id="btn-term-filter-all" style="cursor: pointer; border: 1px solid var(--fui-colorBrandStroke1); background: var(--fui-colorBrandBackground2);" onclick="filterTermStoreCategory('all')">All terms</button>
+                <button type="button" class="fui-badge" id="btn-term-filter-sectors" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Sectors')">🏢 Our Sectors</button>
+                <button type="button" class="fui-badge" id="btn-term-filter-segments" style="cursor: pointer;" onclick="filterTermStoreCategory('Our Segments')">📊 Our Segments</button>
+                <button type="button" class="fui-badge" id="btn-term-filter-amcl" style="cursor: pointer;" onclick="filterTermStoreCategory('AMCL Terms')">📁 AMCL</button>
+              </div>
+              <button type="button" class="sp-btn sp-btn-secondary" style="padding: 2px 8px; font-size: 0.72rem;" id="btn-term-mode-toggle" onclick="toggleTermViewMode()">Browse Tree</button>
             </div>
-            <div id="term-store-chips" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto;">
-              <!-- Dynamic chips rendered via JS -->
+
+            <!-- Term Search Input -->
+            <div id="term-search-box-container">
+              <input type="text" class="form-input" id="inp-term-search" style="width: 100%;" placeholder="Search Global Term Store (e.g. Infra, Clean, Data, Defense)..." oninput="searchTerms(this.value)" />
+            </div>
+
+            <!-- Dynamic Terms List / Tree -->
+            <div id="term-store-chips" style="display: flex; flex-direction: column; gap: 4px; max-height: 160px; overflow-y: auto; background: var(--fui-colorNeutralBackground1); padding: 6px; border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 4px;">
+              <!-- Dynamic chips/tree rendered via JS -->
+            </div>
+
+            <!-- Add Custom Term -->
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="text" class="form-input" id="inp-new-term" style="flex: 1;" placeholder="New term for Our Sectors..." onkeydown="if(event.key==='Enter'){event.preventDefault();addNewCustomTerm();}" />
+              <button type="button" class="sp-btn" style="padding: 0.35rem 0.7rem; font-size: 0.75rem;" onclick="addNewCustomTerm()">Add Term</button>
             </div>
           </div>
         </div>
@@ -835,113 +936,228 @@
     </div>
   </div>
 
+  <!-- Fluent UI 2 Visual Icon Picker Modal -->
+  <div id="modal-icon-picker" class="fui-modal-backdrop" style="display: none;">
+    <div class="fui-modal-surface">
+      <div class="fui-modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 600;">Select Fluent UI 2 Icon</h3>
+        <button class="fui-toolbar-btn" onclick="closeVisualIconPicker()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="fui-modal-body">
+        <input type="text" class="form-input" id="inp-icon-search" placeholder="Search icons (e.g. pound, metrics, shield, docs, tools)..." oninput="filterVisualIcons(this.value)" />
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="icon-cat-pills">
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('all')">All</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('common')">Common</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('finance')">Finance & £</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('analytics')">Metrics</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('governance')">Governance</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('tools')">Tools</button>
+        </div>
+        <div class="fui-icon-grid-picker" id="grid-visual-icons">
+          <!-- Icon cells populated via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     let isEditMode = true;
     let isSidebarOpen = true;
+
+    const FLUENT_ICONS = [
+      { key: 'BookAnswers', label: 'Documentation', cat: 'common', fa: 'fa-book-open' },
+      { key: 'Document', label: 'Document', cat: 'common', fa: 'fa-file-lines' },
+      { key: 'Folder', label: 'Folder', cat: 'common', fa: 'fa-folder' },
+      { key: 'Star', label: 'Star', cat: 'common', fa: 'fa-star' },
+      { key: 'Bookmark', label: 'Bookmark', cat: 'common', fa: 'fa-bookmark' },
+      { key: 'Sparkle', label: 'AI Copilot', cat: 'common', fa: 'fa-wand-magic-sparkles' },
+      { key: 'Lightbulb', label: 'Insight', cat: 'common', fa: 'fa-lightbulb' },
+      { key: 'Financial', label: 'Pound (£) Finance', cat: 'finance', fa: 'fa-sterling-sign' },
+      { key: 'ReceiptMoney', label: 'Budget & Cost', cat: 'finance', fa: 'fa-receipt' },
+      { key: 'Calculator', label: 'Calculator', cat: 'finance', fa: 'fa-calculator' },
+      { key: 'TimelineProgress', label: 'Trending Metrics', cat: 'analytics', fa: 'fa-arrow-trend-up' },
+      { key: 'ChartMultiple', label: 'Analytics Chart', cat: 'analytics', fa: 'fa-chart-column' },
+      { key: 'Gauge', label: 'Performance Gauge', cat: 'analytics', fa: 'fa-gauge-high' },
+      { key: 'Target', label: 'Target & Goals', cat: 'analytics', fa: 'fa-bullseye' },
+      { key: 'ComplianceAudit', label: 'Shield Governance', cat: 'governance', fa: 'fa-shield-halved' },
+      { key: 'CheckList', label: 'Verified Checklist', cat: 'governance', fa: 'fa-circle-check' },
+      { key: 'Lock', label: 'Security & Lock', cat: 'governance', fa: 'fa-lock' },
+      { key: 'Key', label: 'Permissions Key', cat: 'governance', fa: 'fa-key' },
+      { key: 'AppIconDefault', label: 'Apps & Tools', cat: 'tools', fa: 'fa-shapes' },
+      { key: 'Globe', label: 'Intranet Portal', cat: 'tools', fa: 'fa-globe' },
+      { key: 'Wrench', label: 'Engineering Tools', cat: 'tools', fa: 'fa-wrench' },
+      { key: 'Desktop', label: 'Workstation App', cat: 'tools', fa: 'fa-desktop' },
+      { key: 'People', label: 'Team & HR', cat: 'tools', fa: 'fa-users' },
+      { key: 'Building', label: 'Enterprise Sector', cat: 'tools', fa: 'fa-building' },
+      { key: 'Megaphone', label: 'Announcements', cat: 'tools', fa: 'fa-bullhorn' }
+    ];
+
+    const intranetTerms = [
+      // Intranet > Our Sectors (Matching Screenshot 2)
+      { id: 'sec-clean-energy', label: 'Clean energy', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Clean energy' },
+      { id: 'sec-conv-power', label: 'Conventional and low carbon power', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Conventional and low carbon power' },
+      { id: 'sec-data-centres', label: 'Data centres', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Data centres' },
+      { id: 'sec-defense', label: 'Defense', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Defense' },
+      { id: 'sec-education', label: 'Education', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Education' },
+      { id: 'sec-elec-trans', label: 'Electrical transmission and distribution', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Electrical transmission and distribution' },
+      { id: 'sec-energy-res', label: 'Energy and resources', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Energy and resources' },
+      { id: 'sec-environment', label: 'Environment', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Environment' },
+      { id: 'sec-fin-prof', label: 'Finance and professional services', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Finance and professional services' },
+      { id: 'sec-health', label: 'Health', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Health' },
+      { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Infrastructure' },
+      { id: 'sec-prop', label: 'Real estate and property', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Real estate and property' },
+      { id: 'sec-av', label: 'Aviation and transport', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Aviation and transport' },
+      { id: 'sec-gov', label: 'Government and public sector', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Government and public sector' },
+      { id: 'sec-tech', label: 'Technology and digital', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Technology and digital' },
+      { id: 'sec-mining', label: 'Mining and metals', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Mining and metals' },
+      { id: 'sec-life-sci', label: 'Life sciences and pharmaceuticals', termSetName: 'Our Sectors', path: 'Intranet > Our Sectors > Life sciences and pharmaceuticals' },
+
+      // Intranet > Our Segments
+      { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Commercial advisory' },
+      { id: 'seg-prog', label: 'Programme management', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Programme management' },
+      { id: 'seg-proj', label: 'Project controls', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Project controls' },
+      { id: 'seg-cost', label: 'Cost and commercial management', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Cost and commercial management' },
+      { id: 'seg-strat', label: 'Strategic advisory', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Strategic advisory' },
+      { id: 'seg-esg', label: 'Sustainability, ESG and net zero', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Sustainability, ESG and net zero' },
+      { id: 'seg-proc', label: 'Procurement and supply chain', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Procurement and supply chain' },
+      { id: 'seg-disp', label: 'Dispute resolution', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Dispute resolution' },
+      { id: 'seg-asset-ops', label: 'Asset management and operations', termSetName: 'Our Segments', path: 'Intranet > Our Segments > Asset management and operations' },
+
+      // AMCL Terms
+      { id: 'amcl-frameworks', label: 'Asset management frameworks', termSetName: 'AMCL Terms', path: 'AMCL Terms > Core Capabilities > Asset management frameworks' },
+      { id: 'amcl-iso55000', label: 'ISO 55000 compliance', termSetName: 'AMCL Terms', path: 'AMCL Terms > Core Capabilities > ISO 55000 compliance' },
+      { id: 'amcl-readiness', label: 'Operational readiness', termSetName: 'AMCL Terms', path: 'AMCL Terms > Core Capabilities > Operational readiness' }
+    ];
+
+    const intranetTree = [
+      {
+        name: 'Intranet',
+        sets: [
+          {
+            name: 'Our Sectors',
+            terms: ['Clean energy', 'Conventional and low carbon power', 'Data centres', 'Defense', 'Education', 'Electrical transmission and distribution', 'Energy and resources', 'Environment', 'Finance and professional services', 'Health', 'Infrastructure', 'Real estate and property', 'Aviation and transport', 'Government and public sector', 'Technology and digital', 'Mining and metals', 'Life sciences and pharmaceuticals']
+          },
+          {
+            name: 'Our Segments',
+            terms: ['Commercial advisory', 'Programme management', 'Project controls', 'Cost and commercial management', 'Strategic advisory', 'Sustainability, ESG and net zero', 'Procurement and supply chain', 'Dispute resolution', 'Asset management and operations']
+          }
+        ]
+      },
+      {
+        name: 'AMCL Terms',
+        sets: [
+          {
+            name: 'Core Capabilities',
+            terms: ['Asset management frameworks', 'ISO 55000 compliance', 'Operational readiness']
+          }
+        ]
+      }
+    ];
+
     let currentSections = [
       {
         id: 'sec-1',
-        title: 'Section title 1',
-        iconName: 'fa-book-open',
-        badge: 'Badge',
-        description: 'Section summary 1',
+        title: 'Commercial advisory',
+        iconName: 'Financial',
+        badge: 'Core',
+        description: 'Comprehensive financial planning, cost modelling and commercial assurance.',
         blocks: [
           {
             id: 'blk-1',
             type: 'card',
-            title: 'Card title 1',
-            description: 'Card summary 1',
-            badge: 'Badge',
-            iconName: 'fa-file-lines',
-            tags: ['Tag 1', 'Tag 2'],
-            actionText: 'Action link',
+            title: 'Procurement playbook',
+            description: 'Standardised procurement routes and supplier selection governance frameworks.',
+            badge: 'Verified',
+            iconName: 'BookAnswers',
+            tags: ['Policy', 'Procurement'],
+            actionText: 'Open playbook',
             actionUrl: '#'
           },
           {
             id: 'blk-2',
             type: 'metric',
-            title: 'Metric title 1',
-            description: 'Metric summary 1',
-            metricValue: '£1,420,000',
+            title: 'Total capital managed',
+            description: 'Cumulative programme budget under active management.',
+            metricValue: '£1,420,000,000',
             metricTrend: '+6.2% vs baseline',
-            tags: ['Tag 3', 'Tag 4']
+            tags: ['Finance', 'Capital']
           },
           {
             id: 'blk-3',
             type: 'card',
-            title: 'Card title 2',
-            description: 'Card summary 2',
-            badge: 'Badge',
-            iconName: 'fa-circle-check',
-            tags: ['Tag 5'],
-            actionText: 'Action link',
+            title: 'Contract compliance checklist',
+            description: 'Mandatory verification procedures for milestone delivery and sign-off.',
+            badge: 'Compliance',
+            iconName: 'ComplianceAudit',
+            tags: ['Audit', 'Governance'],
+            actionText: 'View checklist',
             actionUrl: '#'
           }
         ]
       },
       {
         id: 'sec-2',
-        title: 'Section title 2',
-        iconName: 'fa-chart-simple',
+        title: 'Live programme metrics',
+        iconName: 'TimelineProgress',
         badge: 'Real-time',
-        description: 'Section summary 2',
+        description: 'Real-time performance indicators and delivery metrics across all portfolios.',
         blocks: [
           {
             id: 'blk-m1',
             type: 'metric',
-            title: 'Metric title 1',
+            title: 'Forecast efficiency savings',
             metricValue: '£42,850,000',
             metricTrend: '+3.2% vs Q2 forecast',
-            description: 'Metric summary 1',
-            tags: ['Tag 1', 'Tag 2']
+            description: 'Efficiency gains achieved via automated commercial validation.',
+            tags: ['Savings', 'ESG']
           },
           {
             id: 'blk-m2',
             type: 'metric',
-            title: 'Metric title 2',
+            title: 'Procurement budget released',
             metricValue: '£3,420,000',
             metricTrend: '+18.4% ahead of target',
-            description: 'Metric summary 2',
-            tags: ['Tag 3', 'Tag 4']
+            description: 'Approved funding streams released for immediate commercial execution.',
+            tags: ['Finance', 'Real-time']
           },
           {
             id: 'blk-m3',
             type: 'metric',
-            title: 'Metric title 3',
+            title: 'On-time milestone delivery',
             metricValue: '94.8%',
             metricTrend: '+1.5% from last period',
-            description: 'Metric summary 3',
-            tags: ['Tag 5']
+            description: 'Key contractual delivery gates verified on schedule.',
+            tags: ['KPI', 'Verified']
           }
         ]
       },
       {
         id: 'sec-3',
-        title: 'Section title 3',
-        iconName: 'fa-window-restore',
+        title: 'Interactive tools & portals',
+        iconName: 'AppIconDefault',
         badge: 'Interactive',
-        description: 'Section summary 3',
+        description: 'Integrated digital calculation engines and SharePoint toolsets.',
         blocks: [
           {
             id: 'blk-e1',
             type: 'card',
-            title: 'Card title 1',
-            description: 'Card summary 1',
-            badge: 'Badge',
-            iconName: 'fa-wrench',
-            tags: ['Tag 1', 'Tag 2'],
-            actionText: 'Action link',
+            title: 'Cost benchmarking calculator',
+            description: 'Live modelling engine for estimating major programme capital requirements.',
+            badge: 'Calculator',
+            iconName: 'Calculator',
+            tags: ['Modelling', 'Engineering'],
+            actionText: 'Launch tool',
             actionUrl: '#'
           },
           {
             id: 'blk-e2',
             type: 'card',
-            title: 'Card title 2',
-            description: 'Card summary 2',
-            badge: 'Badge',
-            iconName: 'fa-globe',
-            tags: ['Tag 3', 'Tag 4'],
-            actionText: 'Action link',
+            title: 'Global supply chain map',
+            description: 'Interactive map displaying international contractor network & certifications.',
+            badge: 'Portal',
+            iconName: 'Globe',
+            tags: ['Supply Chain', 'Global'],
+            actionText: 'Explore map',
             actionUrl: '#'
           }
         ]
@@ -949,8 +1165,8 @@
     ];
 
     let state = {
-      title: 'Container title',
-      subtitle: 'Container subtitle or description',
+      title: 'Commercial & Financial Hub (GBP £)',
+      subtitle: 'Centralised SharePoint workspace providing real-time financial tracking, governance assurance, and commercial tools.',
       layoutMode: 'tabs',
       containerStyle: 'standard',
       gridCols: 0,
@@ -962,6 +1178,10 @@
       activeCardSecIdx: 0,
       activeCardIdx: 0
     };
+
+    let iconPickerTarget = 'card';
+    let activeIconCat = 'all';
+    let iconSearchQuery = '';
 
     function toggleTheme() {
       document.body.classList.toggle('dark-mode');
@@ -997,8 +1217,236 @@
     function updateGridRows(val) { state.gridRows = Number(val); render(); syncSidebar(); }
     function updateCardHeightMode(val) { state.cardHeightMode = val; render(); }
 
+    /* Fluent UI 2 Icon Picker Functions */
+    function openVisualIconPicker(target) {
+      iconPickerTarget = target;
+      document.getElementById('modal-icon-picker').style.display = 'flex';
+      renderVisualIconGrid();
+    }
+
+    function closeVisualIconPicker() {
+      document.getElementById('modal-icon-picker').style.display = 'none';
+    }
+
+    function filterVisualIcons(q) {
+      iconSearchQuery = q;
+      renderVisualIconGrid();
+    }
+
+    function filterIconCat(cat) {
+      activeIconCat = cat;
+      renderVisualIconGrid();
+    }
+
+    function renderVisualIconGrid() {
+      const grid = document.getElementById('grid-visual-icons');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const targetSec = currentSections[state.activeCardSecIdx];
+      const curCard = targetSec && targetSec.blocks ? targetSec.blocks[state.activeCardIdx] : null;
+      const currentIconKey = iconPickerTarget === 'section'
+        ? (currentSections[state.activeSecIdx]?.iconName || 'BookAnswers')
+        : (curCard?.iconName || 'BookAnswers');
+
+      const filtered = FLUENT_ICONS.filter(i => {
+        const matchesCat = activeIconCat === 'all' || i.cat === activeIconCat;
+        if (!matchesCat) return false;
+        if (!iconSearchQuery.trim()) return true;
+        const q = iconSearchQuery.toLowerCase().trim();
+        return i.label.toLowerCase().includes(q) || i.key.toLowerCase().includes(q);
+      });
+
+      filtered.forEach(icon => {
+        const isSelected = icon.key === currentIconKey;
+        const div = document.createElement('div');
+        div.className = 'fui-icon-grid-item' + (isSelected ? ' active' : '');
+        div.innerHTML = `
+          <i class="fa-solid ${icon.fa}" style="font-size: 1.4rem; color: var(--fui-colorBrandForeground1); margin-bottom: 4px;"></i>
+          <span style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground1); font-weight: 500;">${icon.label}</span>
+          <small style="font-size: 0.65rem; color: var(--fui-colorNeutralForeground3);">${icon.key}</small>
+        `;
+        div.onclick = () => {
+          if (iconPickerTarget === 'section') {
+            if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].iconName = icon.key;
+          } else {
+            if (curCard) curCard.iconName = icon.key;
+          }
+          closeVisualIconPicker();
+          syncSidebar();
+          render();
+        };
+        grid.appendChild(div);
+      });
+    }
+
+    /* Term Store Hierarchy & Live Search */
+    let activeTermCategory = 'all';
+    let termSearchQuery = '';
+    let termViewMode = 'search'; // 'search' or 'tree'
+    let expandedSets = { 'Our Sectors': true, 'Our Segments': false, 'Core Capabilities': false };
+
+    function filterTermStoreCategory(cat) {
+      activeTermCategory = cat;
+      document.getElementById('btn-term-filter-all').style.background = cat === 'all' ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+      document.getElementById('btn-term-filter-sectors').style.background = cat === 'Our Sectors' ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+      document.getElementById('btn-term-filter-segments').style.background = cat === 'Our Segments' ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+      document.getElementById('btn-term-filter-amcl').style.background = cat === 'AMCL Terms' ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+      renderTermStoreChips();
+    }
+
+    function searchTerms(q) {
+      termSearchQuery = q;
+      renderTermStoreChips();
+    }
+
+    function toggleTermViewMode() {
+      termViewMode = termViewMode === 'search' ? 'tree' : 'search';
+      const btn = document.getElementById('btn-term-mode-toggle');
+      const searchBox = document.getElementById('term-search-box-container');
+      if (btn) btn.textContent = termViewMode === 'search' ? 'Browse Tree' : 'Search Mode';
+      if (searchBox) searchBox.style.display = termViewMode === 'search' ? 'block' : 'none';
+      renderTermStoreChips();
+    }
+
+    function renderTermStoreChips() {
+      const container = document.getElementById('term-store-chips');
+      if (!container) return;
+      container.innerHTML = '';
+      const targetSec = currentSections[state.activeCardSecIdx];
+      const curCard = targetSec && targetSec.blocks ? targetSec.blocks[state.activeCardIdx] : null;
+      const selectedTags = curCard && curCard.termStoreTags ? curCard.termStoreTags : [];
+
+      if (termViewMode === 'search') {
+        const filtered = intranetTerms.filter(t => {
+          const matchesCat = activeTermCategory === 'all' || t.termSetName.toLowerCase() === activeTermCategory.toLowerCase();
+          if (!matchesCat) return false;
+          if (!termSearchQuery.trim()) return true;
+          const q = termSearchQuery.toLowerCase().trim();
+          return t.label.toLowerCase().includes(q) || (t.path && t.path.toLowerCase().includes(q));
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div style="padding: 6px; color: var(--fui-colorNeutralForeground4); font-size: 0.78rem; text-align: center;">
+              No matching terms for "${termSearchQuery}". Add a custom tag below.
+            </div>
+          `;
+          return;
+        }
+
+        filtered.forEach(term => {
+          const isSelected = selectedTags.some(st => st.id === term.id || st.label.toLowerCase() === term.label.toLowerCase());
+          const item = document.createElement('div');
+          item.style.display = 'flex';
+          item.style.justifyContent = 'space-between';
+          item.style.alignItems = 'center';
+          item.style.padding = '4px 6px';
+          item.style.borderRadius = '4px';
+          item.style.cursor = 'pointer';
+          item.style.backgroundColor = isSelected ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+          item.style.border = isSelected ? '1px solid var(--fui-colorBrandStroke1)' : '1px solid transparent';
+          item.innerHTML = `
+            <div>
+              <span style="font-size: 0.8rem; font-weight: ${isSelected ? '600' : '400'}; color: ${isSelected ? 'var(--fui-colorBrandForeground1)' : 'var(--fui-colorNeutralForeground1)'};">${isSelected ? '✓ ' : '+ '}${term.label}</span>
+              <small style="display: block; font-size: 0.68rem; color: var(--fui-colorNeutralForeground4);">${term.path}</small>
+            </div>
+            <span class="fui-badge" style="font-size: 0.68rem;">${term.termSetName}</span>
+          `;
+          item.onclick = () => toggleCardTerm(term);
+          container.appendChild(item);
+        });
+      } else {
+        // Tree View Mode (Matching Screenshot 2)
+        intranetTree.forEach(group => {
+          const grpDiv = document.createElement('div');
+          grpDiv.style.marginBottom = '6px';
+          grpDiv.innerHTML = `
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--fui-colorNeutralForeground1); display: flex; align-items: center; gap: 4px; padding: 2px 0;">
+              <i class="fa-solid fa-folder-open" style="color: var(--fui-colorBrandForeground1);"></i>
+              <span>Global group: ${group.name}</span>
+            </div>
+          `;
+          group.sets.forEach(set => {
+            const isSetExpanded = !!expandedSets[set.name];
+            const setDiv = document.createElement('div');
+            setDiv.style.marginLeft = '12px';
+            setDiv.style.marginTop = '2px';
+            setDiv.innerHTML = `
+              <div style="font-size: 0.78rem; font-weight: 600; color: var(--fui-colorNeutralForeground2); cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px;" onclick="toggleTreeSet('${set.name}')">
+                <i class="fa-solid ${isSetExpanded ? 'fa-folder-open' : 'fa-folder'}"></i>
+                <span>${set.name} (${set.terms.length})</span>
+              </div>
+            `;
+            if (isSetExpanded) {
+              const termsList = document.createElement('div');
+              termsList.style.marginLeft = '16px';
+              termsList.style.display = 'flex';
+              termsList.style.flexDirection = 'column';
+              termsList.style.gap = '2px';
+              set.terms.forEach(termLabel => {
+                const foundTerm = intranetTerms.find(t => t.label.toLowerCase() === termLabel.toLowerCase()) || { id: 't-' + termLabel, label: termLabel, termSetName: set.name, path: `Intranet > ${set.name} > ${termLabel}` };
+                const isSelected = selectedTags.some(st => st.label.toLowerCase() === termLabel.toLowerCase());
+                const termRow = document.createElement('div');
+                termRow.style.fontSize = '0.75rem';
+                termRow.style.padding = '2px 4px';
+                termRow.style.borderRadius = '3px';
+                termRow.style.cursor = 'pointer';
+                termRow.style.color = isSelected ? 'var(--fui-colorBrandForeground1)' : 'var(--fui-colorNeutralForeground1)';
+                termRow.style.backgroundColor = isSelected ? 'var(--fui-colorBrandBackground2)' : 'transparent';
+                termRow.innerHTML = `${isSelected ? '✓ ' : '+ '}${termLabel}`;
+                termRow.onclick = () => toggleCardTerm(foundTerm);
+                termsList.appendChild(termRow);
+              });
+              setDiv.appendChild(termsList);
+            }
+            grpDiv.appendChild(setDiv);
+          });
+          container.appendChild(grpDiv);
+        });
+      }
+    }
+
+    function toggleTreeSet(setName) {
+      expandedSets[setName] = !expandedSets[setName];
+      renderTermStoreChips();
+    }
+
+    function addNewCustomTerm() {
+      const input = document.getElementById('inp-new-term');
+      if (!input || !input.value.trim()) return;
+      const label = input.value.trim();
+      const targetSet = activeTermCategory !== 'all' ? activeTermCategory : 'Our Sectors';
+      const newTerm = {
+        id: 'term-' + Date.now(),
+        label: label,
+        termSetName: targetSet,
+        path: `Intranet > ${targetSet} > ${label}`
+      };
+      intranetTerms.push(newTerm);
+      const group = intranetTree.find(g => g.name === 'Intranet') || intranetTree[0];
+      const set = group.sets.find(s => s.name === targetSet) || group.sets[0];
+      set.terms.push(label);
+      toggleCardTerm(newTerm);
+      input.value = '';
+    }
+
+    function toggleCardTerm(term) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (!targetSec || !targetSec.blocks[state.activeCardIdx]) return;
+      const curCard = targetSec.blocks[state.activeCardIdx];
+      if (!curCard.termStoreTags) curCard.termStoreTags = [];
+      const idx = curCard.termStoreTags.findIndex(t => t.id === term.id || t.label.toLowerCase() === term.label.toLowerCase());
+      if (idx >= 0) {
+        curCard.termStoreTags.splice(idx, 1);
+      } else {
+        curCard.termStoreTags.push(term);
+      }
+      renderTermStoreChips();
+      render();
+    }
+
     function syncSidebar() {
-      // Sync Section Dropdown
       const selSec = document.getElementById('sel-section');
       selSec.innerHTML = '';
       currentSections.forEach((s, idx) => {
@@ -1012,12 +1460,11 @@
       const curSec = currentSections[state.activeSecIdx] || currentSections[0];
       if (curSec) {
         document.getElementById('inp-sec-title').value = curSec.title || '';
-        document.getElementById('sel-sec-icon').value = curSec.iconName || 'fa-book-open';
+        document.getElementById('txt-sec-icon').textContent = curSec.iconName || 'BookAnswers';
         document.getElementById('sel-sec-badge').value = curSec.badge || 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
       }
 
-      // Sync Card Target Section & Cards
       const selCardSec = document.getElementById('sel-card-sec');
       selCardSec.innerHTML = '';
       currentSections.forEach((s, idx) => {
@@ -1042,7 +1489,6 @@
           selCard.value = state.activeCardIdx;
           const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
           if (curCard) {
-            // Dynamic Column Span Options based on Container Grid Columns
             const effectiveMaxCols = Math.max(1, state.gridCols > 0 ? state.gridCols : 4);
             const effectiveMaxRows = Math.max(1, state.gridRows > 0 ? state.gridRows : 5);
 
@@ -1060,11 +1506,8 @@
               curCard.colSpan = clampedCol;
               selColSpan.value = clampedCol;
             }
-            if (lblColSpan) {
-              lblColSpan.textContent = `Column span (max ${effectiveMaxCols})`;
-            }
+            if (lblColSpan) lblColSpan.textContent = `Column span (max ${effectiveMaxCols})`;
 
-            // Dynamic Row Span Options based on Container Grid Rows
             const selRowSpan = document.getElementById('sel-card-rowspan');
             const lblRowSpan = document.getElementById('lbl-card-rowspan');
             if (selRowSpan) {
@@ -1079,13 +1522,12 @@
               curCard.rowSpan = clampedRow;
               selRowSpan.value = clampedRow;
             }
-            if (lblRowSpan) {
-              lblRowSpan.textContent = `Row span (max ${effectiveMaxRows})`;
-            }
+            if (lblRowSpan) lblRowSpan.textContent = `Row span (max ${effectiveMaxRows})`;
 
             const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
             setVal('sel-card-type', curCard.type || 'card');
-            setVal('sel-card-icon', curCard.iconName || 'fa-file-lines');
+            const txtIcon = document.getElementById('txt-card-icon');
+            if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
@@ -1108,72 +1550,77 @@
       }
     }
 
-    const intranetTerms = [
-      { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors' },
-      { id: 'sec-energy', label: 'Energy and utilities', termSetName: 'Our Sectors' },
-      { id: 'sec-prop', label: 'Real estate and property', termSetName: 'Our Sectors' },
-      { id: 'sec-def', label: 'Defence and security', termSetName: 'Our Sectors' },
-      { id: 'sec-av', label: 'Aviation and transport', termSetName: 'Our Sectors' },
-      { id: 'sec-health', label: 'Healthcare and science', termSetName: 'Our Sectors' },
-      { id: 'sec-gov', label: 'Government and public sector', termSetName: 'Our Sectors' },
-      { id: 'sec-tech', label: 'Technology and digital', termSetName: 'Our Sectors' },
-      { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments' },
-      { id: 'seg-prog', label: 'Programme management', termSetName: 'Our Segments' },
-      { id: 'seg-proj', label: 'Project controls', termSetName: 'Our Segments' },
-      { id: 'seg-cost', label: 'Cost and commercial management', termSetName: 'Our Segments' },
-      { id: 'seg-strat', label: 'Strategic advisory', termSetName: 'Our Segments' },
-      { id: 'seg-esg', label: 'Sustainability, ESG and net zero', termSetName: 'Our Segments' },
-      { id: 'seg-proc', label: 'Procurement and supply chain', termSetName: 'Our Segments' },
-      { id: 'seg-disp', label: 'Dispute resolution', termSetName: 'Our Segments' }
-    ];
+    function selectSection(idx) { state.activeSecIdx = Number(idx); syncSidebar(); }
+    function updateSecTitle(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].title = val; render(); }
+    function updateSecBadge(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].badge = val; render(); }
+    function updateSecDesc(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].description = val; render(); }
 
-    let activeTermCategory = 'all';
-
-    function filterTermStoreCategory(cat) {
-      activeTermCategory = cat;
-      renderTermStoreChips();
-    }
-
-    function renderTermStoreChips() {
-      const container = document.getElementById('term-store-chips');
-      if (!container) return;
-      container.innerHTML = '';
+    function selectCardSection(idx) { state.activeCardSecIdx = Number(idx); state.activeCardIdx = 0; syncSidebar(); }
+    function selectCard(idx) { state.activeCardIdx = Number(idx); syncSidebar(); }
+    function updateCardType(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
-      const curCard = targetSec && targetSec.blocks ? targetSec.blocks[state.activeCardIdx] : null;
-      const selectedTags = curCard && curCard.termStoreTags ? curCard.termStoreTags : [];
-
-      const filtered = intranetTerms.filter(t => activeTermCategory === 'all' || t.termSetName.toLowerCase() === activeTermCategory.toLowerCase());
-
-      filtered.forEach(term => {
-        const isSelected = selectedTags.some(st => st.id === term.id || st.label.toLowerCase() === term.label.toLowerCase());
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'fui-tag';
-        chip.style.cursor = 'pointer';
-        chip.style.backgroundColor = isSelected ? 'var(--fui-colorBrandBackground2)' : 'var(--fui-colorNeutralBackground1)';
-        chip.style.borderColor = isSelected ? 'var(--fui-colorBrandStroke1)' : 'var(--fui-colorNeutralStroke1)';
-        chip.style.color = isSelected ? 'var(--fui-colorBrandForeground1)' : 'var(--fui-colorNeutralForeground1)';
-        chip.innerHTML = `${isSelected ? '✓ ' : '+ '}${term.label} <small style="opacity: 0.7;">[${term.termSetName}]</small>`;
-        chip.onclick = () => toggleCardTerm(term);
-        container.appendChild(chip);
-      });
-    }
-
-    function toggleCardTerm(term) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (!targetSec || !targetSec.blocks[state.activeCardIdx]) return;
-      const curCard = targetSec.blocks[state.activeCardIdx];
-      if (!curCard.termStoreTags) curCard.termStoreTags = [];
-      const idx = curCard.termStoreTags.findIndex(t => t.id === term.id || t.label.toLowerCase() === term.label.toLowerCase());
-      if (idx >= 0) {
-        curCard.termStoreTags.splice(idx, 1);
-      } else {
-        curCard.termStoreTags.push(term);
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].type = val;
+        syncSidebar();
+        render();
       }
-      renderTermStoreChips();
-      render();
     }
-
+    function updateCardColSpan(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].colSpan = Number(val) || 1;
+        render();
+      }
+    }
+    function updateCardRowSpan(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].rowSpan = Number(val) || 1;
+        render();
+      }
+    }
+    function updateCardItemHeightMode(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].heightMode = val;
+        render();
+      }
+    }
+    function updateCardTitle(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].title = val;
+        render();
+      }
+    }
+    function updateCardDesc(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].description = val;
+        render();
+      }
+    }
+    function updateCardBadge(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].badge = val;
+        render();
+      }
+    }
+    function updateCardMetricVal(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].metricValue = val;
+        render();
+      }
+    }
+    function updateCardMetricTrend(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].metricTrend = val;
+        render();
+      }
+    }
     function updateCardLiveApi(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -1183,7 +1630,6 @@
         render();
       }
     }
-
     function updateCardLivePath(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -1193,7 +1639,6 @@
         render();
       }
     }
-
     function updateCardLivePrefix(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -1204,26 +1649,12 @@
       }
     }
 
-    function selectSection(idx) { state.activeSecIdx = Number(idx); syncSidebar(); }
-    function updateSecTitle(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].title = val; render(); }
-    function updateSecIcon(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].iconName = val; render(); }
-    function updateSecBadge(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].badge = val; render(); }
-    function updateSecDesc(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].description = val; render(); }
-
-    function updateCardIcon(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].iconName = val;
-        render();
-      }
-    }
-
     function addSection() {
       const newSecIdx = currentSections.length + 1;
       const newSec = {
         id: 'sec-' + Date.now(),
         title: `Section title ${newSecIdx}`,
-        iconName: 'fa-book-open',
+        iconName: 'BookAnswers',
         badge: 'Badge',
         description: `Section summary ${newSecIdx}`,
         blocks: [
@@ -1233,7 +1664,7 @@
             title: 'Card title',
             description: 'Card summary',
             badge: 'Badge',
-            iconName: 'fa-file-lines',
+            iconName: 'BookAnswers',
             actionText: 'Action link',
             actionUrl: '#',
             tags: ['Tag 1']
@@ -1256,91 +1687,6 @@
       render();
     }
 
-    function selectCardSection(idx) {
-      state.activeCardSecIdx = Number(idx);
-      state.activeCardIdx = 0;
-      syncSidebar();
-    }
-
-    function selectCard(idx) {
-      state.activeCardIdx = Number(idx);
-      syncSidebar();
-    }
-
-    function updateCardType(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].type = val;
-        syncSidebar();
-        render();
-      }
-    }
-
-    function updateCardColSpan(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].colSpan = Number(val) || 1;
-        render();
-      }
-    }
-
-    function updateCardRowSpan(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].rowSpan = Number(val) || 1;
-        render();
-      }
-    }
-
-    function updateCardTitle(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].title = val;
-        render();
-      }
-    }
-
-    function updateCardMetricVal(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].metricValue = val;
-        render();
-      }
-    }
-
-    function updateCardMetricTrend(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].metricTrend = val;
-        render();
-      }
-    }
-
-    function updateCardDesc(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].description = val;
-        render();
-      }
-    }
-
-    function updateCardBadge(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        targetSec.blocks[state.activeCardIdx].badge = val;
-        render();
-      }
-    }
-
-    function updateCardTermTags(val) {
-      const targetSec = currentSections[state.activeCardSecIdx];
-      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
-        const split = val.split(',').map(s => s.trim()).filter(Boolean);
-        targetSec.blocks[state.activeCardIdx].termStoreTags = split.map((s, i) => ({ id: 't-' + i, label: s }));
-        render();
-      }
-    }
-
     function addCard() {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (!targetSec) return;
@@ -1350,6 +1696,7 @@
         title: 'Card title',
         description: 'Card description summary',
         badge: 'Badge',
+        iconName: 'BookAnswers',
         actionText: 'Learn more',
         actionUrl: '#',
         colSpan: 1,
@@ -1368,6 +1715,132 @@
       state.activeCardIdx = Math.max(0, state.activeCardIdx - 1);
       syncSidebar();
       render();
+    }
+
+    function loadPreset(presetKey) {
+      if (presetKey === 'commercial') {
+        state.title = 'Commercial & Financial Hub (GBP £)';
+        state.subtitle = 'Centralised SharePoint workspace providing real-time financial tracking, governance assurance, and commercial tools.';
+      } else if (presetKey === 'governance') {
+        state.title = 'Assurance & Governance Portal';
+        state.subtitle = 'Enterprise compliance protocols, project stage-gates, and audit verification checklists.';
+      } else {
+        state.title = 'Full-Width Workspace';
+        state.subtitle = 'Customizable multi-section SharePoint container.';
+      }
+      render();
+    }
+
+    /* Helper to get FontAwesome class from Fluent icon name */
+    function getIconFaClass(key) {
+      const found = FLUENT_ICONS.find(i => i.key === key);
+      return found ? found.fa : 'fa-file-lines';
+    }
+
+    /* Rich Text Formatting Toolbar Component with mousedown default prevention */
+    function RichTextFloatingToolbar(props) {
+      const [showColorPicker, setShowColorPicker] = React.useState(false);
+
+      const handleCmd = (cmd, val) => {
+        document.execCommand(cmd, false, val);
+        if (props.onFormat) props.onFormat();
+      };
+
+      const preventBlur = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      const themeColors = [
+        { name: 'Brand Primary', hex: '#0078d4' },
+        { name: 'Dark Theme', hex: '#106ebe' },
+        { name: 'Light Brand', hex: '#2b88d8' },
+        { name: 'Dark Neutral', hex: '#242424' },
+        { name: 'Neutral Secondary', hex: '#616161' },
+        { name: 'Success Green', hex: '#107c10' },
+        { name: 'Warning Gold', hex: '#d83b01' },
+        { name: 'Error Crimson', hex: '#a80000' },
+        { name: 'Royal Blue', hex: '#004e8c' },
+        { name: 'Deep Purple', hex: '#5c2d91' }
+      ];
+
+      return React.createElement('div', {
+        className: 'fui-floating-toolbar',
+        onMouseDown: preventBlur,
+        onClick: (e) => e.stopPropagation()
+      },
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Bold', onMouseDown: preventBlur, onClick: () => handleCmd('bold') }, React.createElement('i', { className: 'fa-solid fa-bold' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Italic', onMouseDown: preventBlur, onClick: () => handleCmd('italic') }, React.createElement('i', { className: 'fa-solid fa-italic' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Underline', onMouseDown: preventBlur, onClick: () => handleCmd('underline') }, React.createElement('i', { className: 'fa-solid fa-underline' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Strikethrough', onMouseDown: preventBlur, onClick: () => handleCmd('strikeThrough') }, React.createElement('i', { className: 'fa-solid fa-strikethrough' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Font Theme Colour', onMouseDown: preventBlur, onClick: () => setShowColorPicker(!showColorPicker) }, React.createElement('i', { className: 'fa-solid fa-palette' })),
+        showColorPicker ? React.createElement('div', { className: 'fui-color-palette-popover', onMouseDown: preventBlur },
+          themeColors.map(c => React.createElement('div', {
+            key: c.name,
+            className: 'fui-color-dot',
+            style: { backgroundColor: c.hex },
+            title: c.name,
+            onMouseDown: preventBlur,
+            onClick: () => { handleCmd('foreColor', c.hex); setShowColorPicker(false); }
+          }))
+        ) : null,
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Highlight Yellow', onMouseDown: preventBlur, onClick: () => handleCmd('hiliteColor', '#fff176') }, React.createElement('i', { className: 'fa-solid fa-highlighter' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Left', onMouseDown: preventBlur, onClick: () => handleCmd('justifyLeft') }, React.createElement('i', { className: 'fa-solid fa-align-left' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Centre', onMouseDown: preventBlur, onClick: () => handleCmd('justifyCenter') }, React.createElement('i', { className: 'fa-solid fa-align-center' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Right', onMouseDown: preventBlur, onClick: () => handleCmd('justifyRight') }, React.createElement('i', { className: 'fa-solid fa-align-right' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Clear Formatting', onMouseDown: preventBlur, onClick: () => handleCmd('removeFormat') }, React.createElement('i', { className: 'fa-solid fa-eraser' }))
+      );
+    }
+
+    /* Editable Field Component */
+    function EditableText(props) {
+      const [isFocused, setIsFocused] = React.useState(false);
+      const ref = React.useRef(null);
+
+      React.useEffect(() => {
+        if (ref.current && !isFocused) {
+          if (ref.current.innerHTML !== (props.html || '')) {
+            ref.current.innerHTML = props.html || '';
+          }
+        }
+      }, [props.html, isFocused]);
+
+      const onBlur = () => {
+        setTimeout(() => {
+          setIsFocused(false);
+          if (ref.current && props.onChange) {
+            props.onChange(ref.current.innerHTML);
+          }
+        }, 180);
+      };
+
+      if (!isEditMode) {
+        return React.createElement(props.tag || 'div', {
+          className: props.className,
+          style: props.style,
+          dangerouslySetInnerHTML: { __html: props.html || '' }
+        });
+      }
+
+      return React.createElement('div', { style: { position: 'relative', width: '100%' } },
+        isFocused ? React.createElement(RichTextFloatingToolbar, {
+          onFormat: () => {
+            if (ref.current && props.onChange) props.onChange(ref.current.innerHTML);
+          }
+        }) : null,
+        React.createElement(props.tag || 'div', {
+          ref: ref,
+          contentEditable: true,
+          suppressContentEditableWarning: true,
+          className: 'fui-editable ' + (props.className || ''),
+          style: props.style,
+          onFocus: () => setIsFocused(true),
+          onBlur: onBlur,
+          onInput: () => {
+            if (ref.current && props.onChange) props.onChange(ref.current.innerHTML);
+          }
+        })
+      );
     }
 
     function App() {
@@ -1393,7 +1866,7 @@
         isEditMode ? React.createElement('div', { className: 'edit-banner' },
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
             React.createElement('span', { className: 'fui-badge', style: { backgroundColor: 'var(--fui-colorBrandBackground)', color: '#fff' } }, 'SharePoint Edit Mode'),
-            React.createElement('span', null, 'Click text to edit, hover between items to insert new content (+), or click ✏️ to customize card properties and grid span.')
+            React.createElement('span', null, 'Click text to format titles & descriptions, select text for floating ribbon, or click ✏️ to customize card properties and icons.')
           ),
           React.createElement('button', {
             className: 'fui-btn-subtle',
@@ -1402,11 +1875,21 @@
           }, React.createElement('i', { className: 'fa-solid fa-sliders' }), ' Open Sidebar')
         ) : null,
 
-        // Header
+        // Header with WYSIWYG Editable Title & Subtitle
         React.createElement('div', { className: 'fui-header' },
-          React.createElement('div', null,
-            React.createElement('h1', { className: 'fui-title' }, state.title),
-            React.createElement('p', { className: 'fui-subtitle' }, state.subtitle)
+          React.createElement('div', { style: { flex: 1, minWidth: '280px' } },
+            React.createElement(EditableText, {
+              tag: 'h1',
+              className: 'fui-title',
+              html: state.title,
+              onChange: (val) => updateTitle(val)
+            }),
+            React.createElement(EditableText, {
+              tag: 'p',
+              className: 'fui-subtitle',
+              html: state.subtitle,
+              onChange: (val) => updateSubtitle(val)
+            })
           ),
           React.createElement('div', { className: 'fui-controls' },
             // Search Box
@@ -1443,7 +1926,7 @@
                 className: 'fui-tab ' + (sec.id === state.activeTabId ? 'active' : ''),
                 onClick: () => { state.activeTabId = sec.id; render(); }
               },
-                React.createElement('i', { className: 'fa-solid ' + (sec.iconName || 'fa-folder') }),
+                React.createElement('i', { className: 'fa-solid ' + getIconFaClass(sec.iconName) }),
                 React.createElement('span', null, sec.title),
                 sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
               )
@@ -1464,7 +1947,12 @@
                 React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
                   React.createElement('div', null,
                     React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-                      React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                      React.createElement(EditableText, {
+                        tag: 'span',
+                        style: { fontSize: '0.9rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground2)' },
+                        html: block.title,
+                        onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
+                      }),
                       isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
                     ),
                     React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
@@ -1474,7 +1962,12 @@
                         block.metricTrend
                       )
                     ),
-                    React.createElement('p', { className: 'fui-card-desc' }, block.description),
+                    React.createElement(EditableText, {
+                      tag: 'p',
+                      style: { fontSize: '0.85rem', color: 'var(--fui-colorNeutralForeground3)', marginTop: '4px' },
+                      html: block.description,
+                      onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
+                    }),
                     block.termStoreTags && React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
                       block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
                     )
@@ -1484,15 +1977,25 @@
                   React.createElement('div', null,
                     React.createElement('div', { className: 'fui-card-header' },
                       React.createElement('div', { className: 'fui-icon-box' },
-                        React.createElement('i', { className: 'fa-solid ' + (block.iconName || 'fa-file-lines') })
+                        React.createElement('i', { className: 'fa-solid ' + getIconFaClass(block.iconName) })
                       ),
                       React.createElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } },
                         block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge),
                         isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
                       )
                     ),
-                    React.createElement('h3', { className: 'fui-card-title' }, block.title),
-                    React.createElement('p', { className: 'fui-card-desc' }, block.description),
+                    React.createElement(EditableText, {
+                      tag: 'h3',
+                      style: { fontSize: '1.15rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground1)', marginBottom: '4px' },
+                      html: block.title,
+                      onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
+                    }),
+                    React.createElement(EditableText, {
+                      tag: 'p',
+                      style: { fontSize: '0.9rem', color: 'var(--fui-colorNeutralForeground2)', lineHeight: '1.35rem' },
+                      html: block.description,
+                      onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
+                    }),
                     block.termStoreTags ? React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
                       block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
                     ) : (
@@ -1502,7 +2005,7 @@
                     )
                   ),
                   React.createElement('a', { href: block.actionUrl || '#', className: 'fui-btn-subtle' },
-                    block.actionText || 'Open',
+                    block.actionText || 'Open link',
                     React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
                   )
                 );
@@ -1517,7 +2020,7 @@
             React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
               React.createElement('button', { className: 'fui-accordion-header' },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
-                  React.createElement('i', { className: 'fa-solid ' + (sec.iconName || 'fa-folder'), style: { color: 'var(--fui-colorBrandForeground1)' } }),
+                  React.createElement('i', { className: 'fa-solid ' + getIconFaClass(sec.iconName), style: { color: 'var(--fui-colorBrandForeground1)' } }),
                   React.createElement('span', { style: { fontWeight: 600 } }, sec.title)
                 ),
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
@@ -1551,7 +2054,7 @@
                       React.createElement('div', null,
                         React.createElement('div', { className: 'fui-card-header' },
                           React.createElement('div', { className: 'fui-icon-box' },
-                            React.createElement('i', { className: 'fa-solid ' + (block.iconName || 'fa-file-lines') })
+                            React.createElement('i', { className: 'fa-solid ' + getIconFaClass(block.iconName) })
                           ),
                           block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                         ),

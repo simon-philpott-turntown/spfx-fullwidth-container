@@ -62,6 +62,9 @@
       "implementedIn": [
         "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
         "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+        "src/webparts/fullWidthContainer/components/FluentIconPicker.tsx",
         "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
         "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"

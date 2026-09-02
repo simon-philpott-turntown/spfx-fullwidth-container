@@ -61,6 +61,16 @@
       "role": "SharePoint Global Term Store taxonomy browser and interactive Fluent UI 2 tag pill selector."
     },
     {
+      "name": "FluentIconPicker",
+      "path": "src/webparts/fullWidthContainer/components/FluentIconPicker.tsx",
+      "role": "Visual Fluent UI 2 icon picker modal with instant keyword search, categories, and icon preview."
+    },
+    {
+      "name": "RichTextEditable",
+      "path": "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+      "role": "Inline WYSIWYG rich text editor with non-collapsing Floating Toolbar, site theme colors, and brand fonts."
+    },
+    {
       "name": "LiveDataRenderer",
       "path": "src/webparts/fullWidthContainer/components/LiveDataRenderer.tsx",
       "role": "Dynamic real-time REST/Graph API text and metric renderer with connectivity status and refresh."

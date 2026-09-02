@@ -1,6 +1,7 @@
 /**
  * @file BlockRenderer.tsx
  * @description Renders individual child content blocks using Fluent UI 2 (Card, Badge, Button, Text, Icons, Composable Sub-elements).
+ * Supports rich text formatting on titles, descriptions, and text elements with site theme and brand font inheritance.
  * Follows the Microsoft Fluent 2 Design System (https://fluent2.microsoft.design/).
  */
 
@@ -23,23 +24,15 @@ import {
 } from '@fluentui/react-components';
 import {
   OpenRegular,
-  DocumentRegular,
-  MoneyRegular,
   ArrowTrendingLinesRegular,
-  ShieldCheckmarkRegular,
-  GlobeRegular,
-  AppsRegular,
-  LockClosedRegular,
-  CheckmarkCircleRegular,
-  WrenchRegular,
   EditRegular,
   DeleteRegular,
   CursorClickRegular,
   MegaphoneRegular,
   DismissRegular
 } from '@fluentui/react-icons';
-import { CardEditDialog } from './CardEditDialog';
-import { FloatingTextToolbar } from './FloatingTextToolbar';
+import { CardEditDialog, renderFluentIconPreview } from './CardEditDialog';
+import { RichTextEditable } from './RichTextEditable';
 import { InsertionBar } from './InsertionBar';
 import { TermStorePicker } from './TermStorePicker';
 import { LiveDataRenderer } from './LiveDataRenderer';
@@ -228,40 +221,6 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 }) => {
   const styles = useStyles();
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
-  const [focusedField, setFocusedField] = React.useState<string | null>(null);
-
-  const renderFluent2Icon = (iconName?: string): React.ReactElement => {
-    switch (iconName) {
-      case 'Financial':
-      case 'Money':
-        return <MoneyRegular fontSize={20} />;
-      case 'ComplianceAudit':
-      case 'Shield':
-        return <ShieldCheckmarkRegular fontSize={20} />;
-      case 'CheckList':
-      case 'Checkmark':
-        return <CheckmarkCircleRegular fontSize={20} />;
-      case 'TimelineProgress':
-      case 'Timeline':
-        return <ArrowTrendingLinesRegular fontSize={20} />;
-      case 'Calculator':
-      case 'Wrench':
-        return <WrenchRegular fontSize={20} />;
-      case 'AppIconDefault':
-      case 'App':
-      case 'Apps':
-        return <AppsRegular fontSize={20} />;
-      case 'Lock':
-        return <LockClosedRegular fontSize={20} />;
-      case 'Globe':
-        return <GlobeRegular fontSize={20} />;
-      case 'BookAnswers':
-      case 'DocumentManagement':
-      case 'Document':
-      default:
-        return <DocumentRegular fontSize={20} />;
-    }
-  };
 
   const renderCardToolbar = (): React.ReactElement | null => {
     if (!isEditMode) return null;
@@ -354,40 +313,22 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 
         {item.type === 'text' && (
           <div>
-            {isEditMode && focusedField === item.id && (
-              <div style={{ marginBottom: '6px' }}>
-                <FloatingTextToolbar />
-              </div>
-            )}
-            {isEditMode && onUpdate ? (
-              <textarea
-                className={styles.inlineInput}
-                rows={2}
-                style={{
-                  color: tokens.colorNeutralForeground1,
-                  fontFamily: tokens.fontFamilyBase,
-                  fontSize: '0.95rem',
-                  resize: 'vertical'
-                }}
-                value={item.text || ''}
-                placeholder="Text section content"
-                onFocus={() => setFocusedField(item.id)}
-                onBlur={() => {
-                  setTimeout(() => setFocusedField(null), 250);
-                }}
-                onChange={(e) => {
-                  if (block.items && onUpdate) {
-                    const updatedItems = [...block.items];
-                    updatedItems[idx].text = e.target.value;
-                    onUpdate({ items: updatedItems });
-                  }
-                }}
-              />
-            ) : (
-              <Body1 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
-                {item.text || 'Text section content'}
-              </Body1>
-            )}
+            <RichTextEditable
+              html={item.text || ''}
+              isEditMode={isEditMode}
+              placeholder="Text section content"
+              onChange={(newHtml) => {
+                if (block.items && onUpdate) {
+                  const updatedItems = [...block.items];
+                  updatedItems[idx].text = newHtml;
+                  onUpdate({ items: updatedItems });
+                }
+              }}
+              style={{
+                color: tokens.colorNeutralForeground1,
+                fontSize: '0.95rem'
+              }}
+            />
           </div>
         )}
 
@@ -616,35 +557,20 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
       <div className={styles.cardWrapper} style={wrapperGridStyle}>
         <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
           {renderCardToolbar()}
-          {isEditMode && onUpdate ? (
-            <div>
-              {focusedField === 'metric-title' && (
-                <div style={{ marginBottom: '6px' }}>
-                  <FloatingTextToolbar />
-                </div>
-              )}
-              <input
-                className={styles.inlineInput}
-                style={{
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  color: tokens.colorNeutralForeground1,
-                  fontFamily: tokens.fontFamilyBase
-                }}
-                value={block.title || ''}
-                placeholder="Metric title"
-                onFocus={() => setFocusedField('metric-title')}
-                onBlur={() => {
-                  setTimeout(() => setFocusedField(null), 250);
-                }}
-                onChange={(e) => onUpdate({ title: e.target.value })}
-              />
-            </div>
-          ) : (
-            <Subtitle2 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
-              {block.title}
-            </Subtitle2>
-          )}
+          {/* Metric Title with Rich Text Editing */}
+          <RichTextEditable
+            tag="h3"
+            html={block.title || ''}
+            isEditMode={isEditMode}
+            placeholder="Metric title"
+            onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
+            style={{
+              fontWeight: 600,
+              fontSize: '1rem',
+              color: tokens.colorNeutralForeground1,
+              marginBottom: '4px'
+            }}
+          />
 
           {block.liveDataConfig ? (
             <div style={{ marginTop: '6px', marginBottom: '6px' }}>
@@ -682,36 +608,19 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             </div>
           )}
 
-          {isEditMode && onUpdate ? (
-            <div>
-              {focusedField === 'metric-desc' && (
-                <div style={{ marginBottom: '6px' }}>
-                  <FloatingTextToolbar />
-                </div>
-              )}
-              <input
-                className={styles.inlineInput}
-                style={{
-                  fontSize: '0.85rem',
-                  color: tokens.colorNeutralForeground3,
-                  fontFamily: tokens.fontFamilyBase
-                }}
-                value={block.description || ''}
-                placeholder="Metric summary"
-                onFocus={() => setFocusedField('metric-desc')}
-                onBlur={() => {
-                  setTimeout(() => setFocusedField(null), 250);
-                }}
-                onChange={(e) => onUpdate({ description: e.target.value })}
-              />
-            </div>
-          ) : (
-            block.description && (
-              <Caption1 style={{ color: tokens.colorNeutralForeground3, fontFamily: tokens.fontFamilyBase }}>
-                {block.description}
-              </Caption1>
-            )
-          )}
+          {/* Metric Description with Rich Text Editing */}
+          <RichTextEditable
+            tag="p"
+            html={block.description || ''}
+            isEditMode={isEditMode}
+            placeholder="Metric summary"
+            onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
+            style={{
+              fontSize: '0.85rem',
+              color: tokens.colorNeutralForeground3,
+              marginTop: '4px'
+            }}
+          />
 
           {/* Global Term Store Tags */}
           {block.termStoreTags && block.termStoreTags.length > 0 && (
@@ -746,58 +655,40 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           <CardHeader
             image={
               <div className={styles.iconBox}>
-                <AppsRegular fontSize={20} />
+                {renderFluentIconPreview(block.iconName || 'AppIconDefault')}
               </div>
             }
             header={
-              isEditMode && onUpdate ? (
-                <div>
-                  {focusedField === 'embed-title' && (
-                    <div style={{ marginBottom: '6px' }}>
-                      <FloatingTextToolbar />
-                    </div>
-                  )}
-                  <input
-                    className={styles.inlineInput}
-                    style={{
-                      fontWeight: 600,
-                      fontSize: '1.1rem',
-                      color: tokens.colorNeutralForeground1,
-                      fontFamily: tokens.fontFamilyBase
-                    }}
-                    value={block.title || ''}
-                    placeholder="Tool title"
-                    onFocus={() => setFocusedField('embed-title')}
-                    onBlur={() => {
-                      setTimeout(() => setFocusedField(null), 250);
-                    }}
-                    onChange={(e) => onUpdate({ title: e.target.value })}
-                  />
-                </div>
-              ) : (
-                <Title3 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
-                  {block.title}
-                </Title3>
-              )
+              <div style={{ width: '100%' }}>
+                <RichTextEditable
+                  tag="h3"
+                  html={block.title || ''}
+                  isEditMode={isEditMode}
+                  placeholder="Tool title"
+                  onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
+                  style={{
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    color: tokens.colorNeutralForeground1
+                  }}
+                />
+              </div>
             }
             description={
-              isEditMode && onUpdate ? (
-                <input
-                  className={styles.inlineInput}
+              <div style={{ width: '100%' }}>
+                <RichTextEditable
+                  tag="p"
+                  html={block.description || ''}
+                  isEditMode={isEditMode}
+                  placeholder="Tool summary"
+                  onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
                   style={{
                     fontSize: '0.85rem',
                     color: tokens.colorNeutralForeground3,
-                    fontFamily: tokens.fontFamilyBase
+                    marginTop: '2px'
                   }}
-                  value={block.description || ''}
-                  placeholder="Tool summary"
-                  onChange={(e) => onUpdate({ description: e.target.value })}
                 />
-              ) : (
-                <Caption1 style={{ color: tokens.colorNeutralForeground3, fontFamily: tokens.fontFamilyBase }}>
-                  {block.description}
-                </Caption1>
-              )
+              </div>
             }
           />
           {block.embedUrl && (
@@ -844,39 +735,24 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         <CardHeader
           image={
             <div className={styles.iconBox}>
-              {renderFluent2Icon(block.iconName)}
+              {renderFluentIconPreview(block.iconName)}
             </div>
           }
           header={
-            isEditMode && onUpdate ? (
-              <div style={{ width: '100%' }}>
-                {focusedField === 'card-title' && (
-                  <div style={{ marginBottom: '6px' }}>
-                    <FloatingTextToolbar />
-                  </div>
-                )}
-                <input
-                  className={styles.inlineInput}
-                  style={{
-                    fontWeight: 600,
-                    fontSize: '1.15rem',
-                    color: tokens.colorNeutralForeground1,
-                    fontFamily: tokens.fontFamilyBase
-                  }}
-                  value={block.title || ''}
-                  placeholder="Card title"
-                  onFocus={() => setFocusedField('card-title')}
-                  onBlur={() => {
-                    setTimeout(() => setFocusedField(null), 250);
-                  }}
-                  onChange={(e) => onUpdate({ title: e.target.value })}
-                />
-              </div>
-            ) : (
-              <Title3 style={{ color: tokens.colorNeutralForeground1, fontFamily: tokens.fontFamilyBase }}>
-                {block.title}
-              </Title3>
-            )
+            <div style={{ width: '100%' }}>
+              <RichTextEditable
+                tag="h3"
+                html={block.title || ''}
+                isEditMode={isEditMode}
+                placeholder="Card title"
+                onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
+                style={{
+                  fontWeight: 600,
+                  fontSize: '1.15rem',
+                  color: tokens.colorNeutralForeground1
+                }}
+              />
+            </div>
           }
           action={
             block.badge ? (
@@ -887,39 +763,21 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           }
         />
 
-        {/* Card Body Description */}
-        {isEditMode && onUpdate ? (
-          <div>
-            {focusedField === 'card-description' && (
-              <div style={{ marginBottom: '6px' }}>
-                <FloatingTextToolbar />
-              </div>
-            )}
-            <textarea
-              className={styles.inlineInput}
-              rows={2}
-              style={{
-                color: tokens.colorNeutralForeground2,
-                fontFamily: tokens.fontFamilyBase,
-                marginTop: tokens.spacingVerticalS,
-                resize: 'vertical'
-              }}
-              value={block.description || ''}
-              placeholder="Card summary"
-              onFocus={() => setFocusedField('card-description')}
-              onBlur={() => {
-                setTimeout(() => setFocusedField(null), 250);
-              }}
-              onChange={(e) => onUpdate({ description: e.target.value })}
-            />
-          </div>
-        ) : (
-          block.description && (
-            <Body1 style={{ color: tokens.colorNeutralForeground2, fontFamily: tokens.fontFamilyBase, marginTop: tokens.spacingVerticalS }}>
-              {block.description}
-            </Body1>
-          )
-        )}
+        {/* Card Body Description with Rich Text Formatting */}
+        <div style={{ padding: '0 16px', marginTop: '6px' }}>
+          <RichTextEditable
+            tag="p"
+            html={block.description || ''}
+            isEditMode={isEditMode}
+            placeholder="Card summary"
+            onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
+            style={{
+              color: tokens.colorNeutralForeground2,
+              fontSize: '0.95rem',
+              lineHeight: '1.4rem'
+            }}
+          />
+        </div>
 
         {/* Nested Composable Items & Insertion Bars */}
         {block.items && block.items.length > 0 && (
