@@ -100,43 +100,60 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     this.render();
   }
 
-  public render(): void {
-    const activeSections = this._getActiveSections();
-    const userDisplayName = this.context?.pageContext?.user?.displayName || 'User';
+  protected onInit(): Promise<void> {
+    console.log('[FullWidthContainerWebPart] Initializing Full-Width Container Web Part v1.0.0...');
+    return super.onInit();
+  }
 
-    const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
-      FullWidthContainer,
-      {
-        title: this.properties.title || 'Interactive Content Hub',
-        subtitle: this.properties.subtitle !== undefined
-          ? this.properties.subtitle
-          : 'Centralised operational methodologies, metrics, and resources',
-        layoutMode: this.properties.layoutMode || 'tabs',
-        containerStyle: this.properties.containerStyle || 'glassmorphism',
-        accentColor: this.properties.accentColor || '#0078d4',
-        enableAnimation: this.properties.enableAnimation !== false,
-        compactPadding: !!this.properties.compactPadding,
-        showSearch: this.properties.showSearch !== false,
-        sections: activeSections,
-        isDarkTheme: this._isDarkTheme,
-        userDisplayName: userDisplayName,
-        spfxTheme: this._currentTheme,
-        isEditMode: this.displayMode === DisplayMode.Edit,
-        onOpenPropertyPane: () => {
-          if (this.context && this.context.propertyPane) {
-            this.context.propertyPane.open();
+  public render(): void {
+    try {
+      const activeSections = this._getActiveSections();
+      const userDisplayName = this.context?.pageContext?.user?.displayName || 'User';
+
+      const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
+        FullWidthContainer,
+        {
+          title: this.properties.title || 'Interactive Content Hub',
+          subtitle: this.properties.subtitle !== undefined
+            ? this.properties.subtitle
+            : 'Centralised operational methodologies, metrics, and resources',
+          layoutMode: this.properties.layoutMode || 'tabs',
+          containerStyle: this.properties.containerStyle || 'glassmorphism',
+          accentColor: this.properties.accentColor || '#0078d4',
+          enableAnimation: this.properties.enableAnimation !== false,
+          compactPadding: !!this.properties.compactPadding,
+          showSearch: this.properties.showSearch !== false,
+          sections: activeSections,
+          isDarkTheme: this._isDarkTheme,
+          userDisplayName: userDisplayName,
+          spfxTheme: this._currentTheme,
+          isEditMode: this.displayMode === DisplayMode.Edit,
+          onOpenPropertyPane: () => {
+            if (this.context && this.context.propertyPane) {
+              this.context.propertyPane.open();
+            }
           }
         }
-      }
-    );
+      );
 
-    const rootElement = React.createElement(
-      ErrorBoundary,
-      { fallbackTitle: 'Full-Width Container' },
-      containerElement
-    );
+      const rootElement = React.createElement(
+        ErrorBoundary,
+        { fallbackTitle: 'Full-Width Container' },
+        containerElement
+      );
 
-    ReactDom.render(rootElement, this.domElement);
+      ReactDom.render(rootElement, this.domElement);
+    } catch (err) {
+      console.error('[FullWidthContainerWebPart] Critical Render Error:', err);
+      const errorDetails = err instanceof Error ? (err.stack || err.message) : JSON.stringify(err);
+      this.domElement.innerHTML = `
+        <div style="padding: 24px; color: #a80000; background: #fde7e9; border: 2px solid #d13438; border-radius: 8px; font-family: Segoe UI, sans-serif;">
+          <h3 style="margin-top:0; font-size: 18px;">⚠️ Web Part Render Error (Detailed Diagnostics)</h3>
+          <p style="font-size: 14px; margin-bottom: 12px;">An error occurred during web part execution:</p>
+          <pre style="white-space: pre-wrap; word-break: break-all; background: #ffffff; padding: 12px; border: 1px solid #d13438; border-radius: 4px; font-size: 12px; color: #333333;">${errorDetails}</pre>
+        </div>
+      `;
+    }
   }
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
