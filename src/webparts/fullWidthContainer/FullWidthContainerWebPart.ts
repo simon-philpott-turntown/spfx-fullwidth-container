@@ -63,6 +63,7 @@ export interface IFullWidthContainerWebPartProps {
   blockTitle: string;
   blockDescription: string;
   blockBadge: string;
+  blockIcon: string;
   blockMetricValue: string;
   blockMetricTrend: string;
   blockActionText: string;
@@ -107,7 +108,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   protected onInit(): Promise<void> {
-    console.log('[FullWidthContainerWebPart] Initializing Full-Width Container Web Part v1.0.0...');
+    console.log('[FullWidthContainerWebPart] Initialising full-width container web part v1.0.0...');
     return super.onInit();
   }
 
@@ -131,7 +132,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           title: props.title || 'Container title',
           subtitle: props.subtitle !== undefined
             ? props.subtitle
-            : 'Container subtitle / description',
+            : 'Container subtitle or description',
           layoutMode: props.layoutMode || 'tabs',
           containerStyle: props.containerStyle || 'standard',
           accentColor: props.accentColor || '#0078d4',
@@ -188,9 +189,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                 id: `blk-${Date.now()}`,
                 type: 'card',
                 title: 'Card title',
-                description: 'Card description summary',
+                description: 'Card summary',
                 badge: 'Badge',
-                linkText: 'Learn more',
+                iconName: 'BookAnswers',
+                linkText: 'Action link',
                 linkUrl: '#'
               });
               this._saveSections(sections);
@@ -204,13 +206,24 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             if (this.context && this.context.propertyPane) {
               this.context.propertyPane.open();
             }
+          },
+          onAddSection: () => {
+            this._handleAddSection();
+          },
+          onUpdateSection: (sectionId: string, updatedFields: Partial<IContainerSection>) => {
+            const sections = this._getActiveSections();
+            const sec = sections.find((s) => s.id === sectionId);
+            if (sec) {
+              Object.assign(sec, updatedFields);
+              this._saveSections(sections);
+            }
           }
         }
       );
 
       const rootElement = React.createElement(
         ErrorBoundary,
-        { fallbackTitle: 'Full-Width Container' },
+        { fallbackTitle: 'Full-width container' },
         containerElement
       );
 
@@ -220,7 +233,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       const errorDetails = err instanceof Error ? (err.stack || err.message) : JSON.stringify(err);
       this.domElement.innerHTML = `
         <div style="padding: 24px; color: #a80000; background: #fde7e9; border: 2px solid #d13438; border-radius: 8px; font-family: Segoe UI, sans-serif;">
-          <h3 style="margin-top:0; font-size: 18px;">⚠️ Web Part Render Error (Detailed Diagnostics)</h3>
+          <h3 style="margin-top:0; font-size: 18px;">⚠️ Web part render error (detailed diagnostics)</h3>
           <p style="font-size: 14px; margin-bottom: 12px;">An error occurred during web part execution:</p>
           <pre style="white-space: pre-wrap; word-break: break-all; background: #ffffff; padding: 12px; border: 1px solid #d13438; border-radius: 4px; font-size: 12px; color: #333333;">${errorDetails}</pre>
         </div>
@@ -319,6 +332,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'blockTitle') block.title = String(newValue || '');
         if (propertyPath === 'blockDescription') block.description = String(newValue || '');
         if (propertyPath === 'blockBadge') block.badge = String(newValue || '');
+        if (propertyPath === 'blockIcon') block.iconName = String(newValue || '');
         if (propertyPath === 'blockMetricValue') block.metricValue = String(newValue || '');
         if (propertyPath === 'blockMetricTrend') block.metricTrend = String(newValue || '');
         if (propertyPath === 'blockActionText') block.linkText = String(newValue || '');
@@ -336,7 +350,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     if (sec) {
       this.properties.sectionTitle = sec.title || '';
       this.properties.sectionBadge = sec.badge || '';
-      this.properties.sectionIcon = sec.iconName || 'Document';
+      this.properties.sectionIcon = sec.iconName || 'BookAnswers';
       this.properties.sectionDescription = sec.description || '';
     }
   }
@@ -349,6 +363,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.blockTitle = blk.title || '';
       this.properties.blockDescription = blk.description || '';
       this.properties.blockBadge = blk.badge || '';
+      this.properties.blockIcon = blk.iconName || 'BookAnswers';
       this.properties.blockMetricValue = blk.metricValue || '';
       this.properties.blockMetricTrend = blk.metricTrend || '';
       this.properties.blockActionText = blk.linkText || '';
@@ -358,25 +373,28 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
-   * Action handler: Adds a new Section.
+   * Action handler: Adds a new section.
    */
   private _handleAddSection(): void {
     const sections = this._getActiveSections();
+    const newIdx = sections.length + 1;
     const newSection: IContainerSection = {
       id: `sec-${Date.now()}`,
-      title: 'Section title',
-      iconName: 'Document',
+      title: `Section title ${newIdx}`,
+      iconName: 'BookAnswers',
       badge: 'Badge',
-      description: 'Section description summary',
+      description: `Section summary ${newIdx}`,
       blocks: [
         {
           id: `blk-${Date.now()}`,
           type: 'card',
           title: 'Card title',
-          description: 'Card description summary',
+          description: 'Card summary',
           badge: 'Badge',
-          linkText: 'Learn more',
-          linkUrl: '#'
+          iconName: 'BookAnswers',
+          linkText: 'Action link',
+          linkUrl: '#',
+          tags: ['Tag 1']
         }
       ]
     };
@@ -389,7 +407,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
-   * Action handler: Deletes the active Section.
+   * Action handler: Deletes the active section.
    */
   private _handleDeleteSection(): void {
     const sections = this._getActiveSections();
@@ -406,7 +424,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
-   * Action handler: Adds a new Card/Metric block to current section.
+   * Action handler: Adds a new card/metric block to current section.
    */
   private _handleAddBlock(): void {
     const sections = this._getActiveSections();
@@ -417,9 +435,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       id: `blk-${Date.now()}`,
       type: 'card',
       title: 'Card title',
-      description: 'Card description summary',
+      description: 'Card summary',
       badge: 'Badge',
-      linkText: 'Learn more',
+      iconName: 'BookAnswers',
+      linkText: 'Action link',
       linkUrl: '#',
       tags: ['Tag 1']
     };
@@ -433,7 +452,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
-   * Action handler: Deletes the active Card/Metric block.
+   * Action handler: Deletes the active card/metric block.
    */
   private _handleDeleteBlock(): void {
     const sections = this._getActiveSections();
@@ -468,92 +487,106 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       text: `${i + 1}. ${blk.title} [${blk.type}]`
     }));
 
+    const iconDropdownOptions: IPropertyPaneDropdownOption[] = [
+      { key: 'BookAnswers', text: 'Book or documentation' },
+      { key: 'Financial', text: 'Financial or pound (£)' },
+      { key: 'AppIconDefault', text: 'Apps or tool grid' },
+      { key: 'Shield', text: 'Shield or governance' },
+      { key: 'ComplianceAudit', text: 'Audit or checklist' },
+      { key: 'CheckList', text: 'Checklist or verified' },
+      { key: 'TimelineProgress', text: 'Timeline or trending metrics' },
+      { key: 'Calculator', text: 'Calculator or engineering' },
+      { key: 'Lock', text: 'Lock or security' },
+      { key: 'Globe', text: 'Globe or portal' },
+      { key: 'DocumentManagement', text: 'Document or report' }
+    ];
+
     return {
       pages: [
         // PAGE 1: Container & Layout Options
         {
           header: {
-            description: 'Page 1 of 3: Configure Container presentation, layout modes, and preset templates.'
+            description: 'Page 1 of 3: Configure container presentation, layout modes, and preset templates.'
           },
           groups: [
             {
-              groupName: 'Container Presentation',
+              groupName: 'Container presentation',
               groupFields: [
                 PropertyPaneTextField('title', {
-                  label: 'Container Title',
-                  value: this.properties.title || 'Content title'
+                  label: 'Container title',
+                  value: this.properties.title || 'Container title'
                 }),
                 PropertyPaneTextField('subtitle', {
-                  label: 'Subtitle / Guidance',
-                  value: this.properties.subtitle || 'Centralised operational methodologies, metrics, and resources'
+                  label: 'Subtitle or guidance',
+                  value: this.properties.subtitle || 'Container subtitle or description'
                 }),
                 PropertyPaneChoiceGroup('layoutMode', {
-                  label: 'Default Layout Mode',
+                  label: 'Default layout mode',
                   options: [
-                    { key: 'tabs', text: 'Tabbed View', iconProps: { officeFabricIconFontName: 'Tab' } },
-                    { key: 'accordion', text: 'Accordion View', iconProps: { officeFabricIconFontName: 'GroupList' } }
+                    { key: 'tabs', text: 'Tabbed view', iconProps: { officeFabricIconFontName: 'Tab' } },
+                    { key: 'accordion', text: 'Accordion view', iconProps: { officeFabricIconFontName: 'GroupList' } }
                   ]
                 }),
                 PropertyPaneDropdown('containerStyle', {
-                  label: 'Container Surface Style',
+                  label: 'Container surface style',
                   selectedKey: this.properties.containerStyle || 'standard',
                   options: [
-                    { key: 'standard', text: 'Standard Fluent 2 (Solid Layered Surface)' },
-                    { key: 'glassmorphism', text: 'Acrylic Glassmorphism (Frosted Translucent)' },
-                    { key: 'branded', text: 'Branded Tint (Inherited Site Palette)' },
-                    { key: 'minimal', text: 'Minimal (Clean Transparent)' }
+                    { key: 'standard', text: 'Standard Fluent 2 (solid layered surface)' },
+                    { key: 'glassmorphism', text: 'Acrylic glassmorphism (frosted translucent)' },
+                    { key: 'branded', text: 'Branded tint (inherited site palette)' },
+                    { key: 'minimal', text: 'Minimal (clean transparent)' }
                   ]
                 })
               ]
             },
             {
-              groupName: 'Controls & Interactivity',
+              groupName: 'Controls and interactivity',
               groupFields: [
                 PropertyPaneToggle('showSearch', {
-                  label: 'Enable Real-time Search / Filter',
+                  label: 'Enable real-time search and filter',
                   checked: this.properties.showSearch !== false
                 }),
                 PropertyPaneToggle('compactPadding', {
-                  label: 'Compact Vertical Padding',
+                  label: 'Compact vertical padding',
                   checked: !!this.properties.compactPadding
                 }),
                 PropertyPaneDropdown('gridColumns', {
-                  label: 'Grid Columns per Row',
+                  label: 'Grid columns per row',
                   selectedKey: this.properties.gridColumns || 0,
                   options: [
-                    { key: 0, text: 'Auto-Fit Responsive (Dynamic)' },
-                    { key: 1, text: '1 Column (Stacked Full-Width)' },
-                    { key: 2, text: '2 Columns (50% / 50%)' },
-                    { key: 3, text: '3 Columns (33% / 33% / 33%)' },
-                    { key: 4, text: '4 Columns (25% / 25% / 25% / 25%)' },
-                    { key: 5, text: '5 Columns' },
-                    { key: 6, text: '6 Columns' }
+                    { key: 0, text: 'Auto-fit responsive (dynamic)' },
+                    { key: 1, text: '1 column (stacked full-width)' },
+                    { key: 2, text: '2 columns (50% / 50%)' },
+                    { key: 3, text: '3 columns (33% / 33% / 33%)' },
+                    { key: 4, text: '4 columns (25% / 25% / 25% / 25%)' },
+                    { key: 5, text: '5 columns' },
+                    { key: 6, text: '6 columns' }
                   ]
                 }),
                 PropertyPaneDropdown('gridRows', {
-                  label: 'Grid Rows per Container',
+                  label: 'Grid rows per container',
                   selectedKey: this.properties.gridRows || 0,
                   options: [
-                    { key: 0, text: 'Auto / Dynamic (Unlimited)' },
-                    { key: 1, text: '1 Row (Single Row)' },
-                    { key: 2, text: '2 Rows' },
-                    { key: 3, text: '3 Rows' },
-                    { key: 4, text: '4 Rows' },
-                    { key: 5, text: '5 Rows' },
-                    { key: 6, text: '6 Rows' }
+                    { key: 0, text: 'Auto or dynamic (unlimited)' },
+                    { key: 1, text: '1 row (single row)' },
+                    { key: 2, text: '2 rows' },
+                    { key: 3, text: '3 rows' },
+                    { key: 4, text: '4 rows' },
+                    { key: 5, text: '5 rows' },
+                    { key: 6, text: '6 rows' }
                   ]
                 })
               ]
             },
             {
-              groupName: 'Preset Templates',
+              groupName: 'Preset templates',
               groupFields: [
                 PropertyPaneDropdown('presetTemplate', {
-                  label: 'Load Ready-to-Use Template',
+                  label: 'Load ready-to-use template',
                   options: [
-                    { key: 'commercial', text: 'Commercial & Financial Hub (GBP £)' },
-                    { key: 'governance', text: 'Assurance & Governance Portal' },
-                    { key: 'starter', text: 'Blank 2-Section Starter' }
+                    { key: 'commercial', text: 'Commercial and financial hub (GBP £)' },
+                    { key: 'governance', text: 'Assurance and governance portal' },
+                    { key: 'starter', text: 'Blank 2-section starter' }
                   ],
                   selectedKey: this.properties.presetTemplate || 'commercial'
                 })
@@ -569,10 +602,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           },
           groups: [
             {
-              groupName: 'Select Section to Edit',
+              groupName: 'Select section to edit',
               groupFields: [
                 PropertyPaneDropdown('activeSectionIndex', {
-                  label: 'Active Section',
+                  label: 'Active section',
                   options: sectionOptions,
                   selectedKey: activeSecIdx
                 }),
@@ -580,39 +613,32 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
-              groupName: 'Section Details & Metadata',
+              groupName: 'Section details and metadata',
               groupFields: [
                 PropertyPaneTextField('sectionTitle', {
-                  label: 'Section Title',
+                  label: 'Section title',
                   value: sections[activeSecIdx]?.title || ''
                 }),
                 PropertyPaneDropdown('sectionBadge', {
-                  label: 'Section Type / Badge',
+                  label: 'Section badge',
                   options: [
-                    { key: 'Core', text: 'Core (Standard)' },
-                    { key: 'Real-time', text: 'Real-time (Live Feed)' },
-                    { key: 'Interactive', text: 'Interactive (Tool / Portal)' },
-                    { key: 'Compliance', text: 'Compliance / Mandatory' },
-                    { key: 'Finance', text: 'Finance / Metrics (£)' },
-                    { key: 'Verified', text: 'Verified Standards' }
+                    { key: 'Badge', text: 'Badge' },
+                    { key: 'Core', text: 'Core' },
+                    { key: 'Real-time', text: 'Real-time' },
+                    { key: 'Interactive', text: 'Interactive' },
+                    { key: 'Compliance', text: 'Compliance' },
+                    { key: 'Finance', text: 'Finance' },
+                    { key: 'Verified', text: 'Verified' }
                   ],
-                  selectedKey: sections[activeSecIdx]?.badge || 'Core'
+                  selectedKey: sections[activeSecIdx]?.badge || 'Badge'
                 }),
                 PropertyPaneDropdown('sectionIcon', {
-                  label: 'Section Fluent 2 Icon',
-                  options: [
-                    { key: 'BookAnswers', text: 'Book / Playbook' },
-                    { key: 'Financial', text: 'Financial / Pound (£)' },
-                    { key: 'AppIconDefault', text: 'App / Live Portal' },
-                    { key: 'Shield', text: 'Shield / Security' },
-                    { key: 'ComplianceAudit', text: 'Audit / Checklist' },
-                    { key: 'DocumentManagement', text: 'Document Management' },
-                    { key: 'TimelineProgress', text: 'Timeline / Progress' }
-                  ],
+                  label: 'Section icon',
+                  options: iconDropdownOptions,
                   selectedKey: sections[activeSecIdx]?.iconName || 'BookAnswers'
                 }),
                 PropertyPaneTextField('sectionDescription', {
-                  label: 'Section Guidance / Subtitle',
+                  label: 'Section guidance or summary',
                   multiline: true,
                   rows: 2,
                   value: sections[activeSecIdx]?.description || ''
@@ -620,15 +646,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
-              groupName: 'Section Actions',
+              groupName: 'Section actions',
               groupFields: [
                 PropertyPaneButton('btnAddSection', {
-                  text: '+ Add New Section',
+                  text: '+ Add new section',
                   buttonType: PropertyPaneButtonType.Primary,
                   onClick: this._handleAddSection.bind(this)
                 }),
                 PropertyPaneButton('btnDeleteSection', {
-                  text: 'Delete Current Section',
+                  text: 'Delete current section',
                   buttonType: PropertyPaneButtonType.Normal,
                   disabled: sections.length <= 1,
                   onClick: this._handleDeleteSection.bind(this)
@@ -645,15 +671,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           },
           groups: [
             {
-              groupName: 'Target Section & Card Selection',
+              groupName: 'Target section and card selection',
               groupFields: [
                 PropertyPaneDropdown('activeBlockSectionIndex', {
-                  label: 'Target Section',
+                  label: 'Target section',
                   options: sectionOptions,
                   selectedKey: activeBlockSecIdx
                 }),
                 PropertyPaneDropdown('activeBlockIndex', {
-                  label: 'Select Card / Metric to Edit',
+                  label: 'Select card or metric to edit',
                   options: blockOptions.length > 0 ? blockOptions : [{ key: 0, text: '(No items in section)' }],
                   selectedKey: activeBlkIdx,
                   disabled: currentBlocks.length === 0
@@ -662,45 +688,50 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
-              groupName: 'Card / Metric Properties',
+              groupName: 'Card or metric properties',
               groupFields: [
                 PropertyPaneDropdown('blockType', {
-                  label: 'Item Type',
+                  label: 'Item type',
                   options: [
-                    { key: 'card', text: 'Standard Card with Link' },
-                    { key: 'metric', text: 'Financial Metric Stat (£)' },
-                    { key: 'embed', text: 'Embedded Tool / Portal' }
+                    { key: 'card', text: 'Standard content card' },
+                    { key: 'metric', text: 'British metric stat (£)' },
+                    { key: 'embed', text: 'Embedded tool or portal' }
                   ],
                   selectedKey: currentBlocks[activeBlkIdx]?.type || 'card'
                 }),
                 PropertyPaneTextField('blockTitle', {
-                  label: 'Item Title',
+                  label: 'Item title',
                   value: currentBlocks[activeBlkIdx]?.title || ''
                 }),
+                PropertyPaneDropdown('blockIcon', {
+                  label: 'Item icon',
+                  options: iconDropdownOptions,
+                  selectedKey: currentBlocks[activeBlkIdx]?.iconName || 'BookAnswers'
+                }),
                 PropertyPaneTextField('blockDescription', {
-                  label: 'Description / Summary',
+                  label: 'Card summary or description',
                   multiline: true,
                   rows: 2,
                   value: currentBlocks[activeBlkIdx]?.description || ''
                 }),
                 PropertyPaneTextField('blockBadge', {
-                  label: 'Badge Label (e.g. P1 Mandatory, Live, Compliance)',
+                  label: 'Badge label',
                   value: currentBlocks[activeBlkIdx]?.badge || ''
                 }),
                 PropertyPaneTextField('blockMetricValue', {
-                  label: 'Metric Value (For Metric Type, e.g. £1,420,000, 94.8%)',
+                  label: 'Metric value in GBP (£)',
                   value: currentBlocks[activeBlkIdx]?.metricValue || ''
                 }),
                 PropertyPaneTextField('blockMetricTrend', {
-                  label: 'Metric Trend (e.g. +18.4% ahead of target)',
+                  label: 'Metric trend (e.g. +10% vs target)',
                   value: currentBlocks[activeBlkIdx]?.metricTrend || ''
                 }),
                 PropertyPaneTextField('blockActionText', {
-                  label: 'Action Button Label (e.g. Open Playbook, Launch)',
+                  label: 'Action button label',
                   value: currentBlocks[activeBlkIdx]?.linkText || ''
                 }),
                 PropertyPaneTextField('blockActionUrl', {
-                  label: 'Action Destination URL (e.g. https://...)',
+                  label: 'Action destination URL',
                   value: currentBlocks[activeBlkIdx]?.linkUrl || ''
                 }),
                 PropertyPaneTextField('blockTags', {
@@ -710,15 +741,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
-              groupName: 'Card Actions',
+              groupName: 'Card actions',
               groupFields: [
                 PropertyPaneButton('btnAddBlock', {
-                  text: '+ Add Card to Section',
+                  text: '+ Add card to section',
                   buttonType: PropertyPaneButtonType.Primary,
                   onClick: this._handleAddBlock.bind(this)
                 }),
                 PropertyPaneButton('btnDeleteBlock', {
-                  text: 'Delete Selected Card',
+                  text: 'Delete selected card',
                   buttonType: PropertyPaneButtonType.Normal,
                   disabled: currentBlocks.length <= 1,
                   onClick: this._handleDeleteBlock.bind(this)

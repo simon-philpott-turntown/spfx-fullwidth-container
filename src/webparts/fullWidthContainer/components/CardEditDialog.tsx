@@ -82,15 +82,15 @@ export interface ICardEditDialogProps {
 }
 
 const AVAILABLE_ICONS = [
-  { key: 'BookAnswers', label: 'Book / Documentation', icon: <DocumentRegular /> },
-  { key: 'Financial', label: 'Financial / Money (£)', icon: <MoneyRegular /> },
-  { key: 'ComplianceAudit', label: 'Shield / Governance', icon: <ShieldCheckmarkRegular /> },
-  { key: 'CheckList', label: 'Checklist / Verified', icon: <CheckmarkCircleRegular /> },
-  { key: 'TimelineProgress', label: 'Trending Lines / Metrics', icon: <ArrowTrendingLinesRegular /> },
-  { key: 'Calculator', label: 'Wrench / Engineering', icon: <WrenchRegular /> },
-  { key: 'AppIconDefault', label: 'Apps / Tool Grid', icon: <AppsRegular /> },
-  { key: 'Lock', label: 'Lock / Security', icon: <LockClosedRegular /> },
-  { key: 'Globe', label: 'Globe / Portal', icon: <GlobeRegular /> }
+  { key: 'BookAnswers', label: 'Book or documentation', icon: <DocumentRegular /> },
+  { key: 'Financial', label: 'Financial or pound (£)', icon: <MoneyRegular /> },
+  { key: 'ComplianceAudit', label: 'Shield or governance', icon: <ShieldCheckmarkRegular /> },
+  { key: 'CheckList', label: 'Checklist or verified', icon: <CheckmarkCircleRegular /> },
+  { key: 'TimelineProgress', label: 'Trending lines or metrics', icon: <ArrowTrendingLinesRegular /> },
+  { key: 'Calculator', label: 'Wrench or engineering', icon: <WrenchRegular /> },
+  { key: 'AppIconDefault', label: 'Apps or tool grid', icon: <AppsRegular /> },
+  { key: 'Lock', label: 'Lock or security', icon: <LockClosedRegular /> },
+  { key: 'Globe', label: 'Globe or portal', icon: <GlobeRegular /> }
 ];
 
 export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
@@ -150,7 +150,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             />
           }
         >
-          Edit Card Properties
+          Edit card properties
         </DialogTitle>
 
         <DialogBody>
@@ -158,22 +158,22 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Block Type */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
-                <Label required weight="semibold">Card Type</Label>
+                <Label required weight="semibold">Card type</Label>
                 <Dropdown
                   value={
                     formData.type === 'metric'
-                      ? 'British Metric Stat (£)'
+                      ? 'British metric stat (£)'
                       : formData.type === 'embed'
-                      ? 'Embed / Tool'
-                      : 'Standard Content Card'
+                      ? 'Embed or tool'
+                      : 'Standard content card'
                   }
                   onOptionSelect={(e, data) => {
                     setFormData({ ...formData, type: data.optionValue as BlockType });
                   }}
                 >
-                  <Option value="card">Standard Content Card</Option>
-                  <Option value="metric">British Metric Stat (£)</Option>
-                  <Option value="embed">Embed / Tool</Option>
+                  <Option value="card">Standard content card</Option>
+                  <Option value="metric">British metric stat (£)</Option>
+                  <Option value="embed">Embed or tool</Option>
                 </Dropdown>
               </div>
 
@@ -182,7 +182,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <Label weight="semibold">Icon</Label>
                 <Dropdown
                   value={
-                    AVAILABLE_ICONS.find((i) => i.key === formData.iconName)?.label || 'Globe / Portal'
+                    AVAILABLE_ICONS.find((i) => i.key === formData.iconName)?.label || 'Globe or portal'
                   }
                   onOptionSelect={(e, data) => {
                     setFormData({ ...formData, iconName: data.optionValue });
@@ -209,11 +209,11 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 
             {/* Description */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Description / Body Text</Label>
+              <Label weight="semibold">Description or body text</Label>
               <Textarea
                 rows={3}
                 value={formData.description || ''}
-                placeholder="Card description summary"
+                placeholder="Card summary"
                 onChange={(e, data) => setFormData({ ...formData, description: data.value })}
               />
             </div>
@@ -222,15 +222,15 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {formData.type === 'metric' && (
               <div className={styles.twoColRow}>
                 <div className={styles.fieldRow}>
-                  <Label weight="semibold">Metric Value (GBP £)</Label>
+                  <Label weight="semibold">Metric value (GBP £)</Label>
                   <Input
                     value={formData.metricValue || ''}
-                    placeholder="£100,000"
+                    placeholder="£1,420,000"
                     onChange={(e, data) => setFormData({ ...formData, metricValue: data.value })}
                   />
                 </div>
                 <div className={styles.fieldRow}>
-                  <Label weight="semibold">Trend Badge</Label>
+                  <Label weight="semibold">Trend badge</Label>
                   <Input
                     value={formData.metricTrend || ''}
                     placeholder="+10%"
@@ -243,7 +243,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Embed URL (if type === 'embed') */}
             {formData.type === 'embed' && (
               <div className={styles.fieldRow}>
-                <Label weight="semibold">iFrame Embed URL</Label>
+                <Label weight="semibold">iFrame embed URL</Label>
                 <Input
                   value={formData.embedUrl || ''}
                   placeholder="https://..."
@@ -255,12 +255,12 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Card Layout & Grid Sizing (Dynamic based on container columns/rows) */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Column Span (Max {effectiveMaxCols})</Label>
+                <Label weight="semibold">Column span (Max {effectiveMaxCols})</Label>
                 <Dropdown
                   value={
                     formData.colSpan === 1
-                      ? '1 Column (Standard)'
-                      : `Span ${formData.colSpan || 1} Columns`
+                      ? '1 column (standard)'
+                      : `Span ${formData.colSpan || 1} columns`
                   }
                   onOptionSelect={(e, data) => {
                     setFormData({ ...formData, colSpan: Number(data.optionValue) || 1 });
@@ -268,19 +268,19 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 >
                   {colOptions.map((c) => (
                     <Option key={c} value={String(c)}>
-                      {c === 1 ? '1 Column (Standard)' : c === effectiveMaxCols ? `Span ${c} Columns (Full Width)` : `Span ${c} Columns`}
+                      {c === 1 ? '1 column (standard)' : c === effectiveMaxCols ? `Span ${c} columns (full width)` : `Span ${c} columns`}
                     </Option>
                   ))}
                 </Dropdown>
               </div>
 
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Row Span (Max {effectiveMaxRows})</Label>
+                <Label weight="semibold">Row span (Max {effectiveMaxRows})</Label>
                 <Dropdown
                   value={
                     formData.rowSpan === 1
-                      ? '1 Row (Standard)'
-                      : `Span ${formData.rowSpan || 1} Rows`
+                      ? '1 row (standard)'
+                      : `Span ${formData.rowSpan || 1} rows`
                   }
                   onOptionSelect={(e, data) => {
                     setFormData({ ...formData, rowSpan: Number(data.optionValue) || 1 });
@@ -288,7 +288,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 >
                   {rowOptions.map((r) => (
                     <Option key={r} value={String(r)}>
-                      {r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`}
+                      {r === 1 ? '1 row (standard)' : `Span ${r} rows`}
                     </Option>
                   ))}
                 </Dropdown>
@@ -297,7 +297,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 
             {/* Global Term Store Tags */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Global Term Store Tags</Label>
+              <Label weight="semibold">Global term store tags</Label>
               <TermStorePicker
                 selectedTags={formData.termStoreTags || []}
                 onChange={(tags) => setFormData({ ...formData, termStoreTags: tags })}
@@ -307,7 +307,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 
             {/* Live Data API Configuration */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Real-Time Live Data API (Optional)</Label>
+              <Label weight="semibold">Real-time live data API (optional)</Label>
               <div
                 style={{
                   padding: '10px',
@@ -321,7 +321,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               >
                 <Input
                   size="small"
-                  placeholder="API Endpoint URL (e.g. https://api... or demo-api/burnDown)"
+                  placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)"
                   value={formData.liveDataConfig?.apiUrl || ''}
                   onChange={(e, data) => {
                     setFormData({
@@ -338,7 +338,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <Input
                     size="small"
-                    placeholder="JSON Path (e.g. data.metric)"
+                    placeholder="JSON path (e.g. data.metric)"
                     value={formData.liveDataConfig?.jsonPath || ''}
                     onChange={(e, data) => {
                       if (formData.liveDataConfig) {
@@ -369,7 +369,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Badge & Tags */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Status / Category Badge</Label>
+                <Label weight="semibold">Status or category badge</Label>
                 <Input
                   value={formData.badge || ''}
                   placeholder="Badge"
@@ -377,7 +377,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 />
               </div>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Additional Tags (comma-separated)</Label>
+                <Label weight="semibold">Additional tags (comma-separated)</Label>
                 <Input
                   value={formData.tags ? formData.tags.join(', ') : ''}
                   placeholder="Tag 1, Tag 2"
@@ -392,10 +392,10 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Link & Action */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Button / Link Text</Label>
+                <Label weight="semibold">Button or link text</Label>
                 <Input
                   value={formData.linkText || ''}
-                  placeholder="Learn more"
+                  placeholder="Action link"
                   onChange={(e, data) => setFormData({ ...formData, linkText: data.value })}
                 />
               </div>
@@ -415,7 +415,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               Cancel
             </Button>
             <Button appearance="primary" icon={<SaveRegular />} onClick={handleSave}>
-              Save Card
+              Save card
             </Button>
           </DialogActions>
         </DialogBody>

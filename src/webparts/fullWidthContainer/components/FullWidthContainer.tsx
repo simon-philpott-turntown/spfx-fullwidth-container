@@ -190,7 +190,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onSubtitleChange,
     onUpdateSection,
     onAddSection,
-    onDeleteSection,
+    onDeleteSection: _onDeleteSection,
     onUpdateBlock,
     onAddBlock,
     onDeleteBlock,
@@ -237,7 +237,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
         {isEditMode && (
           <div className={styles.editBanner}>
             <div className={styles.editBannerLeft}>
-              <Badge appearance="filled" color="brand" size="small">SharePoint Authoring Mode</Badge>
+              <Badge appearance="filled" color="brand" size="small">SharePoint authoring mode</Badge>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
                 Full-width container active. Click on titles to edit or hover between items to add content.
               </Caption1>
@@ -249,7 +249,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                 onClick={onOpenPropertyPane}
                 style={{ border: `1px solid ${tokens.colorBrandStroke1}` }}
               >
-                Configure Web Part
+                Configure web part
               </Button>
             )}
           </div>
@@ -285,7 +285,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               <input
                 className={styles.inlineSubtitleInput}
                 value={subtitle || ''}
-                placeholder="Container subtitle / description"
+                placeholder="Container subtitle or description"
                 onFocus={() => setFocusedField('subtitle')}
                 onBlur={() => setTimeout(() => setFocusedField(null), 250)}
                 onChange={(e) => onSubtitleChange(e.target.value)}

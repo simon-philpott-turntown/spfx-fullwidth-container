@@ -577,8 +577,8 @@
     <div style="display: flex; align-items: center; gap: 0.75rem;">
       <i class="fa-solid fa-shapes" style="font-size: 1.4rem; color: var(--fui-colorBrandBackground);"></i>
       <div>
-        <div style="font-size: 0.95rem; font-weight: 600;">SharePoint Online — Commercial Advisory Hub</div>
-        <div style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground3);">Full-Width Section Container • Microsoft Fluent UI 2</div>
+        <div style="font-size: 0.95rem; font-weight: 600;">SharePoint Online — Full-width container hub</div>
+        <div style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground3);">Full-width section container • Microsoft Fluent UI 2</div>
       </div>
     </div>
 
@@ -587,7 +587,7 @@
         <i class="fa-solid fa-circle-half-stroke"></i> Theme
       </button>
       <button class="sp-btn" id="btn-edit-toggle" onclick="toggleEditMode()">
-        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-mode-label">Edit Page</span>
+        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-mode-label">Edit page</span>
       </button>
     </div>
   </div>
@@ -602,8 +602,8 @@
     <div class="sp-property-pane" id="property-pane">
       <div class="pane-header">
         <div>
-          <div class="pane-title">Container Properties</div>
-          <div class="pane-desc">Full-Width Section Configuration</div>
+          <div class="pane-title">Container properties</div>
+          <div class="pane-desc">Full-width section configuration</div>
         </div>
         <button class="fui-btn-subtle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -618,60 +618,60 @@
       <!-- Page 1: Layout -->
       <div class="pane-body" id="pane-page-1">
         <div class="form-group">
-          <label class="form-label">Container Title</label>
+          <label class="form-label">Container title</label>
           <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Container title" placeholder="Container title" />
         </div>
         <div class="form-group">
-          <label class="form-label">Subtitle / Description</label>
-          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)" placeholder="Container subtitle / description">Container subtitle / description</textarea>
+          <label class="form-label">Subtitle or description</label>
+          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)" placeholder="Container subtitle or description">Container subtitle or description</textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">Default Layout Mode</label>
+          <label class="form-label">Default layout mode</label>
           <select class="form-select" id="sel-layout" onchange="updateLayoutMode(this.value)">
-            <option value="tabs">Tabbed View (Pill & Indicator)</option>
-            <option value="accordion">Accordion View (Collapsible Panels)</option>
+            <option value="tabs">Tabbed view (pill and indicator)</option>
+            <option value="accordion">Accordion view (collapsible panels)</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Container Surface Style</label>
+          <label class="form-label">Container surface style</label>
           <select class="form-select" id="sel-container-style" onchange="updateContainerStyle(this.value)">
-            <option value="standard">Standard Fluent 2 (Solid Layered Surface)</option>
-            <option value="glassmorphism">Acrylic Glassmorphism (Frosted Translucent)</option>
-            <option value="branded">Branded Tint (Inherited Site Palette)</option>
-            <option value="minimal">Minimal (Clean Transparent)</option>
-            <option value="gradient">Gradient Ambient</option>
+            <option value="standard">Standard Fluent 2 (solid layered surface)</option>
+            <option value="glassmorphism">Acrylic glassmorphism (frosted translucent)</option>
+            <option value="branded">Branded tint (inherited site palette)</option>
+            <option value="minimal">Minimal (clean transparent)</option>
+            <option value="gradient">Gradient ambient</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Grid Columns per Row</label>
+          <label class="form-label">Grid columns per row</label>
           <select class="form-select" id="sel-grid-cols" onchange="updateGridCols(this.value)">
-            <option value="0">Auto-Fit Responsive (Dynamic)</option>
-            <option value="1">1 Column (Stacked Full-Width)</option>
-            <option value="2">2 Columns (50% / 50%)</option>
-            <option value="3">3 Columns (33% / 33% / 33%)</option>
-            <option value="4">4 Columns (25% / 25% / 25% / 25%)</option>
-            <option value="5">5 Columns</option>
-            <option value="6">6 Columns</option>
+            <option value="0">Auto-fit responsive (dynamic)</option>
+            <option value="1">1 column (stacked full-width)</option>
+            <option value="2">2 columns (50% / 50%)</option>
+            <option value="3">3 columns (33% / 33% / 33%)</option>
+            <option value="4">4 columns (25% / 25% / 25% / 25%)</option>
+            <option value="5">5 columns</option>
+            <option value="6">6 columns</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Grid Rows per Container</label>
+          <label class="form-label">Grid rows per container</label>
           <select class="form-select" id="sel-grid-rows" onchange="updateGridRows(this.value)">
-            <option value="0">Auto / Dynamic (Unlimited)</option>
-            <option value="1">1 Row (Single Row)</option>
-            <option value="2">2 Rows</option>
-            <option value="3">3 Rows</option>
-            <option value="4">4 Rows</option>
-            <option value="5">5 Rows</option>
-            <option value="6">6 Rows</option>
+            <option value="0">Auto or dynamic (unlimited)</option>
+            <option value="1">1 row (single row)</option>
+            <option value="2">2 rows</option>
+            <option value="3">3 rows</option>
+            <option value="4">4 rows</option>
+            <option value="5">5 rows</option>
+            <option value="6">6 rows</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Quick Preset Template</label>
+          <label class="form-label">Quick preset template</label>
           <select class="form-select" id="sel-preset" onchange="loadPreset(this.value)">
-            <option value="commercial">Commercial & Financial Hub (GBP £)</option>
-            <option value="governance">Assurance & Governance Portal</option>
-            <option value="starter">Blank 2-Section Starter</option>
+            <option value="commercial">Commercial and financial hub (GBP £)</option>
+            <option value="governance">Assurance and governance portal</option>
+            <option value="starter">Blank 2-section starter</option>
           </select>
         </div>
       </div>
@@ -679,30 +679,45 @@
       <!-- Page 2: Sections & Badges -->
       <div class="pane-body" id="pane-page-2" style="display: none;">
         <div class="form-group">
-          <label class="form-label">Select Section to Edit</label>
+          <label class="form-label">Select section to edit</label>
           <select class="form-select" id="sel-section" onchange="selectSection(this.value)"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Section Title</label>
-          <input type="text" class="form-input" id="inp-sec-title" oninput="updateSecTitle(this.value)" />
+          <label class="form-label">Section title</label>
+          <input type="text" class="form-input" id="inp-sec-title" oninput="updateSecTitle(this.value)" placeholder="Section title" />
         </div>
         <div class="form-group">
-          <label class="form-label">Section Type / Badge</label>
-          <select class="form-select" id="sel-sec-badge" onchange="updateSecBadge(this.value)">
-            <option value="Core">Core (Standard)</option>
-            <option value="Real-time">Real-time (Live Feed)</option>
-            <option value="Interactive">Interactive (Tool / Portal)</option>
-            <option value="Compliance">Compliance / Mandatory</option>
-            <option value="Finance">Finance / Metrics (£)</option>
-            <option value="Verified">Verified Standards</option>
+          <label class="form-label">Section icon</label>
+          <select class="form-select" id="sel-sec-icon" onchange="updateSecIcon(this.value)">
+            <option value="fa-book-open">Book or documentation</option>
+            <option value="fa-sterling-sign">Financial or pound (£)</option>
+            <option value="fa-shapes">Apps or tool grid</option>
+            <option value="fa-shield-halved">Shield or governance</option>
+            <option value="fa-circle-check">Checklist or verified</option>
+            <option value="fa-chart-line">Timeline or trending metrics</option>
+            <option value="fa-wrench">Calculator or engineering</option>
+            <option value="fa-lock">Lock or security</option>
+            <option value="fa-globe">Globe or portal</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Section Guidance / Subtitle</label>
-          <textarea class="form-textarea" id="inp-sec-desc" rows="2" oninput="updateSecDesc(this.value)"></textarea>
+          <label class="form-label">Section badge</label>
+          <select class="form-select" id="sel-sec-badge" onchange="updateSecBadge(this.value)">
+            <option value="Badge">Badge</option>
+            <option value="Core">Core</option>
+            <option value="Real-time">Real-time</option>
+            <option value="Interactive">Interactive</option>
+            <option value="Compliance">Compliance</option>
+            <option value="Finance">Finance</option>
+            <option value="Verified">Verified</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section guidance or summary</label>
+          <textarea class="form-textarea" id="inp-sec-desc" rows="2" oninput="updateSecDesc(this.value)" placeholder="Section summary"></textarea>
         </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-          <button class="sp-btn" style="flex: 1;" onclick="addSection()">+ Add Section</button>
+          <button class="sp-btn" style="flex: 1;" onclick="addSection()">+ Add section</button>
           <button class="sp-btn sp-btn-secondary" onclick="deleteSection()">Delete</button>
         </div>
       </div>
@@ -710,57 +725,71 @@
       <!-- Page 3: Cards & Financial Metrics -->
       <div class="pane-body" id="pane-page-3" style="display: none;">
         <div class="form-group">
-          <label class="form-label">Target Section</label>
+          <label class="form-label">Target section</label>
           <select class="form-select" id="sel-card-sec" onchange="selectCardSection(this.value)"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Select Item to Edit</label>
+          <label class="form-label">Select item to edit</label>
           <select class="form-select" id="sel-card-idx" onchange="selectCard(this.value)"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Item Type</label>
+          <label class="form-label">Item type</label>
           <select class="form-select" id="sel-card-type" onchange="updateCardType(this.value)">
-            <option value="card">Standard Card with Action Link</option>
-            <option value="metric">Financial Metric Stat (£)</option>
-            <option value="embed">Embedded Tool / Portal</option>
+            <option value="card">Standard content card</option>
+            <option value="metric">British metric stat (£)</option>
+            <option value="embed">Embedded tool or portal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Item icon</label>
+          <select class="form-select" id="sel-card-icon" onchange="updateCardIcon(this.value)">
+            <option value="fa-file-lines">Book or documentation</option>
+            <option value="fa-sterling-sign">Financial or pound (£)</option>
+            <option value="fa-shapes">Apps or tool grid</option>
+            <option value="fa-shield-halved">Shield or governance</option>
+            <option value="fa-circle-check">Checklist or verified</option>
+            <option value="fa-chart-line">Timeline or trending metrics</option>
+            <option value="fa-wrench">Calculator or engineering</option>
+            <option value="fa-lock">Lock or security</option>
+            <option value="fa-globe">Globe or portal</option>
           </select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
           <div class="form-group">
-            <label class="form-label" id="lbl-card-colspan">Column Span</label>
+            <label class="form-label" id="lbl-card-colspan">Column span</label>
             <select class="form-select" id="sel-card-colspan" onchange="updateCardColSpan(this.value)"></select>
           </div>
           <div class="form-group">
-            <label class="form-label" id="lbl-card-rowspan">Row Span</label>
+            <label class="form-label" id="lbl-card-rowspan">Row span</label>
             <select class="form-select" id="sel-card-rowspan" onchange="updateCardRowSpan(this.value)"></select>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Item Title</label>
-          <input type="text" class="form-input" id="inp-card-title" oninput="updateCardTitle(this.value)" />
+          <label class="form-label">Item title</label>
+          <input type="text" class="form-input" id="inp-card-title" oninput="updateCardTitle(this.value)" placeholder="Card title" />
         </div>
         <div class="form-group" id="grp-card-metric" style="display: none;">
-          <label class="form-label">Metric Value in GBP (£)</label>
+          <label class="form-label">Metric value in GBP (£)</label>
           <input type="text" class="form-input" id="inp-card-metric-val" placeholder="e.g. £1,420,000" oninput="updateCardMetricVal(this.value)" />
         </div>
         <div class="form-group" id="grp-card-trend" style="display: none;">
-          <label class="form-label">Metric Trend</label>
-          <input type="text" class="form-input" id="inp-card-metric-trend" placeholder="e.g. +18.4% ahead of target" oninput="updateCardMetricTrend(this.value)" />
+          <label class="form-label">Metric trend</label>
+          <input type="text" class="form-input" id="inp-card-metric-trend" placeholder="e.g. +10% vs baseline" oninput="updateCardMetricTrend(this.value)" />
         </div>
         <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)"></textarea>
+          <label class="form-label">Card summary or description</label>
+          <textarea class="form-textarea" id="inp-card-desc" rows="2" oninput="updateCardDesc(this.value)" placeholder="Card summary"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">Global Term Store Tags</label>
-          <input type="text" class="form-input" id="inp-card-term-tags" placeholder="e.g. Commercial, Advisory, P0" oninput="updateCardTermTags(this.value)" />
+          <label class="form-label">Global term store tags</label>
+          <input type="text" class="form-input" id="inp-card-term-tags" placeholder="Tag 1, Tag 2" oninput="updateCardTermTags(this.value)" />
         </div>
         <div class="form-group">
-          <label class="form-label">Badge Label</label>
-          <input type="text" class="form-input" id="inp-card-badge" placeholder="e.g. P1 Mandatory, Live" oninput="updateCardBadge(this.value)" />
+          <label class="form-label">Badge label</label>
+          <input type="text" class="form-input" id="inp-card-badge" placeholder="Badge" oninput="updateCardBadge(this.value)" />
         </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-          <button class="sp-btn" style="flex: 1;" onclick="addCard()">+ Add Card</button>
+          <button class="sp-btn" style="flex: 1;" onclick="addCard()">+ Add card</button>
           <button class="sp-btn sp-btn-secondary" onclick="deleteCard()">Delete</button>
         </div>
       </div>
@@ -772,108 +801,108 @@
     let isSidebarOpen = true;
     let currentSections = [
       {
-        id: 'sec-playbooks',
-        title: 'Playbooks & Guidance',
+        id: 'sec-1',
+        title: 'Section title 1',
         iconName: 'fa-book-open',
-        badge: 'Core',
-        description: 'Centralised operational methodologies, service line playbooks, and best practice frameworks.',
+        badge: 'Badge',
+        description: 'Section summary 1',
         blocks: [
           {
             id: 'blk-1',
             type: 'card',
-            title: 'Commercial Advisory Playbook',
-            description: 'Standardized delivery lifecycle, contract governance, and commercial risk matrices.',
-            badge: 'P1 Mandatory',
+            title: 'Card title 1',
+            description: 'Card summary 1',
+            badge: 'Badge',
             iconName: 'fa-file-lines',
-            tags: ['Commercial', 'Advisory', 'P0'],
-            actionText: 'Open Playbook',
+            tags: ['Tag 1', 'Tag 2'],
+            actionText: 'Action link',
             actionUrl: '#'
           },
           {
             id: 'blk-2',
             type: 'metric',
-            title: 'Q1 Programme Expenditure',
-            description: 'Total approved commercial capital burn-down in current quarter in GBP.',
+            title: 'Metric title 1',
+            description: 'Metric summary 1',
             metricValue: '£1,420,000',
             metricTrend: '+6.2% vs baseline',
-            tags: ['Budget', 'GBP', 'Finance']
+            tags: ['Tag 3', 'Tag 4']
           },
           {
             id: 'blk-3',
             type: 'card',
-            title: 'Project Assurance Checklist',
-            description: 'Mandatory gateway reviews, milestone verification, and stakeholder sign-off criteria.',
-            badge: 'Compliance',
+            title: 'Card title 2',
+            description: 'Card summary 2',
+            badge: 'Badge',
             iconName: 'fa-circle-check',
-            tags: ['Assurance', 'Quality'],
-            actionText: 'View Checklist',
+            tags: ['Tag 5'],
+            actionText: 'Action link',
             actionUrl: '#'
           }
         ]
       },
       {
-        id: 'sec-metrics',
-        title: 'Programme Metrics (£)',
+        id: 'sec-2',
+        title: 'Section title 2',
         iconName: 'fa-chart-simple',
         badge: 'Real-time',
-        description: 'Executive overview of programme financials, budget burn-down, and delivery milestones in GBP (£).',
+        description: 'Section summary 2',
         blocks: [
           {
             id: 'blk-m1',
             type: 'metric',
-            title: 'Total Portfolio Budget',
+            title: 'Metric title 1',
             metricValue: '£42,850,000',
             metricTrend: '+3.2% vs Q2 forecast',
-            description: 'Approved capital allocation across active commissions in GBP',
-            tags: ['Portfolio', 'GBP', 'Capital']
+            description: 'Metric summary 1',
+            tags: ['Tag 1', 'Tag 2']
           },
           {
             id: 'blk-m2',
             type: 'metric',
-            title: 'Efficiency Savings Realised',
+            title: 'Metric title 2',
             metricValue: '£3,420,000',
             metricTrend: '+18.4% ahead of target',
-            description: 'Value engineering and procurement optimization savings',
-            tags: ['Savings', 'GBP', 'Efficiency']
+            description: 'Metric summary 2',
+            tags: ['Tag 3', 'Tag 4']
           },
           {
             id: 'blk-m3',
             type: 'metric',
-            title: 'Commissions on Schedule',
+            title: 'Metric title 3',
             metricValue: '94.8%',
             metricTrend: '+1.5% from last period',
-            description: 'Critical path milestone tracking across 48 projects',
-            tags: ['SLA', 'Milestone']
+            description: 'Metric summary 3',
+            tags: ['Tag 5']
           }
         ]
       },
       {
-        id: 'sec-embeds',
-        title: 'Live Tools & Portals',
+        id: 'sec-3',
+        title: 'Section title 3',
         iconName: 'fa-window-restore',
         badge: 'Interactive',
-        description: 'Integrated live data feeds, external calculators, and interactive dashboards.',
+        description: 'Section summary 3',
         blocks: [
           {
             id: 'blk-e1',
             type: 'card',
-            title: 'Cost Estimation Calculator',
-            description: 'Real-time NRM1/NRM2 benchmarking model with automated inflation indices.',
-            badge: 'Tool',
-            iconName: 'fa-calculator',
-            tags: ['Cost', 'NRM', 'Live'],
-            actionText: 'Open Calculator',
+            title: 'Card title 1',
+            description: 'Card summary 1',
+            badge: 'Badge',
+            iconName: 'fa-wrench',
+            tags: ['Tag 1', 'Tag 2'],
+            actionText: 'Action link',
             actionUrl: '#'
           },
           {
             id: 'blk-e2',
             type: 'card',
-            title: 'Power BI Performance Feed',
-            description: 'Interactive analytics dashboard embedded directly within the container.',
-            badge: 'Power BI',
-            iconName: 'fa-chart-pie',
-            tags: ['Reporting', 'Power BI'],
-            actionText: 'Launch Dashboard',
+            title: 'Card title 2',
+            description: 'Card summary 2',
+            badge: 'Badge',
+            iconName: 'fa-globe',
+            tags: ['Tag 3', 'Tag 4'],
+            actionText: 'Action link',
             actionUrl: '#'
           }
         ]
@@ -882,12 +911,12 @@
 
     let state = {
       title: 'Container title',
-      subtitle: 'Container subtitle / description',
+      subtitle: 'Container subtitle or description',
       layoutMode: 'tabs',
       containerStyle: 'standard',
       gridCols: 0,
       gridRows: 0,
-      activeTabId: 'sec-playbooks',
+      activeTabId: 'sec-1',
       searchQuery: '',
       activeSecIdx: 0,
       activeCardSecIdx: 0,
@@ -942,7 +971,8 @@
       const curSec = currentSections[state.activeSecIdx] || currentSections[0];
       if (curSec) {
         document.getElementById('inp-sec-title').value = curSec.title || '';
-        document.getElementById('sel-sec-badge').value = curSec.badge || 'Core';
+        document.getElementById('sel-sec-icon').value = curSec.iconName || 'fa-book-open';
+        document.getElementById('sel-sec-badge').value = curSec.badge || 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
       }
 
@@ -982,7 +1012,7 @@
               for (let c = 1; c <= effectiveMaxCols; c++) {
                 const opt = document.createElement('option');
                 opt.value = c;
-                opt.textContent = c === 1 ? '1 Col (Standard)' : (c === effectiveMaxCols ? `Span ${c} Cols (Full)` : `Span ${c} Cols`);
+                opt.textContent = c === 1 ? '1 col (standard)' : (c === effectiveMaxCols ? `Span ${c} cols (full)` : `Span ${c} cols`);
                 selColSpan.appendChild(opt);
               }
               const clampedCol = Math.min(curCard.colSpan || 1, effectiveMaxCols);
@@ -990,7 +1020,7 @@
               selColSpan.value = clampedCol;
             }
             if (lblColSpan) {
-              lblColSpan.textContent = `Column Span (Max ${effectiveMaxCols})`;
+              lblColSpan.textContent = `Column span (max ${effectiveMaxCols})`;
             }
 
             // Dynamic Row Span Options based on Container Grid Rows
@@ -1001,7 +1031,7 @@
               for (let r = 1; r <= effectiveMaxRows; r++) {
                 const opt = document.createElement('option');
                 opt.value = r;
-                opt.textContent = r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`;
+                opt.textContent = r === 1 ? '1 row (standard)' : `Span ${r} rows`;
                 selRowSpan.appendChild(opt);
               }
               const clampedRow = Math.min(curCard.rowSpan || 1, effectiveMaxRows);
@@ -1009,11 +1039,12 @@
               selRowSpan.value = clampedRow;
             }
             if (lblRowSpan) {
-              lblRowSpan.textContent = `Row Span (Max ${effectiveMaxRows})`;
+              lblRowSpan.textContent = `Row span (max ${effectiveMaxRows})`;
             }
 
             const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
             setVal('sel-card-type', curCard.type || 'card');
+            setVal('sel-card-icon', curCard.iconName || 'fa-file-lines');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
@@ -1033,25 +1064,37 @@
 
     function selectSection(idx) { state.activeSecIdx = Number(idx); syncSidebar(); }
     function updateSecTitle(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].title = val; render(); }
+    function updateSecIcon(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].iconName = val; render(); }
     function updateSecBadge(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].badge = val; render(); }
     function updateSecDesc(val) { if (currentSections[state.activeSecIdx]) currentSections[state.activeSecIdx].description = val; render(); }
 
+    function updateCardIcon(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].iconName = val;
+        render();
+      }
+    }
+
     function addSection() {
+      const newSecIdx = currentSections.length + 1;
       const newSec = {
         id: 'sec-' + Date.now(),
-        title: 'Section title',
-        iconName: 'fa-folder',
+        title: `Section title ${newSecIdx}`,
+        iconName: 'fa-book-open',
         badge: 'Badge',
-        description: 'Section description summary',
+        description: `Section summary ${newSecIdx}`,
         blocks: [
           {
             id: 'blk-' + Date.now(),
             type: 'card',
             title: 'Card title',
-            description: 'Card description summary',
+            description: 'Card summary',
             badge: 'Badge',
-            actionText: 'Learn more',
-            actionUrl: '#'
+            iconName: 'fa-file-lines',
+            actionText: 'Action link',
+            actionUrl: '#',
+            tags: ['Tag 1']
           }
         ]
       };

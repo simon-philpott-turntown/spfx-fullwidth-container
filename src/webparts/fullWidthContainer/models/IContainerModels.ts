@@ -114,168 +114,137 @@ export interface IContainerSection {
 }
 
 /**
- * Default sample sections demonstrating Playbooks, Assurance, Metrics (£), and Embedded Tools.
+ * Default sample sections demonstrating descriptive placeholders, British metrics (£), and sentence case syntax.
  */
 export const DEFAULT_CONTAINER_SECTIONS: IContainerSection[] = [
   {
-    id: 'sec-playbooks',
-    title: 'Playbooks & Guidance',
+    id: 'sec-1',
+    title: 'Section title 1',
     iconName: 'BookAnswers',
-    badge: '4 Guides',
-    description: 'Centralised operational methodologies, service line playbooks, and best practice frameworks.',
+    badge: 'Badge',
+    description: 'Section summary 1',
     blocks: [
       {
         id: 'blk-1',
         type: 'card',
-        title: 'Commercial Advisory Playbook',
-        description: 'Standardized delivery lifecycle, contract governance, and commercial risk matrices.',
-        badge: 'Core Framework',
-        iconName: 'DocumentManagement',
+        title: 'Card title 1',
+        description: 'Card summary 1',
+        badge: 'Badge',
+        iconName: 'BookAnswers',
         linkUrl: '#',
-        linkText: 'Open Playbook',
-        tags: ['Commercial', 'Advisory', 'P0']
+        linkText: 'Action link',
+        tags: ['Tag 1', 'Tag 2']
       },
       {
         id: 'blk-2',
         type: 'card',
-        title: 'Project Assurance Checklist',
-        description: 'Mandatory gateway reviews, milestone verification, and stakeholder sign-off criteria.',
-        badge: 'Compliance',
+        title: 'Card title 2',
+        description: 'Card summary 2',
+        badge: 'Badge',
         iconName: 'CheckList',
         linkUrl: '#',
-        linkText: 'View Checklist',
-        tags: ['Assurance', 'Quality']
+        linkText: 'Action link',
+        tags: ['Tag 3', 'Tag 4']
       },
       {
         id: 'blk-3',
         type: 'card',
-        title: 'Digital Engineering Standards',
-        description: 'BIM protocols, ISO 19650 workflows, and common data environment structuring.',
-        badge: 'Technical',
-        iconName: 'EngineeringGroup',
+        title: 'Card title 3',
+        description: 'Card summary 3',
+        badge: 'Badge',
+        iconName: 'Calculator',
         linkUrl: '#',
-        linkText: 'Read Standards',
-        tags: ['BIM', 'ISO19650']
+        linkText: 'Action link',
+        tags: ['Tag 5']
       },
       {
         id: 'blk-4',
         type: 'card',
-        title: 'Health & Safety Governance',
-        description: 'Zero-harm policy compliance, incident reporting, and on-site audit guidance.',
-        badge: 'Mandatory',
-        iconName: 'Shield',
+        title: 'Card title 4',
+        description: 'Card summary 4',
+        badge: 'Badge',
+        iconName: 'ComplianceAudit',
         linkUrl: '#',
-        linkText: 'Review Policy',
-        tags: ['Safety', 'HSE']
+        linkText: 'Action link',
+        tags: ['Tag 6']
       }
     ]
   },
   {
-    id: 'sec-metrics',
-    title: 'Programme Metrics (£)',
+    id: 'sec-2',
+    title: 'Section title 2',
     iconName: 'Financial',
     badge: 'Real-time',
-    description: 'Executive overview of programme financials, budget burn-down, and delivery milestones.',
+    description: 'Section summary 2',
     blocks: [
       {
         id: 'blk-m1',
         type: 'metric',
-        title: 'Total Portfolio Budget',
-        metricValue: '£42,850,000',
-        metricTrend: '+3.2% vs Q2 forecast',
+        title: 'Metric title 1',
+        metricValue: '£1,420,000',
+        metricTrend: '+6.2% vs baseline',
         metricTrendPositive: true,
-        description: 'Approved capital allocation across active commissions',
-        iconName: 'Money'
+        description: 'Metric summary 1',
+        iconName: 'Financial'
       },
       {
         id: 'blk-m2',
         type: 'metric',
-        title: 'Efficiency Savings Realised',
+        title: 'Metric title 2',
         metricValue: '£3,420,000',
         metricTrend: '+18.4% ahead of target',
         metricTrendPositive: true,
-        description: 'Value engineering and procurement optimization savings',
-        iconName: 'Savings'
+        description: 'Metric summary 2',
+        iconName: 'Financial'
       },
       {
         id: 'blk-m3',
         type: 'metric',
-        title: 'Commissions on Schedule',
+        title: 'Metric title 3',
         metricValue: '94.8%',
         metricTrend: '+1.5% from last period',
         metricTrendPositive: true,
-        description: 'Critical path milestone tracking across 48 projects',
+        description: 'Metric summary 3',
         iconName: 'TimelineProgress'
       },
       {
         id: 'blk-m4',
         type: 'metric',
-        title: 'Active Assurance Audits',
+        title: 'Metric title 4',
         metricValue: '28 / 30',
-        metricTrend: '2 pending gateway 4',
+        metricTrend: '2 pending verification',
         metricTrendPositive: true,
-        description: 'Stage gate compliance rating across regional sectors',
-        iconName: 'VerifiedBrand'
+        description: 'Metric summary 4',
+        iconName: 'CheckList'
       }
     ]
   },
   {
-    id: 'sec-embeds',
-    title: 'Live Tools & Portals',
+    id: 'sec-3',
+    title: 'Section title 3',
     iconName: 'AppIconDefault',
     badge: 'Interactive',
-    description: 'Integrated live data feeds, external calculators, and interactive dashboards.',
+    description: 'Section summary 3',
     blocks: [
       {
         id: 'blk-e1',
         type: 'embed',
-        title: 'Power BI Portfolio Performance Dashboard',
-        description: 'Live interactive reporting stream directly synchronised with programme datasets.',
+        title: 'Tool title 1',
+        description: 'Tool summary 1',
         embedUrl: 'https://en.wikipedia.org/wiki/SharePoint',
         linkUrl: '#',
-        linkText: 'Launch Fullscreen'
+        linkText: 'Open link'
       },
       {
         id: 'blk-e2',
         type: 'card',
-        title: 'Cost Estimation Calculator',
-        description: 'Real-time NRM1/NRM2 benchmarking model with automated inflation indices.',
-        badge: 'Tool',
+        title: 'Card title 5',
+        description: 'Card summary 5',
+        badge: 'Badge',
         iconName: 'Calculator',
         linkUrl: '#',
-        linkText: 'Open Calculator',
-        tags: ['Cost', 'NRM', 'Live']
-      }
-    ]
-  },
-  {
-    id: 'sec-governance',
-    title: 'Standards & Directory',
-    iconName: 'ComplianceAudit',
-    badge: 'Verified',
-    description: 'Quick links to enterprise policies, client portal logins, and resource directories.',
-    blocks: [
-      {
-        id: 'blk-g1',
-        type: 'card',
-        title: 'Global Methodology Handbook',
-        description: 'Detailed operating models, client engagement principles, and quality standards.',
-        badge: 'Edition 2026',
-        iconName: 'News',
-        linkUrl: '#',
-        linkText: 'Download PDF',
-        tags: ['Governance', 'Handbook']
-      },
-      {
-        id: 'blk-g2',
-        type: 'card',
-        title: 'Client Portal & Secure Vault',
-        description: 'Encrypted document repository for deliverables, certificates, and commercial registers.',
-        badge: 'Secure',
-        iconName: 'Lock',
-        linkUrl: '#',
-        linkText: 'Access Vault',
-        tags: ['Security', 'External']
+        linkText: 'Action link',
+        tags: ['Tag 7', 'Tag 8']
       }
     ]
   }
@@ -283,79 +252,79 @@ export const DEFAULT_CONTAINER_SECTIONS: IContainerSection[] = [
 
 export const PRESET_TEMPLATES: Record<string, { name: string; sections: IContainerSection[] }> = {
   commercial: {
-    name: 'Commercial & Financial Hub (Default - GBP)',
+    name: 'Commercial and financial hub (GBP £)',
     sections: DEFAULT_CONTAINER_SECTIONS
   },
   governance: {
-    name: 'Assurance & Governance Portal',
+    name: 'Assurance and governance portal',
     sections: [
       {
         id: 'sec-gov-1',
-        title: 'Policy Frameworks',
-        iconName: 'Shield',
-        badge: 'P0 Core',
-        description: 'Mandatory statutory requirements and enterprise standards.',
+        title: 'Section title 1',
+        iconName: 'ComplianceAudit',
+        badge: 'Core',
+        description: 'Section summary 1',
         blocks: [
           {
             id: 'blk-g-1',
             type: 'card',
-            title: 'ISO 27001 Information Security',
-            description: 'Data classification guidelines, access governance, and incident protocols.',
-            badge: 'Mandatory',
+            title: 'Card title 1',
+            description: 'Card summary 1',
+            badge: 'Badge',
             iconName: 'Lock',
-            linkText: 'Open Policy',
+            linkText: 'Action link',
             linkUrl: '#',
-            tags: ['Security', 'ISO']
+            tags: ['Tag 1', 'Tag 2']
           },
           {
             id: 'blk-g-2',
             type: 'metric',
-            title: 'Audit Compliance Score',
+            title: 'Metric title 1',
             metricValue: '99.4%',
             metricTrend: '+0.8% YoY',
             metricTrendPositive: true,
-            description: 'Year-to-date compliance rating across all live business units'
+            description: 'Metric summary 1'
           }
         ]
       },
       {
         id: 'sec-gov-2',
-        title: 'Risk Registers & Audits',
-        iconName: 'ComplianceAudit',
+        title: 'Section title 2',
+        iconName: 'TimelineProgress',
         badge: 'Real-time',
-        description: 'Live mitigation tracking and scheduled assurance reviews.',
+        description: 'Section summary 2',
         blocks: [
           {
             id: 'blk-r-1',
             type: 'card',
-            title: 'Q1 Enterprise Risk Matrix',
-            description: 'Active commercial, operational, and supply chain risk registers.',
-            badge: 'Q1 2026',
-            linkText: 'View Matrix',
+            title: 'Card title 2',
+            description: 'Card summary 2',
+            badge: 'Badge',
+            linkText: 'Action link',
             linkUrl: '#',
-            tags: ['Risk', 'Governance']
+            tags: ['Tag 3', 'Tag 4']
           }
         ]
       }
     ]
   },
   starter: {
-    name: 'Blank 2-Section Starter',
+    name: 'Blank 2-section starter',
     sections: [
       {
         id: 'sec-start-1',
-        title: 'Section title',
+        title: 'Section title 1',
         iconName: 'BookAnswers',
         badge: 'Badge',
-        description: 'Section description summary',
+        description: 'Section summary 1',
         blocks: [
           {
             id: 'blk-s-1',
             type: 'card',
-            title: 'Card title',
-            description: 'Card description summary',
+            title: 'Card title 1',
+            description: 'Card summary 1',
             badge: 'Badge',
-            linkText: 'Learn more',
+            linkText: 'Action link',
             linkUrl: '#',
             tags: ['Tag 1', 'Tag 2']
           }
@@ -363,19 +332,19 @@ export const PRESET_TEMPLATES: Record<string, { name: string; sections: IContain
       },
       {
         id: 'sec-start-2',
-        title: 'Metric section title',
+        title: 'Section title 2',
         iconName: 'Financial',
         badge: 'Badge',
-        description: 'Metric section description summary',
+        description: 'Section summary 2',
         blocks: [
           {
             id: 'blk-s-2',
             type: 'metric',
-            title: 'Metric title',
+            title: 'Metric title 1',
             metricValue: '£100,000',
             metricTrend: '+10%',
             metricTrendPositive: true,
-            description: 'Metric description summary'
+            description: 'Metric summary 1'
           }
         ]
       }

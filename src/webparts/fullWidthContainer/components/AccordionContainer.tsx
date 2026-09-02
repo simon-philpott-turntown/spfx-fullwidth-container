@@ -32,7 +32,13 @@ import {
   MoneyRegular,
   AppsRegular,
   ShieldCheckmarkRegular,
-  AddRegular
+  AddRegular,
+  CheckmarkCircleRegular,
+  ArrowTrendingLinesRegular,
+  WrenchRegular,
+  LockClosedRegular,
+  GlobeRegular,
+  DocumentRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -138,15 +144,34 @@ export interface IAccordionContainerProps {
 function renderSectionIcon(name?: string): React.ReactElement {
   switch (name) {
     case 'BookAnswers':
+    case 'Book':
       return <BookRegular fontSize={20} />;
     case 'Financial':
     case 'Money':
       return <MoneyRegular fontSize={20} />;
     case 'AppIconDefault':
+    case 'App':
+    case 'Apps':
       return <AppsRegular fontSize={20} />;
     case 'ComplianceAudit':
     case 'Shield':
       return <ShieldCheckmarkRegular fontSize={20} />;
+    case 'CheckList':
+    case 'Checkmark':
+      return <CheckmarkCircleRegular fontSize={20} />;
+    case 'TimelineProgress':
+    case 'Timeline':
+      return <ArrowTrendingLinesRegular fontSize={20} />;
+    case 'Calculator':
+    case 'Wrench':
+      return <WrenchRegular fontSize={20} />;
+    case 'Lock':
+      return <LockClosedRegular fontSize={20} />;
+    case 'Globe':
+      return <GlobeRegular fontSize={20} />;
+    case 'DocumentManagement':
+    case 'Document':
+      return <DocumentRegular fontSize={20} />;
     default:
       return <FolderRegular fontSize={20} />;
   }
@@ -206,7 +231,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
       {/* Global Toolbar */}
       <div className={styles.toolbar}>
         <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-          {sections.length} {sections.length === 1 ? 'Section' : 'Sections'}
+          {sections.length} {sections.length === 1 ? 'section' : 'sections'}
         </Caption1>
         <div className={styles.toolbarActions}>
           <Button
@@ -215,7 +240,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
             icon={<ChevronDoubleDownRegular />}
             onClick={expandAll}
           >
-            Expand All
+            Expand all
           </Button>
           <Button
             appearance="subtle"
@@ -223,7 +248,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
             icon={<ChevronDoubleUpRegular />}
             onClick={collapseAll}
           >
-            Collapse All
+            Collapse all
           </Button>
         </div>
       </div>
@@ -312,7 +337,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                       title="Add a new card to this section"
                     >
                       <AddRegular fontSize={24} />
-                      <Body1 style={{ fontWeight: 600 }}>Add New Card</Body1>
+                      <Body1 style={{ fontWeight: 600 }}>Add new card</Body1>
                     </div>
                   )}
                 </div>

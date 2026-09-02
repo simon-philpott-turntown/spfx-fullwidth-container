@@ -26,7 +26,13 @@ import {
   ShieldCheckmarkRegular,
   FolderRegular,
   InfoRegular,
-  AddRegular
+  AddRegular,
+  CheckmarkCircleRegular,
+  ArrowTrendingLinesRegular,
+  WrenchRegular,
+  LockClosedRegular,
+  GlobeRegular,
+  DocumentRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -101,15 +107,34 @@ export interface ITabsContainerProps {
 function renderTabIcon(name?: string): React.ReactElement {
   switch (name) {
     case 'BookAnswers':
+    case 'Book':
       return <BookRegular fontSize={18} />;
     case 'Financial':
     case 'Money':
       return <MoneyRegular fontSize={18} />;
     case 'AppIconDefault':
+    case 'App':
+    case 'Apps':
       return <AppsRegular fontSize={18} />;
     case 'ComplianceAudit':
     case 'Shield':
       return <ShieldCheckmarkRegular fontSize={18} />;
+    case 'CheckList':
+    case 'Checkmark':
+      return <CheckmarkCircleRegular fontSize={18} />;
+    case 'TimelineProgress':
+    case 'Timeline':
+      return <ArrowTrendingLinesRegular fontSize={18} />;
+    case 'Calculator':
+    case 'Wrench':
+      return <WrenchRegular fontSize={18} />;
+    case 'Lock':
+      return <LockClosedRegular fontSize={18} />;
+    case 'Globe':
+      return <GlobeRegular fontSize={18} />;
+    case 'DocumentManagement':
+    case 'Document':
+      return <DocumentRegular fontSize={18} />;
     default:
       return <FolderRegular fontSize={18} />;
   }
@@ -231,7 +256,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
             title="Add a new card to this section"
           >
             <AddRegular fontSize={24} />
-            <Body1 style={{ fontWeight: 600 }}>Add New Card</Body1>
+            <Body1 style={{ fontWeight: 600 }}>Add new card</Body1>
           </div>
         )}
       </div>

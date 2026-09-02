@@ -231,22 +231,31 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   const renderFluent2Icon = (iconName?: string): React.ReactElement => {
     switch (iconName) {
       case 'Financial':
+      case 'Money':
         return <MoneyRegular fontSize={20} />;
       case 'ComplianceAudit':
+      case 'Shield':
         return <ShieldCheckmarkRegular fontSize={20} />;
       case 'CheckList':
+      case 'Checkmark':
         return <CheckmarkCircleRegular fontSize={20} />;
       case 'TimelineProgress':
+      case 'Timeline':
         return <ArrowTrendingLinesRegular fontSize={20} />;
       case 'Calculator':
+      case 'Wrench':
         return <WrenchRegular fontSize={20} />;
       case 'AppIconDefault':
+      case 'App':
+      case 'Apps':
         return <AppsRegular fontSize={20} />;
       case 'Lock':
         return <LockClosedRegular fontSize={20} />;
       case 'Globe':
         return <GlobeRegular fontSize={20} />;
       case 'BookAnswers':
+      case 'DocumentManagement':
+      case 'Document':
       default:
         return <DocumentRegular fontSize={20} />;
     }
@@ -260,7 +269,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           size="small"
           appearance="subtle"
           icon={<EditRegular />}
-          title="Edit Card Properties"
+          title="Edit card properties"
           onClick={(e) => {
             e.stopPropagation();
             setIsDialogOpen(true);
@@ -271,7 +280,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             size="small"
             appearance="subtle"
             icon={<DeleteRegular />}
-            title="Delete Card"
+            title="Delete card"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
@@ -509,7 +518,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               className={styles.inlineInput}
               style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
               value={block.description || ''}
-              placeholder="Metric description summary"
+              placeholder="Metric summary"
               onChange={(e) => onUpdate({ description: e.target.value })}
             />
           ) : (
@@ -575,7 +584,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   className={styles.inlineInput}
                   style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground3 }}
                   value={block.description || ''}
-                  placeholder="Tool description summary"
+                  placeholder="Tool summary"
                   onChange={(e) => onUpdate({ description: e.target.value })}
                 />
               ) : (
@@ -601,7 +610,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 href={block.linkUrl}
                 target="_blank"
               >
-                {block.linkText || 'Open Tool'}
+                {block.linkText || 'Open link'}
               </Button>
             </CardFooter>
           )}
@@ -669,7 +678,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 resize: 'vertical'
               }}
               value={block.description || ''}
-              placeholder="Card description summary"
+              placeholder="Card summary"
               onFocus={() => setIsFocused(true)}
               onBlur={() => {
                 setTimeout(() => setIsFocused(false), 250);
@@ -758,7 +767,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               href={block.linkUrl}
               target="_blank"
             >
-              {block.linkText || 'Learn more'}
+              {block.linkText || 'Action link'}
             </Button>
           </CardFooter>
         )}
