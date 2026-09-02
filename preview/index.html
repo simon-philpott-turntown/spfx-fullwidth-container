@@ -959,59 +959,74 @@
 
       const targetSec = currentSections[state.activeCardSecIdx];
       const selCard = document.getElementById('sel-card-idx');
-      selCard.innerHTML = '';
-      if (targetSec && targetSec.blocks.length > 0) {
-        targetSec.blocks.forEach((b, idx) => {
-          const opt = document.createElement('option');
-          opt.value = idx;
-          opt.textContent = `${idx + 1}. ${b.title} [${b.type}]`;
-          selCard.appendChild(opt);
-        });
-        selCard.value = state.activeCardIdx;
-        const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
-        if (curCard) {
-          // Dynamic Column Span Options based on Container Grid Columns
-          const effectiveMaxCols = Math.max(1, state.gridCols > 0 ? state.gridCols : 4);
-          const effectiveMaxRows = Math.max(1, state.gridRows > 0 ? state.gridRows : 5);
-
-          const selColSpan = document.getElementById('sel-card-colspan');
-          selColSpan.innerHTML = '';
-          for (let c = 1; c <= effectiveMaxCols; c++) {
+      if (selCard) {
+        selCard.innerHTML = '';
+        if (targetSec && targetSec.blocks.length > 0) {
+          targetSec.blocks.forEach((b, idx) => {
             const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c === 1 ? '1 Col (Standard)' : (c === effectiveMaxCols ? `Span ${c} Cols (Full)` : `Span ${c} Cols`);
-            selColSpan.appendChild(opt);
+            opt.value = idx;
+            opt.textContent = `${idx + 1}. ${b.title} [${b.type}]`;
+            selCard.appendChild(opt);
+          });
+          selCard.value = state.activeCardIdx;
+          const curCard = targetSec.blocks[state.activeCardIdx] || targetSec.blocks[0];
+          if (curCard) {
+            // Dynamic Column Span Options based on Container Grid Columns
+            const effectiveMaxCols = Math.max(1, state.gridCols > 0 ? state.gridCols : 4);
+            const effectiveMaxRows = Math.max(1, state.gridRows > 0 ? state.gridRows : 5);
+
+            const selColSpan = document.getElementById('sel-card-colspan');
+            const lblColSpan = document.getElementById('lbl-card-colspan');
+            if (selColSpan) {
+              selColSpan.innerHTML = '';
+              for (let c = 1; c <= effectiveMaxCols; c++) {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c === 1 ? '1 Col (Standard)' : (c === effectiveMaxCols ? `Span ${c} Cols (Full)` : `Span ${c} Cols`);
+                selColSpan.appendChild(opt);
+              }
+              const clampedCol = Math.min(curCard.colSpan || 1, effectiveMaxCols);
+              curCard.colSpan = clampedCol;
+              selColSpan.value = clampedCol;
+            }
+            if (lblColSpan) {
+              lblColSpan.textContent = `Column Span (Max ${effectiveMaxCols})`;
+            }
+
+            // Dynamic Row Span Options based on Container Grid Rows
+            const selRowSpan = document.getElementById('sel-card-rowspan');
+            const lblRowSpan = document.getElementById('lbl-card-rowspan');
+            if (selRowSpan) {
+              selRowSpan.innerHTML = '';
+              for (let r = 1; r <= effectiveMaxRows; r++) {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`;
+                selRowSpan.appendChild(opt);
+              }
+              const clampedRow = Math.min(curCard.rowSpan || 1, effectiveMaxRows);
+              curCard.rowSpan = clampedRow;
+              selRowSpan.value = clampedRow;
+            }
+            if (lblRowSpan) {
+              lblRowSpan.textContent = `Row Span (Max ${effectiveMaxRows})`;
+            }
+
+            const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+            setVal('sel-card-type', curCard.type || 'card');
+            setVal('inp-card-title', curCard.title || '');
+            setVal('inp-card-desc', curCard.description || '');
+            setVal('inp-card-badge', curCard.badge || '');
+            setVal('inp-card-metric-val', curCard.metricValue || '');
+            setVal('inp-card-metric-trend', curCard.metricTrend || '');
+            setVal('inp-card-term-tags', curCard.termStoreTags ? curCard.termStoreTags.map(t => t.label).join(', ') : (curCard.tags ? curCard.tags.join(', ') : ''));
+
+            const isMetric = curCard.type === 'metric';
+            const grpMetric = document.getElementById('grp-card-metric');
+            const grpTrend = document.getElementById('grp-card-trend');
+            if (grpMetric) grpMetric.style.display = isMetric ? 'flex' : 'none';
+            if (grpTrend) grpTrend.style.display = isMetric ? 'flex' : 'none';
           }
-          const clampedCol = Math.min(curCard.colSpan || 1, effectiveMaxCols);
-          curCard.colSpan = clampedCol;
-          selColSpan.value = clampedCol;
-          document.getElementById('lbl-card-colspan').textContent = `Column Span (Max ${effectiveMaxCols})`;
-
-          // Dynamic Row Span Options based on Container Grid Rows
-          const selRowSpan = document.getElementById('sel-card-rowspan');
-          selRowSpan.innerHTML = '';
-          for (let r = 1; r <= effectiveMaxRows; r++) {
-            const opt = document.createElement('option');
-            opt.value = r;
-            opt.textContent = r === 1 ? '1 Row (Standard)' : `Span ${r} Rows`;
-            selRowSpan.appendChild(opt);
-          }
-          const clampedRow = Math.min(curCard.rowSpan || 1, effectiveMaxRows);
-          curCard.rowSpan = clampedRow;
-          selRowSpan.value = clampedRow;
-          document.getElementById('lbl-card-rowspan').textContent = `Row Span (Max ${effectiveMaxRows})`;
-
-          document.getElementById('sel-card-type').value = curCard.type || 'card';
-          document.getElementById('inp-card-title').value = curCard.title || '';
-          document.getElementById('inp-card-desc').value = curCard.description || '';
-          document.getElementById('inp-card-badge').value = curCard.badge || '';
-          document.getElementById('inp-card-metric-val').value = curCard.metricValue || '';
-          document.getElementById('inp-card-metric-trend').value = curCard.metricTrend || '';
-          document.getElementById('inp-card-term-tags').value = curCard.termStoreTags ? curCard.termStoreTags.map(t => t.label).join(', ') : (curCard.tags ? curCard.tags.join(', ') : '');
-
-          const isMetric = curCard.type === 'metric';
-          document.getElementById('grp-card-metric').style.display = isMetric ? 'flex' : 'none';
-          document.getElementById('grp-card-trend').style.display = isMetric ? 'flex' : 'none';
         }
       }
     }
