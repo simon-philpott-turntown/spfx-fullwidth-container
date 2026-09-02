@@ -76,7 +76,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
    * Retrieves active sections array from canonical properties or initializes default.
    */
   private _getActiveSections(): IContainerSection[] {
-    if (this.properties.sectionsJson && this.properties.sectionsJson.trim()) {
+    if (this.properties && this.properties.sectionsJson && this.properties.sectionsJson.trim()) {
       try {
         const parsed = JSON.parse(this.properties.sectionsJson);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -88,7 +88,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     }
     // Initialize default
     const defaults = DEFAULT_CONTAINER_SECTIONS;
-    this.properties.sectionsJson = JSON.stringify(defaults);
+    if (this.properties) {
+      this.properties.sectionsJson = JSON.stringify(defaults);
+    }
     return defaults;
   }
 
@@ -96,7 +98,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
    * Serializes updated sections array to webpart properties.
    */
   private _saveSections(sections: IContainerSection[]): void {
-    this.properties.sectionsJson = JSON.stringify(sections);
+    if (this.properties) {
+      this.properties.sectionsJson = JSON.stringify(sections);
+    }
     this.render();
   }
 
@@ -106,23 +110,28 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   public render(): void {
+    if (!this.domElement) {
+      return;
+    }
+
     try {
+      const props = this.properties || ({} as Partial<IFullWidthContainerWebPartProps>);
       const activeSections = this._getActiveSections();
       const userDisplayName = this.context?.pageContext?.user?.displayName || 'User';
 
       const containerElement: React.ReactElement<IFullWidthContainerProps> = React.createElement(
         FullWidthContainer,
         {
-          title: this.properties.title || 'Interactive Content Hub',
-          subtitle: this.properties.subtitle !== undefined
-            ? this.properties.subtitle
+          title: props.title || 'Interactive Content Hub',
+          subtitle: props.subtitle !== undefined
+            ? props.subtitle
             : 'Centralised operational methodologies, metrics, and resources',
-          layoutMode: this.properties.layoutMode || 'tabs',
-          containerStyle: this.properties.containerStyle || 'glassmorphism',
-          accentColor: this.properties.accentColor || '#0078d4',
-          enableAnimation: this.properties.enableAnimation !== false,
-          compactPadding: !!this.properties.compactPadding,
-          showSearch: this.properties.showSearch !== false,
+          layoutMode: props.layoutMode || 'tabs',
+          containerStyle: props.containerStyle || 'glassmorphism',
+          accentColor: props.accentColor || '#0078d4',
+          enableAnimation: props.enableAnimation !== false,
+          compactPadding: !!props.compactPadding,
+          showSearch: props.showSearch !== false,
           sections: activeSections,
           isDarkTheme: this._isDarkTheme,
           userDisplayName: userDisplayName,
@@ -164,7 +173,11 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
     this._currentTheme = currentTheme;
     const theme = currentTheme as IReadonlyTheme & { isInverted?: boolean };
     this._isDarkTheme = !!theme.isInverted;
-    this.render();
+
+    // Only re-render if web part is already mounted and properties are initialized
+    if (this.domElement && this.properties) {
+      this.render();
+    }
   }
 
   protected onDispose(): void {
