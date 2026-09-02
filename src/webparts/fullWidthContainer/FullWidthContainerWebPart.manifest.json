@@ -34,7 +34,7 @@
       "properties": {
         "title": "Content title",
         "layoutMode": "tabs",
-        "containerStyle": "glassmorphism",
+        "containerStyle": "standard",
         "accentColor": "#0078d4",
         "enableAnimation": true,
         "compactPadding": false
