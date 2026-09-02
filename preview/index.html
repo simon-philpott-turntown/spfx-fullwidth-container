@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SharePoint Full-Width Container — Fluent UI 2 & Property Sidebar</title>
+  <title>SharePoint Full-Width Dashboard — Fluent UI 2 & Property Sidebar</title>
   <!-- React 17 & ReactDOM -->
   <script src="https://unpkg.com/react@17.0.2/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js" crossorigin></script>
@@ -808,7 +808,7 @@
   <header class="sp-header">
     <div style="display: flex; align-items: center; gap: 1rem;">
       <i class="fa-solid fa-shapes" style="color: var(--fui-colorBrandForeground1); font-size: 1.4rem;"></i>
-      <span style="font-size: 1.1rem; font-weight: 700;">Contoso Intranet • Full-Width Container</span>
+      <span style="font-size: 1.1rem; font-weight: 700;">Contoso Intranet • Full Width Dashboard</span>
     </div>
     <div style="display: flex; align-items: center; gap: 0.75rem;">
       <button class="sp-btn sp-btn-secondary" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
@@ -830,8 +830,8 @@
     <div class="sp-property-pane" id="property-pane">
       <div class="pane-header">
         <div>
-          <div class="pane-title">Container properties</div>
-          <div class="pane-desc">Full-width section configuration</div>
+          <div class="pane-title">Dashboard properties</div>
+          <div class="pane-desc">Full-width dashboard configuration</div>
         </div>
         <button class="fui-btn-subtle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -846,12 +846,12 @@
       <!-- Page 1: Layout -->
       <div class="pane-body" id="pane-page-1">
         <div class="form-group">
-          <label class="form-label">Container title</label>
-          <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Container title" placeholder="Container title" />
+          <label class="form-label">Dashboard title</label>
+          <input type="text" class="form-input" id="inp-title" oninput="updateTitle(this.value)" value="Dashboard title" placeholder="Dashboard title" />
         </div>
         <div class="form-group">
           <label class="form-label">Subtitle or description</label>
-          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)" placeholder="Container subtitle or description">Container subtitle or description</textarea>
+          <textarea class="form-textarea" id="inp-subtitle" rows="2" oninput="updateSubtitle(this.value)" placeholder="Dashboard subtitle or description">Dashboard subtitle or description</textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Default layout mode</label>
@@ -861,7 +861,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Container surface style</label>
+          <label class="form-label">Dashboard surface style</label>
           <select class="form-select" id="sel-container-style" onchange="updateContainerStyle(this.value)">
             <option value="standard">Standard Fluent 2 (solid layered surface)</option>
             <option value="glassmorphism">Acrylic glassmorphism (frosted translucent)</option>

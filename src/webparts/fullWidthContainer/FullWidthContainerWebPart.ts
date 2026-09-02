@@ -508,22 +508,22 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
 
     return {
       pages: [
-        // PAGE 1: Container & Layout Options
+        // PAGE 1: Dashboard & Layout Options
         {
           header: {
-            description: 'Page 1 of 3: Configure container presentation, layout modes, and preset templates.'
+            description: 'Page 1 of 3: Configure dashboard presentation, layout modes, and preset templates.'
           },
           groups: [
             {
-              groupName: 'Container presentation',
+              groupName: 'Dashboard presentation',
               groupFields: [
                 PropertyPaneTextField('title', {
-                  label: 'Container title',
-                  value: this.properties.title || 'Container title'
+                  label: 'Dashboard title',
+                  value: this.properties.title || 'Dashboard title'
                 }),
                 PropertyPaneTextField('subtitle', {
                   label: 'Subtitle or guidance',
-                  value: this.properties.subtitle || 'Container subtitle or description'
+                  value: this.properties.subtitle || 'Dashboard subtitle or description'
                 }),
                 PropertyPaneChoiceGroup('layoutMode', {
                   label: 'Default layout mode',
@@ -533,7 +533,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   ]
                 }),
                 PropertyPaneDropdown('containerStyle', {
-                  label: 'Container surface style',
+                  label: 'Dashboard surface style',
                   selectedKey: this.properties.containerStyle || 'standard',
                   options: [
                     { key: 'standard', text: 'Standard Fluent 2 (solid layered surface)' },

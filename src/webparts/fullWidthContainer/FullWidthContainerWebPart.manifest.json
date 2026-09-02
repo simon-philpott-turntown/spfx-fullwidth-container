@@ -25,10 +25,10 @@
         "default": "Advanced"
       },
       "title": {
-        "default": "Full-Width Container"
+        "default": "Full width dashboard"
       },
       "description": {
-        "default": "Full-width responsive container web part supporting tabs, accordions, and rich content cards and embeddable content"
+        "default": "Full-width responsive dashboard web part supporting tabs, accordions, and rich content cards and embeddable content"
       },
       "officeFabricIconFontName": "GroupedList",
       "properties": {

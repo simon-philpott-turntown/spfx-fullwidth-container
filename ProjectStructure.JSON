@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "projectName": "spfx-fullwidth-container",
-  "description": "Full-width responsive container web part supporting tabs, accordions, and custom cards/embeds for SharePoint Online.",
+  "description": "Full-width responsive dashboard web part supporting tabs, accordions, and custom cards/embeds for SharePoint Online.",
   "architecture": "SPFx v1.23+ Heft Toolchain with React 17 and Microsoft Fluent UI 2 (@fluentui/react-components)",
   "root": "d:/Playbook/spfx-fullwidth-container",
   "modules": [
