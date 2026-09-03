@@ -193,6 +193,16 @@
         "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-017",
+      "name": "MiniCollapsibleCardTags",
+      "description": "Mini collapsible tile labeled 'Tags' with tag icon and count badge on cards. Default view is collapsed, expanding on demand to reveal interactive tags.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "preview/index.html"
+      ]
     }
   ]
 }

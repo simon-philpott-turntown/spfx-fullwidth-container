@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react';
-import { IContentBlock, ICardItem, ICardItemType } from '../models/IContainerModels';
+import { IContentBlock, ICardItem, ICardItemType, ITermStoreTag } from '../models/IContainerModels';
 import {
   Card,
   CardHeader,
@@ -29,7 +29,10 @@ import {
   DeleteRegular,
   CursorClickRegular,
   MegaphoneRegular,
-  DismissRegular
+  DismissRegular,
+  TagRegular,
+  ChevronRightRegular,
+  ChevronDownRegular
 } from '@fluentui/react-icons';
 import { CardEditDialog, renderFluentIconPreview } from './CardEditDialog';
 import { RichTextEditable } from './RichTextEditable';
@@ -255,6 +258,36 @@ const useStyles = makeStyles({
     left: '8px',
     zIndex: 50,
     pointerEvents: 'none'
+  },
+  miniTagsContainer: {
+    width: '100%',
+    marginTop: '8px',
+    boxSizing: 'border-box'
+  },
+  miniTagsTile: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: '5px 8px',
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    backgroundColor: tokens.colorNeutralBackground2,
+    cursor: 'pointer',
+    outlineStyle: 'none',
+    boxSizing: 'border-box',
+    transition: 'all 0.15s ease',
+    ':hover': {
+      backgroundColor: tokens.colorNeutralBackground2Hover,
+      ...shorthands.borderColor(tokens.colorNeutralStroke1)
+    }
+  },
+  miniTagsPanel: {
+    marginTop: '6px',
+    padding: '4px 2px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px'
   }
 });
 
@@ -288,6 +321,112 @@ const isDarkColor = (color?: string): boolean => {
     return (r * 299 + g * 587 + b * 114) / 1000 < 135;
   }
   return false;
+};
+
+export interface ICardTagsCollapsibleProps {
+  termStoreTags?: ITermStoreTag[];
+  tags?: string[];
+  isEditMode?: boolean;
+  onUpdateTermStoreTags?: (tags: ITermStoreTag[]) => void;
+  isDarkBg?: boolean;
+}
+
+export const CardTagsCollapsible: React.FC<ICardTagsCollapsibleProps> = ({
+  termStoreTags,
+  tags,
+  isEditMode = false,
+  onUpdateTermStoreTags,
+  isDarkBg = false
+}) => {
+  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const styles = useStyles();
+
+  const termCount = termStoreTags ? termStoreTags.length : 0;
+  const standardCount = tags ? tags.length : 0;
+  const totalCount = termCount > 0 ? termCount : standardCount;
+
+  if (totalCount === 0 && !isEditMode) {
+    return null;
+  }
+
+  return (
+    <div className={styles.miniTagsContainer}>
+      <button
+        type="button"
+        className={styles.miniTagsTile}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        title={isOpen ? 'Collapse tags' : 'Open tags'}
+        aria-expanded={isOpen}
+        style={{
+          color: isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground2,
+          borderColor: isDarkBg ? 'rgba(255, 255, 255, 0.25)' : undefined,
+          backgroundColor: isDarkBg ? 'rgba(255, 255, 255, 0.08)' : undefined
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <TagRegular style={{ fontSize: '13px', color: isDarkBg ? '#80D1F8' : tokens.colorBrandForeground1 }} />
+          <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Tags</span>
+          {totalCount > 0 && (
+            <span
+              style={{
+                fontSize: '0.68rem',
+                padding: '1px 6px',
+                borderRadius: '10px',
+                backgroundColor: isDarkBg ? 'rgba(255, 255, 255, 0.2)' : tokens.colorNeutralBackground3,
+                color: isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground2,
+                fontWeight: 600
+              }}
+            >
+              {totalCount}
+            </span>
+          )}
+        </div>
+        {isOpen ? (
+          <ChevronDownRegular style={{ fontSize: '12px', opacity: 0.8 }} />
+        ) : (
+          <ChevronRightRegular style={{ fontSize: '12px', opacity: 0.8 }} />
+        )}
+      </button>
+
+      {isOpen && (
+        <div className={styles.miniTagsPanel}>
+          {termStoreTags && termStoreTags.length > 0 && (
+            <TermStorePicker
+              selectedTags={termStoreTags}
+              onChange={(updated) => onUpdateTermStoreTags && onUpdateTermStoreTags(updated)}
+              isEditMode={isEditMode}
+            />
+          )}
+
+          {tags && tags.length > 0 && (!termStoreTags || termStoreTags.length === 0) && (
+            <div className={styles.tagsWrapper}>
+              {tags.map((tag) => (
+                <Badge key={tag} appearance="outline" size="small" className={styles.badge}>
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {isEditMode && totalCount === 0 && (
+            <span
+              style={{
+                fontSize: '0.72rem',
+                color: isDarkBg ? 'rgba(255, 255, 255, 0.7)' : tokens.colorNeutralForeground3,
+                fontStyle: 'italic'
+              }}
+            >
+              No tags applied yet. Use card settings to add tags.
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export const BlockRenderer: React.FC<IBlockRendererProps> = ({
@@ -847,16 +986,14 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             }}
           />
 
-          {/* Global Term Store Tags */}
-          {block.termStoreTags && block.termStoreTags.length > 0 && (
-            <div style={{ marginTop: '8px' }}>
-              <TermStorePicker
-                selectedTags={block.termStoreTags}
-                onChange={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
-                isEditMode={isEditMode}
-              />
-            </div>
-          )}
+          {/* Mini Collapsible Tags */}
+          <CardTagsCollapsible
+            termStoreTags={block.termStoreTags}
+            tags={block.tags}
+            isEditMode={isEditMode}
+            onUpdateTermStoreTags={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
+            isDarkBg={isDarkBg}
+          />
         </div>
 
         <CardEditDialog
@@ -1047,27 +1184,16 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           </div>
         )}
 
-        {/* Global Term Store Tags */}
-        {block.termStoreTags && block.termStoreTags.length > 0 && (
-          <div style={{ padding: '0 12px', marginTop: '6px' }}>
-            <TermStorePicker
-              selectedTags={block.termStoreTags}
-              onChange={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
-              isEditMode={isEditMode}
-            />
-          </div>
-        )}
-
-        {/* Standard tags */}
-        {block.tags && block.tags.length > 0 && !block.termStoreTags && (
-          <div className={styles.tagsWrapper} style={{ padding: '0 12px' }}>
-            {block.tags.map((tag) => (
-              <Badge key={tag} appearance="outline" size="small" className={styles.badge}>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {/* Mini Collapsible Tags */}
+        <div style={{ padding: '0 12px' }}>
+          <CardTagsCollapsible
+            termStoreTags={block.termStoreTags}
+            tags={block.tags}
+            isEditMode={isEditMode}
+            onUpdateTermStoreTags={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
+            isDarkBg={isDarkBg}
+          />
+        </div>
 
         {block.linkUrl && (
           <CardFooter style={{ marginTop: tokens.spacingVerticalM }}>

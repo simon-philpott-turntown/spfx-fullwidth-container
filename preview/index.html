@@ -2444,6 +2444,63 @@
       );
     }
 
+    function CardTagsCollapsible(props) {
+      const [isOpen, setIsOpen] = React.useState(false);
+      const termTags = props.termStoreTags || [];
+      const stdTags = props.tags || [];
+      const totalCount = termTags.length > 0 ? termTags.length : stdTags.length;
+
+      if (totalCount === 0 && !props.isEditMode) return null;
+
+      const isDarkBg = props.isDarkBg;
+
+      return React.createElement('div', { className: 'fui-mini-tags-container', style: { width: '100%', marginTop: '8px' } },
+        React.createElement('button', {
+          type: 'button',
+          className: 'fui-mini-tags-tile',
+          onClick: (e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(!isOpen); },
+          title: isOpen ? 'Collapse tags' : 'Open tags',
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            padding: '5px 8px',
+            borderRadius: '4px',
+            border: isDarkBg ? '1px solid rgba(255,255,255,0.25)' : '1px solid var(--fui-colorNeutralStroke2)',
+            backgroundColor: isDarkBg ? 'rgba(255,255,255,0.08)' : 'var(--fui-colorNeutralBackground2)',
+            color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground2)',
+            cursor: 'pointer',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            outline: 'none',
+            boxSizing: 'border-box',
+            transition: 'all 0.15s ease'
+          }
+        },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+            React.createElement('i', { className: 'fa-solid fa-tag', style: { fontSize: '11px', color: isDarkBg ? '#80D1F8' : 'var(--fui-colorBrandForeground1)' } }),
+            React.createElement('span', null, 'Tags'),
+            totalCount > 0 ? React.createElement('span', {
+              style: {
+                fontSize: '0.68rem',
+                padding: '1px 6px',
+                borderRadius: '10px',
+                backgroundColor: isDarkBg ? 'rgba(255,255,255,0.2)' : 'var(--fui-colorNeutralBackground3)',
+                color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground2)',
+                fontWeight: 600
+              }
+            }, totalCount) : null
+          ),
+          React.createElement('i', { className: 'fa-solid ' + (isOpen ? 'fa-chevron-down' : 'fa-chevron-right'), style: { fontSize: '10px', opacity: 0.75 } })
+        ),
+        isOpen ? React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' } },
+          termTags.length > 0 ? termTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label)) :
+          (stdTags.length > 0 ? stdTags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t)) : null)
+        ) : null
+      );
+    }
+
     function App() {
       const activeSection = currentSections.find(s => s.id === state.activeTabId) || currentSections[0];
 
@@ -2597,9 +2654,12 @@
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
-                    block.termStoreTags && React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
-                      block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
-                    )
+                    React.createElement(CardTagsCollapsible, {
+                      termStoreTags: block.termStoreTags,
+                      tags: block.tags,
+                      isDarkBg: isDarkBg,
+                      isEditMode: isEditMode
+                    })
                   )
                 ) :
                 React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
@@ -2629,13 +2689,12 @@
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
-                    block.termStoreTags ? React.createElement('div', { className: 'fui-card-tags', style: { marginTop: '8px' } },
-                      block.termStoreTags.map(t => React.createElement('span', { key: t.id, className: 'fui-tag', style: { borderColor: 'var(--fui-colorBrandStroke1)', color: 'var(--fui-colorBrandForeground1)' } }, '🏷️ ' + t.label))
-                    ) : (
-                      block.tags && React.createElement('div', { className: 'fui-card-tags' },
-                        block.tags.map(t => React.createElement('span', { key: t, className: 'fui-tag' }, t))
-                      )
-                    )
+                    React.createElement(CardTagsCollapsible, {
+                      termStoreTags: block.termStoreTags,
+                      tags: block.tags,
+                      isDarkBg: isDarkBg,
+                      isEditMode: isEditMode
+                    })
                   ),
                   React.createElement('a', { href: block.actionUrl || '#', className: 'fui-btn-subtle' },
                     block.actionText || 'Open link',
@@ -2694,7 +2753,13 @@
                         React.createElement('div', { className: 'fui-metric-trend' },
                           React.createElement('span', { className: 'fui-badge fui-badge-success' }, block.metricTrend)
                         ),
-                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description)
+                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description),
+                        React.createElement(CardTagsCollapsible, {
+                          termStoreTags: block.termStoreTags,
+                          tags: block.tags,
+                          isDarkBg: isDarkBg,
+                          isEditMode: isEditMode
+                        })
                       )
                     ) :
                     React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
@@ -2710,7 +2775,13 @@
                           block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                         ),
                         React.createElement('h3', { className: 'fui-card-title', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.title),
-                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description)
+                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description),
+                        React.createElement(CardTagsCollapsible, {
+                          termStoreTags: block.termStoreTags,
+                          tags: block.tags,
+                          isDarkBg: isDarkBg,
+                          isEditMode: isEditMode
+                        })
                       )
                     );
                   })

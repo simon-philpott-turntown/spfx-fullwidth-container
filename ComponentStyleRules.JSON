@@ -90,6 +90,10 @@
     "ToastNotification": {
       "classes": ["Toast", "ToastTitle", "ToastBody", "Toaster"],
       "aesthetic": "Layered surface toast notification with accent border-left, drop shadow28, and auto-dismiss feedback."
+    },
+    "CardTagsCollapsible": {
+      "classes": ["miniTagsTile", "miniTagsContainer", "miniTagsPanel", "TagRegular", "ChevronRightRegular", "ChevronDownRegular"],
+      "aesthetic": "Mini collapsible tile with tag icon, count badge, and chevron. Collapsed by default, expanding to reveal managed metadata and standard tag pills."
     }
   }
 }
