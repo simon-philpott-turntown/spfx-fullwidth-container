@@ -17,14 +17,51 @@ import {
   PropertyPaneButton,
   PropertyPaneButtonType,
   PropertyPaneHorizontalRule,
+  PropertyPaneFieldType,
+  type IPropertyPaneField,
   type IPropertyPaneDropdownOption
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
+import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FullWidthContainer } from './components/FullWidthContainer';
 import { IFullWidthContainerProps } from './components/IFullWidthContainerProps';
+import { BrandColorPickerPopover } from './components/BrandColorPickerPopover';
+
+/**
+ * Creates an SPFx custom property pane field rendering the visual BrandColorPickerPopover.
+ */
+const createColorPickerPropertyField = (
+  key: string,
+  selectedColor: string | undefined,
+  onChange: (color?: string) => void,
+  defaultLabel: string
+): IPropertyPaneField<any> => ({
+  type: PropertyPaneFieldType.Custom,
+  targetProperty: key,
+  properties: {
+    key,
+    onRender: (domElement: HTMLElement) => {
+      ReactDom.render(
+        React.createElement(
+          FluentProvider,
+          { theme: webLightTheme },
+          React.createElement(BrandColorPickerPopover, {
+            selectedColor,
+            onChange,
+            defaultLabel
+          })
+        ),
+        domElement
+      );
+    },
+    onDispose: (domElement: HTMLElement) => {
+      ReactDom.unmountComponentAtNode(domElement);
+    }
+  }
+});
 import {
   DEFAULT_CONTAINER_SECTIONS,
   PRESET_TEMPLATES,
@@ -585,29 +622,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             {
               groupName: 'Dashboard background colour (Turner & Townsend brand)',
               groupFields: [
-                PropertyPaneDropdown('webPartBackgroundColor', {
-                  label: 'Brand background preset',
-                  selectedKey: this.properties.webPartBackgroundColor || '',
-                  options: [
-                    { key: '', text: 'Default (transparent canvas)' },
-                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
-                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
-                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' },
-                    { key: '#001436', text: 'TT Blue 100+ Deep (#001436)' },
-                    { key: '#0090DC', text: 'TT Cyan Main (#0090DC)' },
-                    { key: '#505A60', text: 'TT Grey Main (#505A60)' },
-                    { key: '#292929', text: 'TT Grey 100+ Dark (#292929)' },
-                    { key: '#00A000', text: 'TT Green Main (#00A000)' },
-                    { key: '#D55C17', text: 'TT Orange Main (#D55C17)' },
-                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
-                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
-                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' }
-                  ]
-                }),
-                PropertyPaneTextField('webPartBackgroundColor', {
-                  label: 'Custom background HEX colour',
-                  value: this.properties.webPartBackgroundColor || ''
-                })
+                createColorPickerPropertyField(
+                  'webPartBackgroundColorField',
+                  this.properties.webPartBackgroundColor,
+                  (color?: string) => {
+                    this.properties.webPartBackgroundColor = color || '';
+                    this.onPropertyPaneFieldChanged('webPartBackgroundColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (transparent canvas)'
+                )
               ]
             },
             {
@@ -739,25 +763,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   rows: 2,
                   value: sections[activeSecIdx]?.description || ''
                 }),
-                PropertyPaneDropdown('sectionBackgroundColor', {
-                  label: 'Section brand background preset',
-                  selectedKey: sections[activeSecIdx]?.backgroundColor || '',
-                  options: [
-                    { key: '', text: 'Default (inherit from dashboard canvas)' },
-                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
-                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
-                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
-                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
-                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' },
-                    { key: '#CCEECC', text: 'TT Green 20% Tint (#CCEECC)' },
-                    { key: '#F7DED1', text: 'TT Orange 20% Tint (#F7DED1)' },
-                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' }
-                  ]
-                }),
-                PropertyPaneTextField('sectionBackgroundColor', {
-                  label: 'Custom section background HEX',
-                  value: sections[activeSecIdx]?.backgroundColor || ''
-                })
+                createColorPickerPropertyField(
+                  `sectionBackgroundColorField_${activeSecIdx}`,
+                  sections[activeSecIdx]?.backgroundColor,
+                  (color?: string) => {
+                    this.properties.sectionBackgroundColor = color || '';
+                    this.onPropertyPaneFieldChanged('sectionBackgroundColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (inherit from dashboard canvas)'
+                )
               ]
             },
             {
@@ -838,29 +853,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   rows: 2,
                   value: currentBlocks[activeBlkIdx]?.description || ''
                 }),
-                PropertyPaneDropdown('blockBackgroundColor', {
-                  label: 'Card brand background preset',
-                  selectedKey: currentBlocks[activeBlkIdx]?.backgroundColor || '',
-                  options: [
-                    { key: '', text: 'Default (inherit from section background)' },
-                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
-                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
-                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
-                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
-                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' },
-                    { key: '#CCEECC', text: 'TT Green 20% Tint (#CCEECC)' },
-                    { key: '#F7DED1', text: 'TT Orange 20% Tint (#F7DED1)' },
-                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' },
-                    { key: '#0090DC', text: 'TT Cyan Main (#0090DC)' },
-                    { key: '#505A60', text: 'TT Grey Main (#505A60)' },
-                    { key: '#00A000', text: 'TT Green Main (#00A000)' },
-                    { key: '#D55C17', text: 'TT Orange Main (#D55C17)' }
-                  ]
-                }),
-                PropertyPaneTextField('blockBackgroundColor', {
-                  label: 'Custom card background HEX',
-                  value: currentBlocks[activeBlkIdx]?.backgroundColor || ''
-                }),
+                createColorPickerPropertyField(
+                  `blockBackgroundColorField_${activeBlockSecIdx}_${activeBlkIdx}`,
+                  currentBlocks[activeBlkIdx]?.backgroundColor,
+                  (color?: string) => {
+                    this.properties.blockBackgroundColor = color || '';
+                    this.onPropertyPaneFieldChanged('blockBackgroundColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (inherit from section background)'
+                ),
                 PropertyPaneTextField('blockBadge', {
                   label: 'Badge label',
                   value: currentBlocks[activeBlkIdx]?.badge || ''

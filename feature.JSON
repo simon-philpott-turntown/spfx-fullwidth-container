@@ -203,6 +203,18 @@
         "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-018",
+      "name": "VisualBrandColorPopovers",
+      "description": "Interactive visual popup color pickers with categorized Turner & Townsend brand palettes (TT Primary, TT Secondary, Backgrounds & Neutrals, Brand Tints), active selection rings, and custom HEX input for Web Part canvas, Section, and Card backgrounds.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }

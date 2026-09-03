@@ -44,6 +44,7 @@ import {
 import { IContentBlock, BlockType } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { FluentIconPicker } from './FluentIconPicker';
+import { BrandColorPickerPopover } from './BrandColorPickerPopover';
 
 const useStyles = makeStyles({
   backdrop: {
@@ -154,21 +155,6 @@ const useStyles = makeStyles({
   }
 });
 
-const TT_CARD_SWATCHES = [
-  { name: 'Default Surface', hex: '' },
-  { name: 'Mushroom', hex: '#F2EEE7' },
-  { name: 'White', hex: '#FFFFFF' },
-  { name: 'TT Blue (20%)', hex: '#D2DAE4' },
-  { name: 'TT Cyan (20%)', hex: '#CCE9F8' },
-  { name: 'TT Grey (20%)', hex: '#DCDFE0' },
-  { name: 'TT Green (20%)', hex: '#CCEECC' },
-  { name: 'TT Orange (20%)', hex: '#F7DED1' },
-  { name: 'TT Blue (Main)', hex: '#1E4479' },
-  { name: 'TT Cyan (Main)', hex: '#0090DC' },
-  { name: 'TT Grey (Main)', hex: '#505A60' },
-  { name: 'TT Green (Main)', hex: '#00A000' },
-  { name: 'TT Orange (Main)', hex: '#D55C17' }
-];
 
 export interface ICardEditDialogProps {
   isOpen: boolean;
@@ -486,43 +472,18 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </Dropdown>
             </div>
 
-            {/* Card Background Colour (Independent) */}
+            {/* Card Background Colour (Independent Visual Popup) */}
             <div className={styles.fieldRow}>
               <Label weight="semibold">Card background colour (Turner &amp; Townsend brand)</Label>
               <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                Choose a brand background or tint for this card independently.
+                Choose a brand background or tint for this card via visual popover.
               </Caption1>
-              <div className={styles.colorGrid}>
-                {TT_CARD_SWATCHES.map((swatch) => (
-                  <div
-                    key={swatch.name}
-                    className={styles.colorSwatch}
-                    style={{
-                      backgroundColor: swatch.hex || '#ffffff',
-                      outline: formData.backgroundColor === swatch.hex ? `2px solid ${tokens.colorBrandStroke1}` : undefined
-                    }}
-                    title={swatch.name + (swatch.hex ? ` (${swatch.hex})` : '')}
-                    onClick={() => setFormData({ ...formData, backgroundColor: swatch.hex || undefined })}
-                  />
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                <Input
-                  size="small"
-                  placeholder="#F2EEE7 or #1E4479"
-                  value={formData.backgroundColor || ''}
-                  onChange={(e, data) => setFormData({ ...formData, backgroundColor: data.value || undefined })}
-                  style={{ width: '160px' }}
+              <div style={{ marginTop: '4px' }}>
+                <BrandColorPickerPopover
+                  selectedColor={formData.backgroundColor}
+                  onChange={(hex) => setFormData({ ...formData, backgroundColor: hex })}
+                  defaultLabel="Default (inherit section background)"
                 />
-                {formData.backgroundColor && (
-                  <Button
-                    size="small"
-                    appearance="subtle"
-                    onClick={() => setFormData({ ...formData, backgroundColor: undefined })}
-                  >
-                    Reset to default
-                  </Button>
-                )}
               </div>
             </div>
 

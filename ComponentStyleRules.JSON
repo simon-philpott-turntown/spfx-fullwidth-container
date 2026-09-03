@@ -94,6 +94,10 @@
     "CardTagsCollapsible": {
       "classes": ["miniTagsTile", "miniTagsContainer", "miniTagsPanel", "TagRegular", "ChevronRightRegular", "ChevronDownRegular"],
       "aesthetic": "Mini collapsible tile with tag icon, count badge, and chevron. Collapsed by default, expanding to reveal managed metadata and standard tag pills."
+    },
+    "BrandColorPickerPopover": {
+      "classes": ["Popover", "PopoverTrigger", "PopoverSurface", "Button", "Input", "Divider"],
+      "aesthetic": "Fluent UI 2 visual popup color picker featuring categorized Turner & Townsend brand palettes (TT Primary, TT Secondary, Backgrounds & Neutrals, Brand Tints), active selection rings, preview swatch trigger button, and custom HEX input."
     }
   }
 }

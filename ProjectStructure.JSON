@@ -94,6 +94,11 @@
       "name": "DragIsolation",
       "path": "src/webparts/fullWidthContainer/utils/dragIsolation.ts",
       "role": "Suppresses SharePoint Online native Canvas Move Web Part controller during card boundary resizing and rich text editing."
+    },
+    {
+      "name": "BrandColorPickerPopover",
+      "path": "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
+      "role": "Fluent UI 2 visual popover color picker with categorized Turner & Townsend brand palettes, preview swatches, and custom hex input."
     }
   ]
 }

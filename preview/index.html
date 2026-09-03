@@ -868,6 +868,129 @@
     @keyframes fui-toast-slide-in {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
+    /* Brand Color Picker Popover Component */
+    .color-picker-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .color-picker-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border-radius: var(--fui-borderRadiusMedium);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      background: var(--fui-colorNeutralBackground1);
+      color: var(--fui-colorNeutralForeground1);
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+    .color-picker-trigger:hover {
+      border-color: var(--fui-colorBrandStroke1);
+      background: var(--fui-colorNeutralBackground1Hover);
+    }
+    .color-picker-trigger:focus-visible {
+      border-color: var(--fui-colorBrandStroke1);
+      box-shadow: 0 0 0 2px var(--fui-colorBrandBackground2);
+    }
+    .color-picker-preview-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+      margin-right: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .color-picker-preview-box.is-empty {
+      background: repeating-conic-gradient(#d5d5d5 0% 25%, #ffffff 0% 50%) 50% / 10px 10px;
+    }
+    .color-picker-label-text {
+      font-size: 0.82rem;
+      font-weight: 500;
+      flex: 1;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--fui-colorNeutralForeground1);
+    }
+    .color-picker-icon {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-left: 6px;
+      transition: transform 0.2s ease;
+    }
+    .color-popover-surface {
+      position: absolute;
+      z-index: 500;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--fui-colorNeutralBackground1);
+      border: 1px solid var(--fui-colorNeutralStroke1);
+      border-radius: 8px;
+      box-shadow: var(--fui-shadow16);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+      animation: popover-fade-in 0.15s ease-out;
+    }
+    @keyframes popover-fade-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .color-popover-group-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--fui-colorNeutralForeground3);
+      margin-bottom: 4px;
+    }
+    .color-popover-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .color-popover-swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.18);
+      box-sizing: border-box;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      position: relative;
+    }
+    .color-popover-swatch:hover {
+      transform: scale(1.18);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      z-index: 2;
+    }
+    .color-popover-swatch.is-active {
+      outline: 2px solid #0090DC;
+      outline-offset: 1px;
+      box-shadow: 0 0 0 2px #FFFFFF;
+    }
+    .color-popover-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid var(--fui-colorNeutralStroke2);
+    }
+    .color-popover-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
   </style>
 </head>
@@ -941,22 +1064,14 @@
         </div>
         <div class="form-group">
           <label class="form-label">Dashboard background colour (Turner &amp; Townsend brand)</label>
-          <select class="form-select" id="sel-wp-bg" onchange="updateWpBg(this.value)">
-            <option value="">Default (transparent canvas)</option>
-            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
-            <option value="#FFFFFF">TT White (#FFFFFF)</option>
-            <option value="#1E4479">TT Blue Main (#1E4479)</option>
-            <option value="#001436">TT Blue 100+ Deep (#001436)</option>
-            <option value="#0090DC">TT Cyan Main (#0090DC)</option>
-            <option value="#505A60">TT Grey Main (#505A60)</option>
-            <option value="#292929">TT Grey 100+ Dark (#292929)</option>
-            <option value="#00A000">TT Green Main (#00A000)</option>
-            <option value="#D55C17">TT Orange Main (#D55C17)</option>
-            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
-            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
-            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
-          </select>
-          <input type="text" class="form-input" id="inp-wp-bg-custom" placeholder="Custom HEX (e.g. #F2EEE7)" style="margin-top: 4px;" oninput="updateWpBg(this.value)" />
+          <div class="color-picker-wrapper" id="cp-wrapper-wp-bg">
+            <button type="button" class="color-picker-trigger" id="btn-trigger-wp-bg" onclick="toggleColorPopover('wp-bg')">
+              <div class="color-picker-preview-box is-empty" id="preview-box-wp-bg"></div>
+              <span class="color-picker-label-text" id="label-text-wp-bg">Default (transparent canvas)</span>
+              <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-wp-bg"></i>
+            </button>
+            <div class="color-popover-surface" id="popover-surface-wp-bg" style="display: none;"></div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Grid columns per row</label>
@@ -1054,18 +1169,14 @@
         </div>
         <div class="form-group">
           <label class="form-label">Section background colour (independent)</label>
-          <select class="form-select" id="sel-sec-bg" onchange="updateSecBg(this.value)">
-            <option value="">Default (inherit dashboard canvas)</option>
-            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
-            <option value="#FFFFFF">TT White (#FFFFFF)</option>
-            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
-            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
-            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
-            <option value="#CCEECC">TT Green 20% Tint (#CCEECC)</option>
-            <option value="#F7DED1">TT Orange 20% Tint (#F7DED1)</option>
-            <option value="#1E4479">TT Blue Main (#1E4479)</option>
-          </select>
-          <input type="text" class="form-input" id="inp-sec-bg-custom" placeholder="Custom HEX (e.g. #D2DAE4)" style="margin-top: 4px;" oninput="updateSecBg(this.value)" />
+          <div class="color-picker-wrapper" id="cp-wrapper-sec-bg">
+            <button type="button" class="color-picker-trigger" id="btn-trigger-sec-bg" onclick="toggleColorPopover('sec-bg')">
+              <div class="color-picker-preview-box is-empty" id="preview-box-sec-bg"></div>
+              <span class="color-picker-label-text" id="label-text-sec-bg">Default (inherit dashboard canvas)</span>
+              <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-sec-bg"></i>
+            </button>
+            <div class="color-popover-surface" id="popover-surface-sec-bg" style="display: none;"></div>
+          </div>
         </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
           <button class="sp-btn" style="flex: 1;" onclick="addSection()">+ Add section</button>
@@ -1110,22 +1221,14 @@
         </div>
         <div class="form-group">
           <label class="form-label">Card background colour (independent)</label>
-          <select class="form-select" id="sel-card-bg" onchange="updateCardBg(this.value)">
-            <option value="">Default (inherit section background)</option>
-            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
-            <option value="#FFFFFF">TT White (#FFFFFF)</option>
-            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
-            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
-            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
-            <option value="#CCEECC">TT Green 20% Tint (#CCEECC)</option>
-            <option value="#F7DED1">TT Orange 20% Tint (#F7DED1)</option>
-            <option value="#1E4479">TT Blue Main (#1E4479)</option>
-            <option value="#0090DC">TT Cyan Main (#0090DC)</option>
-            <option value="#505A60">TT Grey Main (#505A60)</option>
-            <option value="#00A000">TT Green Main (#00A000)</option>
-            <option value="#D55C17">TT Orange Main (#D55C17)</option>
-          </select>
-          <input type="text" class="form-input" id="inp-card-bg-custom" placeholder="Custom HEX (e.g. #1E4479)" style="margin-top: 4px;" oninput="updateCardBg(this.value)" />
+          <div class="color-picker-wrapper" id="cp-wrapper-card-bg">
+            <button type="button" class="color-picker-trigger" id="btn-trigger-card-bg" onclick="toggleColorPopover('card-bg')">
+              <div class="color-picker-preview-box is-empty" id="preview-box-card-bg"></div>
+              <span class="color-picker-label-text" id="label-text-card-bg">Default (inherit section background)</span>
+              <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-card-bg"></i>
+            </button>
+            <div class="color-popover-surface" id="popover-surface-card-bg" style="display: none;"></div>
+          </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
           <div class="form-group">
@@ -1737,16 +1840,10 @@
         document.getElementById('txt-sec-icon').textContent = curSec.iconName || 'BookAnswers';
         document.getElementById('sel-sec-badge').value = curSec.badge || 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
-        const selSecBg = document.getElementById('sel-sec-bg');
-        if (selSecBg) selSecBg.value = curSec.backgroundColor || '';
-        const inpSecBg = document.getElementById('inp-sec-bg-custom');
-        if (inpSecBg) inpSecBg.value = curSec.backgroundColor || '';
+        syncColorPickerTrigger('sec-bg', curSec.backgroundColor, 'Default (inherit dashboard canvas)');
       }
 
-      const selWpBg = document.getElementById('sel-wp-bg');
-      if (selWpBg) selWpBg.value = state.webPartBackgroundColor || '';
-      const inpWpBg = document.getElementById('inp-wp-bg-custom');
-      if (inpWpBg) inpWpBg.value = state.webPartBackgroundColor || '';
+      syncColorPickerTrigger('wp-bg', state.webPartBackgroundColor, 'Default (transparent canvas)');
 
       const selCardSec = document.getElementById('sel-card-sec');
       selCardSec.innerHTML = '';
@@ -1812,8 +1909,7 @@
             const txtIcon = document.getElementById('txt-card-icon');
             if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
-            setVal('sel-card-bg', curCard.backgroundColor || '');
-            setVal('inp-card-bg-custom', curCard.backgroundColor || '');
+            syncColorPickerTrigger('card-bg', curCard.backgroundColor, 'Default (inherit section background)');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
@@ -1871,22 +1967,179 @@
         render();
       }
     }
+    /* --- Turner & Townsend Brand Color Palette Definition --- */
+    const BRAND_PALETTE_CATEGORIES = [
+      {
+        name: 'TT Primary',
+        colors: [
+          { name: 'TT Blue (Main)', hex: '#1E4479' },
+          { name: 'TT Blue (Deep)', hex: '#001436' },
+          { name: 'TT Cyan (Main)', hex: '#0090DC' },
+          { name: 'TT Cyan (Deep)', hex: '#005C8A' },
+          { name: 'TT Grey (Main)', hex: '#505A60' },
+          { name: 'TT Grey (Dark)', hex: '#292929' }
+        ]
+      },
+      {
+        name: 'TT Secondary',
+        colors: [
+          { name: 'TT Green (Main)', hex: '#00A000' },
+          { name: 'TT Green (Deep)', hex: '#006600' },
+          { name: 'TT Orange (Main)', hex: '#D55C17' },
+          { name: 'TT Orange (Deep)', hex: '#8E3700' }
+        ]
+      },
+      {
+        name: 'Backgrounds & Neutrals',
+        colors: [
+          { name: 'TT Mushroom', hex: '#F2EEE7' },
+          { name: 'Pure White', hex: '#FFFFFF' },
+          { name: 'Dark Neutral', hex: '#242424' },
+          { name: 'Mid Neutral', hex: '#616161' },
+          { name: 'Soft Grey', hex: '#F8F9FA' },
+          { name: 'Off White', hex: '#FDFDFD' }
+        ]
+      },
+      {
+        name: 'Brand Tints',
+        colors: [
+          { name: 'TT Blue (80%)', hex: '#4B6994' },
+          { name: 'TT Blue (20%)', hex: '#D2DAE4' },
+          { name: 'TT Cyan (80%)', hex: '#33A6E3' },
+          { name: 'TT Cyan (20%)', hex: '#CCE9F8' },
+          { name: 'TT Grey (80%)', hex: '#737B80' },
+          { name: 'TT Grey (20%)', hex: '#DCDFE0' },
+          { name: 'TT Green (80%)', hex: '#33B333' },
+          { name: 'TT Green (20%)', hex: '#CCEECC' },
+          { name: 'TT Orange (80%)', hex: '#DD7D45' },
+          { name: 'TT Orange (20%)', hex: '#F7DED1' }
+        ]
+      }
+    ];
+
+    const BRAND_PALETTE_FLAT = BRAND_PALETTE_CATEGORIES.flatMap(c => c.colors);
+
+    let activeColorPopoverType = null;
+
+    function closeAllColorPopovers() {
+      ['wp-bg', 'sec-bg', 'card-bg'].forEach(t => {
+        const surface = document.getElementById(`popover-surface-${t}`);
+        const icon = document.getElementById(`icon-chevron-${t}`);
+        if (surface) surface.style.display = 'none';
+        if (icon) icon.className = 'fa-solid fa-chevron-down color-picker-icon';
+      });
+      activeColorPopoverType = null;
+    }
+
+    function toggleColorPopover(type) {
+      if (activeColorPopoverType === type) {
+        closeAllColorPopovers();
+        return;
+      }
+      closeAllColorPopovers();
+      activeColorPopoverType = type;
+      renderColorPopoverSurface(type);
+    }
+
+    function getCurrentColorForType(type) {
+      if (type === 'wp-bg') return state.webPartBackgroundColor || '';
+      if (type === 'sec-bg') {
+        const curSec = currentSections[state.activeSecIdx] || currentSections[0];
+        return curSec ? (curSec.backgroundColor || '') : '';
+      }
+      if (type === 'card-bg') {
+        const targetSec = currentSections[state.activeCardSecIdx];
+        const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
+        return curCard ? (curCard.backgroundColor || '') : '';
+      }
+      return '';
+    }
+
+    function getDefaultLabelForType(type) {
+      if (type === 'wp-bg') return 'Default (transparent canvas)';
+      if (type === 'sec-bg') return 'Default (inherit dashboard canvas)';
+      if (type === 'card-bg') return 'Default (inherit section background)';
+      return 'Default';
+    }
+
+    function applyColorForType(type, hex) {
+      if (type === 'wp-bg') updateWpBg(hex);
+      else if (type === 'sec-bg') updateSecBg(hex);
+      else if (type === 'card-bg') updateCardBg(hex);
+      syncSidebar();
+      closeAllColorPopovers();
+    }
+
+    function renderColorPopoverSurface(type) {
+      const surface = document.getElementById(`popover-surface-${type}`);
+      const icon = document.getElementById(`icon-chevron-${type}`);
+      if (!surface) return;
+
+      const currentColor = getCurrentColorForType(type);
+      const defaultLabel = getDefaultLabelForType(type);
+      const currentNorm = (currentColor || '').toUpperCase().trim();
+
+      let html = '';
+      BRAND_PALETTE_CATEGORIES.forEach(grp => {
+        html += `<div class="color-popover-group-title">${grp.name}</div>`;
+        html += `<div class="color-popover-grid">`;
+        grp.colors.forEach(c => {
+          const isActive = currentNorm === c.hex.toUpperCase();
+          html += `<div class="color-popover-swatch ${isActive ? 'is-active' : ''}" style="background-color: ${c.hex};" title="${c.name} (${c.hex})" onclick="applyColorForType('${type}', '${c.hex}')"></div>`;
+        });
+        html += `</div>`;
+      });
+
+      html += `
+        <div class="color-popover-actions">
+          <button type="button" class="sp-btn sp-btn-secondary" style="width: 100%; font-size: 0.78rem; padding: 4px 8px; justify-content: center;" onclick="applyColorForType('${type}', '')">
+            <i class="fa-solid fa-xmark"></i> ${defaultLabel}
+          </button>
+          <div class="color-popover-custom-row">
+            <input type="text" class="form-input" id="inp-custom-hex-${type}" placeholder="#HEX code" value="${currentColor || ''}" style="font-size: 0.78rem; height: 30px;" onkeydown="if(event.key==='Enter'){applyColorForType('${type}', this.value);}" />
+            <button type="button" class="sp-btn" style="font-size: 0.78rem; padding: 4px 10px; height: 30px;" onclick="applyColorForType('${type}', document.getElementById('inp-custom-hex-${type}').value)">Apply</button>
+          </div>
+        </div>
+      `;
+
+      surface.innerHTML = html;
+      surface.style.display = 'flex';
+      if (icon) icon.className = 'fa-solid fa-chevron-up color-picker-icon';
+    }
+
+    function syncColorPickerTrigger(type, color, defaultLabel) {
+      const box = document.getElementById(`preview-box-${type}`);
+      const lbl = document.getElementById(`label-text-${type}`);
+      if (!box || !lbl) return;
+      const hex = (color || '').toUpperCase().trim();
+      if (hex) {
+        box.style.backgroundColor = hex;
+        box.classList.remove('is-empty');
+        const found = BRAND_PALETTE_FLAT.find(c => c.hex.toUpperCase() === hex);
+        lbl.textContent = found ? `${found.name} (${hex})` : hex;
+      } else {
+        box.style.backgroundColor = 'transparent';
+        box.classList.add('is-empty');
+        lbl.textContent = defaultLabel;
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.color-picker-wrapper')) {
+        closeAllColorPopovers();
+      }
+    });
+
     function updateWpBg(val) {
       state.webPartBackgroundColor = val;
-      const sel = document.getElementById('sel-wp-bg');
-      const inp = document.getElementById('inp-wp-bg-custom');
-      if (sel) sel.value = val;
-      if (inp && inp.value !== val) inp.value = val;
+      syncColorPickerTrigger('wp-bg', val, 'Default (transparent canvas)');
       render();
     }
     function updateSecBg(val) {
       const curSec = currentSections[state.activeSecIdx];
       if (curSec) {
         curSec.backgroundColor = val;
-        const sel = document.getElementById('sel-sec-bg');
-        const inp = document.getElementById('inp-sec-bg-custom');
-        if (sel) sel.value = val;
-        if (inp && inp.value !== val) inp.value = val;
+        syncColorPickerTrigger('sec-bg', val, 'Default (inherit dashboard canvas)');
         render();
       }
     }
@@ -1894,10 +2147,7 @@
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].backgroundColor = val;
-        const sel = document.getElementById('sel-card-bg');
-        const inp = document.getElementById('inp-card-bg-custom');
-        if (sel) sel.value = val;
-        if (inp && inp.value !== val) inp.value = val;
+        syncColorPickerTrigger('card-bg', val, 'Default (inherit section background)');
         render();
       }
     }
