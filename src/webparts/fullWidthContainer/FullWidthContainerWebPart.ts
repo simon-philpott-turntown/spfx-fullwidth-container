@@ -72,6 +72,9 @@ export interface IFullWidthContainerWebPartProps {
   blockActionUrl: string;
   blockTags: string;
   importJsonRaw?: string;
+  webPartBackgroundColor?: string;
+  sectionBackgroundColor?: string;
+  blockBackgroundColor?: string;
 }
 
 export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFullWidthContainerWebPartProps> {
@@ -145,6 +148,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           gridColumns: props.gridColumns,
           gridRows: props.gridRows,
           cardHeightMode: props.cardHeightMode || 'auto',
+          webPartBackgroundColor: props.webPartBackgroundColor,
           sections: activeSections,
           isDarkTheme: this._isDarkTheme,
           userDisplayName: userDisplayName,
@@ -303,6 +307,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'sectionBadge') sections[secIdx].badge = String(newValue || '');
         if (propertyPath === 'sectionIcon') sections[secIdx].iconName = String(newValue || '');
         if (propertyPath === 'sectionDescription') sections[secIdx].description = String(newValue || '');
+        if (propertyPath === 'sectionBackgroundColor') sections[secIdx].backgroundColor = String(newValue || '');
         this._saveSections(sections);
       }
       return;
@@ -342,6 +347,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'blockMetricTrend') block.metricTrend = String(newValue || '');
         if (propertyPath === 'blockActionText') block.linkText = String(newValue || '');
         if (propertyPath === 'blockActionUrl') block.linkUrl = String(newValue || '');
+        if (propertyPath === 'blockBackgroundColor') block.backgroundColor = String(newValue || '');
         if (propertyPath === 'blockTags') {
           block.tags = String(newValue || '').split(',').map(t => t.trim()).filter(Boolean);
         }
@@ -357,6 +363,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.sectionBadge = sec.badge || '';
       this.properties.sectionIcon = sec.iconName || 'BookAnswers';
       this.properties.sectionDescription = sec.description || '';
+      this.properties.sectionBackgroundColor = sec.backgroundColor || '';
     }
   }
 
@@ -374,6 +381,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.blockMetricTrend = blk.metricTrend || '';
       this.properties.blockActionText = blk.linkText || '';
       this.properties.blockActionUrl = blk.linkUrl || '';
+      this.properties.blockBackgroundColor = blk.backgroundColor || '';
       this.properties.blockTags = blk.tags ? blk.tags.join(', ') : '';
     }
   }
@@ -575,6 +583,34 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
+              groupName: 'Dashboard background colour (Turner & Townsend brand)',
+              groupFields: [
+                PropertyPaneDropdown('webPartBackgroundColor', {
+                  label: 'Brand background preset',
+                  selectedKey: this.properties.webPartBackgroundColor || '',
+                  options: [
+                    { key: '', text: 'Default (transparent canvas)' },
+                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
+                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
+                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' },
+                    { key: '#001436', text: 'TT Blue 100+ Deep (#001436)' },
+                    { key: '#0090DC', text: 'TT Cyan Main (#0090DC)' },
+                    { key: '#505A60', text: 'TT Grey Main (#505A60)' },
+                    { key: '#292929', text: 'TT Grey 100+ Dark (#292929)' },
+                    { key: '#00A000', text: 'TT Green Main (#00A000)' },
+                    { key: '#D55C17', text: 'TT Orange Main (#D55C17)' },
+                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
+                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
+                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' }
+                  ]
+                }),
+                PropertyPaneTextField('webPartBackgroundColor', {
+                  label: 'Custom background HEX colour',
+                  value: this.properties.webPartBackgroundColor || ''
+                })
+              ]
+            },
+            {
               groupName: 'Controls and interactivity',
               groupFields: [
                 PropertyPaneToggle('showSearch', {
@@ -702,6 +738,25 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   multiline: true,
                   rows: 2,
                   value: sections[activeSecIdx]?.description || ''
+                }),
+                PropertyPaneDropdown('sectionBackgroundColor', {
+                  label: 'Section brand background preset',
+                  selectedKey: sections[activeSecIdx]?.backgroundColor || '',
+                  options: [
+                    { key: '', text: 'Default (inherit from dashboard canvas)' },
+                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
+                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
+                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
+                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
+                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' },
+                    { key: '#CCEECC', text: 'TT Green 20% Tint (#CCEECC)' },
+                    { key: '#F7DED1', text: 'TT Orange 20% Tint (#F7DED1)' },
+                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' }
+                  ]
+                }),
+                PropertyPaneTextField('sectionBackgroundColor', {
+                  label: 'Custom section background HEX',
+                  value: sections[activeSecIdx]?.backgroundColor || ''
                 })
               ]
             },
@@ -782,6 +837,29 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   multiline: true,
                   rows: 2,
                   value: currentBlocks[activeBlkIdx]?.description || ''
+                }),
+                PropertyPaneDropdown('blockBackgroundColor', {
+                  label: 'Card brand background preset',
+                  selectedKey: currentBlocks[activeBlkIdx]?.backgroundColor || '',
+                  options: [
+                    { key: '', text: 'Default (inherit from section background)' },
+                    { key: '#F2EEE7', text: 'TT Mushroom (#F2EEE7)' },
+                    { key: '#FFFFFF', text: 'TT White (#FFFFFF)' },
+                    { key: '#D2DAE4', text: 'TT Blue 20% Tint (#D2DAE4)' },
+                    { key: '#CCE9F8', text: 'TT Cyan 20% Tint (#CCE9F8)' },
+                    { key: '#DCDFE0', text: 'TT Grey 20% Tint (#DCDFE0)' },
+                    { key: '#CCEECC', text: 'TT Green 20% Tint (#CCEECC)' },
+                    { key: '#F7DED1', text: 'TT Orange 20% Tint (#F7DED1)' },
+                    { key: '#1E4479', text: 'TT Blue Main (#1E4479)' },
+                    { key: '#0090DC', text: 'TT Cyan Main (#0090DC)' },
+                    { key: '#505A60', text: 'TT Grey Main (#505A60)' },
+                    { key: '#00A000', text: 'TT Green Main (#00A000)' },
+                    { key: '#D55C17', text: 'TT Orange Main (#D55C17)' }
+                  ]
+                }),
+                PropertyPaneTextField('blockBackgroundColor', {
+                  label: 'Custom card background HEX',
+                  value: currentBlocks[activeBlkIdx]?.backgroundColor || ''
                 }),
                 PropertyPaneTextField('blockBadge', {
                   label: 'Badge label',

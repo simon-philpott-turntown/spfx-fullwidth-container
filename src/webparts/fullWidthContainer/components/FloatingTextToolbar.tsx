@@ -139,32 +139,54 @@ export interface IFloatingTextToolbarProps {
 }
 
 /**
- * Full SharePoint Online Site Theme & Semantic Palette
+ * Turner & Townsend Official Brand Color Palette (Version 2.2 — July 2025)
  */
 export const SITE_THEME_COLORS = [
-  // Primary Site Theme Tints
-  { name: 'Theme Darker', hex: '#004578', group: 'theme' },
-  { name: 'Theme Dark', hex: '#005a9e', group: 'theme' },
-  { name: 'Brand Primary', hex: '#0078d4', group: 'theme' },
-  { name: 'Theme Light', hex: '#2b88d8', group: 'theme' },
-  { name: 'Theme Lighter', hex: '#c7e0f4', group: 'theme' },
-  { name: 'Theme Tint', hex: '#eff6fc', group: 'theme' },
+  // Primary Brand Colors & 100+ Shades
+  { name: 'TT Blue (Main)', hex: '#1E4479', group: 'primary' },
+  { name: 'TT Blue (100+ Deep)', hex: '#001436', group: 'primary' },
+  { name: 'TT Cyan (Main)', hex: '#0090DC', group: 'primary' },
+  { name: 'TT Cyan (100+ Deep)', hex: '#0073A5', group: 'primary' },
+  { name: 'TT Grey (Main)', hex: '#505A60', group: 'primary' },
+  { name: 'TT Grey (100+ Dark)', hex: '#292929', group: 'primary' },
 
-  // Neutral & Content Palette
-  { name: 'Black / Dark 1', hex: '#242424', group: 'neutral' },
-  { name: 'Neutral Dark', hex: '#323130', group: 'neutral' },
-  { name: 'Neutral Primary', hex: '#424242', group: 'neutral' },
-  { name: 'Neutral Secondary', hex: '#605e5c', group: 'neutral' },
-  { name: 'Neutral Tertiary', hex: '#a19f9d', group: 'neutral' },
-  { name: 'Neutral Light / White', hex: '#ffffff', group: 'neutral' },
+  // Secondary Brand Colors & 100+ Shades
+  { name: 'TT Green (Main)', hex: '#00A000', group: 'secondary' },
+  { name: 'TT Green (100+ Deep)', hex: '#007E1E', group: 'secondary' },
+  { name: 'TT Orange (Main)', hex: '#D55C17', group: 'secondary' },
+  { name: 'TT Orange (100+ Deep)', hex: '#C83700', group: 'secondary' },
 
-  // SharePoint Status & Accent Colors
-  { name: 'Success Green', hex: '#107c10', group: 'accents' },
-  { name: 'Warning Gold', hex: '#d83b01', group: 'accents' },
-  { name: 'Error Crimson', hex: '#a80000', group: 'accents' },
-  { name: 'Royal Blue', hex: '#004e8c', group: 'accents' },
-  { name: 'Deep Purple', hex: '#5c2d91', group: 'accents' },
-  { name: 'Teal Accent', hex: '#038387', group: 'accents' }
+  // Backgrounds & Neutrals
+  { name: 'TT Mushroom (Background)', hex: '#F2EEE7', group: 'backgrounds' },
+  { name: 'TT White', hex: '#FFFFFF', group: 'backgrounds' },
+  { name: 'Dark Neutral', hex: '#1F1F1F', group: 'backgrounds' },
+  { name: 'Mid Neutral', hex: '#616161', group: 'backgrounds' },
+
+  // Primary & Secondary Brand Tints
+  { name: 'TT Blue (80%)', hex: '#4B6994', group: 'tints' },
+  { name: 'TT Blue (60%)', hex: '#788FAE', group: 'tints' },
+  { name: 'TT Blue (40%)', hex: '#A5B4C9', group: 'tints' },
+  { name: 'TT Blue (20%)', hex: '#D2DAE4', group: 'tints' },
+
+  { name: 'TT Cyan (80%)', hex: '#33A6E3', group: 'tints' },
+  { name: 'TT Cyan (60%)', hex: '#66BCEB', group: 'tints' },
+  { name: 'TT Cyan (40%)', hex: '#99D3F1', group: 'tints' },
+  { name: 'TT Cyan (20%)', hex: '#CCE9F8', group: 'tints' },
+
+  { name: 'TT Grey (80%)', hex: '#737B80', group: 'tints' },
+  { name: 'TT Grey (60%)', hex: '#969CA0', group: 'tints' },
+  { name: 'TT Grey (40%)', hex: '#B9BDC0', group: 'tints' },
+  { name: 'TT Grey (20%)', hex: '#DCDFE0', group: 'tints' },
+
+  { name: 'TT Green (80%)', hex: '#33B333', group: 'tints' },
+  { name: 'TT Green (60%)', hex: '#66C666', group: 'tints' },
+  { name: 'TT Green (40%)', hex: '#99D999', group: 'tints' },
+  { name: 'TT Green (20%)', hex: '#CCEECC', group: 'tints' },
+
+  { name: 'TT Orange (80%)', hex: '#DD7D45', group: 'tints' },
+  { name: 'TT Orange (60%)', hex: '#E69D74', group: 'tints' },
+  { name: 'TT Orange (40%)', hex: '#EEBEA2', group: 'tints' },
+  { name: 'TT Orange (20%)', hex: '#F7DED1', group: 'tints' }
 ];
 
 export const HIGHLIGHT_COLORS = [
@@ -367,43 +389,57 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             onMouseDown={handleToolbarMouseDown}
           />
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '6px', minWidth: '200px' }}>
-          <div className={styles.colorSectionHeader}>Site Theme Colours</div>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '8px', minWidth: '220px', maxWidth: '260px' }}>
+          <div className={styles.colorSectionHeader}>TT Primary (Blue, Cyan, Grey)</div>
           <div className={styles.colorGrid}>
-            {SITE_THEME_COLORS.filter((c) => c.group === 'theme').map((c) => (
+            {SITE_THEME_COLORS.filter((c) => c.group === 'primary').map((c) => (
               <div
                 key={c.name}
                 className={styles.colorSwatch}
                 style={{ backgroundColor: c.hex }}
-                title={c.name}
+                title={`${c.name} (${c.hex})`}
                 onMouseDown={handleToolbarMouseDown}
                 onClick={() => handleCommand('foreColor', c.hex)}
               />
             ))}
           </div>
 
-          <div className={styles.colorSectionHeader}>Neutral & Text Shades</div>
+          <div className={styles.colorSectionHeader}>TT Secondary (Green, Orange)</div>
           <div className={styles.colorGrid}>
-            {SITE_THEME_COLORS.filter((c) => c.group === 'neutral').map((c) => (
+            {SITE_THEME_COLORS.filter((c) => c.group === 'secondary').map((c) => (
               <div
                 key={c.name}
                 className={styles.colorSwatch}
                 style={{ backgroundColor: c.hex }}
-                title={c.name}
+                title={`${c.name} (${c.hex})`}
                 onMouseDown={handleToolbarMouseDown}
                 onClick={() => handleCommand('foreColor', c.hex)}
               />
             ))}
           </div>
 
-          <div className={styles.colorSectionHeader}>Standard Accents</div>
+          <div className={styles.colorSectionHeader}>Backgrounds & Neutrals</div>
           <div className={styles.colorGrid}>
-            {SITE_THEME_COLORS.filter((c) => c.group === 'accents').map((c) => (
+            {SITE_THEME_COLORS.filter((c) => c.group === 'backgrounds').map((c) => (
+              <div
+                key={c.name}
+                className={styles.colorSwatch}
+                style={{ backgroundColor: c.hex, border: c.hex === '#FFFFFF' ? '1px solid #d1d1d1' : undefined }}
+                title={`${c.name} (${c.hex})`}
+                onMouseDown={handleToolbarMouseDown}
+                onClick={() => handleCommand('foreColor', c.hex)}
+              />
+            ))}
+          </div>
+
+          <div className={styles.colorSectionHeader}>Brand Tints (80%, 60%, 40%, 20%)</div>
+          <div className={styles.colorGrid}>
+            {SITE_THEME_COLORS.filter((c) => c.group === 'tints').map((c) => (
               <div
                 key={c.name}
                 className={styles.colorSwatch}
                 style={{ backgroundColor: c.hex }}
-                title={c.name}
+                title={`${c.name} (${c.hex})`}
                 onMouseDown={handleToolbarMouseDown}
                 onClick={() => handleCommand('foreColor', c.hex)}
               />

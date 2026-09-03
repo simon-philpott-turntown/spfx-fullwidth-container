@@ -89,6 +89,11 @@
       "name": "ContainerModels",
       "path": "src/webparts/fullWidthContainer/models/IContainerModels.ts",
       "role": "Type definitions for panels, tabs, items, layout configuration, and default UK datasets."
+    },
+    {
+      "name": "DragIsolation",
+      "path": "src/webparts/fullWidthContainer/utils/dragIsolation.ts",
+      "role": "Suppresses SharePoint Online native Canvas Move Web Part controller during card boundary resizing and rich text editing."
     }
   ]
 }

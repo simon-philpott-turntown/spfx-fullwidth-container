@@ -183,6 +183,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     gridColumns,
     gridRows,
     cardHeightMode,
+    webPartBackgroundColor,
     sections,
     isDarkTheme,
     spfxTheme,
@@ -231,8 +232,12 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     }
   }, [containerStyle, styles]);
 
+  const rootCustomStyle: React.CSSProperties = React.useMemo(() => {
+    return webPartBackgroundColor ? { backgroundColor: webPartBackgroundColor } : {};
+  }, [webPartBackgroundColor]);
+
   return (
-    <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, rootStyleClass)}>
+    <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, rootStyleClass)} style={rootCustomStyle}>
       <div className={mergeClasses(styles.inner, compactPadding ? styles.innerCompact : undefined)}>
         {/* Visual Edit Mode Indicator */}
         {isEditMode && (

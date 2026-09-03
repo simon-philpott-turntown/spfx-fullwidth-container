@@ -36,6 +36,7 @@ import { RichTextEditable } from './RichTextEditable';
 import { InsertionBar } from './InsertionBar';
 import { TermStorePicker } from './TermStorePicker';
 import { LiveDataRenderer } from './LiveDataRenderer';
+import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
 
 const useStyles = makeStyles({
   cardWrapper: {
@@ -268,6 +269,27 @@ export interface IBlockRendererProps {
   onUpdate?: (updatedFields: Partial<IContentBlock>) => void;
 }
 
+/**
+ * Calculates whether a color has low perceptual luminance to enforce WCAG text contrast.
+ */
+const isDarkColor = (color?: string): boolean => {
+  if (!color || color === 'transparent') return false;
+  const hex = color.replace('#', '').trim();
+  if (hex.length === 3) {
+    const r = parseInt(hex[0] + hex[0], 16);
+    const g = parseInt(hex[1] + hex[1], 16);
+    const b = parseInt(hex[2] + hex[2], 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 < 135;
+  }
+  if (hex.length === 6) {
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 < 135;
+  }
+  return false;
+};
+
 export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   block,
   containerGridColumns,
@@ -294,6 +316,19 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
+    // Suppress SharePoint's native Canvas Move Web Part controller during card resize
+    suppressSharePointWebPartDrag(true, cardWrapperRef.current || undefined);
+
+    const stopSpCanvasDrag = (dragEv: Event): void => {
+      dragEv.preventDefault();
+      dragEv.stopPropagation();
+      if ('stopImmediatePropagation' in dragEv) {
+        (dragEv as DragEvent).stopImmediatePropagation();
+      }
+    };
+    window.addEventListener('dragstart', stopSpCanvasDrag, { capture: true, passive: false });
+    window.addEventListener('selectstart', stopSpCanvasDrag, { capture: true, passive: false });
+
     const startX = e.clientX;
     const startY = e.clientY;
     const startCols = block.colSpan || 1;
@@ -310,17 +345,19 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     let currentRows = startRows;
 
     const onMouseMove = (moveEvent: MouseEvent): void => {
+      moveEvent.preventDefault();
+      moveEvent.stopPropagation();
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
 
       if (type === 'right' || type === 'corner') {
-        const colDelta = Math.round(deltaX / Math.max(100, cellWidth * 0.7));
+        const colDelta = Math.round(deltaX / Math.max(90, cellWidth * 0.65));
         currentCols = Math.max(1, Math.min(maxCols, startCols + colDelta));
         setLiveColSpan(currentCols);
       }
 
       if (type === 'bottom' || type === 'corner') {
-        const rowDelta = Math.round(deltaY / Math.max(80, cellHeight * 0.7));
+        const rowDelta = Math.round(deltaY / Math.max(70, cellHeight * 0.65));
         currentRows = Math.max(1, Math.min(maxRows, startRows + rowDelta));
         setLiveRowSpan(currentRows);
       }
@@ -329,6 +366,9 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     const onMouseUp = (): void => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('dragstart', stopSpCanvasDrag, { capture: true });
+      window.removeEventListener('selectstart', stopSpCanvasDrag, { capture: true });
+      suppressSharePointWebPartDrag(false, cardWrapperRef.current || undefined);
       setIsDraggingBoundary(false);
 
       if (onUpdate && (currentCols !== (block.colSpan || 1) || currentRows !== (block.rowSpan || 1))) {
@@ -347,6 +387,9 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {/* Right Boundary Drag Handle */}
         <div
           className={styles.resizeHandleRight}
+          draggable={false}
+          onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => startBoundaryDrag(e, 'right')}
           title="Drag boundary to adjust column span"
         >
@@ -356,6 +399,9 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {/* Bottom Boundary Drag Handle */}
         <div
           className={styles.resizeHandleBottom}
+          draggable={false}
+          onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => startBoundaryDrag(e, 'bottom')}
           title="Drag boundary to adjust row span"
         >
@@ -365,6 +411,9 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {/* Corner Boundary Drag Handle */}
         <div
           className={styles.resizeHandleCorner}
+          draggable={false}
+          onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => startBoundaryDrag(e, 'corner')}
           title="Drag corner to adjust column & row span"
         >
@@ -374,7 +423,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {isDraggingBoundary && (
           <div className={styles.resizeLiveBadge}>
             <Badge appearance="filled" color="brand" size="small">
-              📐 Span {liveColSpan} cols × {liveRowSpan} rows
+              📐 Span {liveColSpan} cols × {liveRowSpan} rows (Preview)
             </Badge>
           </div>
         )}
@@ -700,15 +749,30 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     : (containerCardHeightMode || 'auto');
   const isAutoHeight = effectiveHeightMode === 'auto';
 
+  const currentEffectiveCol = isDraggingBoundary ? liveColSpan : (block.colSpan || 1);
+  const currentEffectiveRow = isDraggingBoundary ? liveRowSpan : (block.rowSpan || 1);
+
   const wrapperGridStyle: React.CSSProperties = {
-    gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
-    gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
+    gridColumn: currentEffectiveCol > 1 ? `span ${currentEffectiveCol}` : undefined,
+    gridRow: currentEffectiveRow > 1 ? `span ${currentEffectiveRow}` : undefined,
     alignSelf: isAutoHeight ? 'start' : 'stretch',
-    height: isAutoHeight ? 'auto' : '100%'
+    height: isAutoHeight ? 'auto' : '100%',
+    position: 'relative',
+    zIndex: isDraggingBoundary ? 40 : 1,
+    transition: isDraggingBoundary ? 'none' : 'grid-column 0.15s ease, grid-row 0.15s ease'
   };
 
+  const isDarkBg = isDarkColor(block.backgroundColor);
   const cardDynamicStyle: React.CSSProperties = {
-    height: isAutoHeight ? 'auto' : '100%'
+    height: isAutoHeight ? 'auto' : '100%',
+    backgroundColor: block.backgroundColor || undefined,
+    color: block.textColor || (isDarkBg ? '#FFFFFF' : undefined),
+    borderColor: isDraggingBoundary
+      ? tokens.colorBrandStroke1
+      : (isDarkBg ? 'rgba(255, 255, 255, 0.2)' : undefined),
+    boxShadow: isDraggingBoundary
+      ? `0 0 0 2px ${tokens.colorBrandStroke1}, 0 8px 24px rgba(0, 144, 220, 0.35)`
+      : undefined
   };
 
   // Metric Block
@@ -728,7 +792,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             style={{
               fontWeight: 600,
               fontSize: '1rem',
-              color: tokens.colorNeutralForeground1,
+              color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1),
               marginBottom: '4px'
             }}
           />
@@ -831,7 +895,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   style={{
                     fontWeight: 600,
                     fontSize: '1.1rem',
-                    color: tokens.colorNeutralForeground1
+                    color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
                   }}
                 />
               </div>
@@ -846,7 +910,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
                   style={{
                     fontSize: '0.85rem',
-                    color: tokens.colorNeutralForeground3,
+                    color: isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground3,
                     marginTop: '2px'
                   }}
                 />
@@ -912,7 +976,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 style={{
                   fontWeight: 600,
                   fontSize: '1.15rem',
-                  color: tokens.colorNeutralForeground1
+                  color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
                 }}
               />
             </div>
@@ -935,7 +999,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             placeholder="Card summary"
             onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
             style={{
-              color: tokens.colorNeutralForeground2,
+              color: isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground2,
               fontSize: '0.95rem',
               lineHeight: '1.4rem'
             }}

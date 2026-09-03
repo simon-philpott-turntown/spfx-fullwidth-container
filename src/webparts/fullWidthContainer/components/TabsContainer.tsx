@@ -212,7 +212,14 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
     gridTemplateColumns:
       gridColumns && gridColumns > 0
         ? `repeat(${gridColumns}, 1fr)`
-        : 'repeat(auto-fill, minmax(320px, 1fr))'
+        : 'repeat(auto-fill, minmax(320px, 1fr))',
+    ...(activeSection?.backgroundColor
+      ? {
+          backgroundColor: activeSection.backgroundColor,
+          padding: '16px',
+          borderRadius: '8px'
+        }
+      : {})
   };
 
   return (

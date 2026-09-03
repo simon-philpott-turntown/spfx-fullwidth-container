@@ -940,6 +940,25 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Dashboard background colour (Turner &amp; Townsend brand)</label>
+          <select class="form-select" id="sel-wp-bg" onchange="updateWpBg(this.value)">
+            <option value="">Default (transparent canvas)</option>
+            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
+            <option value="#FFFFFF">TT White (#FFFFFF)</option>
+            <option value="#1E4479">TT Blue Main (#1E4479)</option>
+            <option value="#001436">TT Blue 100+ Deep (#001436)</option>
+            <option value="#0090DC">TT Cyan Main (#0090DC)</option>
+            <option value="#505A60">TT Grey Main (#505A60)</option>
+            <option value="#292929">TT Grey 100+ Dark (#292929)</option>
+            <option value="#00A000">TT Green Main (#00A000)</option>
+            <option value="#D55C17">TT Orange Main (#D55C17)</option>
+            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
+            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
+            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
+          </select>
+          <input type="text" class="form-input" id="inp-wp-bg-custom" placeholder="Custom HEX (e.g. #F2EEE7)" style="margin-top: 4px;" oninput="updateWpBg(this.value)" />
+        </div>
+        <div class="form-group">
           <label class="form-label">Grid columns per row</label>
           <select class="form-select" id="sel-grid-cols" onchange="updateGridCols(this.value)">
             <option value="0">Auto-fit responsive (dynamic)</option>
@@ -1033,6 +1052,21 @@
           <label class="form-label">Section guidance or summary</label>
           <textarea class="form-textarea" id="inp-sec-desc" rows="2" oninput="updateSecDesc(this.value)" placeholder="Section summary"></textarea>
         </div>
+        <div class="form-group">
+          <label class="form-label">Section background colour (independent)</label>
+          <select class="form-select" id="sel-sec-bg" onchange="updateSecBg(this.value)">
+            <option value="">Default (inherit dashboard canvas)</option>
+            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
+            <option value="#FFFFFF">TT White (#FFFFFF)</option>
+            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
+            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
+            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
+            <option value="#CCEECC">TT Green 20% Tint (#CCEECC)</option>
+            <option value="#F7DED1">TT Orange 20% Tint (#F7DED1)</option>
+            <option value="#1E4479">TT Blue Main (#1E4479)</option>
+          </select>
+          <input type="text" class="form-input" id="inp-sec-bg-custom" placeholder="Custom HEX (e.g. #D2DAE4)" style="margin-top: 4px;" oninput="updateSecBg(this.value)" />
+        </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
           <button class="sp-btn" style="flex: 1;" onclick="addSection()">+ Add section</button>
           <button class="sp-btn sp-btn-secondary" onclick="deleteSection()">Delete</button>
@@ -1073,6 +1107,25 @@
             <option value="auto">Fit content height (independent)</option>
             <option value="equal">Equal row height (match tallest)</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Card background colour (independent)</label>
+          <select class="form-select" id="sel-card-bg" onchange="updateCardBg(this.value)">
+            <option value="">Default (inherit section background)</option>
+            <option value="#F2EEE7">TT Mushroom (#F2EEE7)</option>
+            <option value="#FFFFFF">TT White (#FFFFFF)</option>
+            <option value="#D2DAE4">TT Blue 20% Tint (#D2DAE4)</option>
+            <option value="#CCE9F8">TT Cyan 20% Tint (#CCE9F8)</option>
+            <option value="#DCDFE0">TT Grey 20% Tint (#DCDFE0)</option>
+            <option value="#CCEECC">TT Green 20% Tint (#CCEECC)</option>
+            <option value="#F7DED1">TT Orange 20% Tint (#F7DED1)</option>
+            <option value="#1E4479">TT Blue Main (#1E4479)</option>
+            <option value="#0090DC">TT Cyan Main (#0090DC)</option>
+            <option value="#505A60">TT Grey Main (#505A60)</option>
+            <option value="#00A000">TT Green Main (#00A000)</option>
+            <option value="#D55C17">TT Orange Main (#D55C17)</option>
+          </select>
+          <input type="text" class="form-input" id="inp-card-bg-custom" placeholder="Custom HEX (e.g. #1E4479)" style="margin-top: 4px;" oninput="updateCardBg(this.value)" />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
           <div class="form-group">
@@ -1684,7 +1737,16 @@
         document.getElementById('txt-sec-icon').textContent = curSec.iconName || 'BookAnswers';
         document.getElementById('sel-sec-badge').value = curSec.badge || 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
+        const selSecBg = document.getElementById('sel-sec-bg');
+        if (selSecBg) selSecBg.value = curSec.backgroundColor || '';
+        const inpSecBg = document.getElementById('inp-sec-bg-custom');
+        if (inpSecBg) inpSecBg.value = curSec.backgroundColor || '';
       }
+
+      const selWpBg = document.getElementById('sel-wp-bg');
+      if (selWpBg) selWpBg.value = state.webPartBackgroundColor || '';
+      const inpWpBg = document.getElementById('inp-wp-bg-custom');
+      if (inpWpBg) inpWpBg.value = state.webPartBackgroundColor || '';
 
       const selCardSec = document.getElementById('sel-card-sec');
       selCardSec.innerHTML = '';
@@ -1750,6 +1812,8 @@
             const txtIcon = document.getElementById('txt-card-icon');
             if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
+            setVal('sel-card-bg', curCard.backgroundColor || '');
+            setVal('inp-card-bg-custom', curCard.backgroundColor || '');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
@@ -1804,6 +1868,36 @@
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].heightMode = val;
+        render();
+      }
+    }
+    function updateWpBg(val) {
+      state.webPartBackgroundColor = val;
+      const sel = document.getElementById('sel-wp-bg');
+      const inp = document.getElementById('inp-wp-bg-custom');
+      if (sel) sel.value = val;
+      if (inp && inp.value !== val) inp.value = val;
+      render();
+    }
+    function updateSecBg(val) {
+      const curSec = currentSections[state.activeSecIdx];
+      if (curSec) {
+        curSec.backgroundColor = val;
+        const sel = document.getElementById('sel-sec-bg');
+        const inp = document.getElementById('inp-sec-bg-custom');
+        if (sel) sel.value = val;
+        if (inp && inp.value !== val) inp.value = val;
+        render();
+      }
+    }
+    function updateCardBg(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].backgroundColor = val;
+        const sel = document.getElementById('sel-card-bg');
+        const inp = document.getElementById('inp-card-bg-custom');
+        if (sel) sel.value = val;
+        if (inp && inp.value !== val) inp.value = val;
         render();
       }
     }
@@ -1870,9 +1964,35 @@
       }
     }
 
+    function isDarkColor(color) {
+      if (!color || color === 'transparent') return false;
+      const hex = color.replace('#', '').trim();
+      if (hex.length === 3) {
+        const r = parseInt(hex[0] + hex[0], 16);
+        const g = parseInt(hex[1] + hex[1], 16);
+        const b = parseInt(hex[2] + hex[2], 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 < 135;
+      }
+      if (hex.length === 6) {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 < 135;
+      }
+      return false;
+    }
+
     function startCardResizeDrag(e, block, type) {
       e.preventDefault();
       e.stopPropagation();
+
+      const stopDrag = (dragEv) => {
+        dragEv.preventDefault();
+        dragEv.stopPropagation();
+      };
+      window.addEventListener('dragstart', stopDrag, { capture: true, passive: false });
+      window.addEventListener('selectstart', stopDrag, { capture: true, passive: false });
+
       const startX = e.clientX;
       const startY = e.clientY;
       const startCols = block.colSpan || 1;
@@ -1880,16 +2000,21 @@
       const maxCols = state.gridCols > 0 ? state.gridCols : 4;
       const maxRows = state.gridRows > 0 ? state.gridRows : 5;
 
+      block._isResizing = true;
+      render();
+
       const onMouseMove = (moveEvent) => {
+        moveEvent.preventDefault();
+        moveEvent.stopPropagation();
         const deltaX = moveEvent.clientX - startX;
         const deltaY = moveEvent.clientY - startY;
 
         if (type === 'right' || type === 'corner') {
-          const colDelta = Math.round(deltaX / 140);
+          const colDelta = Math.round(deltaX / 120);
           block.colSpan = Math.max(1, Math.min(maxCols, startCols + colDelta));
         }
         if (type === 'bottom' || type === 'corner') {
-          const rowDelta = Math.round(deltaY / 90);
+          const rowDelta = Math.round(deltaY / 75);
           block.rowSpan = Math.max(1, Math.min(maxRows, startRows + rowDelta));
         }
         render();
@@ -1898,6 +2023,10 @@
       const onMouseUp = () => {
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
+        window.removeEventListener('dragstart', stopDrag, { capture: true });
+        window.removeEventListener('selectstart', stopDrag, { capture: true });
+        delete block._isResizing;
+        render();
         syncSidebar();
         showToast(`📐 Card span updated: ${block.colSpan || 1} col(s) × ${block.rowSpan || 1} row(s)`, 'fa-up-right-and-down-left-from-center');
       };
@@ -2130,29 +2259,37 @@
       ];
 
       const siteThemePalette = [
-        { group: 'Site Theme', colors: [
-          { name: 'Theme Darker', hex: '#004578' },
-          { name: 'Theme Dark', hex: '#005a9e' },
-          { name: 'Brand Primary', hex: '#0078d4' },
-          { name: 'Theme Light', hex: '#2b88d8' },
-          { name: 'Theme Lighter', hex: '#c7e0f4' },
-          { name: 'Theme Tint', hex: '#eff6fc' }
+        { group: 'TT Primary', colors: [
+          { name: 'TT Blue (Main)', hex: '#1E4479' },
+          { name: 'TT Blue (100+ Deep)', hex: '#001436' },
+          { name: 'TT Cyan (Main)', hex: '#0090DC' },
+          { name: 'TT Cyan (100+ Deep)', hex: '#0073A5' },
+          { name: 'TT Grey (Main)', hex: '#505A60' },
+          { name: 'TT Grey (100+ Dark)', hex: '#292929' }
         ]},
-        { group: 'Neutrals & Text', colors: [
-          { name: 'Black / Dark', hex: '#242424' },
-          { name: 'Neutral Dark', hex: '#323130' },
-          { name: 'Neutral Primary', hex: '#424242' },
-          { name: 'Neutral Secondary', hex: '#605e5c' },
-          { name: 'Neutral Tertiary', hex: '#a19f9d' },
-          { name: 'White', hex: '#ffffff' }
+        { group: 'TT Secondary', colors: [
+          { name: 'TT Green (Main)', hex: '#00A000' },
+          { name: 'TT Green (100+ Deep)', hex: '#007E1E' },
+          { name: 'TT Orange (Main)', hex: '#D55C17' },
+          { name: 'TT Orange (100+ Deep)', hex: '#C83700' }
         ]},
-        { group: 'Accents', colors: [
-          { name: 'Success Green', hex: '#107c10' },
-          { name: 'Warning Gold', hex: '#d83b01' },
-          { name: 'Error Crimson', hex: '#a80000' },
-          { name: 'Royal Blue', hex: '#004e8c' },
-          { name: 'Deep Purple', hex: '#5c2d91' },
-          { name: 'Teal', hex: '#038387' }
+        { group: 'Backgrounds & Neutrals', colors: [
+          { name: 'TT Mushroom (Background)', hex: '#F2EEE7' },
+          { name: 'TT White', hex: '#FFFFFF' },
+          { name: 'Dark Neutral', hex: '#1F1F1F' },
+          { name: 'Mid Neutral', hex: '#616161' }
+        ]},
+        { group: 'Brand Tints', colors: [
+          { name: 'TT Blue (80%)', hex: '#4B6994' },
+          { name: 'TT Blue (20%)', hex: '#D2DAE4' },
+          { name: 'TT Cyan (80%)', hex: '#33A6E3' },
+          { name: 'TT Cyan (20%)', hex: '#CCE9F8' },
+          { name: 'TT Grey (80%)', hex: '#737B80' },
+          { name: 'TT Grey (20%)', hex: '#DCDFE0' },
+          { name: 'TT Green (80%)', hex: '#33B333' },
+          { name: 'TT Green (20%)', hex: '#CCEECC' },
+          { name: 'TT Orange (80%)', hex: '#DD7D45' },
+          { name: 'TT Orange (20%)', hex: '#F7DED1' }
         ]}
       ];
 
@@ -2334,7 +2471,12 @@
         gridTemplateColumns: state.gridCols > 0 ? `repeat(${state.gridCols}, 1fr)` : 'repeat(auto-fill, minmax(320px, 1fr))'
       };
 
-      return React.createElement('div', { className: 'fui-root style-' + (state.containerStyle || 'standard') },
+      const containerCustomStyle = state.webPartBackgroundColor ? { backgroundColor: state.webPartBackgroundColor } : {};
+
+      return React.createElement('div', {
+        className: 'fui-root style-' + (state.containerStyle || 'standard'),
+        style: containerCustomStyle
+      },
         // Edit Mode Banner
         isEditMode ? React.createElement('div', { className: 'edit-banner' },
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
@@ -2406,18 +2548,29 @@
             )
           ),
           React.createElement('div', { style: { marginTop: '1.25rem' } },
-            React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
+            React.createElement('div', {
+              className: 'fui-grid',
+              style: Object.assign({}, gridInlineStyle, activeSection && activeSection.backgroundColor ? { backgroundColor: activeSection.backgroundColor, padding: '1rem', borderRadius: '8px' } : {})
+            },
               filterBlocks(activeSection.blocks).map((block, bIdx) => {
                 const effectiveHeightMode = (block.heightMode && block.heightMode !== 'default') ? block.heightMode : (state.cardHeightMode || 'auto');
                 const isAutoHeight = effectiveHeightMode === 'auto';
+                const isDarkBg = isDarkColor(block.backgroundColor);
                 const cardSpanStyle = {
                   gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
                   gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
                   alignSelf: isAutoHeight ? 'start' : 'stretch',
-                  height: isAutoHeight ? 'auto' : '100%'
+                  height: isAutoHeight ? 'auto' : '100%',
+                  backgroundColor: block.backgroundColor || undefined,
+                  color: isDarkBg ? '#FFFFFF' : undefined,
+                  position: 'relative',
+                  zIndex: block._isResizing ? 45 : 1,
+                  boxShadow: block._isResizing ? '0 0 0 2px var(--fui-colorBrandStroke1), 0 8px 24px rgba(0, 144, 220, 0.35)' : undefined,
+                  transition: block._isResizing ? 'none' : 'grid-column 0.15s ease, grid-row 0.15s ease'
                 };
                 return block.type === 'metric' ?
                 React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
+                  block._isResizing ? React.createElement('div', { style: { position: 'absolute', top: '8px', right: '8px', background: '#1E4479', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, zIndex: 60, pointerEvents: 'none' } }, '📐 ' + (block.colSpan || 1) + ' col × ' + (block.rowSpan || 1) + ' row (Preview)') : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-right', title: 'Drag boundary to adjust columns', onMouseDown: (e) => startCardResizeDrag(e, block, 'right') }) : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-bottom', title: 'Drag boundary to adjust rows', onMouseDown: (e) => startCardResizeDrag(e, block, 'bottom') }) : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
@@ -2425,13 +2578,13 @@
                     React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
                       React.createElement(EditableText, {
                         tag: 'span',
-                        style: { fontSize: '0.9rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground2)' },
+                        style: { fontSize: '0.9rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground2)' },
                         html: block.title,
                         onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
                       }),
                       isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
                     ),
-                    React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
+                    React.createElement('div', { className: 'fui-metric-value', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.metricValue),
                     React.createElement('div', { className: 'fui-metric-trend' },
                       React.createElement('span', { className: 'fui-badge fui-badge-success' },
                         React.createElement('i', { className: 'fa-solid fa-arrow-trend-up', style: { marginRight: '4px' } }),
@@ -2440,7 +2593,7 @@
                     ),
                     React.createElement(EditableText, {
                       tag: 'p',
-                      style: { fontSize: '0.85rem', color: 'var(--fui-colorNeutralForeground3)', marginTop: '4px' },
+                      style: { fontSize: '0.85rem', color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground3)', marginTop: '4px' },
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
@@ -2450,6 +2603,7 @@
                   )
                 ) :
                 React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
+                  block._isResizing ? React.createElement('div', { style: { position: 'absolute', top: '8px', right: '8px', background: '#1E4479', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, zIndex: 60, pointerEvents: 'none' } }, '📐 ' + (block.colSpan || 1) + ' col × ' + (block.rowSpan || 1) + ' row (Preview)') : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-right', title: 'Drag boundary to adjust columns', onMouseDown: (e) => startCardResizeDrag(e, block, 'right') }) : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-bottom', title: 'Drag boundary to adjust rows', onMouseDown: (e) => startCardResizeDrag(e, block, 'bottom') }) : null,
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
@@ -2465,13 +2619,13 @@
                     ),
                     React.createElement(EditableText, {
                       tag: 'h3',
-                      style: { fontSize: '1.15rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground1)', marginBottom: '4px' },
+                      style: { fontSize: '1.15rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)', marginBottom: '4px' },
                       html: block.title,
                       onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
                     }),
                     React.createElement(EditableText, {
                       tag: 'p',
-                      style: { fontSize: '0.9rem', color: 'var(--fui-colorNeutralForeground2)', lineHeight: '1.35rem' },
+                      style: { fontSize: '0.9rem', color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)', lineHeight: '1.35rem' },
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
@@ -2507,29 +2661,47 @@
                   React.createElement('i', { className: 'fa-solid fa-chevron-down' })
                 )
               ),
-              React.createElement('div', { className: 'fui-accordion-panel' },
+              React.createElement('div', {
+                className: 'fui-accordion-panel',
+                style: sec.backgroundColor ? { backgroundColor: sec.backgroundColor, padding: '1rem', borderRadius: '8px' } : {}
+              },
                 React.createElement('div', { className: 'fui-grid', style: gridInlineStyle },
                   filterBlocks(sec.blocks).map((block, bIdx) => {
                     const effectiveHeightMode = (block.heightMode && block.heightMode !== 'default') ? block.heightMode : (state.cardHeightMode || 'auto');
                     const isAutoHeight = effectiveHeightMode === 'auto';
+                    const isDarkBg = isDarkColor(block.backgroundColor);
                     const cardSpanStyle = {
                       gridColumn: block.colSpan && block.colSpan > 1 ? `span ${block.colSpan}` : undefined,
                       gridRow: block.rowSpan && block.rowSpan > 1 ? `span ${block.rowSpan}` : undefined,
                       alignSelf: isAutoHeight ? 'start' : 'stretch',
-                      height: isAutoHeight ? 'auto' : '100%'
+                      height: isAutoHeight ? 'auto' : '100%',
+                      backgroundColor: block.backgroundColor || undefined,
+                      color: isDarkBg ? '#FFFFFF' : undefined,
+                      position: 'relative',
+                      zIndex: block._isResizing ? 45 : 1,
+                      boxShadow: block._isResizing ? '0 0 0 2px var(--fui-colorBrandStroke1), 0 8px 24px rgba(0, 144, 220, 0.35)' : undefined,
+                      transition: block._isResizing ? 'none' : 'grid-column 0.15s ease, grid-row 0.15s ease'
                     };
                     return block.type === 'metric' ?
                     React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
+                      block._isResizing ? React.createElement('div', { style: { position: 'absolute', top: '8px', right: '8px', background: '#1E4479', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, zIndex: 60, pointerEvents: 'none' } }, '📐 ' + (block.colSpan || 1) + ' col × ' + (block.rowSpan || 1) + ' row (Preview)') : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-right', title: 'Drag boundary to adjust columns', onMouseDown: (e) => startCardResizeDrag(e, block, 'right') }) : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-bottom', title: 'Drag boundary to adjust rows', onMouseDown: (e) => startCardResizeDrag(e, block, 'bottom') }) : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
                       React.createElement('div', null,
-                        React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--fui-colorNeutralForeground3)' } }, block.title),
-                        React.createElement('div', { className: 'fui-metric-value' }, block.metricValue),
+                        React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground3)' } }, block.title),
+                        React.createElement('div', { className: 'fui-metric-value', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.metricValue),
                         React.createElement('div', { className: 'fui-metric-trend' },
                           React.createElement('span', { className: 'fui-badge fui-badge-success' }, block.metricTrend)
                         ),
-                        React.createElement('p', { className: 'fui-card-desc' }, block.description)
+                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description)
                       )
                     ) :
                     React.createElement('div', { key: block.id, className: 'fui-card', style: cardSpanStyle },
+                      block._isResizing ? React.createElement('div', { style: { position: 'absolute', top: '8px', right: '8px', background: '#1E4479', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, zIndex: 60, pointerEvents: 'none' } }, '📐 ' + (block.colSpan || 1) + ' col × ' + (block.rowSpan || 1) + ' row (Preview)') : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-right', title: 'Drag boundary to adjust columns', onMouseDown: (e) => startCardResizeDrag(e, block, 'right') }) : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-bottom', title: 'Drag boundary to adjust rows', onMouseDown: (e) => startCardResizeDrag(e, block, 'bottom') }) : null,
+                      isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
                       React.createElement('div', null,
                         React.createElement('div', { className: 'fui-card-header' },
                           React.createElement('div', { className: 'fui-icon-box' },
@@ -2537,8 +2709,8 @@
                           ),
                           block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                         ),
-                        React.createElement('h3', { className: 'fui-card-title' }, block.title),
-                        React.createElement('p', { className: 'fui-card-desc' }, block.description)
+                        React.createElement('h3', { className: 'fui-card-title', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.title),
+                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description)
                       )
                     );
                   })

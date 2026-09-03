@@ -132,8 +132,43 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.spacingHorizontalS),
     fontSize: '20px',
     color: tokens.colorBrandForeground1
+  },
+  colorGrid: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+    alignItems: 'center',
+    marginTop: '4px'
+  },
+  colorSwatch: {
+    width: '24px',
+    height: '24px',
+    borderRadius: '4px',
+    border: '1px solid #d1d1d1',
+    cursor: 'pointer',
+    transition: 'transform 0.1s ease',
+    ':hover': {
+      transform: 'scale(1.15)',
+      boxShadow: tokens.shadow4
+    }
   }
 });
+
+const TT_CARD_SWATCHES = [
+  { name: 'Default Surface', hex: '' },
+  { name: 'Mushroom', hex: '#F2EEE7' },
+  { name: 'White', hex: '#FFFFFF' },
+  { name: 'TT Blue (20%)', hex: '#D2DAE4' },
+  { name: 'TT Cyan (20%)', hex: '#CCE9F8' },
+  { name: 'TT Grey (20%)', hex: '#DCDFE0' },
+  { name: 'TT Green (20%)', hex: '#CCEECC' },
+  { name: 'TT Orange (20%)', hex: '#F7DED1' },
+  { name: 'TT Blue (Main)', hex: '#1E4479' },
+  { name: 'TT Cyan (Main)', hex: '#0090DC' },
+  { name: 'TT Grey (Main)', hex: '#505A60' },
+  { name: 'TT Green (Main)', hex: '#00A000' },
+  { name: 'TT Orange (Main)', hex: '#D55C17' }
+];
 
 export interface ICardEditDialogProps {
   isOpen: boolean;
@@ -449,6 +484,46 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <Option value="auto">Fit content height (independent)</Option>
                 <Option value="equal">Equal row height (match tallest)</Option>
               </Dropdown>
+            </div>
+
+            {/* Card Background Colour (Independent) */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Card background colour (Turner &amp; Townsend brand)</Label>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                Choose a brand background or tint for this card independently.
+              </Caption1>
+              <div className={styles.colorGrid}>
+                {TT_CARD_SWATCHES.map((swatch) => (
+                  <div
+                    key={swatch.name}
+                    className={styles.colorSwatch}
+                    style={{
+                      backgroundColor: swatch.hex || '#ffffff',
+                      outline: formData.backgroundColor === swatch.hex ? `2px solid ${tokens.colorBrandStroke1}` : undefined
+                    }}
+                    title={swatch.name + (swatch.hex ? ` (${swatch.hex})` : '')}
+                    onClick={() => setFormData({ ...formData, backgroundColor: swatch.hex || undefined })}
+                  />
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                <Input
+                  size="small"
+                  placeholder="#F2EEE7 or #1E4479"
+                  value={formData.backgroundColor || ''}
+                  onChange={(e, data) => setFormData({ ...formData, backgroundColor: data.value || undefined })}
+                  style={{ width: '160px' }}
+                />
+                {formData.backgroundColor && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => setFormData({ ...formData, backgroundColor: undefined })}
+                  >
+                    Reset to default
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Global Term Store Taxonomy Integration */}

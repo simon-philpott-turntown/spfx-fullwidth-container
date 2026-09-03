@@ -101,6 +101,8 @@ export interface IContentBlock {
   colSpan?: number; // 1, 2, 3, 4 columns
   rowSpan?: number; // 1, 2 rows
   heightMode?: 'default' | 'auto' | 'equal'; // Auto (fit content) vs Equal (match tallest on row)
+  backgroundColor?: string; // Custom card background color (independent)
+  textColor?: string; // Custom card text color override
   items?: ICardItem[]; // Composable nested elements
 }
 
@@ -113,8 +115,67 @@ export interface IContainerSection {
   iconName?: string;
   badge?: string;
   description?: string;
+  backgroundColor?: string; // Custom section background color (independent)
+  textColor?: string; // Custom section text color override
   blocks: IContentBlock[];
 }
+
+/**
+ * Official Turner & Townsend Brand Colors (Version 2.2 — July 2025)
+ */
+export const TT_BRAND_COLORS = {
+  // Primary Brand Colors
+  blue: '#1E4479',
+  blueDeep: '#001436', // 100+
+  cyan: '#0090DC',
+  cyanDeep: '#0073A5', // 100+
+  grey: '#505A60',
+  greyDeep: '#292929', // 100+
+
+  // Secondary Brand Colors
+  green: '#00A000',
+  greenDeep: '#007E1E', // 100+
+  orange: '#D55C17',
+  orangeDeep: '#C83700', // 100+
+
+  // Backgrounds
+  mushroom: '#F2EEE7',
+  white: '#FFFFFF',
+
+  // Primary Tints
+  blueTints: {
+    t80: '#4B6994',
+    t60: '#788FAE',
+    t40: '#A5B4C9',
+    t20: '#D2DAE4'
+  },
+  cyanTints: {
+    t80: '#33A6E3',
+    t60: '#66BCEB',
+    t40: '#99D3F1',
+    t20: '#CCE9F8'
+  },
+  greyTints: {
+    t80: '#737B80',
+    t60: '#969CA0',
+    t40: '#B9BDC0',
+    t20: '#DCDFE0'
+  },
+
+  // Secondary Tints
+  greenTints: {
+    t80: '#33B333',
+    t60: '#66C666',
+    t40: '#99D999',
+    t20: '#CCEECC'
+  },
+  orangeTints: {
+    t80: '#DD7D45',
+    t60: '#E69D74',
+    t40: '#EEBEA2',
+    t20: '#F7DED1'
+  }
+};
 
 /**
  * Default sample sections demonstrating descriptive placeholders, British metrics (£), and sentence case syntax.

@@ -17,6 +17,7 @@ export interface IFullWidthContainerProps {
   gridColumns?: number;
   gridRows?: number;
   cardHeightMode?: 'auto' | 'equal';
+  webPartBackgroundColor?: string;
   sections: IContainerSection[];
   isDarkTheme: boolean;
   userDisplayName: string;
@@ -25,6 +26,7 @@ export interface IFullWidthContainerProps {
   onOpenPropertyPane?: () => void;
   onTitleChange?: (newTitle: string) => void;
   onSubtitleChange?: (newSubtitle: string) => void;
+  onWebPartBackgroundColorChange?: (color: string) => void;
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
   onAddSection?: () => void;
   onDeleteSection?: (sectionId: string) => void;

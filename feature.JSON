@@ -165,6 +165,34 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-015",
+      "name": "TurnerAndTownsendBrandPaletteAndIndependentBackgrounds",
+      "description": "Integration of Turner & Townsend July 2025 brand colors into text/highlight ribbons and independent background color customization across Web Part canvas, Sections, and Cards.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-016",
+      "name": "LivePhysicalCardResizePreviewAndSharePointMoveIsolation",
+      "description": "Real-time physical card dimension expansion/shrinking during boundary dragging with live measurement badge, and full suppression/isolation from SharePoint Online native Move Web Part drag-and-drop controller.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/utils/dragIsolation.ts",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+        "preview/index.html"
+      ]
     }
   ]
 }

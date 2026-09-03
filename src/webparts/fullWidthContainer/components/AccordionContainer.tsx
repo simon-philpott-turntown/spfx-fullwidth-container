@@ -322,7 +322,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                 </div>
               </AccordionHeader>
 
-              <AccordionPanel>
+              <AccordionPanel style={section.backgroundColor ? { backgroundColor: section.backgroundColor, padding: '12px', borderRadius: '8px' } : undefined}>
                 <div className={styles.grid} style={gridStyle}>
                   {filteredBlocks.map((block, blkIdx) => (
                     <BlockRenderer

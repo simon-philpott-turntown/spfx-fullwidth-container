@@ -7,6 +7,7 @@
 import * as React from 'react';
 import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
 import { FloatingTextToolbar } from './FloatingTextToolbar';
+import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
 
 const useStyles = makeStyles({
   wrapper: {
@@ -115,6 +116,7 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
   const handleFocus = (): void => {
     setIsFocused(true);
     handleSelectionSave();
+    suppressSharePointWebPartDrag(true, elementRef.current || undefined);
   };
 
   const handleBlur = (e: React.FocusEvent): void => {
@@ -122,6 +124,7 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
     if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.floating-toolbar-container')) {
       return;
     }
+    suppressSharePointWebPartDrag(false, elementRef.current || undefined);
     setTimeout(() => {
       setIsFocused(false);
       if (elementRef.current) {
@@ -145,7 +148,11 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      draggable={false}
+      onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+    >
       {isFocused && (
         <div className={styles.toolbarWrapper} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}>
           <FloatingTextToolbar onFormat={handleFormat} />
@@ -155,6 +162,7 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
         ref: elementRef,
         contentEditable: true,
         suppressContentEditableWarning: true,
+        draggable: false,
         className: `${styles.editable} ${isFocused ? styles.editableActive : ''} ${className}`,
         'data-placeholder': placeholder,
         style: commonStyle,
@@ -162,7 +170,17 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
         onBlur: handleBlur,
         onInput: handleInput,
         onKeyUp: handleSelectionSave,
-        onMouseUp: handleSelectionSave
+        onMouseUp: handleSelectionSave,
+        onMouseDown: (e: React.MouseEvent) => {
+          e.stopPropagation();
+        },
+        onPointerDown: (e: React.PointerEvent) => {
+          e.stopPropagation();
+        },
+        onDragStart: (e: React.DragEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }
       })}
     </div>
   );
