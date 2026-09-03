@@ -94,6 +94,9 @@ export interface IFullWidthContainerWebPartProps {
   sectionTitle: string;
   sectionBadge: string;
   sectionIcon: string;
+  sectionIconColor?: string;
+  sectionIconBackgroundColor?: string;
+  sectionShowIconBackground?: boolean;
   sectionDescription: string;
 
   // Active card / metric editor state in Property Pane
@@ -104,6 +107,9 @@ export interface IFullWidthContainerWebPartProps {
   blockDescription: string;
   blockBadge: string;
   blockIcon: string;
+  blockIconColor?: string;
+  blockIconBackgroundColor?: string;
+  blockShowIconBackground?: boolean;
   blockHeightMode: 'default' | 'auto' | 'equal';
   blockMetricValue: string;
   blockMetricTrend: string;
@@ -483,6 +489,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'sectionTitle') sections[secIdx].title = String(newValue || '');
         if (propertyPath === 'sectionBadge') sections[secIdx].badge = String(newValue || '');
         if (propertyPath === 'sectionIcon') sections[secIdx].iconName = String(newValue || '');
+        if (propertyPath === 'sectionIconColor') sections[secIdx].iconColor = String(newValue || '');
+        if (propertyPath === 'sectionIconBackgroundColor') sections[secIdx].iconBackgroundColor = String(newValue || '');
+        if (propertyPath === 'sectionShowIconBackground') sections[secIdx].showIconBackground = Boolean(newValue);
         if (propertyPath === 'sectionDescription') sections[secIdx].description = String(newValue || '');
         if (propertyPath === 'sectionBackgroundColor') sections[secIdx].backgroundColor = String(newValue || '');
         this._saveSections(sections);
@@ -519,6 +528,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'blockDescription') block.description = String(newValue || '');
         if (propertyPath === 'blockBadge') block.badge = String(newValue || '');
         if (propertyPath === 'blockIcon') block.iconName = String(newValue || '');
+        if (propertyPath === 'blockIconColor') block.iconColor = String(newValue || '');
+        if (propertyPath === 'blockIconBackgroundColor') block.iconBackgroundColor = String(newValue || '');
+        if (propertyPath === 'blockShowIconBackground') block.showIconBackground = Boolean(newValue);
         if (propertyPath === 'blockHeightMode') block.heightMode = newValue as 'default' | 'auto' | 'equal';
         if (propertyPath === 'blockMetricValue') block.metricValue = String(newValue || '');
         if (propertyPath === 'blockMetricTrend') block.metricTrend = String(newValue || '');
@@ -539,6 +551,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.sectionTitle = sec.title || '';
       this.properties.sectionBadge = sec.badge || '';
       this.properties.sectionIcon = sec.iconName || 'BookAnswers';
+      this.properties.sectionIconColor = sec.iconColor || '';
+      this.properties.sectionIconBackgroundColor = sec.iconBackgroundColor || '';
+      this.properties.sectionShowIconBackground = sec.showIconBackground !== false;
       this.properties.sectionDescription = sec.description || '';
       this.properties.sectionBackgroundColor = sec.backgroundColor || '';
     }
@@ -553,6 +568,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.blockDescription = blk.description || '';
       this.properties.blockBadge = blk.badge || '';
       this.properties.blockIcon = blk.iconName || 'BookAnswers';
+      this.properties.blockIconColor = blk.iconColor || '';
+      this.properties.blockIconBackgroundColor = blk.iconBackgroundColor || '';
+      this.properties.blockShowIconBackground = blk.showIconBackground !== false;
       this.properties.blockHeightMode = blk.heightMode || 'default';
       this.properties.blockMetricValue = blk.metricValue || '';
       this.properties.blockMetricTrend = blk.metricTrend || '';
@@ -927,6 +945,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                 PropertyPaneDropdown('sectionBadge', {
                   label: 'Section badge',
                   options: [
+                    { key: '', text: '(None - do not display badge)' },
                     { key: 'Badge', text: 'Badge' },
                     { key: 'Core', text: 'Core' },
                     { key: 'Real-time', text: 'Real-time' },
@@ -935,7 +954,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 'Finance', text: 'Finance' },
                     { key: 'Verified', text: 'Verified' }
                   ],
-                  selectedKey: sections[activeSecIdx]?.badge || 'Badge'
+                  selectedKey: sections[activeSecIdx]?.badge !== undefined ? sections[activeSecIdx]?.badge : 'Badge'
                 }),
                 PropertyPaneIconField('sectionIconField', {
                   label: 'Section Icon (Fluent UI 2 & Custom Brand SVGs)',
@@ -946,6 +965,30 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.render();
                   },
                   buttonLabel: 'Browse 229 Icons...'
+                }),
+                createColorPickerPropertyField(
+                  `sectionIconColorField_${activeSecIdx}`,
+                  sections[activeSecIdx]?.iconColor,
+                  (color?: string) => {
+                    this.properties.sectionIconColor = color || '';
+                    this.onPropertyPaneFieldChanged('sectionIconColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (brand foreground)'
+                ),
+                createColorPickerPropertyField(
+                  `sectionIconBgColorField_${activeSecIdx}`,
+                  sections[activeSecIdx]?.iconBackgroundColor,
+                  (color?: string) => {
+                    this.properties.sectionIconBackgroundColor = color || '';
+                    this.onPropertyPaneFieldChanged('sectionIconBackgroundColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (soft tint box)'
+                ),
+                PropertyPaneToggle('sectionShowIconBackground', {
+                  label: 'Include icon background container',
+                  checked: sections[activeSecIdx]?.showIconBackground === true
                 }),
                 PropertyPaneTextField('sectionDescription', {
                   label: 'Section guidance or summary',
@@ -1033,6 +1076,30 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.render();
                   },
                   buttonLabel: 'Browse 229 Icons...'
+                }),
+                createColorPickerPropertyField(
+                  `blockIconColorField_${activeBlockSecIdx}_${activeBlkIdx}`,
+                  currentBlocks[activeBlkIdx]?.iconColor,
+                  (color?: string) => {
+                    this.properties.blockIconColor = color || '';
+                    this.onPropertyPaneFieldChanged('blockIconColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (brand foreground)'
+                ),
+                createColorPickerPropertyField(
+                  `blockIconBgColorField_${activeBlockSecIdx}_${activeBlkIdx}`,
+                  currentBlocks[activeBlkIdx]?.iconBackgroundColor,
+                  (color?: string) => {
+                    this.properties.blockIconBackgroundColor = color || '';
+                    this.onPropertyPaneFieldChanged('blockIconBackgroundColor', undefined, color || '');
+                    this.render();
+                  },
+                  'Default (soft tint box)'
+                ),
+                PropertyPaneToggle('blockShowIconBackground', {
+                  label: 'Include icon background container',
+                  checked: currentBlocks[activeBlkIdx]?.showIconBackground !== false
                 }),
                 PropertyPaneDropdown('blockHeightMode', {
                   label: 'Card height behavior',

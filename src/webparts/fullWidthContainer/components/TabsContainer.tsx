@@ -20,19 +20,8 @@ import {
   Body1
 } from '@fluentui/react-components';
 import {
-  BookRegular,
-  MoneyRegular,
-  AppsRegular,
-  ShieldCheckmarkRegular,
-  FolderRegular,
   InfoRegular,
-  AddRegular,
-  CheckmarkCircleRegular,
-  ArrowTrendingLinesRegular,
-  WrenchRegular,
-  LockClosedRegular,
-  GlobeRegular,
-  DocumentRegular
+  AddRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -105,40 +94,37 @@ export interface ITabsContainerProps {
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
 }
 
-function renderTabIcon(name?: string): React.ReactElement {
-  switch (name) {
-    case 'BookAnswers':
-    case 'Book':
-      return <BookRegular fontSize={18} />;
-    case 'Financial':
-    case 'Money':
-      return <MoneyRegular fontSize={18} />;
-    case 'AppIconDefault':
-    case 'App':
-    case 'Apps':
-      return <AppsRegular fontSize={18} />;
-    case 'ComplianceAudit':
-    case 'Shield':
-      return <ShieldCheckmarkRegular fontSize={18} />;
-    case 'CheckList':
-    case 'Checkmark':
-      return <CheckmarkCircleRegular fontSize={18} />;
-    case 'TimelineProgress':
-    case 'Timeline':
-      return <ArrowTrendingLinesRegular fontSize={18} />;
-    case 'Calculator':
-    case 'Wrench':
-      return <WrenchRegular fontSize={18} />;
-    case 'Lock':
-      return <LockClosedRegular fontSize={18} />;
-    case 'Globe':
-      return <GlobeRegular fontSize={18} />;
-    case 'DocumentManagement':
-    case 'Document':
-      return <DocumentRegular fontSize={18} />;
-    default:
-      return <FolderRegular fontSize={18} />;
+import { renderUnifiedIcon } from './CustomSvgIconRegistry';
+
+function renderTabIcon(section?: IContainerSection): React.ReactElement {
+  const iconKey = section?.iconName || 'BookAnswers';
+  const iconColor = section?.iconColor;
+  const showBg = section?.showIconBackground;
+  const bg = section?.iconBackgroundColor || tokens.colorBrandBackground2;
+
+  const iconElement = renderUnifiedIcon(iconKey, iconColor, '18px');
+
+  if (showBg) {
+    return (
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '26px',
+          height: '26px',
+          borderRadius: '6px',
+          backgroundColor: bg,
+          color: iconColor || tokens.colorBrandForeground2,
+          marginRight: '2px'
+        }}
+      >
+        {iconElement}
+      </span>
+    );
   }
+
+  return iconElement;
 }
 
 export const TabsContainer: React.FC<ITabsContainerProps> = ({
@@ -236,7 +222,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
           <Tab
             key={section.id}
             value={section.id}
-            icon={renderTabIcon(section.iconName)}
+            icon={renderTabIcon(section)}
           >
             {section.title}
             {section.badge && (

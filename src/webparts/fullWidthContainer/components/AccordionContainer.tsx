@@ -27,18 +27,7 @@ import {
   ChevronDoubleDownRegular,
   ChevronDoubleUpRegular,
   InfoRegular,
-  FolderRegular,
-  BookRegular,
-  MoneyRegular,
-  AppsRegular,
-  ShieldCheckmarkRegular,
-  AddRegular,
-  CheckmarkCircleRegular,
-  ArrowTrendingLinesRegular,
-  WrenchRegular,
-  LockClosedRegular,
-  GlobeRegular,
-  DocumentRegular
+  AddRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -142,40 +131,38 @@ export interface IAccordionContainerProps {
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
 }
 
-function renderSectionIcon(name?: string): React.ReactElement {
-  switch (name) {
-    case 'BookAnswers':
-    case 'Book':
-      return <BookRegular fontSize={20} />;
-    case 'Financial':
-    case 'Money':
-      return <MoneyRegular fontSize={20} />;
-    case 'AppIconDefault':
-    case 'App':
-    case 'Apps':
-      return <AppsRegular fontSize={20} />;
-    case 'ComplianceAudit':
-    case 'Shield':
-      return <ShieldCheckmarkRegular fontSize={20} />;
-    case 'CheckList':
-    case 'Checkmark':
-      return <CheckmarkCircleRegular fontSize={20} />;
-    case 'TimelineProgress':
-    case 'Timeline':
-      return <ArrowTrendingLinesRegular fontSize={20} />;
-    case 'Calculator':
-    case 'Wrench':
-      return <WrenchRegular fontSize={20} />;
-    case 'Lock':
-      return <LockClosedRegular fontSize={20} />;
-    case 'Globe':
-      return <GlobeRegular fontSize={20} />;
-    case 'DocumentManagement':
-    case 'Document':
-      return <DocumentRegular fontSize={20} />;
-    default:
-      return <FolderRegular fontSize={20} />;
+import { renderUnifiedIcon } from './CustomSvgIconRegistry';
+
+function renderSectionIcon(section?: IContainerSection): React.ReactElement {
+  const iconKey = section?.iconName || 'BookAnswers';
+  const iconColor = section?.iconColor;
+  const showBg = section?.showIconBackground;
+  const bg = section?.iconBackgroundColor || tokens.colorBrandBackground2;
+
+  const iconElement = renderUnifiedIcon(iconKey, iconColor, '20px');
+
+  if (showBg) {
+    return (
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '32px',
+          height: '32px',
+          borderRadius: '6px',
+          backgroundColor: bg,
+          color: iconColor || tokens.colorBrandForeground2,
+          marginRight: '6px',
+          flexShrink: 0
+        }}
+      >
+        {iconElement}
+      </span>
+    );
   }
+
+  return iconElement;
 }
 
 export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
@@ -300,7 +287,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
             >
               <AccordionHeader>
                 <div className={styles.headerContent}>
-                  {renderSectionIcon(section.iconName)}
+                  {renderSectionIcon(section)}
                   <div className={styles.headerTextCol}>
                     <Body1 style={{ fontWeight: 600 }}>{section.title}</Body1>
                     {section.description && (

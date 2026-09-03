@@ -157,6 +157,7 @@ export const SITE_THEME_COLORS = [
   { name: 'TT Orange (100+ Deep)', hex: '#C83700', group: 'secondary' },
 
   // Backgrounds & Neutrals
+  { name: 'Transparent (Show Through)', hex: 'transparent', group: 'backgrounds' },
   { name: 'TT Mushroom (Background)', hex: '#F2EEE7', group: 'backgrounds' },
   { name: 'TT White', hex: '#FFFFFF', group: 'backgrounds' },
   { name: 'Dark Neutral', hex: '#1F1F1F', group: 'backgrounds' },

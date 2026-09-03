@@ -1190,6 +1190,7 @@
         <div class="form-group">
           <label class="form-label">Section badge</label>
           <select class="form-select" id="sel-sec-badge" onchange="updateSecBadge(this.value)">
+            <option value="">(None - do not display)</option>
             <option value="Badge">Badge</option>
             <option value="Core">Core</option>
             <option value="Real-time">Real-time</option>
@@ -1198,6 +1199,34 @@
             <option value="Finance">Finance</option>
             <option value="Verified">Verified</option>
           </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label class="form-label">Icon glyph colour</label>
+            <div class="color-picker-wrapper" id="cp-wrapper-sec-icon-color">
+              <button type="button" class="color-picker-trigger" id="btn-trigger-sec-icon-color" onclick="toggleColorPopover('sec-icon-color')">
+                <div class="color-picker-preview-box is-empty" id="preview-box-sec-icon-color"></div>
+                <span class="color-picker-label-text" id="label-text-sec-icon-color">Default (brand)</span>
+                <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-sec-icon-color"></i>
+              </button>
+              <div class="color-popover-surface" id="popover-surface-sec-icon-color" style="display: none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Icon background</label>
+            <div class="color-picker-wrapper" id="cp-wrapper-sec-icon-bg">
+              <button type="button" class="color-picker-trigger" id="btn-trigger-sec-icon-bg" onclick="toggleColorPopover('sec-icon-bg')">
+                <div class="color-picker-preview-box is-empty" id="preview-box-sec-icon-bg"></div>
+                <span class="color-picker-label-text" id="label-text-sec-icon-bg">Default (soft box)</span>
+                <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-sec-icon-bg"></i>
+              </button>
+              <div class="color-popover-surface" id="popover-surface-sec-icon-bg" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: -4px;">
+          <input type="checkbox" id="chk-sec-show-icon-bg" onchange="updateSecShowIconBg(this.checked)" style="accent-color: var(--fui-colorBrandBackground1); cursor: pointer;" />
+          <label for="chk-sec-show-icon-bg" class="form-label" style="margin-bottom: 0; cursor: pointer;">Include icon background container</label>
         </div>
         <div class="form-group">
           <label class="form-label">Section guidance or summary</label>
@@ -1368,8 +1397,13 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Badge label</label>
-          <input type="text" class="form-input" id="inp-card-badge" placeholder="Badge" oninput="updateCardBadge(this.value)" />
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label" style="margin-bottom: 0;">Badge label</label>
+            <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px; height: auto;" onclick="clearCardBadge()" title="Remove badge (do not display)">
+              Remove badge
+            </button>
+          </div>
+          <input type="text" class="form-input" id="inp-card-badge" placeholder="Leave empty for no badge" oninput="updateCardBadge(this.value)" style="margin-top: 4px;" />
         </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
           <button class="sp-btn" style="flex: 1;" onclick="addCard()">+ Add card</button>
@@ -1404,6 +1438,7 @@
     </div>
   </div>
 
+  <script src="./tt_icons.js"></script>
   <script>
     let isEditMode = true;
     let isSidebarOpen = true;
@@ -1415,6 +1450,9 @@
       { key: 'svg-brand-analytics', label: 'Brand Analytics Chart', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><path d="M4 20.5H20" stroke-linecap="round" /><path d="M6.5 16.5L10.5 11.5L14 14.5L18.5 7.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="18.5" cy="7.5" r="1.5" fill="currentColor" /></svg>` },
       { key: 'svg-brand-shield', label: 'Brand Assurance Shield', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.5L4.5 7V13C4.5 17.5 12 21 12 21C12 21 19.5 17.5 19.5 13V7L12 3.5Z" /><path d="M9.5 12L11 13.5L15 9.5" stroke-linecap="round" stroke-linejoin="round" /></svg>` },
       { key: 'svg-brand-coins', label: 'Brand Financial Currency (£)', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" /><path d="M13.5 8.5C12.5 8.5 11.5 9 11 10C10.5 11 10.5 12 10.5 13.5H14.5M9.5 12H13.5" stroke-linecap="round" /><path d="M9.5 15.5H14.5" stroke-linecap="round" /></svg>` },
+
+      // Incorporate all 224 TT corporate SVG icons from D:\Playbook\Icons\_Blue
+      ...((window.TT_EXTRA_ICONS && Array.isArray(window.TT_EXTRA_ICONS)) ? window.TT_EXTRA_ICONS : []),
 
       // Standard Fluent UI 2 Icons
       { key: 'BookAnswers', label: 'Documentation', cat: 'common', fa: 'fa-book-open' },
@@ -1916,9 +1954,13 @@
       if (curSec) {
         document.getElementById('inp-sec-title').value = curSec.title || '';
         document.getElementById('txt-sec-icon').textContent = curSec.iconName || 'BookAnswers';
-        document.getElementById('sel-sec-badge').value = curSec.badge || 'Badge';
+        document.getElementById('sel-sec-badge').value = curSec.badge !== undefined ? curSec.badge : 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
         syncColorPickerTrigger('sec-bg', curSec.backgroundColor, 'Default (inherit dashboard canvas)');
+        syncColorPickerTrigger('sec-icon-color', curSec.iconColor, 'Default (brand)');
+        syncColorPickerTrigger('sec-icon-bg', curSec.iconBackgroundColor, 'Default (soft box)');
+        const chkSecIconBg = document.getElementById('chk-sec-show-icon-bg');
+        if (chkSecIconBg) chkSecIconBg.checked = curSec.showIconBackground === true;
       }
 
       syncColorPickerTrigger('wp-bg', state.webPartBackgroundColor, 'Default (transparent canvas)');
@@ -2075,6 +2117,7 @@
       {
         name: 'Backgrounds & Neutrals',
         colors: [
+          { name: 'Transparent (Show Through)', hex: 'transparent' },
           { name: 'TT Mushroom', hex: '#F2EEE7' },
           { name: 'Pure White', hex: '#FFFFFF' },
           { name: 'Dark Neutral', hex: '#242424' },
@@ -2119,7 +2162,7 @@
     let activeColorPopoverType = null;
 
     function closeAllColorPopovers() {
-      ['wp-bg', 'sec-bg', 'card-bg', 'icon-color', 'icon-bg'].forEach(t => {
+      ['wp-bg', 'sec-bg', 'card-bg', 'icon-color', 'icon-bg', 'sec-icon-color', 'sec-icon-bg'].forEach(t => {
         const surface = document.getElementById(`popover-surface-${t}`);
         const icon = document.getElementById(`icon-chevron-${t}`);
         if (surface) surface.style.display = 'none';
@@ -2144,6 +2187,14 @@
         const curSec = currentSections[state.activeSecIdx] || currentSections[0];
         return curSec ? (curSec.backgroundColor || '') : '';
       }
+      if (type === 'sec-icon-color') {
+        const curSec = currentSections[state.activeSecIdx] || currentSections[0];
+        return curSec ? (curSec.iconColor || '') : '';
+      }
+      if (type === 'sec-icon-bg') {
+        const curSec = currentSections[state.activeSecIdx] || currentSections[0];
+        return curSec ? (curSec.iconBackgroundColor || '') : '';
+      }
       if (type === 'card-bg') {
         const targetSec = currentSections[state.activeCardSecIdx];
         const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
@@ -2165,6 +2216,8 @@
     function getDefaultLabelForType(type) {
       if (type === 'wp-bg') return 'Default (transparent canvas)';
       if (type === 'sec-bg') return 'Default (inherit dashboard canvas)';
+      if (type === 'sec-icon-color') return 'Default (brand)';
+      if (type === 'sec-icon-bg') return 'Default (soft box)';
       if (type === 'card-bg') return 'Default (inherit section background)';
       if (type === 'icon-color') return 'Default (brand)';
       if (type === 'icon-bg') return 'Default (soft box)';
@@ -2174,6 +2227,8 @@
     function applyColorForType(type, hex) {
       if (type === 'wp-bg') updateWpBg(hex);
       else if (type === 'sec-bg') updateSecBg(hex);
+      else if (type === 'sec-icon-color') updateSecIconColor(hex);
+      else if (type === 'sec-icon-bg') updateSecIconBg(hex);
       else if (type === 'card-bg') updateCardBg(hex);
       else if (type === 'icon-color') updateCardIconColor(hex);
       else if (type === 'icon-bg') updateCardIconBg(hex);
@@ -2196,7 +2251,11 @@
         html += `<div class="color-popover-grid">`;
         grp.colors.forEach(c => {
           const isActive = currentNorm === c.hex.toUpperCase();
-          html += `<div class="color-popover-swatch ${isActive ? 'is-active' : ''}" style="background-color: ${c.hex};" title="${c.name} (${c.hex})" onclick="applyColorForType('${type}', '${c.hex}')"></div>`;
+          const isTransparent = c.hex === 'transparent';
+          const swatchBg = isTransparent
+            ? 'background: linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0); background-size: 8px 8px; background-position: 0 0, 4px 4px;'
+            : `background-color: ${c.hex};`;
+          html += `<div class="color-popover-swatch ${isActive ? 'is-active' : ''}" style="${swatchBg}" title="${c.name} (${c.hex})" onclick="applyColorForType('${type}', '${c.hex}')"></div>`;
         });
         html += `</div>`;
       });
@@ -2222,14 +2281,25 @@
       const box = document.getElementById(`preview-box-${type}`);
       const lbl = document.getElementById(`label-text-${type}`);
       if (!box || !lbl) return;
-      const hex = (color || '').toUpperCase().trim();
+      const hex = (color || '').trim();
       if (hex) {
-        box.style.backgroundColor = hex;
-        box.classList.remove('is-empty');
-        const found = BRAND_PALETTE_FLAT.find(c => c.hex.toUpperCase() === hex);
-        lbl.textContent = found ? `${found.name} (${hex})` : hex;
+        if (hex.toLowerCase() === 'transparent') {
+          box.style.backgroundColor = 'transparent';
+          box.style.backgroundImage = 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)';
+          box.style.backgroundSize = '6px 6px';
+          box.style.backgroundPosition = '0 0, 3px 3px';
+          box.classList.remove('is-empty');
+          lbl.textContent = 'Transparent (show through)';
+        } else {
+          box.style.backgroundColor = hex;
+          box.style.backgroundImage = 'none';
+          box.classList.remove('is-empty');
+          const found = BRAND_PALETTE_FLAT.find(c => c.hex.toUpperCase() === hex.toUpperCase());
+          lbl.textContent = found ? `${found.name} (${hex})` : hex;
+        }
       } else {
         box.style.backgroundColor = 'transparent';
+        box.style.backgroundImage = 'none';
         box.classList.add('is-empty');
         lbl.textContent = defaultLabel;
       }
@@ -2251,6 +2321,41 @@
       if (curSec) {
         curSec.backgroundColor = val;
         syncColorPickerTrigger('sec-bg', val, 'Default (inherit dashboard canvas)');
+        render();
+      }
+    }
+    function updateSecIconColor(val) {
+      const curSec = currentSections[state.activeSecIdx];
+      if (curSec) {
+        curSec.iconColor = val;
+        syncColorPickerTrigger('sec-icon-color', val, 'Default (brand)');
+        render();
+      }
+    }
+    function updateSecIconBg(val) {
+      const curSec = currentSections[state.activeSecIdx];
+      if (curSec) {
+        curSec.iconBackgroundColor = val;
+        curSec.showIconBackground = true;
+        syncColorPickerTrigger('sec-icon-bg', val, 'Default (soft box)');
+        const chk = document.getElementById('chk-sec-show-icon-bg');
+        if (chk) chk.checked = true;
+        render();
+      }
+    }
+    function updateSecShowIconBg(checked) {
+      const curSec = currentSections[state.activeSecIdx];
+      if (curSec) {
+        curSec.showIconBackground = checked;
+        render();
+      }
+    }
+    function clearCardBadge() {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].badge = '';
+        const inp = document.getElementById('inp-card-badge');
+        if (inp) inp.value = '';
         render();
       }
     }
@@ -3137,17 +3242,33 @@
         // Tabs View
         state.layoutMode === 'tabs' ? React.createElement('div', null,
           React.createElement('div', { className: 'fui-tablist' },
-            currentSections.map(sec => 
-              React.createElement('button', {
+            currentSections.map(sec => {
+              const showBg = sec.showIconBackground === true;
+              const bg = sec.iconBackgroundColor || 'var(--fui-colorBrandBackground2)';
+              const iconColor = sec.iconColor || 'var(--fui-colorBrandForeground1)';
+              const iconElem = renderIconUnified(sec.iconName, sec.iconColor, '18px');
+              return React.createElement('button', {
                 key: sec.id,
                 className: 'fui-tab ' + (sec.id === state.activeTabId ? 'active' : ''),
                 onClick: () => { state.activeTabId = sec.id; render(); }
               },
-                React.createElement('i', { className: 'fa-solid ' + getIconFaClass(sec.iconName) }),
+                showBg ? React.createElement('span', {
+                  style: {
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '6px',
+                    backgroundColor: bg,
+                    color: iconColor,
+                    marginRight: '4px'
+                  }
+                }, iconElem) : iconElem,
                 React.createElement('span', null, sec.title),
                 sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
-              )
-            )
+              );
+            })
           ),
           React.createElement('div', { style: { marginTop: '1.25rem' } },
             React.createElement('div', {
@@ -3269,11 +3390,27 @@
 
         // Accordion View
         React.createElement('div', null,
-          currentSections.map(sec => 
-            React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
+          currentSections.map(sec => {
+            const showBg = sec.showIconBackground === true;
+            const bg = sec.iconBackgroundColor || 'var(--fui-colorBrandBackground2)';
+            const iconColor = sec.iconColor || 'var(--fui-colorBrandForeground1)';
+            const iconElem = renderIconUnified(sec.iconName, sec.iconColor, '20px');
+            return React.createElement('div', { key: sec.id, className: 'fui-accordion-item' },
               React.createElement('button', { className: 'fui-accordion-header' },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
-                  React.createElement('i', { className: 'fa-solid ' + getIconFaClass(sec.iconName), style: { color: 'var(--fui-colorBrandForeground1)' } }),
+                  showBg ? React.createElement('span', {
+                    style: {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '6px',
+                      backgroundColor: bg,
+                      color: iconColor,
+                      flexShrink: 0
+                    }
+                  }, iconElem) : iconElem,
                   React.createElement('span', { style: { fontWeight: 600 } }, sec.title)
                 ),
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
@@ -3364,8 +3501,8 @@
                   })
                 )
               )
-            )
-          )
+            );
+          })
         )
       );
     }

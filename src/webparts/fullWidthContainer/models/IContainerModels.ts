@@ -116,6 +116,9 @@ export interface IContainerSection {
   id: string;
   title: string;
   iconName?: string;
+  iconColor?: string; // Custom section icon foreground color
+  iconBackgroundColor?: string; // Custom section icon container background color
+  showIconBackground?: boolean; // Whether section icon has a rounded background container (default: false)
   badge?: string;
   description?: string;
   backgroundColor?: string; // Custom section background color (independent)

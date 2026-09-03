@@ -603,10 +603,23 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
             {/* Badge & Tags */}
             <div className={styles.twoColRow}>
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Status or category badge</Label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Label weight="semibold">Status or category badge</Label>
+                  {formData.badge && (
+                    <Button
+                      size="small"
+                      appearance="subtle"
+                      onClick={() => setFormData({ ...formData, badge: '' })}
+                      style={{ fontSize: '0.72rem', height: '20px', padding: '0 4px', color: tokens.colorNeutralForeground3 }}
+                      title="Remove badge (do not display)"
+                    >
+                      Clear badge
+                    </Button>
+                  )}
+                </div>
                 <Input
                   value={formData.badge || ''}
-                  placeholder="Badge label"
+                  placeholder="Leave empty for no badge (e.g. Core, Live, Finance)"
                   onChange={(e, data) => setFormData({ ...formData, badge: data.value })}
                 />
               </div>

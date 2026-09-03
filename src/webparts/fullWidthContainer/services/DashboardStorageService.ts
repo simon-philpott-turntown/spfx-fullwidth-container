@@ -174,6 +174,15 @@ export class DashboardStorageService {
   }
 
   /**
+   * Encodes special characters in a SharePoint path (like single quotes and hashes)
+   * while strictly preserving path delimiters ('/').
+   */
+  public escapeSpPath(path: string): string {
+    if (!path) return '';
+    return path.replace(/'/g, "''");
+  }
+
+  /**
    * Saves a dashboard JSON snapshot to the target folder in the 'Dashboards' library.
    * Path: Dashboards/{folderType}/{DashboardTitle}/{FileName}.json
    */
@@ -193,9 +202,8 @@ export class DashboardStorageService {
       try {
         await this._ensureSharePointFolderPath(targetFolderRelPath);
 
-        const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${encodeURIComponent(
-          fullServerRelFolderPath
-        )}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
+        const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
+        const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
 
         const response: SPHttpClientResponse = await this._spHttpClient.post(addFileEndpoint, SPHttpClient.configurations.v1, {
           headers: {
@@ -207,7 +215,7 @@ export class DashboardStorageService {
 
         if (!response.ok) {
           const errText = await response.text();
-          throw new Error(`Failed to upload dashboard snapshot: ${response.status} ${errText}`);
+          throw new Error(`SharePoint HTTP ${response.status}: ${errText}`);
         }
 
         return {
@@ -215,12 +223,14 @@ export class DashboardStorageService {
           fileName,
           folderPath: fullServerRelFolderPath,
           serverRelativeUrl: fullFileServerRelUrl,
-          message: `Saved snapshot to ${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}/${fileName}`,
+          message: `Saved snapshot to SharePoint: ${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}/${fileName}`,
           savedAt: new Date().toISOString()
         };
       } catch (err) {
         console.warn('[DashboardStorageService] SharePoint save failed, saving to local fallback:', err);
-        return this._saveToLocalMock(options.folderType, safeDashboardFolder, fileName, fullFileServerRelUrl, pkg);
+        const fallbackRes = this._saveToLocalMock(options.folderType, safeDashboardFolder, fileName, fullFileServerRelUrl, pkg);
+        fallbackRes.message = `⚠️ SharePoint save failed (${(err as Error).message}), saved to local mock backup`;
+        return fallbackRes;
       }
     } else {
       return this._saveToLocalMock(options.folderType, safeDashboardFolder, fileName, fullFileServerRelUrl, pkg);
@@ -245,9 +255,8 @@ export class DashboardStorageService {
 
     if (this._spHttpClient && this._siteServerRelativeUrl) {
       try {
-        const queryUrl = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${encodeURIComponent(
-          fullServerRelFolderPath
-        )}')/Files?$select=Name,ServerRelativeUrl,TimeLastModified,Length&$orderby=TimeLastModified desc`;
+        const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
+        const queryUrl = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files?$select=Name,ServerRelativeUrl,TimeLastModified,Length&$orderby=TimeLastModified desc`;
 
         const response = await this._spHttpClient.get(queryUrl, SPHttpClient.configurations.v1, {
           headers: { Accept: 'application/json;odata=nometadata' }
@@ -282,9 +291,8 @@ export class DashboardStorageService {
   public async loadDashboardBackup(serverRelativeFileUrl: string): Promise<IDashboardPackage> {
     if (this._spHttpClient && this._siteServerRelativeUrl) {
       try {
-        const getFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFileByServerRelativeUrl('${encodeURIComponent(
-          serverRelativeFileUrl
-        )}')/$value`;
+        const escapedFileUrl = this.escapeSpPath(serverRelativeFileUrl);
+        const getFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFileByServerRelativeUrl('${escapedFileUrl}')/$value`;
 
         const response = await this._spHttpClient.get(getFileEndpoint, SPHttpClient.configurations.v1, {
           headers: { Accept: 'application/json' }
@@ -304,26 +312,31 @@ export class DashboardStorageService {
 
   /**
    * Iteratively creates folders in the SharePoint Document Library if they don't already exist.
+   * Traverses from library root down into subfolders ('Backups'/'Templates' -> DashboardTitle).
    */
   private async _ensureSharePointFolderPath(relativeFolderPath: string): Promise<void> {
     if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
 
     const segments = relativeFolderPath.split('/').filter(Boolean);
-    let currentPath = '';
+    if (segments.length === 0) return;
 
-    for (const segment of segments) {
-      const parentPath = currentPath;
-      currentPath = currentPath ? `${currentPath}/${segment}` : segment;
-      const fullParentServerRel = this._siteServerRelativeUrl
-        ? `${this._siteServerRelativeUrl}/${parentPath}`
-        : `/${parentPath}`;
+    // Start with the Document Library folder
+    const libraryName = segments[0];
+    let currentRelPath = libraryName;
+
+    // Iterate through sub-folders (e.g. Backups, then DashboardTitle)
+    for (let i = 1; i < segments.length; i++) {
+      const segment = segments[i];
+      const parentRelPath = currentRelPath;
+      currentRelPath = `${currentRelPath}/${segment}`;
+
+      const parentFullServerRel = this._siteServerRelativeUrl
+        ? `${this._siteServerRelativeUrl}/${parentRelPath}`
+        : `/${parentRelPath}`;
 
       try {
-        const endpoint = parentPath
-          ? `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${encodeURIComponent(
-              fullParentServerRel
-            )}')/folders`
-          : `${this._siteServerRelativeUrl}/_api/web/folders`;
+        const escapedParentUrl = this.escapeSpPath(parentFullServerRel);
+        const endpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedParentUrl}')/folders`;
 
         await this._spHttpClient.post(endpoint, SPHttpClient.configurations.v1, {
           headers: {

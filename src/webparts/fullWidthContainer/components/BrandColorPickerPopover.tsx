@@ -187,8 +187,8 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
             <div
               className={styles.triggerPreviewSwatch}
               style={{
-                backgroundColor: selectedColor || 'transparent',
-                backgroundImage: selectedColor
+                backgroundColor: (selectedColor && selectedColor !== 'transparent') ? selectedColor : 'transparent',
+                backgroundImage: (selectedColor && selectedColor !== 'transparent')
                   ? 'none'
                   : 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)',
                 backgroundSize: '8px 8px',
@@ -261,13 +261,19 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
         <div className={styles.colorGrid}>
           {SITE_THEME_COLORS.filter((c) => c.group === 'backgrounds').map((c) => {
             const isSelected = selectedColor?.toLowerCase() === c.hex.toLowerCase();
+            const isTransparent = c.hex === 'transparent';
             return (
               <div
                 key={c.name}
                 className={`${styles.colorSwatch} ${isSelected ? styles.selectedSwatch : ''}`}
                 style={{
                   backgroundColor: c.hex,
-                  borderColor: c.hex === '#FFFFFF' ? '#d1d1d1' : undefined
+                  backgroundImage: isTransparent
+                    ? 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)'
+                    : undefined,
+                  backgroundSize: isTransparent ? '6px 6px' : undefined,
+                  backgroundPosition: isTransparent ? '0 0, 3px 3px' : undefined,
+                  borderColor: (c.hex === '#FFFFFF' || isTransparent) ? '#d1d1d1' : undefined
                 }}
                 title={`${c.name} (${c.hex})`}
                 onClick={() => handleSelect(c.hex)}

@@ -251,6 +251,33 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "src/webparts/fullWidthContainer/components/PropertyPaneIconField.tsx"
       ]
+    },
+    {
+      "id": "FEAT-022",
+      "name": "SharePointDocumentLibraryDirectRESTFix",
+      "description": "Robust SharePoint Online REST API integration for Dashboards document library persistence, preserving unencoded URL path slashes in GetFolderByServerRelativeUrl and correctly traversing hierarchical folder creation within the library.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+      ]
+    },
+    {
+      "id": "FEAT-023",
+      "name": "UniversalSvgIconStylingAndTransparentColorPicker",
+      "description": "Universal integration of all 224 Turner & Townsend SVG icons across sections and cards, with visual searchable icon pickers, independent glyph color pickers, icon background container styling with toggle, first-class transparent color option (allowing content section backgrounds to show through), and flexible badge add/remove/hide options.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+        "preview/index.html",
+        "preview/tt_icons.js"
+      ]
     }
   ]
 }

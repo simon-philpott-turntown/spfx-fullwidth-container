@@ -114,6 +114,11 @@
       "name": "PropertyPaneIconField",
       "path": "src/webparts/fullWidthContainer/components/PropertyPaneIconField.tsx",
       "role": "Custom Property Pane field providing 24px icon preview with label and modal launcher for the full 229-icon collection."
+    },
+    {
+      "name": "TtSvgIconCollection",
+      "path": "src/webparts/fullWidthContainer/components/TtSvgIconCollection.ts",
+      "role": "Full corporate collection of 224 Turner & Townsend SVG icons with automated currentColor stroke mapping and metadata."
     }
   ]
 }
