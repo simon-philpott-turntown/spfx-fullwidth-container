@@ -29,6 +29,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { FullWidthContainer } from './components/FullWidthContainer';
 import { IFullWidthContainerProps } from './components/IFullWidthContainerProps';
 import { BrandColorPickerPopover } from './components/BrandColorPickerPopover';
+import { PropertyPaneIconField } from './components/PropertyPaneIconField';
 
 /**
  * Creates an SPFx custom property pane field rendering the visual BrandColorPickerPopover.
@@ -706,19 +707,6 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       text: `${i + 1}. ${blk.title} [${blk.type}]`
     }));
 
-    const iconDropdownOptions: IPropertyPaneDropdownOption[] = [
-      { key: 'BookAnswers', text: 'Book or documentation' },
-      { key: 'Financial', text: 'Financial or pound (£)' },
-      { key: 'AppIconDefault', text: 'Apps or tool grid' },
-      { key: 'Shield', text: 'Shield or governance' },
-      { key: 'ComplianceAudit', text: 'Audit or checklist' },
-      { key: 'CheckList', text: 'Checklist or verified' },
-      { key: 'TimelineProgress', text: 'Timeline or trending metrics' },
-      { key: 'Calculator', text: 'Calculator or engineering' },
-      { key: 'Lock', text: 'Lock or security' },
-      { key: 'Globe', text: 'Globe or portal' },
-      { key: 'DocumentManagement', text: 'Document or report' }
-    ];
 
     const backupOptions: IPropertyPaneDropdownOption[] = (this._cachedBackups || []).map((f) => ({
       key: f.serverRelativeUrl,
@@ -739,6 +727,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           header: {
             description: 'Page 1 of 3: Configure dashboard presentation, layout modes, and preset templates.'
           },
+          displayGroupsAsAccordion: true,
           groups: [
             {
               groupName: 'Dashboard presentation',
@@ -787,6 +776,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             },
             {
               groupName: 'Controls and interactivity',
+              isCollapsed: true,
               groupFields: [
                 PropertyPaneToggle('showSearch', {
                   label: 'Enable real-time search and filter',
@@ -834,6 +824,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             },
             {
               groupName: 'Preset templates',
+              isCollapsed: true,
               groupFields: [
                 PropertyPaneDropdown('presetTemplate', {
                   label: 'Load ready-to-use template',
@@ -848,11 +839,12 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             },
             {
               groupName: 'Configuration JSON & Portability',
+              isCollapsed: true,
               groupFields: [
                 PropertyPaneTextField('importJsonRaw', {
                   label: 'Dashboard JSON Template',
                   multiline: true,
-                  rows: 3,
+                  rows: 4,
                   placeholder: 'Paste full dashboard JSON to import or view current structure...',
                   value: this.properties.importJsonRaw || ''
                 }),
@@ -865,6 +857,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             },
             {
               groupName: 'SharePoint Document Library (Dashboards)',
+              isCollapsed: true,
               groupFields: [
                 PropertyPaneChoiceGroup('backupTargetFolder', {
                   label: 'Target folder in Dashboards library',
@@ -911,6 +904,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           header: {
             description: 'Page 2 of 3: Add, edit, and rebrand content sections, badges, and Fluent 2 icons.'
           },
+          displayGroupsAsAccordion: true,
           groups: [
             {
               groupName: 'Select section to edit',
@@ -943,10 +937,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   ],
                   selectedKey: sections[activeSecIdx]?.badge || 'Badge'
                 }),
-                PropertyPaneDropdown('sectionIcon', {
-                  label: 'Section icon',
-                  options: iconDropdownOptions,
-                  selectedKey: sections[activeSecIdx]?.iconName || 'BookAnswers'
+                PropertyPaneIconField('sectionIconField', {
+                  label: 'Section Icon (Fluent UI 2 & Custom Brand SVGs)',
+                  selectedIconKey: sections[activeSecIdx]?.iconName || 'BookAnswers',
+                  onSelectIcon: (iconKey: string) => {
+                    this.properties.sectionIcon = iconKey;
+                    this.onPropertyPaneFieldChanged('sectionIcon', undefined, iconKey);
+                    this.render();
+                  },
+                  buttonLabel: 'Browse 229 Icons...'
                 }),
                 PropertyPaneTextField('sectionDescription', {
                   label: 'Section guidance or summary',
@@ -990,6 +989,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           header: {
             description: 'Page 3 of 3: Add and configure individual cards, British financial metrics (£), and action links.'
           },
+          displayGroupsAsAccordion: true,
           groups: [
             {
               groupName: 'Target section and card selection',
@@ -1009,7 +1009,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               ]
             },
             {
-              groupName: 'Card or metric properties',
+              groupName: 'Card identity and visual appearance',
               groupFields: [
                 PropertyPaneDropdown('blockType', {
                   label: 'Item type',
@@ -1024,10 +1024,15 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   label: 'Item title',
                   value: currentBlocks[activeBlkIdx]?.title || ''
                 }),
-                PropertyPaneDropdown('blockIcon', {
-                  label: 'Item icon',
-                  options: iconDropdownOptions,
-                  selectedKey: currentBlocks[activeBlkIdx]?.iconName || 'BookAnswers'
+                PropertyPaneIconField('blockIconField', {
+                  label: 'Card Icon (Fluent UI 2 & Custom Brand SVGs)',
+                  selectedIconKey: currentBlocks[activeBlkIdx]?.iconName || 'BookAnswers',
+                  onSelectIcon: (iconKey: string) => {
+                    this.properties.blockIcon = iconKey;
+                    this.onPropertyPaneFieldChanged('blockIcon', undefined, iconKey);
+                    this.render();
+                  },
+                  buttonLabel: 'Browse 229 Icons...'
                 }),
                 PropertyPaneDropdown('blockHeightMode', {
                   label: 'Card height behavior',
@@ -1038,12 +1043,6 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   ],
                   selectedKey: currentBlocks[activeBlkIdx]?.heightMode || 'default'
                 }),
-                PropertyPaneTextField('blockDescription', {
-                  label: 'Card summary or description',
-                  multiline: true,
-                  rows: 2,
-                  value: currentBlocks[activeBlkIdx]?.description || ''
-                }),
                 createColorPickerPropertyField(
                   `blockBackgroundColorField_${activeBlockSecIdx}_${activeBlkIdx}`,
                   currentBlocks[activeBlkIdx]?.backgroundColor,
@@ -1053,11 +1052,33 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.render();
                   },
                   'Default (inherit from section background)'
-                ),
+                )
+              ]
+            },
+            {
+              groupName: 'Card content & tags',
+              isCollapsed: true,
+              groupFields: [
+                PropertyPaneTextField('blockDescription', {
+                  label: 'Card summary or description',
+                  multiline: true,
+                  rows: 2,
+                  value: currentBlocks[activeBlkIdx]?.description || ''
+                }),
                 PropertyPaneTextField('blockBadge', {
                   label: 'Badge label',
                   value: currentBlocks[activeBlkIdx]?.badge || ''
                 }),
+                PropertyPaneTextField('blockTags', {
+                  label: 'Tags (comma-separated for search filtering)',
+                  value: currentBlocks[activeBlkIdx]?.tags ? currentBlocks[activeBlkIdx]?.tags.join(', ') : ''
+                })
+              ]
+            },
+            {
+              groupName: 'British metric details (£)',
+              isCollapsed: true,
+              groupFields: [
                 PropertyPaneTextField('blockMetricValue', {
                   label: 'Metric value in GBP (£)',
                   value: currentBlocks[activeBlkIdx]?.metricValue || ''

@@ -241,6 +241,16 @@
         "src/webparts/fullWidthContainer/models/IContainerModels.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-021",
+      "name": "PropertyPaneAccordionAndVisualIconField",
+      "description": "Clean collapsible accordion layout (displayGroupsAsAccordion) across all 3 property pane pages with logical card sub-groups, collapsed non-essential fields, and PropertyPaneIconField connecting the property pane to the full 229-icon modal.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/PropertyPaneIconField.tsx"
+      ]
     }
   ]
 }

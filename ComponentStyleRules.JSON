@@ -102,6 +102,10 @@
     "CustomSvgIconRegistry": {
       "classes": ["renderUnifiedIcon", "CUSTOM_SVG_ICONS", "iconBox"],
       "aesthetic": "Extensible custom corporate SVG icon collection renderer with currentColor dynamic inheritance, rounded 40x40px icon background boxes, and custom brand tints."
+    },
+    "PropertyPaneIconField": {
+      "classes": ["IconFieldControl", "FluentProvider", "Button", "Subtitle2", "Caption1", "FluentIconPicker"],
+      "aesthetic": "SPFx Property Pane custom control rendering a 32x32px icon preview with title and badge, connected to the modal icon browser."
     }
   }
 }

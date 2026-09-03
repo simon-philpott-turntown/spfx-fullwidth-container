@@ -13,6 +13,7 @@
   },
   "externals": {},
   "localizedResources": {
-    "FullWidthContainerWebPartStrings": "lib/webparts/fullWidthContainer/loc/{locale}.js"
+    "FullWidthContainerWebPartStrings": "lib/webparts/fullWidthContainer/loc/{locale}.js",
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
   }
 }

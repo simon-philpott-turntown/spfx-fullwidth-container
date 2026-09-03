@@ -109,6 +109,11 @@
       "name": "CustomSvgIconRegistry",
       "path": "src/webparts/fullWidthContainer/components/CustomSvgIconRegistry.tsx",
       "role": "Pluggable registry and unified icon renderer for custom corporate SVG collections with dynamic color and background styling."
+    },
+    {
+      "name": "PropertyPaneIconField",
+      "path": "src/webparts/fullWidthContainer/components/PropertyPaneIconField.tsx",
+      "role": "Custom Property Pane field providing 24px icon preview with label and modal launcher for the full 229-icon collection."
     }
   ]
 }
