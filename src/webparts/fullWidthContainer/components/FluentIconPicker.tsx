@@ -176,24 +176,24 @@ const useStyles = makeStyles({
   }
 });
 
-import { CUSTOM_SVG_ICONS } from './CustomSvgIconRegistry';
+import { CUSTOM_SVG_ICONS, renderUnifiedIcon } from './CustomSvgIconRegistry';
 
 export interface IFluentIconDefinition {
   key: string;
   label: string;
-  category: 'common' | 'finance' | 'governance' | 'analytics' | 'tools' | 'communication' | 'custom';
+  category: string;
   keywords: string[];
   icon: React.ReactElement;
 }
 
 export const FLUENT_ICONS_LIST: IFluentIconDefinition[] = [
-  // Custom Brand Corporate SVGs (Screenshot 1 and extensible custom collection)
+  // Custom Brand Corporate SVGs + 224 TT icons — renderUnifiedIcon handles both svgPathOrNode and svgMarkup
   ...CUSTOM_SVG_ICONS.map((svg) => ({
     key: svg.id,
     label: svg.name,
-    category: 'custom' as const,
+    category: svg.category,
     keywords: svg.keywords,
-    icon: svg.svgPathOrNode as React.ReactElement
+    icon: renderUnifiedIcon(svg.id, undefined, '24px')
   })),
 
   // Common & Content
@@ -274,13 +274,23 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
 
   const categories = [
     { key: 'all', label: 'All Icons' },
-    { key: 'custom', label: '✨ Brand Custom SVGs' },
-    { key: 'common', label: 'Common & Content' },
-    { key: 'finance', label: 'Finance & £' },
-    { key: 'analytics', label: 'Metrics & Trends' },
-    { key: 'governance', label: 'Governance & Risk' },
-    { key: 'tools', label: 'Tools & Systems' },
-    { key: 'communication', label: 'People & Comms' }
+    { key: 'Custom Brand SVGs', label: '✨ Brand SVGs' },
+    { key: 'TT Built Environment', label: '🏗 Built Environment' },
+    { key: 'TT Sustainability & Energy', label: '🌿 Sustainability' },
+    { key: 'TT Finance & Data', label: '💷 Finance & Data' },
+    { key: 'TT People & Teams', label: '🤝 People & Teams' },
+    { key: 'TT Technology & Innovation', label: '💡 Technology' },
+    { key: 'TT Awards & Learning', label: '🏆 Awards & Learning' },
+    { key: 'TT Locations & Travel', label: '🌍 Locations' },
+    { key: 'TT Construction & Tools', label: '🔧 Construction' },
+    { key: 'TT Operations', label: '📋 Operations' },
+    { key: 'TT General', label: '⭐ General' },
+    { key: 'common', label: 'Fluent: Common' },
+    { key: 'finance', label: 'Fluent: Finance' },
+    { key: 'analytics', label: 'Fluent: Analytics' },
+    { key: 'governance', label: 'Fluent: Governance' },
+    { key: 'tools', label: 'Fluent: Tools' },
+    { key: 'communication', label: 'Fluent: People' }
   ];
 
   const filteredIcons = FLUENT_ICONS_LIST.filter((def) => {
