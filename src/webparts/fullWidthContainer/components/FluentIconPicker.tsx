@@ -176,15 +176,26 @@ const useStyles = makeStyles({
   }
 });
 
+import { CUSTOM_SVG_ICONS } from './CustomSvgIconRegistry';
+
 export interface IFluentIconDefinition {
   key: string;
   label: string;
-  category: 'common' | 'finance' | 'governance' | 'analytics' | 'tools' | 'communication';
+  category: 'common' | 'finance' | 'governance' | 'analytics' | 'tools' | 'communication' | 'custom';
   keywords: string[];
   icon: React.ReactElement;
 }
 
 export const FLUENT_ICONS_LIST: IFluentIconDefinition[] = [
+  // Custom Brand Corporate SVGs (Screenshot 1 and extensible custom collection)
+  ...CUSTOM_SVG_ICONS.map((svg) => ({
+    key: svg.id,
+    label: svg.name,
+    category: 'custom' as const,
+    keywords: svg.keywords,
+    icon: svg.svgPathOrNode as React.ReactElement
+  })),
+
   // Common & Content
   { key: 'BookAnswers', label: 'Documentation', category: 'common', keywords: ['book', 'docs', 'manual', 'policy'], icon: <BookOpenRegular /> },
   { key: 'Document', label: 'Document', category: 'common', keywords: ['file', 'doc', 'text', 'paper'], icon: <DocumentRegular /> },
@@ -263,6 +274,7 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
 
   const categories = [
     { key: 'all', label: 'All Icons' },
+    { key: 'custom', label: '✨ Brand Custom SVGs' },
     { key: 'common', label: 'Common & Content' },
     { key: 'finance', label: 'Finance & £' },
     { key: 'analytics', label: 'Metrics & Trends' },

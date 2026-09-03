@@ -71,6 +71,7 @@ import {
   ContainerStyle,
   BlockType
 } from './models/IContainerModels';
+import { DashboardStorageService, IBackupFileInfo } from './services/DashboardStorageService';
 
 export interface IFullWidthContainerWebPartProps {
   title: string;
@@ -112,11 +113,19 @@ export interface IFullWidthContainerWebPartProps {
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
   blockBackgroundColor?: string;
+
+  // SharePoint Document Library (Dashboards) backup & template properties
+  backupTargetFolder?: 'Backups' | 'Templates';
+  selectedBackupFile?: string;
 }
 
 export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFullWidthContainerWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _currentTheme: IReadonlyTheme | undefined;
+  private _storageService!: DashboardStorageService;
+  private _isModifiedSinceLastBackup: boolean = false;
+  private _backupStatusMessage: string = '';
+  private _cachedBackups: IBackupFileInfo[] = [];
 
   /**
    * Retrieves active sections array from canonical properties or initializes default.
@@ -141,18 +150,132 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
-   * Serializes updated sections array to webpart properties.
+   * Serializes updated sections array to webpart properties and marks changes pending backup.
    */
   private _saveSections(sections: IContainerSection[]): void {
     if (this.properties) {
       this.properties.sectionsJson = JSON.stringify(sections);
+      this._isModifiedSinceLastBackup = true;
     }
     this.render();
   }
 
-  protected onInit(): Promise<void> {
+  /**
+   * Saves dashboard snapshot into SharePoint Document Library 'Dashboards' under Backups or Templates.
+   */
+  private async _handleSaveBackupToLibrary(
+    folderType?: 'Backups' | 'Templates',
+    trigger: 'manual' | 'auto' = 'manual'
+  ): Promise<void> {
+    const targetType = folderType || this.properties.backupTargetFolder || 'Backups';
+    const title = this.properties.title || 'Full-Width Dashboard';
+    try {
+      const res = await this._storageService.saveDashboardBackup({
+        folderType: targetType,
+        dashboardTitle: title,
+        dashboardSubtitle: this.properties.subtitle,
+        layoutMode: this.properties.layoutMode || 'tabs',
+        containerStyle: this.properties.containerStyle || 'standard',
+        gridColumns: this.properties.gridColumns,
+        gridRows: this.properties.gridRows,
+        cardHeightMode: this.properties.cardHeightMode,
+        webPartBackgroundColor: this.properties.webPartBackgroundColor,
+        sectionBackgroundColor: this.properties.sectionBackgroundColor,
+        sections: this._getActiveSections(),
+        trigger
+      });
+
+      this._isModifiedSinceLastBackup = false;
+      this._backupStatusMessage = `✓ ${res.fileName} saved to ${targetType}`;
+      await this._refreshBackupsList();
+      this.render();
+    } catch (err) {
+      console.error('[FullWidthContainerWebPart] Failed to save snapshot:', err);
+      this._backupStatusMessage = `⚠️ Error saving: ${(err as Error).message}`;
+      if (this.context && this.context.propertyPane && this.context.propertyPane.isPropertyPaneOpen()) {
+        this.context.propertyPane.refresh();
+      }
+    }
+  }
+
+  /**
+   * Refreshes list of available snapshots from the current target folder in 'Dashboards' library.
+   */
+  private async _refreshBackupsList(): Promise<void> {
+    const fType = this.properties.backupTargetFolder || 'Backups';
+    const title = this.properties.title || '';
+    try {
+      this._cachedBackups = await this._storageService.listDashboardBackups(fType, title);
+      if (this.context && this.context.propertyPane && this.context.propertyPane.isPropertyPaneOpen()) {
+        this.context.propertyPane.refresh();
+      }
+    } catch (err) {
+      console.warn('[FullWidthContainerWebPart] Refresh backups warning:', err);
+    }
+  }
+
+  /**
+   * Restores dashboard state from the selected snapshot in 'Dashboards' library.
+   */
+  private async _handleRestoreSelectedBackup(): Promise<void> {
+    const selectedFile = this.properties.selectedBackupFile;
+    if (!selectedFile) return;
+    try {
+      const pkg = await this._storageService.loadDashboardBackup(selectedFile);
+      if (pkg) {
+        if (pkg.dashboardTitle) this.properties.title = pkg.dashboardTitle;
+        if (pkg.dashboardSubtitle !== undefined) this.properties.subtitle = pkg.dashboardSubtitle;
+        if (pkg.layoutMode) this.properties.layoutMode = pkg.layoutMode;
+        if (pkg.containerStyle) this.properties.containerStyle = pkg.containerStyle;
+        if (pkg.gridColumns !== undefined) this.properties.gridColumns = pkg.gridColumns;
+        if (pkg.gridRows !== undefined) this.properties.gridRows = pkg.gridRows;
+        if (pkg.cardHeightMode) this.properties.cardHeightMode = pkg.cardHeightMode as 'auto' | 'equal';
+        if (pkg.webPartBackgroundColor !== undefined) this.properties.webPartBackgroundColor = pkg.webPartBackgroundColor;
+        if (pkg.sectionBackgroundColor !== undefined) this.properties.sectionBackgroundColor = pkg.sectionBackgroundColor;
+        if (pkg.sections && Array.isArray(pkg.sections)) {
+          this._saveSections(pkg.sections);
+        }
+        const fileNameOnly = selectedFile.split('/').pop() || selectedFile;
+        this._backupStatusMessage = `✓ Restored from ${fileNameOnly}`;
+        this._isModifiedSinceLastBackup = false;
+        this.render();
+        if (this.context && this.context.propertyPane && this.context.propertyPane.isPropertyPaneOpen()) {
+          this.context.propertyPane.refresh();
+        }
+      }
+    } catch (err) {
+      this._backupStatusMessage = `⚠️ Error restoring: ${(err as Error).message}`;
+      if (this.context && this.context.propertyPane && this.context.propertyPane.isPropertyPaneOpen()) {
+        this.context.propertyPane.refresh();
+      }
+    }
+  }
+
+  protected async onInit(): Promise<void> {
     console.log('[FullWidthContainerWebPart] Initialising full-width container web part v1.0.0...');
-    return super.onInit();
+    await super.onInit();
+    this._storageService = new DashboardStorageService(
+      this.context.spHttpClient,
+      this.context.pageContext.web.serverRelativeUrl,
+      'Dashboards'
+    );
+    if (!this.properties.backupTargetFolder) {
+      this.properties.backupTargetFolder = 'Backups';
+    }
+    void this._refreshBackupsList();
+  }
+
+  /**
+   * Lifecycle hook: When SharePoint page transitions from Edit mode to Read mode (page saved and closed),
+   * if modifications occurred, automatically create a version snapshot in Dashboards/Backups.
+   */
+  protected onDisplayModeChanged(oldDisplayMode: DisplayMode): void {
+    if (oldDisplayMode === DisplayMode.Edit && this.displayMode === DisplayMode.Read) {
+      if (this._isModifiedSinceLastBackup) {
+        console.log('[FullWidthContainerWebPart] Page exited edit mode with pending changes. Triggering auto-save to Dashboards/Backups...');
+        void this._handleSaveBackupToLibrary('Backups', 'auto');
+      }
+    }
   }
 
   protected get disableReactivePropertyChanges(): boolean {
@@ -262,7 +385,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               Object.assign(sec, updatedFields);
               this._saveSections(sections);
             }
-          }
+          },
+          onSaveBackupToLibrary: async (folderType: 'Backups' | 'Templates') => {
+            await this._handleSaveBackupToLibrary(folderType, 'manual');
+          },
+          onRestoreFromLibrary: () => {
+            if (this.context && this.context.propertyPane) {
+              this.context.propertyPane.open();
+            }
+          },
+          lastBackupMessage: this._backupStatusMessage
         }
       );
 
@@ -315,6 +447,13 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: unknown, newValue: unknown): void {
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
     const sections = this._getActiveSections();
+
+    this._isModifiedSinceLastBackup = true;
+
+    if (propertyPath === 'backupTargetFolder') {
+      void this._refreshBackupsList();
+      return;
+    }
 
     // 1. Preset Template selection
     if (propertyPath === 'presetTemplate' && typeof newValue === 'string' && PRESET_TEMPLATES[newValue]) {
@@ -581,6 +720,18 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       { key: 'DocumentManagement', text: 'Document or report' }
     ];
 
+    const backupOptions: IPropertyPaneDropdownOption[] = (this._cachedBackups || []).map((f) => ({
+      key: f.serverRelativeUrl,
+      text: `${f.name} (${new Date(f.timeLastModified).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })})`
+    }));
+
+    if (backupOptions.length === 0) {
+      backupOptions.push({
+        key: '',
+        text: 'No snapshots found in library'
+      });
+    }
+
     return {
       pages: [
         // PAGE 1: Dashboard & Layout Options
@@ -709,6 +860,46 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   text: '📥 Import & Apply JSON',
                   buttonType: PropertyPaneButtonType.Normal,
                   onClick: () => this._applyImportedJson()
+                })
+              ]
+            },
+            {
+              groupName: 'SharePoint Document Library (Dashboards)',
+              groupFields: [
+                PropertyPaneChoiceGroup('backupTargetFolder', {
+                  label: 'Target folder in Dashboards library',
+                  options: [
+                    { key: 'Backups', text: 'Backups (versioned history)' },
+                    { key: 'Templates', text: 'Templates (reusable models)' }
+                  ]
+                }),
+                PropertyPaneButton('saveSnapshotBtn', {
+                  text: '💾 Save Snapshot to Library',
+                  buttonType: PropertyPaneButtonType.Primary,
+                  onClick: () => {
+                    void this._handleSaveBackupToLibrary(this.properties.backupTargetFolder || 'Backups', 'manual');
+                  }
+                }),
+                PropertyPaneHorizontalRule(),
+                PropertyPaneDropdown('selectedBackupFile', {
+                  label: 'Select version to restore',
+                  options: backupOptions,
+                  selectedKey: this.properties.selectedBackupFile || (backupOptions[0] ? backupOptions[0].key : '')
+                }),
+                PropertyPaneButton('restoreSnapshotBtn', {
+                  text: '📂 Restore Selected Version',
+                  buttonType: PropertyPaneButtonType.Normal,
+                  disabled: !this.properties.selectedBackupFile || !this.properties.selectedBackupFile.trim(),
+                  onClick: () => {
+                    void this._handleRestoreSelectedBackup();
+                  }
+                }),
+                PropertyPaneButton('refreshBackupsBtn', {
+                  text: '🔄 Refresh Library List',
+                  buttonType: PropertyPaneButtonType.Normal,
+                  onClick: () => {
+                    void this._refreshBackupsList();
+                  }
                 })
               ]
             }

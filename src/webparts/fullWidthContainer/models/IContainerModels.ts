@@ -88,6 +88,9 @@ export interface IContentBlock {
   description?: string;
   badge?: string;
   iconName?: string;
+  iconColor?: string; // Custom icon foreground color
+  iconBackgroundColor?: string; // Custom icon container background color
+  showIconBackground?: boolean; // Whether icon has a rounded background container (default: true)
   linkUrl?: string;
   linkText?: string;
   metricValue?: string;

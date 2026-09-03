@@ -34,4 +34,7 @@ export interface IFullWidthContainerProps {
   onAddBlock?: (sectionId: string) => void;
   onDeleteBlock?: (sectionId: string, blockId: string) => void;
   onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
+  onSaveBackupToLibrary?: (folderType: 'Backups' | 'Templates') => Promise<void>;
+  onRestoreFromLibrary?: () => void;
+  lastBackupMessage?: string;
 }

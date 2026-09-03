@@ -99,6 +99,16 @@
       "name": "BrandColorPickerPopover",
       "path": "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
       "role": "Fluent UI 2 visual popover color picker with categorized Turner & Townsend brand palettes, preview swatches, and custom hex input."
+    },
+    {
+      "name": "DashboardStorageService",
+      "path": "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
+      "role": "SharePoint REST API storage service handling full dashboard package backups, versioned snapshots, cross-site portable JSON files, and folder creation in the Dashboards library."
+    },
+    {
+      "name": "CustomSvgIconRegistry",
+      "path": "src/webparts/fullWidthContainer/components/CustomSvgIconRegistry.tsx",
+      "role": "Pluggable registry and unified icon renderer for custom corporate SVG collections with dynamic color and background styling."
     }
   ]
 }

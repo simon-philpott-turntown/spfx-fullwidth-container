@@ -1130,6 +1130,42 @@
             </button>
           </div>
         </div>
+
+        <!-- SharePoint Document Library (Dashboards) Backup & Restore Group -->
+        <div style="margin-top: 1.25rem; border-top: 1px solid var(--fui-colorNeutralStroke2); padding-top: 0.85rem;">
+          <label class="form-label" style="font-weight: 700; color: var(--fui-colorNeutralForeground1); margin-bottom: 6px;">
+            SharePoint Document Library (Dashboards)
+          </label>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label">Target Library Folder</label>
+            <div style="display: flex; gap: 12px; margin-top: 2px;">
+              <label style="display: flex; align-items: center; gap: 5px; font-size: 0.8rem; cursor: pointer;">
+                <input type="radio" name="preview-backup-folder" value="Backups" id="rad-folder-backups" checked onchange="updateBackupFolderType('Backups')" /> Backups (versioned)
+              </label>
+              <label style="display: flex; align-items: center; gap: 5px; font-size: 0.8rem; cursor: pointer;">
+                <input type="radio" name="preview-backup-folder" value="Templates" id="rad-folder-templates" onchange="updateBackupFolderType('Templates')" /> Templates
+              </label>
+            </div>
+          </div>
+          <button class="sp-btn sp-btn-primary" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; margin-bottom: 8px;" onclick="saveDashboardToLibrarySnapshot()">
+            <i class="fa-solid fa-floppy-disk"></i> Save Snapshot to Dashboards Library
+          </button>
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label class="form-label">Select snapshot to restore</label>
+            <select class="form-select" id="sel-library-backups" style="font-size: 0.78rem;">
+              <option value="">No snapshots found in library</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="sp-btn sp-btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 5px 8px;" onclick="restoreDashboardFromLibrarySnapshot()">
+              <i class="fa-solid fa-folder-open"></i> Restore Selected
+            </button>
+            <button class="sp-btn sp-btn-secondary" style="font-size: 0.75rem; padding: 5px 8px;" title="Refresh library file list" onclick="refreshLibraryBackupsList()">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+          <div id="status-library-backup" style="font-size: 0.72rem; color: var(--fui-colorBrandForeground1); margin-top: 6px; min-height: 14px;"></div>
+        </div>
       </div>
 
       <!-- Page 2: Sections & Badges -->
@@ -1210,6 +1246,36 @@
               <i class="fa-solid fa-icons"></i> Browse Icons...
             </button>
           </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label class="form-label">Icon glyph colour</label>
+            <div class="color-picker-wrapper" id="cp-wrapper-icon-color">
+              <button type="button" class="color-picker-trigger" id="btn-trigger-icon-color" onclick="toggleColorPopover('icon-color')">
+                <div class="color-picker-preview-box is-empty" id="preview-box-icon-color"></div>
+                <span class="color-picker-label-text" id="label-text-icon-color">Default (brand)</span>
+                <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-icon-color"></i>
+              </button>
+              <div class="color-popover-surface" id="popover-surface-icon-color" style="display: none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Icon background box</label>
+            <div class="color-picker-wrapper" id="cp-wrapper-icon-bg">
+              <button type="button" class="color-picker-trigger" id="btn-trigger-icon-bg" onclick="toggleColorPopover('icon-bg')">
+                <div class="color-picker-preview-box is-empty" id="preview-box-icon-bg"></div>
+                <span class="color-picker-label-text" id="label-text-icon-bg">Default (soft box)</span>
+                <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-icon-bg"></i>
+              </button>
+              <div class="color-popover-surface" id="popover-surface-icon-bg" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -0.25rem; margin-bottom: 0.75rem;">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer;">
+            <input type="checkbox" id="chk-show-icon-bg" onchange="updateCardShowIconBg(this.checked)" checked />
+            Include icon background container
+          </label>
         </div>
         <div class="form-group">
           <label class="form-label">Card height behavior</label>
@@ -1324,6 +1390,7 @@
         <input type="text" class="form-input" id="inp-icon-search" placeholder="Search icons (e.g. pound, metrics, shield, docs, tools)..." oninput="filterVisualIcons(this.value)" />
         <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="icon-cat-pills">
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('all')">All</button>
+          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('custom')">✨ Brand SVGs</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('common')">Common</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('finance')">Finance & £</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('analytics')">Metrics</button>
@@ -1342,6 +1409,14 @@
     let isSidebarOpen = true;
 
     const FLUENT_ICONS = [
+      // Custom Corporate Brand SVGs (Screenshot 1 and extensible custom collection)
+      { key: 'svg-brand-book', label: 'Brand Playbook (Screenshot)', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="4.5" width="7" height="15" rx="1.5" /><rect x="13.5" y="4.5" width="7" height="15" rx="1.5" /></svg>` },
+      { key: 'svg-brand-document', label: 'Brand Project Document', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5H14L18.5 8V20.5H6V3.5Z" /><path d="M14 3.5V8H18.5" /><path d="M9 12H15.5M9 15.5H15.5" stroke-linecap="round" /></svg>` },
+      { key: 'svg-brand-analytics', label: 'Brand Analytics Chart', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><path d="M4 20.5H20" stroke-linecap="round" /><path d="M6.5 16.5L10.5 11.5L14 14.5L18.5 7.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="18.5" cy="7.5" r="1.5" fill="currentColor" /></svg>` },
+      { key: 'svg-brand-shield', label: 'Brand Assurance Shield', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.5L4.5 7V13C4.5 17.5 12 21 12 21C12 21 19.5 17.5 19.5 13V7L12 3.5Z" /><path d="M9.5 12L11 13.5L15 9.5" stroke-linecap="round" stroke-linejoin="round" /></svg>` },
+      { key: 'svg-brand-coins', label: 'Brand Financial Currency (£)', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" /><path d="M13.5 8.5C12.5 8.5 11.5 9 11 10C10.5 11 10.5 12 10.5 13.5H14.5M9.5 12H13.5" stroke-linecap="round" /><path d="M9.5 15.5H14.5" stroke-linecap="round" /></svg>` },
+
+      // Standard Fluent UI 2 Icons
       { key: 'BookAnswers', label: 'Documentation', cat: 'common', fa: 'fa-book-open' },
       { key: 'Document', label: 'Document', cat: 'common', fa: 'fa-file-lines' },
       { key: 'Folder', label: 'Folder', cat: 'common', fa: 'fa-folder' },
@@ -1639,7 +1714,10 @@
         const div = document.createElement('div');
         div.className = 'fui-icon-grid-item' + (isSelected ? ' active' : '');
         div.innerHTML = `
-          <i class="fa-solid ${icon.fa}" style="font-size: 1.4rem; color: var(--fui-colorBrandForeground1); margin-bottom: 4px;"></i>
+          ${icon.isCustomSvg
+            ? `<div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-bottom: 4px; color: var(--fui-colorBrandForeground1);">${icon.svg}</div>`
+            : `<i class="fa-solid ${icon.fa}" style="font-size: 1.4rem; color: var(--fui-colorBrandForeground1); margin-bottom: 4px;"></i>`
+          }
           <span style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground1); font-weight: 500;">${icon.label}</span>
           <small style="font-size: 0.65rem; color: var(--fui-colorNeutralForeground3);">${icon.key}</small>
         `;
@@ -1910,6 +1988,10 @@
             if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
             syncColorPickerTrigger('card-bg', curCard.backgroundColor, 'Default (inherit section background)');
+            syncColorPickerTrigger('icon-color', curCard.iconColor, 'Default (brand)');
+            syncColorPickerTrigger('icon-bg', curCard.iconBackgroundColor, 'Default (soft box)');
+            const chkIconBg = document.getElementById('chk-show-icon-bg');
+            if (chkIconBg) chkIconBg.checked = curCard.showIconBackground !== false;
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
@@ -1929,6 +2011,7 @@
           }
         }
       }
+      refreshLibraryBackupsList();
     }
 
     function selectSection(idx) { state.activeSecIdx = Number(idx); syncSidebar(); }
@@ -2001,17 +2084,31 @@
         ]
       },
       {
-        name: 'Brand Tints',
+        name: 'Brand Tints (80%, 60%, 40%, 20%)',
         colors: [
           { name: 'TT Blue (80%)', hex: '#4B6994' },
+          { name: 'TT Blue (60%)', hex: '#788FAE' },
+          { name: 'TT Blue (40%)', hex: '#A5B4C9' },
           { name: 'TT Blue (20%)', hex: '#D2DAE4' },
+
           { name: 'TT Cyan (80%)', hex: '#33A6E3' },
+          { name: 'TT Cyan (60%)', hex: '#66BCEB' },
+          { name: 'TT Cyan (40%)', hex: '#99D3F1' },
           { name: 'TT Cyan (20%)', hex: '#CCE9F8' },
+
           { name: 'TT Grey (80%)', hex: '#737B80' },
+          { name: 'TT Grey (60%)', hex: '#969CA0' },
+          { name: 'TT Grey (40%)', hex: '#B9BDC0' },
           { name: 'TT Grey (20%)', hex: '#DCDFE0' },
+
           { name: 'TT Green (80%)', hex: '#33B333' },
+          { name: 'TT Green (60%)', hex: '#66C666' },
+          { name: 'TT Green (40%)', hex: '#99D999' },
           { name: 'TT Green (20%)', hex: '#CCEECC' },
+
           { name: 'TT Orange (80%)', hex: '#DD7D45' },
+          { name: 'TT Orange (60%)', hex: '#E69D74' },
+          { name: 'TT Orange (40%)', hex: '#EEBEA2' },
           { name: 'TT Orange (20%)', hex: '#F7DED1' }
         ]
       }
@@ -2022,7 +2119,7 @@
     let activeColorPopoverType = null;
 
     function closeAllColorPopovers() {
-      ['wp-bg', 'sec-bg', 'card-bg'].forEach(t => {
+      ['wp-bg', 'sec-bg', 'card-bg', 'icon-color', 'icon-bg'].forEach(t => {
         const surface = document.getElementById(`popover-surface-${t}`);
         const icon = document.getElementById(`icon-chevron-${t}`);
         if (surface) surface.style.display = 'none';
@@ -2052,6 +2149,16 @@
         const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
         return curCard ? (curCard.backgroundColor || '') : '';
       }
+      if (type === 'icon-color') {
+        const targetSec = currentSections[state.activeCardSecIdx];
+        const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
+        return curCard ? (curCard.iconColor || '') : '';
+      }
+      if (type === 'icon-bg') {
+        const targetSec = currentSections[state.activeCardSecIdx];
+        const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
+        return curCard ? (curCard.iconBackgroundColor || '') : '';
+      }
       return '';
     }
 
@@ -2059,6 +2166,8 @@
       if (type === 'wp-bg') return 'Default (transparent canvas)';
       if (type === 'sec-bg') return 'Default (inherit dashboard canvas)';
       if (type === 'card-bg') return 'Default (inherit section background)';
+      if (type === 'icon-color') return 'Default (brand)';
+      if (type === 'icon-bg') return 'Default (soft box)';
       return 'Default';
     }
 
@@ -2066,6 +2175,8 @@
       if (type === 'wp-bg') updateWpBg(hex);
       else if (type === 'sec-bg') updateSecBg(hex);
       else if (type === 'card-bg') updateCardBg(hex);
+      else if (type === 'icon-color') updateCardIconColor(hex);
+      else if (type === 'icon-bg') updateCardIconBg(hex);
       syncSidebar();
       closeAllColorPopovers();
     }
@@ -2151,6 +2262,166 @@
         render();
       }
     }
+    function updateCardIconColor(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].iconColor = val;
+        syncColorPickerTrigger('icon-color', val, 'Default (brand)');
+        render();
+      }
+    }
+    function updateCardIconBg(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].iconBackgroundColor = val;
+        targetSec.blocks[state.activeCardIdx].showIconBackground = true;
+        syncColorPickerTrigger('icon-bg', val, 'Default (soft box)');
+        const chk = document.getElementById('chk-show-icon-bg');
+        if (chk) chk.checked = true;
+        render();
+      }
+    }
+    function updateCardShowIconBg(checked) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].showIconBackground = checked;
+        render();
+      }
+    }
+
+    let currentBackupFolderType = 'Backups';
+    function updateBackupFolderType(folder) {
+      currentBackupFolderType = folder;
+      refreshLibraryBackupsList();
+    }
+
+    function saveDashboardToLibrarySnapshot(folderType, isAuto = false) {
+      const folder = folderType || currentBackupFolderType;
+      const title = (state.title || 'Untitled-Dashboard').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      const fileName = `${title}_${timestamp}.json`;
+      const fullPath = `Dashboards/${folder}/${title}/${fileName}`;
+
+      const snapshot = {
+        schemaVersion: '1.0.0',
+        dashboardTitle: state.title || 'Corporate Dashboard',
+        exportTimestamp: now.toISOString(),
+        siteUrl: window.location.origin,
+        savedBy: 'Current User',
+        targetFolder: folder,
+        layout: {
+          layoutType: state.layoutType,
+          gridCols: state.gridCols,
+          gridRows: state.gridRows,
+          cardHeightMode: state.cardHeightMode,
+          webPartBackgroundColor: state.webPartBackgroundColor
+        },
+        sections: JSON.parse(JSON.stringify(currentSections))
+      };
+
+      try {
+        const key = 'spfx_dashboards_library';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        existing.unshift({
+          name: fileName,
+          serverRelativeUrl: fullPath,
+          timeLastModified: now.toISOString(),
+          folder: folder,
+          dashboardTitle: title,
+          data: snapshot
+        });
+        localStorage.setItem(key, JSON.stringify(existing));
+
+        const statusEl = document.getElementById('status-library-backup');
+        if (statusEl) {
+          statusEl.textContent = `✓ ${isAuto ? 'Auto-saved' : 'Saved'}: ${fileName} (${folder})`;
+          statusEl.style.color = 'var(--fui-colorBrandForeground1)';
+        }
+        refreshLibraryBackupsList();
+        if (!isAuto) showToast(`✓ Saved snapshot to Dashboards/${folder}/${title}/`);
+      } catch (err) {
+        console.error('Save snapshot failed:', err);
+      }
+    }
+
+    function refreshLibraryBackupsList() {
+      const sel = document.getElementById('sel-library-backups');
+      if (!sel) return;
+      sel.innerHTML = '';
+
+      try {
+        const key = 'spfx_dashboards_library';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const filtered = existing.filter(item => !currentBackupFolderType || item.folder === currentBackupFolderType);
+        if (filtered.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = `No snapshots found in ${currentBackupFolderType}`;
+          sel.appendChild(opt);
+          return;
+        }
+
+        filtered.forEach((item, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          const dt = new Date(item.timeLastModified).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          opt.textContent = `${item.name} (${dt})`;
+          sel.appendChild(opt);
+        });
+      } catch (e) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Failed to load snapshots';
+        sel.appendChild(opt);
+      }
+    }
+
+    function restoreDashboardFromLibrarySnapshot() {
+      const sel = document.getElementById('sel-library-backups');
+      if (!sel || sel.value === '') {
+        alert('Please select a snapshot to restore.');
+        return;
+      }
+      try {
+        const key = 'spfx_dashboards_library';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const filtered = existing.filter(item => !currentBackupFolderType || item.folder === currentBackupFolderType);
+        const item = filtered[Number(sel.value)];
+        if (!item || !item.data) {
+          alert('Snapshot file is invalid.');
+          return;
+        }
+
+        const pkg = item.data;
+        if (pkg.layout) {
+          state.layoutType = pkg.layout.layoutType || state.layoutType;
+          state.gridCols = pkg.layout.gridCols || state.gridCols;
+          state.gridRows = pkg.layout.gridRows || state.gridRows;
+          state.cardHeightMode = pkg.layout.cardHeightMode || state.cardHeightMode;
+          state.webPartBackgroundColor = pkg.layout.webPartBackgroundColor || '';
+        }
+        if (pkg.sections && pkg.sections.length > 0) {
+          currentSections = pkg.sections;
+          state.activeSecIdx = 0;
+          state.activeCardSecIdx = 0;
+          state.activeCardIdx = 0;
+        }
+        const statusEl = document.getElementById('status-library-backup');
+        if (statusEl) {
+          statusEl.textContent = `✓ Restored snapshot: ${item.name}`;
+          statusEl.style.color = 'var(--fui-colorPaletteGreenForeground1)';
+        }
+        syncSidebar();
+        render();
+        showToast(`✓ Restored dashboard from ${item.name}`);
+      } catch (err) {
+        console.error('Restore failed:', err);
+        alert('Could not restore snapshot: ' + err.message);
+      }
+    }
+
     function updateCardTitle(val) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -2460,6 +2731,30 @@
         state.subtitle = 'Customizable multi-section SharePoint container.';
       }
       render();
+    }
+
+    /* Helper to render either Custom Corporate Brand SVGs or Fluent icons */
+    function renderIconUnified(key, color, size = '20px') {
+      const found = FLUENT_ICONS.find(i => i.key === key);
+      if (found && found.isCustomSvg) {
+        return React.createElement('span', {
+          style: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: color || 'currentColor',
+            width: size,
+            height: size,
+            lineHeight: 1
+          },
+          dangerouslySetInnerHTML: { __html: found.svg }
+        });
+      }
+      const faClass = found ? found.fa : 'fa-file-lines';
+      return React.createElement('i', {
+        className: 'fa-solid ' + faClass,
+        style: color ? { color: color, fontSize: size } : { fontSize: size }
+      });
     }
 
     /* Helper to get FontAwesome class from Fluent icon name */
@@ -2919,9 +3214,25 @@
                   isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
                   React.createElement('div', null,
                     React.createElement('div', { className: 'fui-card-header' },
-                      React.createElement('div', { className: 'fui-icon-box' },
-                        React.createElement('i', { className: 'fa-solid ' + getIconFaClass(block.iconName) })
-                      ),
+                      React.createElement('div', {
+                        className: 'fui-icon-box',
+                        style: {
+                          backgroundColor: (block.showIconBackground !== false)
+                            ? (block.iconBackgroundColor || (isDarkBg ? 'rgba(255,255,255,0.12)' : 'var(--fui-colorBrandBackground2)'))
+                            : 'transparent',
+                          border: (block.showIconBackground !== false)
+                            ? (block.iconBackgroundColor ? 'none' : (isDarkBg ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--fui-colorNeutralStroke2)'))
+                            : 'none',
+                          color: block.iconColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorBrandForeground1)'),
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '20px'
+                        }
+                      }, renderIconUnified(block.iconName, block.iconColor)),
                       React.createElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } },
                         block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge),
                         isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
@@ -3019,9 +3330,25 @@
                       isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
                       React.createElement('div', null,
                         React.createElement('div', { className: 'fui-card-header' },
-                          React.createElement('div', { className: 'fui-icon-box' },
-                            React.createElement('i', { className: 'fa-solid ' + getIconFaClass(block.iconName) })
-                          ),
+                          React.createElement('div', {
+                            className: 'fui-icon-box',
+                            style: {
+                              backgroundColor: (block.showIconBackground !== false)
+                                ? (block.iconBackgroundColor || (isDarkBg ? 'rgba(255,255,255,0.12)' : 'var(--fui-colorBrandBackground2)'))
+                                : 'transparent',
+                              border: (block.showIconBackground !== false)
+                                ? (block.iconBackgroundColor ? 'none' : (isDarkBg ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--fui-colorNeutralStroke2)'))
+                                : 'none',
+                              color: block.iconColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorBrandForeground1)'),
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '20px'
+                            }
+                          }, renderIconUnified(block.iconName, block.iconColor)),
                           block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
                         ),
                         React.createElement('h3', { className: 'fui-card-title', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.title),

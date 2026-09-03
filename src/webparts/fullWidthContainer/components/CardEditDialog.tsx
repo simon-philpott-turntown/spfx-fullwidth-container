@@ -17,8 +17,10 @@ import {
   shorthands,
   tokens,
   Subtitle2,
-  Caption1
+  Caption1,
+  Checkbox
 } from '@fluentui/react-components';
+import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import {
   DismissRegular,
   SaveRegular,
@@ -165,29 +167,8 @@ export interface ICardEditDialogProps {
   onDismiss: () => void;
 }
 
-export const renderFluentIconPreview = (iconKey?: string): JSX.Element => {
-  switch (iconKey) {
-    case 'Document': return <DocumentRegular />;
-    case 'Folder': return <FolderRegular />;
-    case 'Financial': return <MoneyRegular />;
-    case 'ReceiptMoney': return <ReceiptMoneyRegular />;
-    case 'TimelineProgress': return <ArrowTrendingLinesRegular />;
-    case 'ChartMultiple': return <ChartMultipleRegular />;
-    case 'ComplianceAudit': return <ShieldCheckmarkRegular />;
-    case 'CheckList': return <CheckmarkCircleRegular />;
-    case 'Lock': return <LockClosedRegular />;
-    case 'Globe': return <GlobeRegular />;
-    case 'Wrench': return <WrenchRegular />;
-    case 'People': return <PeopleRegular />;
-    case 'Building': return <BuildingRegular />;
-    case 'Megaphone': return <MegaphoneRegular />;
-    case 'Sparkle': return <SparkleRegular />;
-    case 'Star': return <StarRegular />;
-    case 'AppIconDefault': return <AppsRegular />;
-    case 'BookAnswers':
-    default:
-      return <BookOpenRegular />;
-  }
+export const renderFluentIconPreview = (iconKey?: string, iconColor?: string): JSX.Element => {
+  return renderUnifiedIcon(iconKey, iconColor);
 };
 
 export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
@@ -330,15 +311,38 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </Dropdown>
             </div>
 
-            {/* Fluent UI 2 Icon Picker */}
+            {/* Fluent UI 2 & Custom Brand SVG Icon Picker */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Fluent UI 2 Icon</Label>
+              <Label weight="semibold">Card Icon (Fluent UI 2 &amp; Custom Brand SVGs)</Label>
               <div className={styles.iconPreviewBox}>
-                <div className={styles.iconDisplay}>
-                  {renderFluentIconPreview(formData.iconName)}
-                  <span style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground1, fontWeight: 500 }}>
-                    {formData.iconName || 'BookAnswers'}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: tokens.borderRadiusMedium,
+                      backgroundColor: formData.showIconBackground !== false
+                        ? (formData.iconBackgroundColor || tokens.colorBrandBackground2)
+                        : 'transparent',
+                      border: formData.showIconBackground !== false ? `1px solid ${tokens.colorNeutralStroke2}` : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      color: formData.iconColor || tokens.colorBrandForeground1,
+                      flexShrink: 0
+                    }}
+                  >
+                    {renderFluentIconPreview(formData.iconName, formData.iconColor)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', color: tokens.colorNeutralForeground1, fontWeight: 600 }}>
+                      {formData.iconName || 'BookAnswers'}
+                    </div>
+                    <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                      {formData.iconName?.startsWith('svg-') ? '✨ Custom Corporate Brand SVG' : 'Fluent UI 2 Icon'}
+                    </Caption1>
+                  </div>
                 </div>
                 <Button
                   size="small"
@@ -348,6 +352,41 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   Browse Icons...
                 </Button>
               </div>
+            </div>
+
+            {/* Icon Styling: Color & Background Container with Visual Pickers */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Icon glyph colour</Label>
+                <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                  Brand foreground color
+                </Caption1>
+                <BrandColorPickerPopover
+                  selectedColor={formData.iconColor}
+                  onChange={(hex) => setFormData({ ...formData, iconColor: hex })}
+                  defaultLabel="Default (brand foreground)"
+                />
+              </div>
+
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Icon background box</Label>
+                <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                  Rounded container background
+                </Caption1>
+                <BrandColorPickerPopover
+                  selectedColor={formData.iconBackgroundColor}
+                  onChange={(hex) => setFormData({ ...formData, iconBackgroundColor: hex, showIconBackground: true })}
+                  defaultLabel="Default (soft tint box)"
+                />
+              </div>
+            </div>
+
+            <div style={{ margin: '-4px 0 8px 0' }}>
+              <Checkbox
+                label="Include icon background container"
+                checked={formData.showIconBackground !== false}
+                onChange={(e, data) => setFormData({ ...formData, showIconBackground: !!data.checked })}
+              />
             </div>
 
             {/* Title */}

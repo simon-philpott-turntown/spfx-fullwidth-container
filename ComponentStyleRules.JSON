@@ -98,6 +98,10 @@
     "BrandColorPickerPopover": {
       "classes": ["Popover", "PopoverTrigger", "PopoverSurface", "Button", "Input", "Divider"],
       "aesthetic": "Fluent UI 2 visual popup color picker featuring categorized Turner & Townsend brand palettes (TT Primary, TT Secondary, Backgrounds & Neutrals, Brand Tints), active selection rings, preview swatch trigger button, and custom HEX input."
+    },
+    "CustomSvgIconRegistry": {
+      "classes": ["renderUnifiedIcon", "CUSTOM_SVG_ICONS", "iconBox"],
+      "aesthetic": "Extensible custom corporate SVG icon collection renderer with currentColor dynamic inheritance, rounded 40x40px icon background boxes, and custom brand tints."
     }
   }
 }

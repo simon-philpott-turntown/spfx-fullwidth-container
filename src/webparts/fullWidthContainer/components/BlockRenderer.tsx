@@ -1017,8 +1017,19 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           {renderCardToolbar()}
           <CardHeader
             image={
-              <div className={styles.iconBox}>
-                {renderFluentIconPreview(block.iconName || 'AppIconDefault')}
+              <div
+                className={styles.iconBox}
+                style={{
+                  backgroundColor: block.showIconBackground !== false
+                    ? (block.iconBackgroundColor || tokens.colorBrandBackground2)
+                    : 'transparent',
+                  border: block.showIconBackground !== false
+                    ? (block.iconBackgroundColor ? 'none' : `1px solid ${tokens.colorNeutralStroke2}`)
+                    : 'none',
+                  color: block.iconColor || tokens.colorBrandForeground2
+                }}
+              >
+                {renderFluentIconPreview(block.iconName || 'AppIconDefault', block.iconColor)}
               </div>
             }
             header={
@@ -1098,8 +1109,19 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {renderCardToolbar()}
         <CardHeader
           image={
-            <div className={styles.iconBox}>
-              {renderFluentIconPreview(block.iconName)}
+            <div
+              className={styles.iconBox}
+              style={{
+                backgroundColor: block.showIconBackground !== false
+                  ? (block.iconBackgroundColor || tokens.colorBrandBackground2)
+                  : 'transparent',
+                border: block.showIconBackground !== false
+                  ? (block.iconBackgroundColor ? 'none' : `1px solid ${tokens.colorNeutralStroke2}`)
+                  : 'none',
+                color: block.iconColor || tokens.colorBrandForeground2
+              }}
+            >
+              {renderFluentIconPreview(block.iconName, block.iconColor)}
             </div>
           }
           header={

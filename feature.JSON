@@ -215,6 +215,32 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-019",
+      "name": "SharePointDocumentLibraryBackupAndRestore",
+      "description": "Complete self-contained dashboard backup and restore targeting SharePoint Document Library ('Dashboards') in 'Backups' or 'Templates' subfolders with timestamped version control, cross-site portability, and auto-save on page exit.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-020",
+      "name": "CustomBrandSVGIconsAndDynamicIconStyling",
+      "description": "Extensible custom corporate SVG icon collection registry seamlessly integrated alongside SPFx Fluent UI 2 icons, featuring visual color pickers for icon glyphs and rounded background boxes with full 80%, 60%, 40%, 20% brand tints.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/CustomSvgIconRegistry.tsx",
+        "src/webparts/fullWidthContainer/components/FluentIconPicker.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }
