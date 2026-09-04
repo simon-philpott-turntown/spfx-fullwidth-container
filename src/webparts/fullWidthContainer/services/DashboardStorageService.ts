@@ -204,39 +204,42 @@ export class DashboardStorageService {
     const fullFileServerRelUrl = `${fullServerRelFolderPath}/${fileName}`;
 
     if (this._spHttpClient && this._siteServerRelativeUrl) {
-      try {
-        await this._ensureSharePointFolderPath(targetFolderRelPath, options.promptLibraryCreation);
+      // Ensure the full folder path exists: Dashboards/Backups|Templates/DashboardTitle
+      await this._ensureSharePointFolderPath(targetFolderRelPath, options.promptLibraryCreation);
 
-        const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
-        const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
+      const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
+      // Files/Add requires raw body — do NOT set Content-Type to application/json.
+      // SharePoint REST treats the body as octet-stream and will corrupt the content otherwise.
+      const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
 
-        const response: SPHttpClientResponse = await this._spHttpClient.post(addFileEndpoint, SPHttpClient.configurations.v1, {
+      console.log(`[DashboardStorageService] Uploading to: ${addFileEndpoint}`);
+
+      const response: SPHttpClientResponse = await this._spHttpClient.post(
+        addFileEndpoint,
+        SPHttpClient.configurations.v1,
+        {
           headers: {
-            Accept: 'application/json;odata=nometadata',
-            'Content-Type': 'application/json;charset=utf-8'
+            Accept: 'application/json;odata=nometadata'
+            // Note: Content-Type intentionally omitted — SPHttpClient sends as octet-stream
           },
           body: jsonContent
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`SharePoint HTTP ${response.status}: ${errText}`);
         }
+      );
 
-        return {
-          success: true,
-          fileName,
-          folderPath: fullServerRelFolderPath,
-          serverRelativeUrl: fullFileServerRelUrl,
-          message: `Saved snapshot to SharePoint: ${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}/${fileName}`,
-          savedAt: new Date().toISOString()
-        };
-      } catch (err) {
-        console.warn('[DashboardStorageService] SharePoint save failed, saving to local fallback:', err);
-        const fallbackRes = this._saveToLocalMock(options.folderType, safeDashboardFolder, fileName, fullFileServerRelUrl, pkg);
-        fallbackRes.message = `⚠️ SharePoint save failed (${(err as Error).message}), saved to local mock backup`;
-        return fallbackRes;
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`SharePoint file upload HTTP ${response.status}: ${errText}`);
       }
+
+      console.log(`[DashboardStorageService] Successfully saved: ${fullFileServerRelUrl}`);
+      return {
+        success: true,
+        fileName,
+        folderPath: fullServerRelFolderPath,
+        serverRelativeUrl: fullFileServerRelUrl,
+        message: `Saved snapshot to SharePoint: ${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}/${fileName}`,
+        savedAt: new Date().toISOString()
+      };
     } else {
       return this._saveToLocalMock(options.folderType, safeDashboardFolder, fileName, fullFileServerRelUrl, pkg);
     }
@@ -379,31 +382,33 @@ export class DashboardStorageService {
 
   /**
    * Helper to ensure a root folder (e.g. Backups, Templates) exists directly under the Dashboards library.
+   * Sends the full server-relative path in the body as required by the SharePoint REST /folders endpoint.
    */
   private async _ensureRootLibraryFolder(folderName: string): Promise<void> {
     if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
-    const parentFullServerRel = this._siteServerRelativeUrl
-      ? `${this._siteServerRelativeUrl}/${this._libraryTitle}`
-      : `/${this._libraryTitle}`;
+    const parentFullServerRel = `${this._siteServerRelativeUrl}/${this._libraryTitle}`;
+    const newFolderFullPath = `${parentFullServerRel}/${folderName}`;
     try {
       const escapedParentUrl = this.escapeSpPath(parentFullServerRel);
       const endpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedParentUrl}')/folders`;
       await this._spHttpClient.post(endpoint, SPHttpClient.configurations.v1, {
         headers: {
           Accept: 'application/json;odata=nometadata',
-          'Content-Type': 'application/json;odata=verbose'
+          'Content-Type': 'application/json;odata=nometadata'
         },
-        body: JSON.stringify({ ServerRelativeUrl: folderName })
+        body: JSON.stringify({ ServerRelativeUrl: newFolderFullPath })
       });
+      console.log(`[DashboardStorageService] Root folder ensured: ${newFolderFullPath}`);
     } catch {
-      // Ignore if folder already exists
+      // Ignore — folder likely already exists
     }
   }
+
 
   /**
    * Iteratively creates folders in the SharePoint Document Library if they don't already exist.
    * Traverses from library root down into subfolders ('Backups'/'Templates' -> DashboardTitle).
-   * Automatically creates 'Backups' or 'Templates' as part of the saving process.
+   * Uses the correct SharePoint REST folder-add body: { ServerRelativeUrl: fullServerRelativePath }.
    */
   private async _ensureSharePointFolderPath(
     relativeFolderPath: string,
@@ -417,34 +422,51 @@ export class DashboardStorageService {
     const segments = relativeFolderPath.split('/').filter(Boolean);
     if (segments.length === 0) return;
 
-    // Start with the Document Library folder
-    const libraryName = segments[0];
-    let currentRelPath = libraryName;
+    // segments[0] is the library name — already created above.
+    // Iterate through sub-folders: e.g. ['Dashboards', 'Backups', 'My_Dashboard_Title']
+    let currentFullServerRelPath = `${this._siteServerRelativeUrl}/${segments[0]}`;
 
-    // Iterate through sub-folders (e.g. Backups or Templates, then DashboardTitle)
     for (let i = 1; i < segments.length; i++) {
       const segment = segments[i];
-      const parentRelPath = currentRelPath;
-      currentRelPath = `${currentRelPath}/${segment}`;
+      const targetFullPath = `${currentFullServerRelPath}/${segment}`;
 
-      const parentFullServerRel = this._siteServerRelativeUrl
-        ? `${this._siteServerRelativeUrl}/${parentRelPath}`
-        : `/${parentRelPath}`;
-
+      // Check if folder exists first
+      const checkUrl = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${this.escapeSpPath(targetFullPath)}')`;
       try {
-        const escapedParentUrl = this.escapeSpPath(parentFullServerRel);
-        const endpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedParentUrl}')/folders`;
+        const checkRes = await this._spHttpClient.get(checkUrl, SPHttpClient.configurations.v1, {
+          headers: { Accept: 'application/json;odata=nometadata' }
+        });
+        if (checkRes.ok) {
+          // Folder already exists — move on
+          currentFullServerRelPath = targetFullPath;
+          continue;
+        }
+      } catch {
+        // Treat as missing — attempt to create
+      }
 
-        await this._spHttpClient.post(endpoint, SPHttpClient.configurations.v1, {
+      // Create the folder using the parent folder's /folders endpoint
+      // Body must contain the FULL server-relative URL of the new folder
+      const createEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${this.escapeSpPath(currentFullServerRelPath)}')/folders`;
+      try {
+        const createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
           headers: {
             Accept: 'application/json;odata=nometadata',
-            'Content-Type': 'application/json;odata=verbose'
+            'Content-Type': 'application/json;odata=nometadata'
           },
-          body: JSON.stringify({ ServerRelativeUrl: segment })
+          body: JSON.stringify({ ServerRelativeUrl: targetFullPath })
         });
-      } catch {
-        // Ignore if folder already exists
+        if (!createRes.ok && createRes.status !== 409) {
+          const errText = await createRes.text();
+          console.warn(`[DashboardStorageService] Folder create returned ${createRes.status}: ${errText}`);
+        } else {
+          console.log(`[DashboardStorageService] Folder ensured: ${targetFullPath}`);
+        }
+      } catch (folderErr) {
+        console.warn(`[DashboardStorageService] Could not create folder ${targetFullPath}:`, folderErr);
       }
+
+      currentFullServerRelPath = targetFullPath;
     }
   }
 
