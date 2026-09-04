@@ -307,6 +307,28 @@
         "preview/index.html",
         "ComponentStyleRules.JSON"
       ]
+    },
+    {
+      "id": "FEAT-026",
+      "name": "DualModeRichTextFormatting",
+      "description": "Smart inline formatting for all titles and text blocks: formatting actions (fonts, colors, highlight, alignment, lists, styles) apply directly to selected highlighted text when a selection exists, or apply seamlessly across the entire text block when no text is highlighted.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-027",
+      "name": "ResilientSharePointLibrarySnapshotUpload",
+      "description": "Guaranteed snapshot backup and template storage for SharePoint Online Dashboards library (https://turntown.sharepoint.com/sites/Knowledgemanagement/Dashboards), utilizing robust multi-tier folder-add REST calls and automatic fallback upload directly to root Dashboards library folder if subfolder creation is restricted.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }

@@ -68,7 +68,7 @@
     {
       "name": "RichTextEditable",
       "path": "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
-      "role": "Inline WYSIWYG rich text editor with non-collapsing Floating Toolbar, site theme colors, and brand fonts."
+      "role": "Inline WYSIWYG rich text editor with non-collapsing Floating Toolbar, site theme colors, brand fonts, and smart dual-mode formatting (selection vs whole block)."
     },
     {
       "name": "LiveDataRenderer",
@@ -103,7 +103,7 @@
     {
       "name": "DashboardStorageService",
       "path": "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
-      "role": "SharePoint REST API storage service handling full dashboard package backups, versioned snapshots, cross-site portable JSON files, user prompt for library provisioning, and automatic creation of Backups and Templates folders in the Dashboards library."
+      "role": "SharePoint REST API storage service handling full dashboard package backups, versioned snapshots, cross-site portable JSON files, user prompt for library provisioning, automatic creation of Backups and Templates folders in the Dashboards library, and resilient root-library upload fallback."
     },
     {
       "name": "CustomSvgIconRegistry",

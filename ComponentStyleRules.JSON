@@ -65,7 +65,7 @@
     },
     "RichTextEditable": {
       "classes": ["contentEditable", "h1", "h2", "h3", "p", "FloatingTextToolbar"],
-      "aesthetic": "Theme-aware inline WYSIWYG rich text block inheriting site font families and theme colors with real-time selection-anchored ribbon."
+      "aesthetic": "Theme-aware inline WYSIWYG rich text block inheriting site font families and theme colors with real-time selection-anchored ribbon. Supports dual-mode formatting: modifies highlighted selection when text is selected, or formats the entire text block (family, color, background, alignment, lists) when no text is selected."
     },
     "InsertionBar": {
       "classes": ["InsertionBar", "AddRegular"],

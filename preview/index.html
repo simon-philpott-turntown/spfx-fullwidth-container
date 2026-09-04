@@ -2997,14 +2997,18 @@
     /* Rich Text Formatting Toolbar Component with mousedown default prevention */
     function RichTextFloatingToolbar(props) {
       const [showColorPicker, setShowColorPicker] = React.useState(false);
+      const [showHighlightPicker, setShowHighlightPicker] = React.useState(false);
       const [showStyleMenu, setShowStyleMenu] = React.useState(false);
       const [showFontMenu, setShowFontMenu] = React.useState(false);
       const [selectedStyle, setSelectedStyle] = React.useState('Style');
       const [selectedFont, setSelectedFont] = React.useState('Font');
 
       const handleCmd = (cmd, val) => {
-        document.execCommand(cmd, false, val);
-        if (props.onFormat) props.onFormat();
+        if (props.onFormat) {
+          props.onFormat(cmd, val);
+        } else {
+          document.execCommand(cmd, false, val);
+        }
       };
 
       const preventBlur = (e) => {
@@ -3069,6 +3073,15 @@
         ]}
       ];
 
+      const highlightColors = [
+        { name: 'Bright Yellow', hex: '#fff100' },
+        { name: 'Pastel Green', hex: '#92c353' },
+        { name: 'Sky Cyan', hex: '#00bcf2' },
+        { name: 'Soft Lavender', hex: '#b4a0ff' },
+        { name: 'Warm Peach', hex: '#ffb900' },
+        { name: 'Light Rose', hex: '#e3008c' }
+      ];
+
       return React.createElement('div', {
         className: 'fui-floating-toolbar',
         onMouseDown: preventBlur,
@@ -3081,7 +3094,7 @@
             style: { width: 'auto', padding: '0 6px', fontSize: '0.78rem', fontWeight: 600, display: 'flex', gap: '3px' },
             title: 'Text Style (Header 1, 2, 3, Body)',
             onMouseDown: preventBlur,
-            onClick: () => { setShowStyleMenu(!showStyleMenu); setShowFontMenu(false); setShowColorPicker(false); }
+            onClick: () => { setShowStyleMenu(!showStyleMenu); setShowFontMenu(false); setShowColorPicker(false); setShowHighlightPicker(false); }
           }, selectedStyle, React.createElement('i', { className: 'fa-solid fa-chevron-down', style: { fontSize: '0.65rem' } })),
           showStyleMenu ? React.createElement('div', {
             style: {
@@ -3107,7 +3120,7 @@
             style: { width: 'auto', padding: '0 6px', fontSize: '0.78rem', fontWeight: 600, display: 'flex', gap: '3px' },
             title: 'Font Family',
             onMouseDown: preventBlur,
-            onClick: () => { setShowFontMenu(!showFontMenu); setShowStyleMenu(false); setShowColorPicker(false); }
+            onClick: () => { setShowFontMenu(!showFontMenu); setShowStyleMenu(false); setShowColorPicker(false); setShowHighlightPicker(false); }
           }, selectedFont, React.createElement('i', { className: 'fa-solid fa-chevron-down', style: { fontSize: '0.65rem' } })),
           showFontMenu ? React.createElement('div', {
             style: {
@@ -3136,15 +3149,23 @@
         
         // Grouped SharePoint Theme Color Palette
         React.createElement('div', { style: { position: 'relative' } },
-          React.createElement('button', { className: 'fui-toolbar-btn', title: 'SharePoint Site Theme Colour', onMouseDown: preventBlur, onClick: () => { setShowColorPicker(!showColorPicker); setShowStyleMenu(false); setShowFontMenu(false); } }, React.createElement('i', { className: 'fa-solid fa-palette' })),
+          React.createElement('button', { className: 'fui-toolbar-btn', title: 'SharePoint Site Theme Colour', onMouseDown: preventBlur, onClick: () => { setShowColorPicker(!showColorPicker); setShowStyleMenu(false); setShowFontMenu(false); setShowHighlightPicker(false); } }, React.createElement('i', { className: 'fa-solid fa-palette' })),
           showColorPicker ? React.createElement('div', {
             style: {
               position: 'absolute', top: '32px', left: 0, zIndex: 350,
               background: 'var(--fui-colorNeutralBackground1)', border: '1px solid var(--fui-colorNeutralStroke1)',
-              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', width: '190px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px'
+              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', width: '210px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px'
             },
             onMouseDown: preventBlur
           },
+            React.createElement('div', {
+              style: { padding: '4px 6px', background: 'var(--fui-colorNeutralBackground2)', border: '1px solid var(--fui-colorNeutralStroke2)', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' },
+              onMouseDown: preventBlur,
+              onClick: () => { handleCmd('foreColor', '#242424'); setShowColorPicker(false); }
+            },
+              React.createElement('div', { style: { width: '14px', height: '14px', borderRadius: '3px', background: '#242424' } }),
+              'Default (#242424)'
+            ),
             siteThemePalette.map(grp => React.createElement('div', { key: grp.group },
               React.createElement('div', { style: { fontSize: '0.68rem', fontWeight: 700, color: 'var(--fui-colorNeutralForeground3)', textTransform: 'uppercase', marginBottom: '3px' } }, grp.group),
               React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' } },
@@ -3161,17 +3182,57 @@
           ) : null
         ),
 
-        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Highlight Yellow', onMouseDown: preventBlur, onClick: () => handleCmd('hiliteColor', '#fff176') }, React.createElement('i', { className: 'fa-solid fa-highlighter' })),
+        // Highlight Background Popover
+        React.createElement('div', { style: { position: 'relative' } },
+          React.createElement('button', { className: 'fui-toolbar-btn', title: 'Highlight Colour', onMouseDown: preventBlur, onClick: () => { setShowHighlightPicker(!showHighlightPicker); setShowColorPicker(false); setShowStyleMenu(false); setShowFontMenu(false); } }, React.createElement('i', { className: 'fa-solid fa-highlighter' })),
+          showHighlightPicker ? React.createElement('div', {
+            style: {
+              position: 'absolute', top: '32px', left: 0, zIndex: 350,
+              background: 'var(--fui-colorNeutralBackground1)', border: '1px solid var(--fui-colorNeutralStroke1)',
+              borderRadius: '6px', boxShadow: 'var(--fui-shadow16)', width: '170px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px'
+            },
+            onMouseDown: preventBlur
+          },
+            React.createElement('div', {
+              style: { padding: '4px 6px', background: 'var(--fui-colorNeutralBackground2)', border: '1px solid var(--fui-colorNeutralStroke2)', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 },
+              onMouseDown: preventBlur,
+              onClick: () => { handleCmd('hiliteColor', 'transparent'); setShowHighlightPicker(false); }
+            }, 'None (Transparent)'),
+            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' } },
+              highlightColors.map(c => React.createElement('div', {
+                key: c.name,
+                className: 'fui-color-dot',
+                style: { backgroundColor: c.hex, width: '20px', height: '20px' },
+                title: c.name,
+                onMouseDown: preventBlur,
+                onClick: () => { handleCmd('hiliteColor', c.hex); setShowHighlightPicker(false); }
+              }))
+            )
+          ) : null
+        ),
+
+        React.createElement('span', { style: { width: '1px', height: '18px', background: 'var(--fui-colorNeutralStroke2)', margin: '0 3px' } }),
+
+        // Alignment Left, Center, Right
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Left', onMouseDown: preventBlur, onClick: () => handleCmd('justifyLeft') }, React.createElement('i', { className: 'fa-solid fa-align-left' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Centre', onMouseDown: preventBlur, onClick: () => handleCmd('justifyCenter') }, React.createElement('i', { className: 'fa-solid fa-align-center' })),
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Align Right', onMouseDown: preventBlur, onClick: () => handleCmd('justifyRight') }, React.createElement('i', { className: 'fa-solid fa-align-right' })),
+
+        React.createElement('span', { style: { width: '1px', height: '18px', background: 'var(--fui-colorNeutralStroke2)', margin: '0 3px' } }),
+
+        // Bullet & Numbered Lists
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Bullet List', onMouseDown: preventBlur, onClick: () => handleCmd('insertUnorderedList') }, React.createElement('i', { className: 'fa-solid fa-list-ul' })),
+        React.createElement('button', { className: 'fui-toolbar-btn', title: 'Numbered List', onMouseDown: preventBlur, onClick: () => handleCmd('insertOrderedList') }, React.createElement('i', { className: 'fa-solid fa-list-ol' })),
+
+        // Clear Formatting
         React.createElement('button', { className: 'fui-toolbar-btn', title: 'Clear Formatting', onMouseDown: preventBlur, onClick: () => handleCmd('removeFormat') }, React.createElement('i', { className: 'fa-solid fa-eraser' }))
       );
     }
 
-    /* Editable Field Component */
+    /* Editable Field Component with Dual-Mode Formatting (Selected Text vs Whole Block) */
     function EditableText(props) {
       const [isFocused, setIsFocused] = React.useState(false);
+      const [savedRange, setSavedRange] = React.useState(null);
       const ref = React.useRef(null);
 
       React.useEffect(() => {
@@ -3182,13 +3243,84 @@
         }
       }, [props.html, isFocused]);
 
+      const saveSelection = () => {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0 && ref.current) {
+          const range = sel.getRangeAt(0);
+          if (ref.current.contains(range.commonAncestorContainer)) {
+            setSavedRange(range.cloneRange());
+          }
+        }
+      };
+
       const onBlur = () => {
         setTimeout(() => {
           setIsFocused(false);
           if (ref.current && props.onChange) {
             props.onChange(ref.current.innerHTML);
           }
-        }, 180);
+        }, 220);
+      };
+
+      const handleFormat = (command, value) => {
+        if (!ref.current) return;
+        ref.current.focus();
+
+        let hasTextSelection = false;
+        const sel = window.getSelection();
+        if (savedRange && sel) {
+          sel.removeAllRanges();
+          sel.addRange(savedRange);
+        }
+
+        const curSel = window.getSelection();
+        if (curSel && !curSel.isCollapsed && curSel.rangeCount > 0 && ref.current.contains(curSel.getRangeAt(0).commonAncestorContainer) && curSel.toString().length > 0) {
+          hasTextSelection = true;
+        }
+
+        try {
+          document.execCommand('styleWithCSS', false, 'true');
+        } catch (e) {}
+
+        if (hasTextSelection) {
+          // Format selected highlighted text
+          document.execCommand(command, false, value);
+        } else {
+          // Format entire text block
+          if (command === 'fontName' && value) {
+            ref.current.style.fontFamily = value;
+          } else if (command === 'foreColor' && value) {
+            ref.current.style.color = value;
+          } else if (command === 'hiliteColor' && value) {
+            ref.current.style.backgroundColor = value;
+          } else if (command === 'removeFormat') {
+            ref.current.style.fontFamily = '';
+            ref.current.style.color = '';
+            ref.current.style.backgroundColor = '';
+            const fullRange = document.createRange();
+            fullRange.selectNodeContents(ref.current);
+            const s = window.getSelection();
+            if (s) {
+              s.removeAllRanges();
+              s.addRange(fullRange);
+            }
+            document.execCommand('removeFormat', false);
+          } else {
+            const fullRange = document.createRange();
+            fullRange.selectNodeContents(ref.current);
+            const s = window.getSelection();
+            if (s) {
+              s.removeAllRanges();
+              s.addRange(fullRange);
+            }
+            document.execCommand(command, false, value);
+          }
+        }
+
+        if (props.onChange) {
+          props.onChange(ref.current.innerHTML);
+        }
+        saveSelection();
       };
 
       if (!isEditMode) {
@@ -3201,9 +3333,7 @@
 
       return React.createElement('div', { style: { position: 'relative', width: '100%' } },
         isFocused ? React.createElement(RichTextFloatingToolbar, {
-          onFormat: () => {
-            if (ref.current && props.onChange) props.onChange(ref.current.innerHTML);
-          }
+          onFormat: handleFormat
         }) : null,
         React.createElement(props.tag || 'div', {
           ref: ref,
@@ -3211,8 +3341,10 @@
           suppressContentEditableWarning: true,
           className: 'fui-editable ' + (props.className || ''),
           style: props.style,
-          onFocus: () => setIsFocused(true),
+          onFocus: () => { setIsFocused(true); saveSelection(); },
           onBlur: onBlur,
+          onKeyUp: saveSelection,
+          onMouseUp: saveSelection,
           onInput: () => {
             if (ref.current && props.onChange) props.onChange(ref.current.innerHTML);
           }
@@ -3313,14 +3445,22 @@
         // Edit Mode Banner
         isEditMode ? React.createElement('div', { className: 'edit-banner' },
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
-            React.createElement('span', { className: 'fui-badge', style: { backgroundColor: 'var(--fui-colorBrandBackground)', color: '#fff' } }, 'SharePoint Edit Mode'),
-            React.createElement('span', null, 'Click text to format titles & descriptions, select text for floating ribbon, or click ✏️ to customize card properties and icons.')
+            React.createElement('span', { className: 'fui-badge', style: { backgroundColor: 'var(--fui-colorBrandBackground)', color: '#fff' } }, 'Dashboard edit mode'),
+            React.createElement('span', null, 'Click on titles to edit or hover between items to add content to the cards.')
           ),
-          React.createElement('button', {
-            className: 'fui-btn-subtle',
-            style: { border: '1px solid var(--fui-colorBrandStroke1)', padding: '0.3rem 0.6rem' },
-            onClick: () => { document.getElementById('property-pane').style.display = 'flex'; }
-          }, React.createElement('i', { className: 'fa-solid fa-sliders' }), ' Open Sidebar')
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+            React.createElement('button', {
+              className: 'sp-btn',
+              style: { padding: '0.3rem 0.6rem', fontSize: '0.78rem' },
+              title: 'Save snapshot to Dashboards library (https://turntown.sharepoint.com/sites/Knowledgemanagement/Dashboards)',
+              onClick: () => { saveDashboardToLibrarySnapshot('Backups'); }
+            }, React.createElement('i', { className: 'fa-solid fa-floppy-disk' }), ' 💾 Save snapshot to Library'),
+            React.createElement('button', {
+              className: 'fui-btn-subtle',
+              style: { border: '1px solid var(--fui-colorBrandStroke1)', padding: '0.3rem 0.6rem' },
+              onClick: () => { document.getElementById('property-pane').style.display = 'flex'; }
+            }, React.createElement('i', { className: 'fa-solid fa-sliders' }), ' Open Sidebar')
+          )
         ) : null,
 
         // Header with WYSIWYG Editable Title & Subtitle

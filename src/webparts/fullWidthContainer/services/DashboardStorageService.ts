@@ -205,39 +205,74 @@ export class DashboardStorageService {
 
     if (this._spHttpClient && this._siteServerRelativeUrl) {
       // Ensure the full folder path exists: Dashboards/Backups|Templates/DashboardTitle
-      await this._ensureSharePointFolderPath(targetFolderRelPath, options.promptLibraryCreation);
+      let targetFolderPath = fullServerRelFolderPath;
+      let finalFileServerRelUrl = fullFileServerRelUrl;
+      let savedFolderDescription = `${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}`;
 
-      const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
-      // Files/Add requires raw body — do NOT set Content-Type to application/json.
-      // SharePoint REST treats the body as octet-stream and will corrupt the content otherwise.
+      try {
+        await this._ensureSharePointFolderPath(targetFolderRelPath, options.promptLibraryCreation);
+      } catch (folderErr) {
+        console.warn(`[DashboardStorageService] Could not ensure subfolder ${targetFolderRelPath}:`, folderErr);
+      }
+
+      const escapedFolderPath = this.escapeSpPath(targetFolderPath);
       const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
 
       console.log(`[DashboardStorageService] Uploading to: ${addFileEndpoint}`);
 
-      const response: SPHttpClientResponse = await this._spHttpClient.post(
-        addFileEndpoint,
-        SPHttpClient.configurations.v1,
-        {
-          headers: {
-            Accept: 'application/json;odata=nometadata'
-            // Note: Content-Type intentionally omitted — SPHttpClient sends as octet-stream
-          },
-          body: jsonContent
-        }
-      );
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`SharePoint file upload HTTP ${response.status}: ${errText}`);
+      let response: SPHttpClientResponse;
+      try {
+        response = await this._spHttpClient.post(
+          addFileEndpoint,
+          SPHttpClient.configurations.v1,
+          {
+            headers: {
+              Accept: 'application/json;odata=nometadata'
+            },
+            body: jsonContent
+          }
+        );
+      } catch (networkErr) {
+        console.warn('[DashboardStorageService] Primary upload attempt threw error:', networkErr);
+        response = { ok: false, status: 500, text: async () => String(networkErr) } as any;
       }
 
-      console.log(`[DashboardStorageService] Successfully saved: ${fullFileServerRelUrl}`);
+      // Resilient fallback: If subfolder does not exist or upload to subfolder fails,
+      // upload directly into the root Dashboards library folder
+      if (!response.ok) {
+        console.warn(`[DashboardStorageService] Upload to subfolder ${targetFolderPath} failed (HTTP ${response.status}). Falling back to root Dashboards library...`);
+        const rootLibraryServerRel = `${this._siteServerRelativeUrl}/${this._libraryTitle}`;
+        const escapedRootUrl = this.escapeSpPath(rootLibraryServerRel);
+        const fallbackEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedRootUrl}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
+
+        const fallbackRes = await this._spHttpClient.post(
+          fallbackEndpoint,
+          SPHttpClient.configurations.v1,
+          {
+            headers: {
+              Accept: 'application/json;odata=nometadata'
+            },
+            body: jsonContent
+          }
+        );
+
+        if (!fallbackRes.ok) {
+          const errText = await fallbackRes.text();
+          throw new Error(`SharePoint file upload failed in both subfolder and root library (HTTP ${fallbackRes.status}): ${errText}`);
+        }
+
+        targetFolderPath = rootLibraryServerRel;
+        finalFileServerRelUrl = `${rootLibraryServerRel}/${fileName}`;
+        savedFolderDescription = `${this._libraryTitle} (Root)`;
+      }
+
+      console.log(`[DashboardStorageService] Successfully saved snapshot: ${finalFileServerRelUrl}`);
       return {
         success: true,
         fileName,
-        folderPath: fullServerRelFolderPath,
-        serverRelativeUrl: fullFileServerRelUrl,
-        message: `Saved snapshot to SharePoint: ${this._libraryTitle}/${options.folderType}/${safeDashboardFolder}/${fileName}`,
+        folderPath: targetFolderPath,
+        serverRelativeUrl: finalFileServerRelUrl,
+        message: `Saved snapshot to SharePoint: ${savedFolderDescription}/${fileName}`,
         savedAt: new Date().toISOString()
       };
     } else {
@@ -445,17 +480,32 @@ export class DashboardStorageService {
         // Treat as missing — attempt to create
       }
 
-      // Create the folder using the parent folder's /folders endpoint
-      // Body must contain the FULL server-relative URL of the new folder
+      // Create the folder using the parent folder's /folders endpoint or add method
       const createEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${this.escapeSpPath(currentFullServerRelPath)}')/folders`;
+      const addEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${this.escapeSpPath(currentFullServerRelPath)}')/folders/add('${encodeURIComponent(segment)}')`;
       try {
-        const createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
+        // Method 1: folders/add('{name}')
+        let createRes = await this._spHttpClient.post(addEndpoint, SPHttpClient.configurations.v1, {
           headers: {
             Accept: 'application/json;odata=nometadata',
-            'Content-Type': 'application/json;odata=nometadata'
-          },
-          body: JSON.stringify({ ServerRelativeUrl: targetFullPath })
+            'Content-Type': 'application/json;odata=verbose'
+          }
         });
+
+        // Method 2: If addEndpoint returned 404 or 400, fallback to POST /folders with verbose body
+        if (!createRes.ok && createRes.status !== 409) {
+          createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
+            headers: {
+              Accept: 'application/json;odata=verbose',
+              'Content-Type': 'application/json;odata=verbose'
+            },
+            body: JSON.stringify({
+              '__metadata': { 'type': 'SP.Folder' },
+              ServerRelativeUrl: targetFullPath
+            })
+          });
+        }
+
         if (!createRes.ok && createRes.status !== 409) {
           const errText = await createRes.text();
           console.warn(`[DashboardStorageService] Folder create returned ${createRes.status}: ${errText}`);

@@ -197,12 +197,16 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onUpdateBlock,
     onAddBlock,
     onDeleteBlock,
-    onEditBlockProperties
+    onEditBlockProperties,
+    onSaveBackupToLibrary,
+    onRestoreFromLibrary,
+    lastBackupMessage
   } = props;
 
   const styles = useStyles();
   const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(initialLayoutMode || 'tabs');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [isSavingSnapshot, setIsSavingSnapshot] = React.useState<boolean>(false);
 
   // Sync state if property pane changes
   React.useEffect(() => {
@@ -236,6 +240,16 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     return webPartBackgroundColor ? { backgroundColor: webPartBackgroundColor } : {};
   }, [webPartBackgroundColor]);
 
+  const handleQuickSave = async (folderType: 'Backups' | 'Templates'): Promise<void> => {
+    if (!onSaveBackupToLibrary) return;
+    try {
+      setIsSavingSnapshot(true);
+      await onSaveBackupToLibrary(folderType);
+    } finally {
+      setIsSavingSnapshot(false);
+    }
+  };
+
   return (
     <FluentProvider theme={fluentTheme} className={mergeClasses(styles.rootBase, rootStyleClass)} style={rootCustomStyle}>
       <div className={mergeClasses(styles.inner, compactPadding ? styles.innerCompact : undefined)}>
@@ -247,17 +261,34 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
                 Click on titles to edit or hover between items to add content to the cards.
               </Caption1>
+              {lastBackupMessage && (
+                <Caption1 style={{ fontWeight: 600, color: lastBackupMessage.startsWith('✓') ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1, marginLeft: '8px' }}>
+                  {lastBackupMessage}
+                </Caption1>
+              )}
             </div>
-            {onOpenPropertyPane && (
-              <Button
-                appearance="subtle"
-                size="small"
-                onClick={onOpenPropertyPane}
-                style={{ border: `1px solid ${tokens.colorBrandStroke1}` }}
-              >
-                Configure web part
-              </Button>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {onSaveBackupToLibrary && (
+                <Button
+                  appearance="primary"
+                  size="small"
+                  disabled={isSavingSnapshot}
+                  onClick={() => void handleQuickSave('Backups')}
+                >
+                  {isSavingSnapshot ? 'Saving snapshot...' : '💾 Save snapshot to Library'}
+                </Button>
+              )}
+              {onOpenPropertyPane && (
+                <Button
+                  appearance="subtle"
+                  size="small"
+                  onClick={onOpenPropertyPane}
+                  style={{ border: `1px solid ${tokens.colorBrandStroke1}` }}
+                >
+                  Configure web part
+                </Button>
+              )}
+            </div>
           </div>
         )}
 

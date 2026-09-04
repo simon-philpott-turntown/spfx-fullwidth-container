@@ -17,6 +17,7 @@ import {
   PropertyPaneButton,
   PropertyPaneButtonType,
   PropertyPaneHorizontalRule,
+  PropertyPaneLabel,
   PropertyPaneFieldType,
   type IPropertyPaneField,
   type IPropertyPaneDropdownOption
@@ -934,6 +935,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   onClick: () => {
                     void this._refreshBackupsList();
                   }
+                }),
+                PropertyPaneLabel('backupStatusMessageLabel', {
+                  text: this._backupStatusMessage || 'Snapshots are saved to: /sites/Knowledgemanagement/Dashboards'
                 })
               ]
             }

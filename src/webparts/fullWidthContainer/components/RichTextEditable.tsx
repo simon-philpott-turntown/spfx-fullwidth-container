@@ -97,17 +97,80 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
     }
   };
 
+  const [blockOverrideStyle, setBlockOverrideStyle] = React.useState<React.CSSProperties>({});
+
   const handleFormat = (command: string, value?: string): void => {
     if (elementRef.current) {
       elementRef.current.focus();
-      if (savedRange && typeof window !== 'undefined') {
+
+      // Check if we have an active non-collapsed selection inside this element
+      let hasTextSelection = false;
+      if (typeof window !== 'undefined') {
         const sel = window.getSelection();
-        if (sel) {
+        if (savedRange && sel) {
           sel.removeAllRanges();
           sel.addRange(savedRange);
         }
+
+        const currentSel = window.getSelection();
+        if (
+          currentSel &&
+          !currentSel.isCollapsed &&
+          currentSel.rangeCount > 0 &&
+          elementRef.current.contains(currentSel.getRangeAt(0).commonAncestorContainer) &&
+          currentSel.toString().length > 0
+        ) {
+          hasTextSelection = true;
+        }
       }
-      document.execCommand(command, false, value);
+
+      // Enable CSS style output where supported
+      try {
+        document.execCommand('styleWithCSS', false, 'true');
+      } catch {
+        // Fallback for older browsers
+      }
+
+      if (hasTextSelection) {
+        // User highlighted specific text: format only that highlighted selection
+        document.execCommand(command, false, value);
+      } else {
+        // No specific text selected: format the whole text block as requested
+        if (command === 'fontName' && value) {
+          elementRef.current.style.fontFamily = value;
+          setBlockOverrideStyle((prev) => ({ ...prev, fontFamily: value }));
+        } else if (command === 'foreColor' && value) {
+          elementRef.current.style.color = value;
+          setBlockOverrideStyle((prev) => ({ ...prev, color: value }));
+        } else if (command === 'hiliteColor' && value) {
+          elementRef.current.style.backgroundColor = value;
+          setBlockOverrideStyle((prev) => ({ ...prev, backgroundColor: value }));
+        } else if (command === 'removeFormat') {
+          elementRef.current.style.fontFamily = '';
+          elementRef.current.style.color = '';
+          elementRef.current.style.backgroundColor = '';
+          setBlockOverrideStyle({});
+          const fullRange = document.createRange();
+          fullRange.selectNodeContents(elementRef.current);
+          const sel = window.getSelection();
+          if (sel) {
+            sel.removeAllRanges();
+            sel.addRange(fullRange);
+          }
+          document.execCommand('removeFormat', false);
+        } else {
+          // Alignment, list, bold, italic, underline, strike, formatBlock applied across the entire block contents
+          const fullRange = document.createRange();
+          fullRange.selectNodeContents(elementRef.current);
+          const sel = window.getSelection();
+          if (sel) {
+            sel.removeAllRanges();
+            sel.addRange(fullRange);
+          }
+          document.execCommand(command, false, value);
+        }
+      }
+
       handleInput();
       handleSelectionSave();
     }
@@ -136,7 +199,8 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
   const commonStyle: React.CSSProperties = {
     fontFamily: tokens.fontFamilyBase,
     color: tokens.colorNeutralForeground1,
-    ...style
+    ...style,
+    ...blockOverrideStyle
   };
 
   if (!isEditMode) {
