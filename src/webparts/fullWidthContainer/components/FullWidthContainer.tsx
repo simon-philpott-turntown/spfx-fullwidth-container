@@ -243,9 +243,9 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
         {isEditMode && (
           <div className={styles.editBanner}>
             <div className={styles.editBannerLeft}>
-              <Badge appearance="filled" color="brand" size="small">SharePoint authoring mode</Badge>
+              <Badge appearance="filled" color="brand" size="small">Dashboard edit mode</Badge>
               <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
-                Full-width container active. Click on titles to edit or hover between items to add content.
+                Click on titles to edit or hover between items to add content to the cards.
               </Caption1>
             </div>
             {onOpenPropertyPane && (

@@ -59,7 +59,7 @@ const useStyles = makeStyles({
     zIndex: 999,
     display: 'flex',
     justifyContent: 'flex-end',
-    pointerEvents: 'none'
+    pointerEvents: 'auto'
   },
   sidePanel: {
     position: 'relative',

@@ -446,6 +446,34 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   const [liveRowSpan, setLiveRowSpan] = React.useState<number>(block.rowSpan || 1);
   const cardWrapperRef = React.useRef<HTMLDivElement>(null);
 
+  /**
+   * Listen for a global "dashboard:card-edit-open" event. When another card's
+   * dialog opens it broadcasts its block.id — all other instances close.
+   */
+  React.useEffect(() => {
+    const handleOtherCardOpened = (e: Event): void => {
+      const ce = e as CustomEvent<{ blockId: string }>;
+      if (ce.detail?.blockId !== block.id) {
+        setIsDialogOpen(false);
+      }
+    };
+    window.addEventListener('dashboard:card-edit-open', handleOtherCardOpened);
+    return () => {
+      window.removeEventListener('dashboard:card-edit-open', handleOtherCardOpened);
+    };
+  }, [block.id]);
+
+  /**
+   * Opens this card's edit dialog and notifies all other BlockRenderer instances
+   * to close their own dialogs via the global event.
+   */
+  const openCardDialog = (): void => {
+    window.dispatchEvent(
+      new CustomEvent('dashboard:card-edit-open', { detail: { blockId: block.id } })
+    );
+    setIsDialogOpen(true);
+  };
+
   React.useEffect(() => {
     setLiveColSpan(block.colSpan || 1);
     setLiveRowSpan(block.rowSpan || 1);
@@ -581,7 +609,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           title="Edit card properties"
           onClick={(e) => {
             e.stopPropagation();
-            setIsDialogOpen(true);
+            openCardDialog();
           }}
         />
         {onDelete && (
