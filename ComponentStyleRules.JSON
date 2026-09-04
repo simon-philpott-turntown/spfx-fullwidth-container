@@ -61,7 +61,7 @@
     },
     "FluentIconPicker": {
       "classes": ["Dialog", "DialogSurface", "DialogTitle", "Input", "Badge", "Button"],
-      "aesthetic": "Visual icon selection modal featuring instant search, categorised pill filters, and 40+ Fluent UI 2 icons with hover animations."
+      "aesthetic": "Visual icon selection modal featuring instant search, categorised pill filters, and unified icon set with hover animations."
     },
     "RichTextEditable": {
       "classes": ["contentEditable", "h1", "h2", "h3", "p", "FloatingTextToolbar"],
@@ -101,7 +101,7 @@
     },
     "CustomSvgIconRegistry": {
       "classes": ["renderUnifiedIcon", "CUSTOM_SVG_ICONS", "TT_SVG_ICONS", "iconBox"],
-      "aesthetic": "Extensible corporate SVG icon registry supporting all 224 Turner & Townsend corporate icons alongside Fluent UI 2 icons, with currentColor dynamic glyph inheritance, rounded icon background containers with toggle support, and transparent color integration across tabs, accordions, and cards."
+      "aesthetic": "Extensible corporate SVG icon registry merged with standard icons, with currentColor dynamic glyph inheritance, rounded icon background containers with toggle support, and transparent color integration across tabs, accordions, and cards."
     },
     "PropertyPaneIconField": {
       "classes": ["IconFieldControl", "FluentProvider", "Button", "Subtitle2", "Caption1", "FluentIconPicker"],

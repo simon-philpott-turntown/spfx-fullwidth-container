@@ -95,7 +95,7 @@ const IconFieldControl: React.FC<IPropertyPaneIconFieldProps> = ({
               {currentIcon}
             </Subtitle2>
             <Caption1 style={{ color: '#616161', fontSize: '11px' }}>
-              {currentIcon.startsWith('svg-') ? '✨ Corporate Brand SVG' : 'Fluent UI 2'}
+              {currentIcon.startsWith('svg-') ? 'SVG Icon' : 'Standard Icon'}
             </Caption1>
           </div>
         </div>

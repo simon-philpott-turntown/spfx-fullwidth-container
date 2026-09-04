@@ -1297,7 +1297,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Fluent UI 2 Icon</label>
+          <label class="form-label">Card Icon</label>
           <div style="display: flex; gap: 0.5rem; align-items: center;">
             <span id="txt-card-icon" style="font-size: 0.85rem; font-weight: 600; color: var(--fui-colorBrandForeground1);">BookAnswers</span>
             <button class="sp-btn sp-btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="openVisualIconPicker('card')">
@@ -1442,18 +1442,17 @@
     </div>
   </div>
 
-  <!-- Fluent UI 2 Visual Icon Picker Modal -->
+  <!-- Visual Icon Picker Modal -->
   <div id="modal-icon-picker" class="fui-modal-backdrop" style="display: none;">
     <div class="fui-modal-surface">
       <div class="fui-modal-header">
-        <h3 style="font-size: 1.1rem; font-weight: 600;">Select Fluent UI 2 Icon</h3>
+        <h3 style="font-size: 1.1rem; font-weight: 600;">Select Icon</h3>
         <button class="fui-toolbar-btn" onclick="closeVisualIconPicker()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="fui-modal-body">
         <input type="text" class="form-input" id="inp-icon-search" placeholder="Search icons (e.g. pound, metrics, shield, docs, tools)..." oninput="filterVisualIcons(this.value)" />
         <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="icon-cat-pills">
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('all')">All</button>
-          <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('custom')">✨ Brand SVGs</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('common')">Common</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('finance')">Finance & £</button>
           <button type="button" class="fui-badge" style="cursor: pointer;" onclick="filterIconCat('analytics')">Metrics</button>
@@ -1473,17 +1472,17 @@
     let isSidebarOpen = true;
 
     const FLUENT_ICONS = [
-      // Custom Corporate Brand SVGs (Screenshot 1 and extensible custom collection)
-      { key: 'svg-brand-book', label: 'Brand Playbook (Screenshot)', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="4.5" width="7" height="15" rx="1.5" /><rect x="13.5" y="4.5" width="7" height="15" rx="1.5" /></svg>` },
-      { key: 'svg-brand-document', label: 'Brand Project Document', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5H14L18.5 8V20.5H6V3.5Z" /><path d="M14 3.5V8H18.5" /><path d="M9 12H15.5M9 15.5H15.5" stroke-linecap="round" /></svg>` },
-      { key: 'svg-brand-analytics', label: 'Brand Analytics Chart', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><path d="M4 20.5H20" stroke-linecap="round" /><path d="M6.5 16.5L10.5 11.5L14 14.5L18.5 7.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="18.5" cy="7.5" r="1.5" fill="currentColor" /></svg>` },
-      { key: 'svg-brand-shield', label: 'Brand Assurance Shield', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.5L4.5 7V13C4.5 17.5 12 21 12 21C12 21 19.5 17.5 19.5 13V7L12 3.5Z" /><path d="M9.5 12L11 13.5L15 9.5" stroke-linecap="round" stroke-linejoin="round" /></svg>` },
-      { key: 'svg-brand-coins', label: 'Brand Financial Currency (£)', cat: 'custom', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" /><path d="M13.5 8.5C12.5 8.5 11.5 9 11 10C10.5 11 10.5 12 10.5 13.5H14.5M9.5 12H13.5" stroke-linecap="round" /><path d="M9.5 15.5H14.5" stroke-linecap="round" /></svg>` },
+      // Handcrafted SVG icons
+      { key: 'svg-brand-book', label: 'Playbook', cat: 'common', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="4.5" width="7" height="15" rx="1.5" /><rect x="13.5" y="4.5" width="7" height="15" rx="1.5" /></svg>` },
+      { key: 'svg-brand-document', label: 'Project Document', cat: 'common', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5H14L18.5 8V20.5H6V3.5Z" /><path d="M14 3.5V8H18.5" /><path d="M9 12H15.5M9 15.5H15.5" stroke-linecap="round" /></svg>` },
+      { key: 'svg-brand-analytics', label: 'Analytics Chart', cat: 'analytics', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><path d="M4 20.5H20" stroke-linecap="round" /><path d="M6.5 16.5L10.5 11.5L14 14.5L18.5 7.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="18.5" cy="7.5" r="1.5" fill="currentColor" /></svg>` },
+      { key: 'svg-brand-shield', label: 'Assurance Shield', cat: 'governance', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.5L4.5 7V13C4.5 17.5 12 21 12 21C12 21 19.5 17.5 19.5 13V7L12 3.5Z" /><path d="M9.5 12L11 13.5L15 9.5" stroke-linecap="round" stroke-linejoin="round" /></svg>` },
+      { key: 'svg-brand-coins', label: 'Financial Currency (£)', cat: 'finance', isCustomSvg: true, svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" /><path d="M13.5 8.5C12.5 8.5 11.5 9 11 10C10.5 11 10.5 12 10.5 13.5H14.5M9.5 12H13.5" stroke-linecap="round" /><path d="M9.5 15.5H14.5" stroke-linecap="round" /></svg>` },
 
       // Incorporate all 224 TT corporate SVG icons from D:\Playbook\Icons\_Blue
       ...((window.TT_EXTRA_ICONS && Array.isArray(window.TT_EXTRA_ICONS)) ? window.TT_EXTRA_ICONS : []),
 
-      // Standard Fluent UI 2 Icons
+      // Standard Icons
       { key: 'BookAnswers', label: 'Documentation', cat: 'common', fa: 'fa-book-open' },
       { key: 'Document', label: 'Document', cat: 'common', fa: 'fa-file-lines' },
       { key: 'Folder', label: 'Folder', cat: 'common', fa: 'fa-folder' },

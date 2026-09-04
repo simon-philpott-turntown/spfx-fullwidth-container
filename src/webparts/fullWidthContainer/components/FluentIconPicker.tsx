@@ -274,7 +274,12 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
 
   const categories = [
     { key: 'all', label: 'All Icons' },
-    { key: 'Custom Brand SVGs', label: '✨ Brand SVGs' },
+    { key: 'common', label: 'Common' },
+    { key: 'finance', label: 'Finance & £' },
+    { key: 'analytics', label: 'Analytics' },
+    { key: 'governance', label: 'Governance' },
+    { key: 'tools', label: 'Tools' },
+    { key: 'communication', label: 'People' },
     { key: 'TT Built Environment', label: '🏗 Built Environment' },
     { key: 'TT Sustainability & Energy', label: '🌿 Sustainability' },
     { key: 'TT Finance & Data', label: '💷 Finance & Data' },
@@ -284,13 +289,7 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
     { key: 'TT Locations & Travel', label: '🌍 Locations' },
     { key: 'TT Construction & Tools', label: '🔧 Construction' },
     { key: 'TT Operations', label: '📋 Operations' },
-    { key: 'TT General', label: '⭐ General' },
-    { key: 'common', label: 'Fluent: Common' },
-    { key: 'finance', label: 'Fluent: Finance' },
-    { key: 'analytics', label: 'Fluent: Analytics' },
-    { key: 'governance', label: 'Fluent: Governance' },
-    { key: 'tools', label: 'Fluent: Tools' },
-    { key: 'communication', label: 'Fluent: People' }
+    { key: 'TT General', label: '⭐ General' }
   ];
 
   const filteredIcons = FLUENT_ICONS_LIST.filter((def) => {
@@ -325,7 +324,7 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
             />
           }
         >
-          Select Fluent UI 2 Icon
+          Select Icon
         </DialogTitle>
         <DialogBody>
           <DialogContent>
@@ -379,7 +378,7 @@ export const FluentIconPicker: React.FC<IFluentIconPickerProps> = ({
               })}
               {filteredIcons.length === 0 && (
                 <div style={{ gridColumn: '1 / -1', padding: '32px', textAlign: 'center', color: tokens.colorNeutralForeground3 }}>
-                  No Fluent icons matching "{searchTerm}". Try another keyword or switch category.
+                  No icons matching "{searchTerm}". Try another keyword or switch category.
                 </div>
               )}
             </div>

@@ -231,7 +231,7 @@
     {
       "id": "FEAT-020",
       "name": "CustomBrandSVGIconsAndDynamicIconStyling",
-      "description": "Extensible custom corporate SVG icon collection registry seamlessly integrated alongside SPFx Fluent UI 2 icons, featuring visual color pickers for icon glyphs and rounded background boxes with full 80%, 60%, 40%, 20% brand tints.",
+      "description": "Unified icon set combining custom corporate SVG icon collection registry alongside standard icons, featuring visual color pickers for icon glyphs and rounded background boxes with full 80%, 60%, 40%, 20% brand tints.",
       "status": "Active",
       "implementedIn": [
         "src/webparts/fullWidthContainer/components/CustomSvgIconRegistry.tsx",

@@ -63,7 +63,7 @@
     {
       "name": "FluentIconPicker",
       "path": "src/webparts/fullWidthContainer/components/FluentIconPicker.tsx",
-      "role": "Visual Fluent UI 2 icon picker modal with instant keyword search, categories, and icon preview."
+      "role": "Visual icon picker modal with instant keyword search, categories, and icon preview."
     },
     {
       "name": "RichTextEditable",

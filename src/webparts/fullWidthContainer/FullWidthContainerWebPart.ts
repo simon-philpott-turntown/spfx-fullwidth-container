@@ -980,14 +980,14 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   selectedKey: sections[activeSecIdx]?.badge !== undefined ? sections[activeSecIdx]?.badge : 'Badge'
                 }),
                 PropertyPaneIconField('sectionIconField', {
-                  label: 'Section Icon (Fluent UI 2 & Custom Brand SVGs)',
+                  label: 'Section Icon',
                   selectedIconKey: sections[activeSecIdx]?.iconName || 'BookAnswers',
                   onSelectIcon: (iconKey: string) => {
                     this.properties.sectionIcon = iconKey;
                     this.onPropertyPaneFieldChanged('sectionIcon', undefined, iconKey);
                     this.render();
                   },
-                  buttonLabel: 'Browse 229 Icons...'
+                  buttonLabel: 'Browse Icons...'
                 }),
                 createColorPickerPropertyField(
                   `sectionIconColorField_${activeSecIdx}`,
@@ -1094,14 +1094,14 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                   value: currentBlocks[activeBlkIdx]?.title || ''
                 }),
                 PropertyPaneIconField('blockIconField', {
-                  label: 'Card Icon (Fluent UI 2 & Custom Brand SVGs)',
+                  label: 'Card Icon',
                   selectedIconKey: currentBlocks[activeBlkIdx]?.iconName || 'BookAnswers',
                   onSelectIcon: (iconKey: string) => {
                     this.properties.blockIcon = iconKey;
                     this.onPropertyPaneFieldChanged('blockIcon', undefined, iconKey);
                     this.render();
                   },
-                  buttonLabel: 'Browse 229 Icons...'
+                  buttonLabel: 'Browse Icons...'
                 }),
                 createColorPickerPropertyField(
                   `blockIconColorField_${activeBlockSecIdx}_${activeBlkIdx}`,

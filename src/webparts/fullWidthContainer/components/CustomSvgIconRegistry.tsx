@@ -31,18 +31,21 @@ export interface ICustomSvgIcon {
   /** Category shown as a filter tab in the icon picker. */
   category: string;
   keywords: string[];
-  /** JSX node for inline React SVGs (original brand icons). */
+  /** Optional legacy aliases for backwards compatibility with previously saved dashboard state. */
+  aliases?: string[];
+  /** JSX node for inline React SVGs (original handcrafted icons). */
   svgPathOrNode?: React.ReactNode;
   /** Raw SVG markup string for TT corporate icons (rendered via dangerouslySetInnerHTML). */
   svgMarkup?: string;
 }
 
-/** Original handcrafted brand SVG icons kept in JSX for design fidelity. */
+/** Original handcrafted SVG icons kept in JSX for design fidelity. */
 const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
   {
     id: "svg-brand-book",
-    name: "Brand Playbook",
-    category: "Custom Brand SVGs",
+    name: "Playbook",
+    aliases: ["Brand Playbook"],
+    category: "General",
     keywords: ["book", "playbook", "manual", "pages", "guidelines"],
     svgPathOrNode: React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
       React.createElement("rect", { x: 3.5, y: 4.5, width: 7, height: 15, rx: 1.5, stroke: "currentColor", strokeWidth: 1.8 }),
@@ -51,8 +54,9 @@ const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
   },
   {
     id: "svg-brand-document",
-    name: "Brand Project Document",
-    category: "Custom Brand SVGs",
+    name: "Project Document",
+    aliases: ["Brand Project Document"],
+    category: "General",
     keywords: ["doc", "file", "contract", "statement"],
     svgPathOrNode: React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
       React.createElement("path", { d: "M6 3.5H14L18.5 8V20.5H6V3.5Z", stroke: "currentColor", strokeWidth: 1.8, strokeLinejoin: "round" }),
@@ -62,8 +66,9 @@ const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
   },
   {
     id: "svg-brand-analytics",
-    name: "Brand Analytics Chart",
-    category: "Custom Brand SVGs",
+    name: "Analytics Chart",
+    aliases: ["Brand Analytics Chart"],
+    category: "TT Finance & Data",
     keywords: ["chart", "analytics", "growth", "trending", "kpi"],
     svgPathOrNode: React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
       React.createElement("path", { d: "M4 20.5H20", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" }),
@@ -73,8 +78,9 @@ const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
   },
   {
     id: "svg-brand-shield",
-    name: "Brand Assurance Shield",
-    category: "Custom Brand SVGs",
+    name: "Assurance Shield",
+    aliases: ["Brand Assurance Shield"],
+    category: "General",
     keywords: ["shield", "compliance", "security", "audit", "assurance"],
     svgPathOrNode: React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
       React.createElement("path", { d: "M12 3.5L4.5 7V13C4.5 17.5 12 21 12 21C12 21 19.5 17.5 19.5 13V7L12 3.5Z", stroke: "currentColor", strokeWidth: 1.8, strokeLinejoin: "round" }),
@@ -83,8 +89,9 @@ const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
   },
   {
     id: "svg-brand-coins",
-    name: "Brand Financial Currency",
-    category: "Custom Brand SVGs",
+    name: "Financial Currency (£)",
+    aliases: ["Brand Financial Currency", "Brand Financial Currency (£)"],
+    category: "TT Finance & Data",
     keywords: ["finance", "pound", "money", "commercial", "cost"],
     svgPathOrNode: React.createElement("svg", { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
       React.createElement("circle", { cx: 12, cy: 12, r: 8.5, stroke: "currentColor", strokeWidth: 1.8 }),
@@ -95,8 +102,8 @@ const BRAND_SVG_ICONS: ICustomSvgIcon[] = [
 ];
 
 /**
- * Merged registry: original brand SVGs + 224 TT corporate SVG icons.
- * TT icons use svgMarkup (raw string) and are rendered via dangerouslySetInnerHTML.
+ * Merged registry: handcrafted SVGs + 224 corporate SVG icons.
+ * Corporate icons use svgMarkup (raw string) and are rendered via dangerouslySetInnerHTML.
  */
 export const CUSTOM_SVG_ICONS: ICustomSvgIcon[] = [
   ...BRAND_SVG_ICONS,
@@ -123,15 +130,17 @@ export function registerCustomSvgIcons(newIcons: ICustomSvgIcon[]): void {
 
 /**
  * Unified Icon Renderer.
- * Supports JSX svgPathOrNode (brand icons), raw svgMarkup string (TT corporate icons),
- * and standard Fluent UI 2 icon keys. Dynamic colour applied via CSS color -> currentColor.
+ * Supports JSX svgPathOrNode, raw svgMarkup string,
+ * and standard icon keys. Dynamic colour applied via CSS color -> currentColor.
  */
 export function renderUnifiedIcon(
   iconKey?: string,
   iconColor?: string,
   fontSize: string = "20px"
 ): React.ReactElement {
-  const customIcon = CUSTOM_SVG_ICONS.find((i) => i.id === iconKey || i.name === iconKey);
+  const customIcon = CUSTOM_SVG_ICONS.find(
+    (i) => i.id === iconKey || i.name === iconKey || (i.aliases && i.aliases.indexOf(iconKey || "") >= 0)
+  );
 
   if (customIcon) {
     const containerStyle: React.CSSProperties = {

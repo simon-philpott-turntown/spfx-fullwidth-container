@@ -313,9 +313,9 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </Dropdown>
             </div>
 
-            {/* Fluent UI 2 & Custom Brand SVG Icon Picker */}
+            {/* Icon Picker */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Card Icon (Fluent UI 2 &amp; Custom Brand SVGs)</Label>
+              <Label weight="semibold">Card Icon</Label>
               <div className={styles.iconPreviewBox}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div
@@ -342,7 +342,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                       {formData.iconName || 'BookAnswers'}
                     </div>
                     <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                      {formData.iconName?.startsWith('svg-') ? '✨ Custom Corporate Brand SVG' : 'Fluent UI 2 Icon'}
+                      {formData.iconName?.startsWith('svg-') ? 'SVG Icon' : 'Standard Icon'}
                     </Caption1>
                   </div>
                 </div>
