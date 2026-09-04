@@ -276,11 +276,12 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
             <div className={styles.twoColRow}>
               {/* Icon Glyph Color */}
               <div className={styles.fieldRow}>
-                <Label weight="semibold">Icon Glyph Color</Label>
+                <Label weight="semibold">Icon Glyph Colour</Label>
                 <BrandColorPickerPopover
                   selectedColor={formData.iconColor}
                   onChange={(color?: string) => setFormData({ ...formData, iconColor: color })}
-                  defaultLabel="Default (Brand)"
+                  defaultLabel="Default (Brand Cyan)"
+                  defaultColorHex="#0090DC"
                 />
               </div>
 
@@ -290,7 +291,8 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
                 <BrandColorPickerPopover
                   selectedColor={formData.iconBackgroundColor}
                   onChange={(color?: string) => setFormData({ ...formData, iconBackgroundColor: color })}
-                  defaultLabel="Default (Soft Tint)"
+                  defaultLabel="Default (Soft Tint Box)"
+                  defaultColorHex="#CCE9F8"
                 />
               </div>
             </div>
@@ -305,11 +307,12 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
 
             {/* Custom Section Background */}
             <div className={styles.fieldRow}>
-              <Label weight="semibold">Section Background Color</Label>
+              <Label weight="semibold">Section Background Colour</Label>
               <BrandColorPickerPopover
                 selectedColor={formData.backgroundColor}
                 onChange={(color?: string) => setFormData({ ...formData, backgroundColor: color })}
-                defaultLabel="Default (Inherit canvas)"
+                defaultLabel="Default (Transparent canvas)"
+                defaultColorHex="transparent"
               />
             </div>
           </div>

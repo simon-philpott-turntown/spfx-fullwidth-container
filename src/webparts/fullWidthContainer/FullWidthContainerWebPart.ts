@@ -38,7 +38,8 @@ const createColorPickerPropertyField = (
   key: string,
   selectedColor: string | undefined,
   onChange: (color?: string) => void,
-  defaultLabel: string
+  defaultLabel: string,
+  defaultColorHex: string = 'transparent'
 ): IPropertyPaneField<any> => ({
   type: PropertyPaneFieldType.Custom,
   targetProperty: key,
@@ -52,7 +53,8 @@ const createColorPickerPropertyField = (
           React.createElement(BrandColorPickerPopover, {
             selectedColor,
             onChange,
-            defaultLabel
+            defaultLabel,
+            defaultColorHex
           })
         ),
         domElement
@@ -986,7 +988,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('sectionIconColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (brand foreground)'
+                  'Default (brand cyan foreground)',
+                  '#0090DC'
                 ),
                 createColorPickerPropertyField(
                   `sectionIconBgColorField_${activeSecIdx}`,
@@ -996,7 +999,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('sectionIconBackgroundColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (soft tint box)'
+                  'Default (soft tint box)',
+                  '#CCE9F8'
                 ),
                 PropertyPaneToggle('sectionShowIconBackground', {
                   label: 'Include icon background container',
@@ -1016,7 +1020,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('sectionBackgroundColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (inherit from dashboard canvas)'
+                  'Default (transparent / inherit canvas)',
+                  'transparent'
                 )
               ]
             },
@@ -1097,7 +1102,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('blockIconColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (brand foreground)'
+                  'Default (brand cyan foreground)',
+                  '#0090DC'
                 ),
                 createColorPickerPropertyField(
                   `blockIconBgColorField_${activeBlockSecIdx}_${activeBlkIdx}`,
@@ -1107,7 +1113,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('blockIconBackgroundColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (soft tint box)'
+                  'Default (soft tint box)',
+                  '#CCE9F8'
                 ),
                 PropertyPaneToggle('blockShowIconBackground', {
                   label: 'Include icon background container',
@@ -1130,7 +1137,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     this.onPropertyPaneFieldChanged('blockBackgroundColor', undefined, color || '');
                     this.render();
                   },
-                  'Default (inherit from section background)'
+                  'Default (white / inherit section background)',
+                  '#FFFFFF'
                 )
               ]
             },

@@ -123,6 +123,38 @@ const useStyles = makeStyles({
     outline: `2px solid ${tokens.colorBrandStroke1}`,
     outlineOffset: '1px'
   },
+  defaultOptionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '6px 8px',
+    backgroundColor: tokens.colorNeutralBackground2,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    cursor: 'pointer',
+    marginBottom: '4px',
+    transitionProperty: 'background-color, border-color, box-shadow',
+    transitionDuration: '100ms',
+    ':hover': {
+      backgroundColor: tokens.colorNeutralBackground2Hover,
+      ...shorthands.borderColor(tokens.colorBrandStroke1)
+    }
+  },
+  defaultOptionRowSelected: {
+    backgroundColor: tokens.colorBrandBackground2,
+    ...shorthands.borderColor(tokens.colorBrandStroke1),
+    boxShadow: `0 0 0 1px ${tokens.colorBrandStroke1}`
+  },
+  defaultSwatchPreview: {
+    width: '20px',
+    height: '20px',
+    ...shorthands.borderRadius('4px'),
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   customInputRow: {
     display: 'flex',
     gap: '6px',
@@ -135,6 +167,7 @@ export interface IBrandColorPickerPopoverProps {
   selectedColor?: string;
   onChange: (color?: string) => void;
   defaultLabel?: string;
+  defaultColorHex?: string;
   disabled?: boolean;
 }
 
@@ -145,6 +178,7 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
   selectedColor,
   onChange,
   defaultLabel = 'Default (inherit background)',
+  defaultColorHex = 'transparent',
   disabled = false
 }) => {
   const styles = useStyles();
@@ -169,6 +203,10 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
     setIsOpen(false);
   };
 
+  const effectiveColor = selectedColor || defaultColorHex;
+  const isEffectiveTransparent = !effectiveColor || effectiveColor === 'transparent';
+  const isDefaultSelected = !selectedColor;
+
   return (
     <Popover
       open={isOpen}
@@ -187,8 +225,8 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
             <div
               className={styles.triggerPreviewSwatch}
               style={{
-                backgroundColor: (selectedColor && selectedColor !== 'transparent') ? selectedColor : 'transparent',
-                backgroundImage: (selectedColor && selectedColor !== 'transparent')
+                backgroundColor: !isEffectiveTransparent ? effectiveColor : 'transparent',
+                backgroundImage: !isEffectiveTransparent
                   ? 'none'
                   : 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)',
                 backgroundSize: '8px 8px',
@@ -221,6 +259,39 @@ export const BrandColorPickerPopover: React.FC<IBrandColorPickerPopoverProps> = 
         </div>
 
         <Divider style={{ margin: '2px 0 6px 0' }} />
+
+        {/* Dedicated Contextual Default Option Swatch */}
+        <div className={styles.sectionTitle}>Default Option</div>
+        <div
+          className={`${styles.defaultOptionRow} ${isDefaultSelected ? styles.defaultOptionRowSelected : ''}`}
+          onClick={() => handleSelect(undefined)}
+          title={`Select ${defaultLabel} (${defaultColorHex})`}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+            <div
+              className={styles.defaultSwatchPreview}
+              style={{
+                backgroundColor: defaultColorHex !== 'transparent' ? defaultColorHex : 'transparent',
+                backgroundImage: defaultColorHex === 'transparent'
+                  ? 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)'
+                  : undefined,
+                backgroundSize: '6px 6px',
+                backgroundPosition: '0 0, 3px 3px',
+                borderColor: (defaultColorHex === '#FFFFFF' || defaultColorHex === 'transparent') ? '#d1d1d1' : undefined
+              }}
+            />
+            <span style={{ fontSize: '0.8rem', fontWeight: isDefaultSelected ? 600 : 400, color: tokens.colorNeutralForeground1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {defaultLabel}
+            </span>
+          </div>
+          {isDefaultSelected && (
+            <Caption1 style={{ fontSize: '0.72rem', fontWeight: 600, color: tokens.colorBrandForeground1 }}>
+              ✓ Active
+            </Caption1>
+          )}
+        </div>
+
+        <Divider style={{ margin: '4px 0 6px 0' }} />
 
         {/* TT Primary */}
         <div className={styles.sectionTitle}>TT Primary (Blue, Cyan, Grey)</div>

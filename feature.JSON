@@ -292,6 +292,21 @@
         "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-025",
+      "name": "ContextualDefaultColorOptionsAcrossPickers",
+      "description": "Every color picker across SPFx Property Pane pages, SectionEditDialog, CardEditDialog, FloatingTextToolbar, and the standalone dashboard preview features a dedicated, selectable Default Option that accurately visually displays its contextual default color (Transparent checkerboard for canvas, #0090DC Brand Cyan for icon glyphs, #CCE9F8 Soft Tint for icon background boxes, #FFFFFF for cards, and #242424 for rich text).",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx",
+        "src/webparts/fullWidthContainer/components/SectionEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "preview/index.html",
+        "ComponentStyleRules.JSON"
+      ]
     }
   ]
 }

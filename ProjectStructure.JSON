@@ -98,7 +98,7 @@
     {
       "name": "BrandColorPickerPopover",
       "path": "src/webparts/fullWidthContainer/components/BrandColorPickerPopover.tsx",
-      "role": "Fluent UI 2 visual popover color picker with categorized Turner & Townsend brand palettes, preview swatches, and custom hex input."
+      "role": "Fluent UI 2 visual popover colour picker with categorized Turner & Townsend brand palettes, contextual Default Option swatches with accurate colour representations, active selection rings, preview swatches, and custom hex input."
     },
     {
       "name": "DashboardStorageService",

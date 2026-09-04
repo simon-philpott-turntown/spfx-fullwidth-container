@@ -365,7 +365,8 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <BrandColorPickerPopover
                   selectedColor={formData.iconColor}
                   onChange={(hex) => setFormData({ ...formData, iconColor: hex })}
-                  defaultLabel="Default (brand foreground)"
+                  defaultLabel="Default (brand cyan foreground)"
+                  defaultColorHex="#0090DC"
                 />
               </div>
 
@@ -378,6 +379,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   selectedColor={formData.iconBackgroundColor}
                   onChange={(hex) => setFormData({ ...formData, iconBackgroundColor: hex, showIconBackground: true })}
                   defaultLabel="Default (soft tint box)"
+                  defaultColorHex="#CCE9F8"
                 />
               </div>
             </div>
@@ -522,7 +524,8 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 <BrandColorPickerPopover
                   selectedColor={formData.backgroundColor}
                   onChange={(hex) => setFormData({ ...formData, backgroundColor: hex })}
-                  defaultLabel="Default (inherit section background)"
+                  defaultLabel="Default (white / inherit section background)"
+                  defaultColorHex="#FFFFFF"
                 />
               </div>
             </div>

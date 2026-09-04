@@ -391,6 +391,43 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
           />
         </PopoverTrigger>
         <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '8px', minWidth: '220px', maxWidth: '260px' }}>
+          {/* Default Text Color Option */}
+          <div className={styles.colorSectionHeader}>Default Option</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '4px 8px',
+              backgroundColor: tokens.colorNeutralBackground2,
+              border: `1px solid ${tokens.colorNeutralStroke2}`,
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginBottom: '6px',
+              margin: '0 8px 6px 8px'
+            }}
+            onMouseDown={handleToolbarMouseDown}
+            onClick={() => handleCommand('foreColor', '#242424')}
+            title="Reset to default text color (inherit / dark neutral #242424)"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '3px',
+                  border: `1px solid ${tokens.colorNeutralStroke1}`,
+                  backgroundColor: '#242424'
+                }}
+              />
+              <span style={{ fontSize: '0.78rem', color: tokens.colorNeutralForeground1, fontWeight: 500 }}>
+                Default (Inherit / #242424)
+              </span>
+            </div>
+          </div>
+
+          <Divider style={{ margin: '2px 8px 6px 8px' }} />
+
           <div className={styles.colorSectionHeader}>TT Primary (Blue, Cyan, Grey)</div>
           <div className={styles.colorGrid}>
             {SITE_THEME_COLORS.filter((c) => c.group === 'primary').map((c) => (
@@ -461,6 +498,46 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
           />
         </PopoverTrigger>
         <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '6px', minWidth: '180px' }}>
+          {/* Default Highlight Option */}
+          <div className={styles.colorSectionHeader}>Default Option</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '4px 8px',
+              backgroundColor: tokens.colorNeutralBackground2,
+              border: `1px solid ${tokens.colorNeutralStroke2}`,
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginBottom: '6px',
+              margin: '0 8px 6px 8px'
+            }}
+            onMouseDown={handleToolbarMouseDown}
+            onClick={() => handleCommand('hiliteColor', 'transparent')}
+            title="No highlight background (transparent)"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '3px',
+                  border: `1px solid ${tokens.colorNeutralStroke1}`,
+                  backgroundColor: 'transparent',
+                  backgroundImage: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)',
+                  backgroundSize: '6px 6px',
+                  backgroundPosition: '0 0, 3px 3px'
+                }}
+              />
+              <span style={{ fontSize: '0.78rem', color: tokens.colorNeutralForeground1, fontWeight: 500 }}>
+                None (Transparent)
+              </span>
+            </div>
+          </div>
+
+          <Divider style={{ margin: '2px 8px 6px 8px' }} />
+
           <div className={styles.colorSectionHeader}>Highlight Backgrounds</div>
           <div className={styles.colorGrid}>
             {HIGHLIGHT_COLORS.map((c) => (

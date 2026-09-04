@@ -979,6 +979,35 @@
       outline-offset: 1px;
       box-shadow: 0 0 0 2px #FFFFFF;
     }
+    .color-popover-default-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      background-color: var(--fui-colorNeutralBackground2);
+      border: 1px solid var(--fui-colorNeutralStroke2);
+      border-radius: var(--fui-borderRadiusSmall);
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: all 0.12s ease;
+    }
+    .color-popover-default-row:hover {
+      background-color: var(--fui-colorNeutralBackground2Hover);
+      border-color: var(--fui-colorBrandStroke1);
+    }
+    .color-popover-default-row.is-active {
+      background-color: var(--fui-colorBrandBackground2);
+      border-color: var(--fui-colorBrandStroke1);
+      box-shadow: 0 0 0 1px var(--fui-colorBrandStroke1);
+    }
+    .color-popover-default-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.18);
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
     .color-popover-actions {
       display: flex;
       flex-direction: column;
@@ -1956,14 +1985,14 @@
         document.getElementById('txt-sec-icon').textContent = curSec.iconName || 'BookAnswers';
         document.getElementById('sel-sec-badge').value = curSec.badge !== undefined ? curSec.badge : 'Badge';
         document.getElementById('inp-sec-desc').value = curSec.description || '';
-        syncColorPickerTrigger('sec-bg', curSec.backgroundColor, 'Default (inherit dashboard canvas)');
-        syncColorPickerTrigger('sec-icon-color', curSec.iconColor, 'Default (brand)');
-        syncColorPickerTrigger('sec-icon-bg', curSec.iconBackgroundColor, 'Default (soft box)');
+        syncColorPickerTrigger('sec-bg', curSec.backgroundColor, getDefaultLabelForType('sec-bg'));
+        syncColorPickerTrigger('sec-icon-color', curSec.iconColor, getDefaultLabelForType('sec-icon-color'));
+        syncColorPickerTrigger('sec-icon-bg', curSec.iconBackgroundColor, getDefaultLabelForType('sec-icon-bg'));
         const chkSecIconBg = document.getElementById('chk-sec-show-icon-bg');
         if (chkSecIconBg) chkSecIconBg.checked = curSec.showIconBackground === true;
       }
 
-      syncColorPickerTrigger('wp-bg', state.webPartBackgroundColor, 'Default (transparent canvas)');
+      syncColorPickerTrigger('wp-bg', state.webPartBackgroundColor, getDefaultLabelForType('wp-bg'));
 
       const selCardSec = document.getElementById('sel-card-sec');
       selCardSec.innerHTML = '';
@@ -2029,9 +2058,9 @@
             const txtIcon = document.getElementById('txt-card-icon');
             if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
-            syncColorPickerTrigger('card-bg', curCard.backgroundColor, 'Default (inherit section background)');
-            syncColorPickerTrigger('icon-color', curCard.iconColor, 'Default (brand)');
-            syncColorPickerTrigger('icon-bg', curCard.iconBackgroundColor, 'Default (soft box)');
+            syncColorPickerTrigger('card-bg', curCard.backgroundColor, getDefaultLabelForType('card-bg'));
+            syncColorPickerTrigger('icon-color', curCard.iconColor, getDefaultLabelForType('icon-color'));
+            syncColorPickerTrigger('icon-bg', curCard.iconBackgroundColor, getDefaultLabelForType('icon-bg'));
             const chkIconBg = document.getElementById('chk-show-icon-bg');
             if (chkIconBg) chkIconBg.checked = curCard.showIconBackground !== false;
             setVal('inp-card-title', curCard.title || '');
@@ -2213,14 +2242,25 @@
       return '';
     }
 
+    function getDefaultColorHexForType(type) {
+      if (type === 'wp-bg') return 'transparent';
+      if (type === 'sec-bg') return 'transparent';
+      if (type === 'sec-icon-color') return '#0090DC';
+      if (type === 'sec-icon-bg') return '#CCE9F8';
+      if (type === 'card-bg') return '#FFFFFF';
+      if (type === 'icon-color') return '#0090DC';
+      if (type === 'icon-bg') return '#CCE9F8';
+      return 'transparent';
+    }
+
     function getDefaultLabelForType(type) {
       if (type === 'wp-bg') return 'Default (transparent canvas)';
-      if (type === 'sec-bg') return 'Default (inherit dashboard canvas)';
-      if (type === 'sec-icon-color') return 'Default (brand)';
-      if (type === 'sec-icon-bg') return 'Default (soft box)';
-      if (type === 'card-bg') return 'Default (inherit section background)';
-      if (type === 'icon-color') return 'Default (brand)';
-      if (type === 'icon-bg') return 'Default (soft box)';
+      if (type === 'sec-bg') return 'Default (transparent / inherit canvas)';
+      if (type === 'sec-icon-color') return 'Default (brand cyan)';
+      if (type === 'sec-icon-bg') return 'Default (soft tint box)';
+      if (type === 'card-bg') return 'Default (white / inherit section background)';
+      if (type === 'icon-color') return 'Default (brand cyan)';
+      if (type === 'icon-bg') return 'Default (soft tint box)';
       return 'Default';
     }
 
@@ -2242,10 +2282,32 @@
       if (!surface) return;
 
       const currentColor = getCurrentColorForType(type);
+      const defaultColorHex = getDefaultColorHexForType(type);
       const defaultLabel = getDefaultLabelForType(type);
       const currentNorm = (currentColor || '').toUpperCase().trim();
+      const isDefaultActive = !currentColor;
+
+      const isDefaultTransparent = defaultColorHex === 'transparent';
+      const defaultSwatchBg = isDefaultTransparent
+        ? 'background: linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0); background-size: 6px 6px; background-position: 0 0, 3px 3px;'
+        : `background-color: ${defaultColorHex}; border: ${defaultColorHex === '#FFFFFF' ? '1px solid #d1d1d1' : '1px solid rgba(0,0,0,0.18)'};`;
 
       let html = '';
+
+      // Dedicated Contextual Default Option Swatch at the top
+      html += `<div class="color-popover-group-title">Default Option</div>`;
+      html += `
+        <div class="color-popover-default-row ${isDefaultActive ? 'is-active' : ''}" onclick="applyColorForType('${type}', '')" title="Select ${defaultLabel} (${defaultColorHex})">
+          <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+            <div class="color-popover-default-swatch" style="${defaultSwatchBg}"></div>
+            <span style="font-size: 0.78rem; font-weight: ${isDefaultActive ? '600' : '400'}; color: var(--fui-colorNeutralForeground1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${defaultLabel}
+            </span>
+          </div>
+          ${isDefaultActive ? '<span style="font-size: 0.72rem; font-weight: 600; color: var(--fui-colorBrandForeground1); flex-shrink: 0;">✓ Active</span>' : ''}
+        </div>
+      `;
+
       BRAND_PALETTE_CATEGORIES.forEach(grp => {
         html += `<div class="color-popover-group-title">${grp.name}</div>`;
         html += `<div class="color-popover-grid">`;
@@ -2263,7 +2325,7 @@
       html += `
         <div class="color-popover-actions">
           <button type="button" class="sp-btn sp-btn-secondary" style="width: 100%; font-size: 0.78rem; padding: 4px 8px; justify-content: center;" onclick="applyColorForType('${type}', '')">
-            <i class="fa-solid fa-xmark"></i> ${defaultLabel}
+            <i class="fa-solid fa-arrow-rotate-left"></i> Reset to ${defaultLabel}
           </button>
           <div class="color-popover-custom-row">
             <input type="text" class="form-input" id="inp-custom-hex-${type}" placeholder="#HEX code" value="${currentColor || ''}" style="font-size: 0.78rem; height: 30px;" onkeydown="if(event.key==='Enter'){applyColorForType('${type}', this.value);}" />
@@ -2282,6 +2344,8 @@
       const lbl = document.getElementById(`label-text-${type}`);
       if (!box || !lbl) return;
       const hex = (color || '').trim();
+      const defaultHex = getDefaultColorHexForType(type);
+
       if (hex) {
         if (hex.toLowerCase() === 'transparent') {
           box.style.backgroundColor = 'transparent';
@@ -2298,9 +2362,18 @@
           lbl.textContent = found ? `${found.name} (${hex})` : hex;
         }
       } else {
-        box.style.backgroundColor = 'transparent';
-        box.style.backgroundImage = 'none';
-        box.classList.add('is-empty');
+        // Accurately show the default color preview in the trigger button preview swatch
+        if (defaultHex === 'transparent') {
+          box.style.backgroundColor = 'transparent';
+          box.style.backgroundImage = 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0), linear-gradient(45deg, #e0e0e0 25%, transparent 25%, transparent 75%, #e0e0e0 75%, #e0e0e0)';
+          box.style.backgroundSize = '6px 6px';
+          box.style.backgroundPosition = '0 0, 3px 3px';
+          box.classList.remove('is-empty');
+        } else {
+          box.style.backgroundColor = defaultHex;
+          box.style.backgroundImage = 'none';
+          box.classList.remove('is-empty');
+        }
         lbl.textContent = defaultLabel;
       }
     }
@@ -2313,14 +2386,14 @@
 
     function updateWpBg(val) {
       state.webPartBackgroundColor = val;
-      syncColorPickerTrigger('wp-bg', val, 'Default (transparent canvas)');
+      syncColorPickerTrigger('wp-bg', val, getDefaultLabelForType('wp-bg'));
       render();
     }
     function updateSecBg(val) {
       const curSec = currentSections[state.activeSecIdx];
       if (curSec) {
         curSec.backgroundColor = val;
-        syncColorPickerTrigger('sec-bg', val, 'Default (inherit dashboard canvas)');
+        syncColorPickerTrigger('sec-bg', val, getDefaultLabelForType('sec-bg'));
         render();
       }
     }
@@ -2328,7 +2401,7 @@
       const curSec = currentSections[state.activeSecIdx];
       if (curSec) {
         curSec.iconColor = val;
-        syncColorPickerTrigger('sec-icon-color', val, 'Default (brand)');
+        syncColorPickerTrigger('sec-icon-color', val, getDefaultLabelForType('sec-icon-color'));
         render();
       }
     }
@@ -2337,7 +2410,7 @@
       if (curSec) {
         curSec.iconBackgroundColor = val;
         curSec.showIconBackground = true;
-        syncColorPickerTrigger('sec-icon-bg', val, 'Default (soft box)');
+        syncColorPickerTrigger('sec-icon-bg', val, getDefaultLabelForType('sec-icon-bg'));
         const chk = document.getElementById('chk-sec-show-icon-bg');
         if (chk) chk.checked = true;
         render();
@@ -2363,7 +2436,7 @@
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].backgroundColor = val;
-        syncColorPickerTrigger('card-bg', val, 'Default (inherit section background)');
+        syncColorPickerTrigger('card-bg', val, getDefaultLabelForType('card-bg'));
         render();
       }
     }
@@ -2371,7 +2444,7 @@
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].iconColor = val;
-        syncColorPickerTrigger('icon-color', val, 'Default (brand)');
+        syncColorPickerTrigger('icon-color', val, getDefaultLabelForType('icon-color'));
         render();
       }
     }
@@ -2380,7 +2453,7 @@
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].iconBackgroundColor = val;
         targetSec.blocks[state.activeCardIdx].showIconBackground = true;
-        syncColorPickerTrigger('icon-bg', val, 'Default (soft box)');
+        syncColorPickerTrigger('icon-bg', val, getDefaultLabelForType('icon-bg'));
         const chk = document.getElementById('chk-show-icon-bg');
         if (chk) chk.checked = true;
         render();

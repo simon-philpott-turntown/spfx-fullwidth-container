@@ -97,7 +97,7 @@
     },
     "BrandColorPickerPopover": {
       "classes": ["Popover", "PopoverTrigger", "PopoverSurface", "Button", "Input", "Divider"],
-      "aesthetic": "Fluent UI 2 visual popup color picker featuring categorized Turner & Townsend brand palettes (TT Primary, TT Secondary, Backgrounds & Neutrals, Brand Tints), checkerboard patterned Transparent (Show Through) swatch, active selection rings, preview swatch trigger button, and custom HEX input."
+      "aesthetic": "Fluent UI 2 visual popup colour picker featuring contextual Default Option swatches displaying the accurate default colour for each target item (Transparent for web part/section canvas, #0090DC Brand Cyan for glyphs, #CCE9F8 Soft Tint for icon boxes, #FFFFFF for cards, #242424 for text), categorized Turner & Townsend brand palettes, active selection rings, and custom HEX input."
     },
     "CustomSvgIconRegistry": {
       "classes": ["renderUnifiedIcon", "CUSTOM_SVG_ICONS", "TT_SVG_ICONS", "iconBox"],
