@@ -193,7 +193,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onSubtitleChange,
     onUpdateSection,
     onAddSection,
-    onDeleteSection: _onDeleteSection,
+    onDeleteSection,
     onUpdateBlock,
     onAddBlock,
     onDeleteBlock,
@@ -338,6 +338,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             onEditBlockProperties={onEditBlockProperties}
             onAddSection={onAddSection}
             onUpdateSection={onUpdateSection}
+            onDeleteSection={onDeleteSection}
           />
         ) : (
           <AccordionContainer
@@ -353,6 +354,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             onEditBlockProperties={onEditBlockProperties}
             onAddSection={onAddSection}
             onUpdateSection={onUpdateSection}
+            onDeleteSection={onDeleteSection}
           />
         )}
       </div>

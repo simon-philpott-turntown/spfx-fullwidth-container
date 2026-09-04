@@ -55,11 +55,11 @@ const useStyles = makeStyles({
     left: 0,
     width: '100vw',
     height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.32)',
-    backdropFilter: 'blur(2px)',
+    backgroundColor: 'transparent',
     zIndex: 999,
     display: 'flex',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    pointerEvents: 'none'
   },
   sidePanel: {
     position: 'relative',
@@ -70,7 +70,8 @@ const useStyles = makeStyles({
     boxShadow: tokens.shadow28,
     display: 'flex',
     flexDirection: 'column',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    pointerEvents: 'auto'
   },
   leftResizeHandle: {
     position: 'absolute',

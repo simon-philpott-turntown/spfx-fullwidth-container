@@ -278,6 +278,20 @@
         "preview/index.html",
         "preview/tt_icons.js"
       ]
+    },
+    {
+      "id": "FEAT-024",
+      "name": "SectionActionIconsAndUnblurredCanvasPanels",
+      "description": "Inline section edit/delete action buttons across Tabs and Accordion headers, paired with SectionEditDialog for instant canvas authoring, transparent non-blocking backdrops preventing dashboard blur during card/section edits, and automatic Document Library provisioning in DashboardStorageService.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/SectionEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
+        "preview/index.html"
+      ]
     }
   ]
 }

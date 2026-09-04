@@ -311,11 +311,56 @@ export class DashboardStorageService {
   }
 
   /**
+   * Checks if the target Document Library exists on the SharePoint site; if missing, auto-creates it.
+   */
+  private async _ensureDocumentLibraryExists(): Promise<void> {
+    if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
+
+    try {
+      const checkEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists/getByTitle('${encodeURIComponent(this._libraryTitle)}')?$select=Id,Title`;
+      const res = await this._spHttpClient.get(checkEndpoint, SPHttpClient.configurations.v1, {
+        headers: { Accept: 'application/json;odata=nometadata' }
+      });
+
+      if (res.ok) {
+        return; // Document library exists
+      }
+
+      // If library does not exist (404), provision it automatically (BaseTemplate 101 = DocumentLibrary)
+      if (res.status === 404) {
+        console.log(`[DashboardStorageService] Library '${this._libraryTitle}' not found. Auto-provisioning SharePoint Document Library...`);
+        const createEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists`;
+        const createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
+          headers: {
+            Accept: 'application/json;odata=nometadata',
+            'Content-Type': 'application/json;odata=verbose'
+          },
+          body: JSON.stringify({
+            '__metadata': { 'type': 'SP.List' },
+            'BaseTemplate': 101,
+            'Description': 'Storage repository for Full-Width Dashboard backups, templates, and snapshot configurations.',
+            'Title': this._libraryTitle
+          })
+        });
+
+        if (createRes.ok) {
+          console.log(`[DashboardStorageService] Successfully provisioned Document Library '${this._libraryTitle}'.`);
+        }
+      }
+    } catch (e) {
+      console.warn('[DashboardStorageService] Could not auto-provision Document Library:', e);
+    }
+  }
+
+  /**
    * Iteratively creates folders in the SharePoint Document Library if they don't already exist.
    * Traverses from library root down into subfolders ('Backups'/'Templates' -> DashboardTitle).
    */
   private async _ensureSharePointFolderPath(relativeFolderPath: string): Promise<void> {
     if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
+
+    // Ensure library itself exists first
+    await this._ensureDocumentLibraryExists();
 
     const segments = relativeFolderPath.split('/').filter(Boolean);
     if (segments.length === 0) return;

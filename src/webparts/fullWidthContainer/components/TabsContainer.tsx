@@ -11,6 +11,7 @@ import {
   TabList,
   Tab,
   Badge,
+  Button,
   SelectTabData,
   SelectTabEvent,
   TabValue,
@@ -21,8 +22,11 @@ import {
 } from '@fluentui/react-components';
 import {
   InfoRegular,
-  AddRegular
+  AddRegular,
+  EditRegular,
+  DeleteRegular
 } from '@fluentui/react-icons';
+import { SectionEditDialog } from './SectionEditDialog';
 
 const useStyles = makeStyles({
   container: {
@@ -30,11 +34,24 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     ...shorthands.gap(tokens.spacingVerticalL)
   },
-  tabList: {
+  tabHeaderRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
     paddingBottom: tokens.spacingVerticalXS,
+    gap: '12px'
+  },
+  tabList: {
     overflowX: 'auto',
-    scrollbarWidth: 'thin'
+    scrollbarWidth: 'thin',
+    flex: 1
+  },
+  tabActionsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.spacingHorizontalXXS),
+    flexShrink: 0
   },
   grid: {
     display: 'grid',
@@ -92,6 +109,7 @@ export interface ITabsContainerProps {
   onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
   onAddSection?: () => void;
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
+  onDeleteSection?: (sectionId: string) => void;
 }
 
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
@@ -137,12 +155,17 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
   onUpdateBlock,
   onDeleteBlock,
   onAddBlock,
-  onEditBlockProperties
+  onEditBlockProperties,
+  onAddSection,
+  onUpdateSection,
+  onDeleteSection
 }) => {
   const styles = useStyles();
   const [selectedTab, setSelectedTab] = React.useState<TabValue>(() =>
     sections.length > 0 ? sections[0].id : ''
   );
+  const [isSectionDialogOpen, setIsSectionDialogOpen] = React.useState<boolean>(false);
+  const [editingSection, setEditingSection] = React.useState<IContainerSection | undefined>(undefined);
 
   const handleTabSelect = (event: SelectTabEvent, data: SelectTabData): void => {
     setSelectedTab(data.value);
@@ -210,29 +233,99 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
 
   return (
     <div className={styles.container}>
-      {/* Fluent 2 TabList */}
-      <TabList
-        selectedValue={selectedTab}
-        onTabSelect={handleTabSelect}
-        size="medium"
-        appearance="subtle"
-        className={styles.tabList}
-      >
-        {sections.map((section) => (
-          <Tab
-            key={section.id}
-            value={section.id}
-            icon={renderTabIcon(section)}
-          >
-            {section.title}
-            {section.badge && (
-              <Badge appearance="filled" size="small" className={styles.badge}>
-                {section.badge}
-              </Badge>
+      {/* Header Row: Fluent 2 TabList with Edit/Delete Section Icons */}
+      <div className={styles.tabHeaderRow}>
+        <TabList
+          selectedValue={selectedTab}
+          onTabSelect={handleTabSelect}
+          size="medium"
+          appearance="subtle"
+          className={styles.tabList}
+        >
+          {sections.map((section) => (
+            <Tab
+              key={section.id}
+              value={section.id}
+              icon={renderTabIcon(section)}
+            >
+              {section.title}
+              {section.badge && (
+                <Badge appearance="filled" size="small" className={styles.badge}>
+                  {section.badge}
+                </Badge>
+              )}
+            </Tab>
+          ))}
+        </TabList>
+
+        {/* Section Edit / Delete action icons in authoring mode */}
+        {isEditMode && activeSection && (
+          <div className={styles.tabActionsRow}>
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={<EditRegular />}
+              title={`Edit active section properties (${activeSection.title})`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingSection(activeSection);
+                setIsSectionDialogOpen(true);
+              }}
+            >
+              Edit section
+            </Button>
+
+            {sections.length > 1 && onDeleteSection && (
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<DeleteRegular />}
+                title={`Delete active section (${activeSection.title})`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm(`Are you sure you want to delete section "${activeSection.title}"?`)) {
+                    onDeleteSection(activeSection.id);
+                  }
+                }}
+              />
             )}
-          </Tab>
-        ))}
-      </TabList>
+
+            {onAddSection && (
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<AddRegular />}
+                title="Add new section"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddSection();
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Section Edit Side Dialog */}
+      <SectionEditDialog
+        isOpen={isSectionDialogOpen}
+        section={editingSection}
+        canDelete={sections.length > 1}
+        onSave={(updated) => {
+          if (editingSection && onUpdateSection) {
+            onUpdateSection(editingSection.id, updated);
+          }
+        }}
+        onDelete={() => {
+          if (editingSection && onDeleteSection) {
+            onDeleteSection(editingSection.id);
+          }
+        }}
+        onDismiss={() => {
+          setIsSectionDialogOpen(false);
+          setEditingSection(undefined);
+        }}
+      />
 
       {/* Cards Grid */}
       <div className={styles.grid} style={gridStyle}>

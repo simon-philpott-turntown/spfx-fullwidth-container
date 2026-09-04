@@ -27,8 +27,11 @@ import {
   ChevronDoubleDownRegular,
   ChevronDoubleUpRegular,
   InfoRegular,
-  AddRegular
+  AddRegular,
+  EditRegular,
+  DeleteRegular
 } from '@fluentui/react-icons';
+import { SectionEditDialog } from './SectionEditDialog';
 
 const useStyles = makeStyles({
   container: {
@@ -129,6 +132,7 @@ export interface IAccordionContainerProps {
   onEditBlockProperties?: (sectionIndex: number, blockIndex: number) => void;
   onAddSection?: () => void;
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
+  onDeleteSection?: (sectionId: string) => void;
 }
 
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
@@ -175,12 +179,17 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   onUpdateBlock,
   onDeleteBlock,
   onAddBlock,
-  onEditBlockProperties
+  onEditBlockProperties,
+  onAddSection,
+  onUpdateSection,
+  onDeleteSection
 }) => {
   const styles = useStyles();
   const [openItems, setOpenItems] = React.useState<string[]>(() =>
     sections.length > 0 ? [sections[0].id] : []
   );
+  const [isSectionDialogOpen, setIsSectionDialogOpen] = React.useState<boolean>(false);
+  const [editingSection, setEditingSection] = React.useState<IContainerSection | undefined>(undefined);
 
   const handleToggle: AccordionToggleEventHandler<string> = (
     event: AccordionToggleEvent,
@@ -239,8 +248,40 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
           >
             Collapse all
           </Button>
+          {isEditMode && onAddSection && (
+            <Button
+              appearance="subtle"
+              size="small"
+              icon={<AddRegular />}
+              onClick={onAddSection}
+              title="Add new section"
+            >
+              Add section
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Section Edit Side Dialog */}
+      <SectionEditDialog
+        isOpen={isSectionDialogOpen}
+        section={editingSection}
+        canDelete={sections.length > 1}
+        onSave={(updated) => {
+          if (editingSection && onUpdateSection) {
+            onUpdateSection(editingSection.id, updated);
+          }
+        }}
+        onDelete={() => {
+          if (editingSection && onDeleteSection) {
+            onDeleteSection(editingSection.id);
+          }
+        }}
+        onDismiss={() => {
+          setIsSectionDialogOpen(false);
+          setEditingSection(undefined);
+        }}
+      />
 
       {/* Fluent 2 Accordion */}
       <Accordion
@@ -305,6 +346,38 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                     <Badge appearance="outline" size="small" className={styles.badge}>
                       {(section.blocks ? section.blocks.length : 0)} {(section.blocks && section.blocks.length === 1) ? 'item' : 'items'}
                     </Badge>
+                    {isEditMode && (
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: '6px' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<EditRegular />}
+                          title={`Edit section properties (${section.title})`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingSection(section);
+                            setIsSectionDialogOpen(true);
+                          }}
+                        />
+                        {sections.length > 1 && onDeleteSection && (
+                          <Button
+                            size="small"
+                            appearance="subtle"
+                            icon={<DeleteRegular />}
+                            title={`Delete section (${section.title})`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(`Are you sure you want to delete section "${section.title}"?`)) {
+                                onDeleteSection(section.id);
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </AccordionHeader>

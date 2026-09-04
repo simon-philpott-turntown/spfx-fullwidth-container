@@ -393,6 +393,18 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               this._saveSections(sections);
             }
           },
+          onDeleteSection: (sectionId: string) => {
+            const sections = this._getActiveSections();
+            if (sections.length <= 1) return;
+            const idx = sections.findIndex((s) => s.id === sectionId);
+            if (idx !== -1) {
+              sections.splice(idx, 1);
+              const nextIdx = Math.max(0, idx - 1);
+              this.properties.activeSectionIndex = nextIdx;
+              this._syncSectionFields(sections, nextIdx);
+              this._saveSections(sections);
+            }
+          },
           onSaveBackupToLibrary: async (folderType: 'Backups' | 'Templates') => {
             await this._handleSaveBackupToLibrary(folderType, 'manual');
           },

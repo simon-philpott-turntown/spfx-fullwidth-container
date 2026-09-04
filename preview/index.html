@@ -3241,34 +3241,67 @@
 
         // Tabs View
         state.layoutMode === 'tabs' ? React.createElement('div', null,
-          React.createElement('div', { className: 'fui-tablist' },
-            currentSections.map(sec => {
-              const showBg = sec.showIconBackground === true;
-              const bg = sec.iconBackgroundColor || 'var(--fui-colorBrandBackground2)';
-              const iconColor = sec.iconColor || 'var(--fui-colorBrandForeground1)';
-              const iconElem = renderIconUnified(sec.iconName, sec.iconColor, '18px');
-              return React.createElement('button', {
-                key: sec.id,
-                className: 'fui-tab ' + (sec.id === state.activeTabId ? 'active' : ''),
-                onClick: () => { state.activeTabId = sec.id; render(); }
-              },
-                showBg ? React.createElement('span', {
-                  style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '6px',
-                    backgroundColor: bg,
-                    color: iconColor,
-                    marginRight: '4px'
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--fui-colorNeutralStroke2)', paddingBottom: '0.25rem', gap: '12px' } },
+            React.createElement('div', { className: 'fui-tablist', style: { flex: 1, borderBottom: 'none', paddingBottom: 0 } },
+              currentSections.map(sec => {
+                const showBg = sec.showIconBackground === true;
+                const bg = sec.iconBackgroundColor || 'var(--fui-colorBrandBackground2)';
+                const iconColor = sec.iconColor || 'var(--fui-colorBrandForeground1)';
+                const iconElem = renderIconUnified(sec.iconName, sec.iconColor, '18px');
+                return React.createElement('button', {
+                  key: sec.id,
+                  className: 'fui-tab ' + (sec.id === state.activeTabId ? 'active' : ''),
+                  onClick: () => { state.activeTabId = sec.id; state.activeSecIdx = currentSections.findIndex(s => s.id === sec.id); syncSidebar(); render(); }
+                },
+                  showBg ? React.createElement('span', {
+                    style: {
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '6px',
+                      backgroundColor: bg,
+                      color: iconColor,
+                      marginRight: '4px'
+                    }
+                  }, iconElem) : iconElem,
+                  React.createElement('span', null, sec.title),
+                  sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
+                );
+              })
+            ),
+            isEditMode ? React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 } },
+              React.createElement('button', {
+                type: 'button',
+                className: 'sp-btn sp-btn-secondary',
+                style: { padding: '4px 8px', fontSize: '0.78rem', height: '28px' },
+                title: 'Edit active section properties',
+                onClick: () => {
+                  state.activeSecIdx = currentSections.findIndex(s => s.id === state.activeTabId);
+                  setPanePage(2);
+                  document.getElementById('property-pane').style.display = 'flex';
+                }
+              }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' }), ' Edit section'),
+              currentSections.length > 1 ? React.createElement('button', {
+                type: 'button',
+                className: 'sp-btn sp-btn-secondary',
+                style: { padding: '4px 8px', fontSize: '0.78rem', height: '28px', color: '#c4314b' },
+                title: 'Delete active section',
+                onClick: () => {
+                  if (confirm(`Delete section "${activeSection.title}"?`)) {
+                    deleteSection();
                   }
-                }, iconElem) : iconElem,
-                React.createElement('span', null, sec.title),
-                sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge)
-              );
-            })
+                }
+              }, React.createElement('i', { className: 'fa-solid fa-trash' })) : null,
+              React.createElement('button', {
+                type: 'button',
+                className: 'sp-btn sp-btn-secondary',
+                style: { padding: '4px 8px', fontSize: '0.78rem', height: '28px' },
+                title: 'Add new section',
+                onClick: addSection
+              }, React.createElement('i', { className: 'fa-solid fa-plus' }))
+            ) : null
           ),
           React.createElement('div', { style: { marginTop: '1.25rem' } },
             React.createElement('div', {
@@ -3390,7 +3423,7 @@
 
         // Accordion View
         React.createElement('div', null,
-          currentSections.map(sec => {
+          currentSections.map((sec, secIdx) => {
             const showBg = sec.showIconBackground === true;
             const bg = sec.iconBackgroundColor || 'var(--fui-colorBrandBackground2)';
             const iconColor = sec.iconColor || 'var(--fui-colorBrandForeground1)';
@@ -3413,8 +3446,28 @@
                   }, iconElem) : iconElem,
                   React.createElement('span', { style: { fontWeight: 600 } }, sec.title)
                 ),
-                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.75rem' } },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
                   sec.badge && React.createElement('span', { className: 'fui-badge' }, sec.badge),
+                  isEditMode ? React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '4px' }, onClick: (e) => e.stopPropagation() },
+                    React.createElement('span', {
+                      className: 'fui-badge',
+                      style: { cursor: 'pointer' },
+                      title: 'Edit section properties',
+                      onClick: (e) => { e.stopPropagation(); state.activeSecIdx = secIdx; setPanePage(2); document.getElementById('property-pane').style.display = 'flex'; }
+                    }, '✏️ Edit'),
+                    currentSections.length > 1 ? React.createElement('span', {
+                      className: 'fui-badge',
+                      style: { cursor: 'pointer', color: '#c4314b' },
+                      title: 'Delete section',
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete section "${sec.title}"?`)) {
+                          state.activeSecIdx = secIdx;
+                          deleteSection();
+                        }
+                      }
+                    }, '🗑️') : null
+                  ) : null,
                   React.createElement('i', { className: 'fa-solid fa-chevron-down' })
                 )
               ),

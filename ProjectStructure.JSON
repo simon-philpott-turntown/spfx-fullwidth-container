@@ -119,6 +119,11 @@
       "name": "TtSvgIconCollection",
       "path": "src/webparts/fullWidthContainer/components/TtSvgIconCollection.ts",
       "role": "Full corporate collection of 224 Turner & Townsend SVG icons with automated currentColor stroke mapping and metadata."
+    },
+    {
+      "name": "SectionEditDialog",
+      "path": "src/webparts/fullWidthContainer/components/SectionEditDialog.tsx",
+      "role": "In-place Fluent UI 2 side panel for configuring section titles, badges, icons, glyph colors, icon containers, and section background colors."
     }
   ]
 }

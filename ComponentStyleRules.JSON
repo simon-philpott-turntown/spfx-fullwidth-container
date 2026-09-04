@@ -106,6 +106,10 @@
     "PropertyPaneIconField": {
       "classes": ["IconFieldControl", "FluentProvider", "Button", "Subtitle2", "Caption1", "FluentIconPicker"],
       "aesthetic": "SPFx Property Pane custom control rendering a 32x32px icon preview with title and badge, connected to the modal icon browser."
+    },
+    "SectionEditDialog": {
+      "classes": ["Dialog", "DialogSurface", "DialogTitle", "DialogBody", "Input", "Textarea", "BrandColorPickerPopover", "FluentIconPicker"],
+      "aesthetic": "Elevated Fluent UI 2 side panel with transparent non-dimming backdrop, responsive form layout, draggable resize handle, icon picker, and brand color pickers."
     }
   }
 }
