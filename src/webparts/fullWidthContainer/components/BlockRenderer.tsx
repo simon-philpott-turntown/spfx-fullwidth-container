@@ -934,6 +934,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     height: isAutoHeight ? 'auto' : '100%',
     backgroundColor: block.backgroundColor || undefined,
     color: block.textColor || (isDarkBg ? '#FFFFFF' : undefined),
+    fontFamily: block.fontFamily || undefined,
     borderColor: isDraggingBoundary
       ? tokens.colorBrandStroke1
       : (isDarkBg ? 'rgba(255, 255, 255, 0.2)' : undefined),
@@ -958,7 +959,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
             style={{
               fontWeight: 600,
-              fontSize: '1rem',
+              fontSize: block.titleFontSize || '1rem',
               color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1),
               marginBottom: '4px'
             }}
@@ -1008,8 +1009,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             placeholder="Metric summary"
             onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
             style={{
-              fontSize: '0.85rem',
-              color: tokens.colorNeutralForeground3,
+              fontSize: block.bodyFontSize || '0.85rem',
+              color: block.textColor || (isDarkBg ? 'rgba(255,255,255,0.85)' : tokens.colorNeutralForeground3),
               marginTop: '4px'
             }}
           />
@@ -1070,7 +1071,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
                   style={{
                     fontWeight: 600,
-                    fontSize: '1.1rem',
+                    fontSize: block.titleFontSize || '1.1rem',
                     color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
                   }}
                 />
@@ -1085,8 +1086,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                   placeholder="Tool summary"
                   onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
                   style={{
-                    fontSize: '0.85rem',
-                    color: isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground3,
+                    fontSize: block.bodyFontSize || '0.85rem',
+                    color: block.textColor || (isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground3),
                     marginTop: '2px'
                   }}
                 />
@@ -1162,7 +1163,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
                 style={{
                   fontWeight: 600,
-                  fontSize: '1.15rem',
+                  fontSize: block.titleFontSize || '1.15rem',
                   color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
                 }}
               />
@@ -1186,8 +1187,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             placeholder="Card summary"
             onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
             style={{
-              color: isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground2,
-              fontSize: '0.95rem',
+              color: block.textColor || (isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground2),
+              fontSize: block.bodyFontSize || '0.95rem',
               lineHeight: '1.4rem'
             }}
           />

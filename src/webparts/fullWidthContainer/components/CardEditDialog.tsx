@@ -18,7 +18,8 @@ import {
   tokens,
   Subtitle2,
   Caption1,
-  Checkbox
+  Checkbox,
+  Divider
 } from '@fluentui/react-components';
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import {
@@ -528,6 +529,87 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   defaultColorHex="#FFFFFF"
                 />
               </div>
+            </div>
+
+            {/* ── Typography ─────────────────────────────────────── */}
+            <Divider style={{ margin: '4px 0 2px' }}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, fontWeight: 600 }}>Typography overrides</Caption1>
+            </Divider>
+
+            {/* Text colour */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Card text colour</Label>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                Overrides title, description, and body text colour on this card.
+              </Caption1>
+              <BrandColorPickerPopover
+                selectedColor={formData.textColor}
+                onChange={(hex) => setFormData({ ...formData, textColor: hex })}
+                defaultLabel="Default (inherit theme foreground)"
+                defaultColorHex="#292929"
+              />
+            </div>
+
+            {/* Font family + Title font size */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Font family</Label>
+                <Dropdown
+                  value={formData.fontFamily || 'Default (site theme)'}
+                  onOptionSelect={(e, data) => {
+                    setFormData({ ...formData, fontFamily: data.optionValue === '__default__' ? undefined : (data.optionValue as string) });
+                  }}
+                >
+                  <Option value="__default__">Default (site theme)</Option>
+                  <Option value="Inter, sans-serif">Inter</Option>
+                  <Option value="'Segoe UI', sans-serif">Segoe UI</Option>
+                  <Option value="Georgia, serif">Georgia (serif)</Option>
+                  <Option value="'Courier New', monospace">Courier New (mono)</Option>
+                  <Option value="Arial, sans-serif">Arial</Option>
+                  <Option value="Verdana, sans-serif">Verdana</Option>
+                  <Option value="Tahoma, sans-serif">Tahoma</Option>
+                  <Option value="'Times New Roman', serif">Times New Roman</Option>
+                </Dropdown>
+              </div>
+
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Title font size</Label>
+                <Dropdown
+                  value={formData.titleFontSize || 'Default'}
+                  onOptionSelect={(e, data) => {
+                    setFormData({ ...formData, titleFontSize: data.optionValue === '__default__' ? undefined : (data.optionValue as string) });
+                  }}
+                >
+                  <Option value="__default__">Default</Option>
+                  <Option value="0.85rem">Small (0.85rem)</Option>
+                  <Option value="1rem">Normal (1rem)</Option>
+                  <Option value="1.1rem">Medium (1.1rem)</Option>
+                  <Option value="1.25rem">Large (1.25rem)</Option>
+                  <Option value="1.5rem">X-Large (1.5rem)</Option>
+                  <Option value="1.75rem">2X-Large (1.75rem)</Option>
+                  <Option value="2rem">3X-Large (2rem)</Option>
+                </Dropdown>
+              </div>
+            </div>
+
+            {/* Body font size */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Body / description font size</Label>
+              <Dropdown
+                value={formData.bodyFontSize || 'Default'}
+                onOptionSelect={(e, data) => {
+                  setFormData({ ...formData, bodyFontSize: data.optionValue === '__default__' ? undefined : (data.optionValue as string) });
+                }}
+              >
+                <Option value="__default__">Default</Option>
+                <Option value="0.75rem">X-Small (0.75rem)</Option>
+                <Option value="0.825rem">Small (0.825rem)</Option>
+                <Option value="0.9rem">Slightly small (0.9rem)</Option>
+                <Option value="0.95rem">Near-default (0.95rem)</Option>
+                <Option value="1rem">Normal (1rem)</Option>
+                <Option value="1.1rem">Slightly large (1.1rem)</Option>
+                <Option value="1.25rem">Large (1.25rem)</Option>
+              </Dropdown>
             </div>
 
             {/* Global Term Store Taxonomy Integration */}

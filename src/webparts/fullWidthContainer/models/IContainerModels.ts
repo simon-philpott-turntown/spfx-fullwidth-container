@@ -106,6 +106,9 @@ export interface IContentBlock {
   heightMode?: 'default' | 'auto' | 'equal'; // Auto (fit content) vs Equal (match tallest on row)
   backgroundColor?: string; // Custom card background color (independent)
   textColor?: string; // Custom card text color override
+  fontFamily?: string; // Custom font family override (e.g. 'Inter', 'Georgia', system fonts)
+  titleFontSize?: string; // Custom title font size override (e.g. '1.25rem', '18px')
+  bodyFontSize?: string; // Custom body/description font size override (e.g. '0.9rem', '14px')
   items?: ICardItem[]; // Composable nested elements
 }
 
