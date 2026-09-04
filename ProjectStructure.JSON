@@ -103,7 +103,7 @@
     {
       "name": "DashboardStorageService",
       "path": "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",
-      "role": "SharePoint REST API storage service handling full dashboard package backups, versioned snapshots, cross-site portable JSON files, and folder creation in the Dashboards library."
+      "role": "SharePoint REST API storage service handling full dashboard package backups, versioned snapshots, cross-site portable JSON files, user prompt for library provisioning, and automatic creation of Backups and Templates folders in the Dashboards library."
     },
     {
       "name": "CustomSvgIconRegistry",

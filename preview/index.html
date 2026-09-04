@@ -2482,15 +2482,54 @@
       const fileName = `${title}_${timestamp}.json`;
       const fullPath = `Dashboards/${folder}/${title}/${fileName}`;
 
+      const libraryCreatedKey = 'spfx_dashboards_library_created';
+      const hasLibrary = localStorage.getItem(libraryCreatedKey) === 'true';
+
+      if (!hasLibrary) {
+        const confirmed = window.confirm(
+          `The 'Dashboards' document library does not exist on this SharePoint site.\n\n` +
+          `Would you like to create the 'Dashboards' library now with 'Backups' and 'Templates' folders to store your dashboard configurations?`
+        );
+        if (!confirmed) {
+          const statusEl = document.getElementById('status-library-backup');
+          if (statusEl) {
+            statusEl.textContent = "⚠️ Save cancelled: 'Dashboards' library does not exist";
+            statusEl.style.color = 'var(--fui-colorPaletteRedForeground1)';
+          }
+          if (!isAuto) showToast("⚠️ Save cancelled: 'Dashboards' library was not created");
+          return;
+        }
+
+        // Library provisioned: record library existence and ensure Backups & Templates base folders exist
+        localStorage.setItem(libraryCreatedKey, 'true');
+        const foldersKey = 'spfx_dashboards_library_folders';
+        const existingFolders = JSON.parse(localStorage.getItem(foldersKey) || '["Backups", "Templates"]');
+        if (!existingFolders.includes('Backups')) existingFolders.push('Backups');
+        if (!existingFolders.includes('Templates')) existingFolders.push('Templates');
+        localStorage.setItem(foldersKey, JSON.stringify(existingFolders));
+        showToast("✓ Created 'Dashboards' library with Backups and Templates folders");
+      }
+
+      // Ensure target folders exist
+      const foldersKey = 'spfx_dashboards_library_folders';
+      const currentFolders = JSON.parse(localStorage.getItem(foldersKey) || '["Backups", "Templates"]');
+      if (!currentFolders.includes(folder)) {
+        currentFolders.push(folder);
+        localStorage.setItem(foldersKey, JSON.stringify(currentFolders));
+      }
+
       const snapshot = {
         schemaVersion: '1.0.0',
         dashboardTitle: state.title || 'Corporate Dashboard',
+        dashboardSubtitle: state.subtitle || '',
         exportTimestamp: now.toISOString(),
         siteUrl: window.location.origin,
         savedBy: 'Current User',
         targetFolder: folder,
         layout: {
-          layoutType: state.layoutType,
+          layoutMode: state.layoutMode,
+          layoutType: state.layoutMode,
+          containerStyle: state.containerStyle,
           gridCols: state.gridCols,
           gridRows: state.gridRows,
           cardHeightMode: state.cardHeightMode,
@@ -2573,10 +2612,22 @@
         }
 
         const pkg = item.data;
+        if (pkg.dashboardTitle) {
+          state.title = pkg.dashboardTitle;
+          const inpTitle = document.getElementById('inp-title');
+          if (inpTitle) inpTitle.value = pkg.dashboardTitle;
+        }
+        if (pkg.dashboardSubtitle !== undefined) {
+          state.subtitle = pkg.dashboardSubtitle;
+          const inpSub = document.getElementById('inp-subtitle');
+          if (inpSub) inpSub.value = pkg.dashboardSubtitle;
+        }
         if (pkg.layout) {
-          state.layoutType = pkg.layout.layoutType || state.layoutType;
-          state.gridCols = pkg.layout.gridCols || state.gridCols;
-          state.gridRows = pkg.layout.gridRows || state.gridRows;
+          state.layoutMode = pkg.layout.layoutMode || pkg.layout.layoutType || state.layoutMode;
+          state.layoutType = state.layoutMode;
+          state.containerStyle = pkg.layout.containerStyle || state.containerStyle;
+          state.gridCols = pkg.layout.gridCols !== undefined ? pkg.layout.gridCols : state.gridCols;
+          state.gridRows = pkg.layout.gridRows !== undefined ? pkg.layout.gridRows : state.gridRows;
           state.cardHeightMode = pkg.layout.cardHeightMode || state.cardHeightMode;
           state.webPartBackgroundColor = pkg.layout.webPartBackgroundColor || '';
         }
@@ -2585,6 +2636,9 @@
           state.activeSecIdx = 0;
           state.activeCardSecIdx = 0;
           state.activeCardIdx = 0;
+          if (currentSections[0]) {
+            state.activeTabId = currentSections[0].id;
+          }
         }
         const statusEl = document.getElementById('status-library-backup');
         if (statusEl) {

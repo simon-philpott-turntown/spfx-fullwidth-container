@@ -67,6 +67,11 @@ export interface ISaveBackupOptions {
   sections: IContainerSection[];
   trigger?: 'manual' | 'auto';
   customFileName?: string;
+  /**
+   * Optional callback function invoked when the 'Dashboards' library does not exist.
+   * Prompts the user whether to provision the library. Returning true provisions it; false cancels.
+   */
+  promptLibraryCreation?: (libraryName: string) => Promise<boolean> | boolean;
 }
 
 /**
@@ -200,7 +205,7 @@ export class DashboardStorageService {
 
     if (this._spHttpClient && this._siteServerRelativeUrl) {
       try {
-        await this._ensureSharePointFolderPath(targetFolderRelPath);
+        await this._ensureSharePointFolderPath(targetFolderRelPath, options.promptLibraryCreation);
 
         const escapedFolderPath = this.escapeSpPath(fullServerRelFolderPath);
         const addFileEndpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedFolderPath}')/Files/Add(url='${encodeURIComponent(fileName)}', overwrite=true)`;
@@ -311,56 +316,103 @@ export class DashboardStorageService {
   }
 
   /**
-   * Checks if the target Document Library exists on the SharePoint site; if missing, auto-creates it.
+   * Checks if the target Document Library exists on the SharePoint site.
+   * If missing, prompts the user (or uses promptCallback) to confirm creation before provisioning.
+   * Automatically provisions root 'Backups' and 'Templates' folders if created.
    */
-  private async _ensureDocumentLibraryExists(): Promise<void> {
+  private async _ensureDocumentLibraryExists(promptLibraryCreation?: (libraryName: string) => Promise<boolean> | boolean): Promise<void> {
     if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
 
-    try {
-      const checkEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists/getByTitle('${encodeURIComponent(this._libraryTitle)}')?$select=Id,Title`;
-      const res = await this._spHttpClient.get(checkEndpoint, SPHttpClient.configurations.v1, {
-        headers: { Accept: 'application/json;odata=nometadata' }
+    const checkEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists/getByTitle('${encodeURIComponent(this._libraryTitle)}')?$select=Id,Title`;
+    const res = await this._spHttpClient.get(checkEndpoint, SPHttpClient.configurations.v1, {
+      headers: { Accept: 'application/json;odata=nometadata' }
+    });
+
+    if (res.ok) {
+      return; // Document library already exists
+    }
+
+    // If library does not exist (404), prompt the user before provisioning
+    if (res.status === 404) {
+      let shouldCreate = false;
+      if (typeof promptLibraryCreation === 'function') {
+        shouldCreate = await Promise.resolve(promptLibraryCreation(this._libraryTitle));
+      } else if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+        shouldCreate = window.confirm(
+          `The '${this._libraryTitle}' document library was not found on this SharePoint site.\n\n` +
+          `Would you like to create the '${this._libraryTitle}' library now with 'Backups' and 'Templates' folders to store your dashboard configurations?`
+        );
+      } else {
+        shouldCreate = true;
+      }
+
+      if (!shouldCreate) {
+        throw new Error(`Creation of '${this._libraryTitle}' document library was cancelled by user.`);
+      }
+
+      console.log(`[DashboardStorageService] User confirmed. Provisioning Document Library '${this._libraryTitle}'...`);
+      const createEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists`;
+      const createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
+        headers: {
+          Accept: 'application/json;odata=nometadata',
+          'Content-Type': 'application/json;odata=verbose'
+        },
+        body: JSON.stringify({
+          '__metadata': { 'type': 'SP.List' },
+          'BaseTemplate': 101,
+          'Description': 'Storage repository for Full-Width Dashboard backups, templates, and snapshot configurations.',
+          'Title': this._libraryTitle
+        })
       });
 
-      if (res.ok) {
-        return; // Document library exists
+      if (!createRes.ok) {
+        const errText = await createRes.text();
+        throw new Error(`Failed to create Document Library '${this._libraryTitle}': ${errText}`);
       }
 
-      // If library does not exist (404), provision it automatically (BaseTemplate 101 = DocumentLibrary)
-      if (res.status === 404) {
-        console.log(`[DashboardStorageService] Library '${this._libraryTitle}' not found. Auto-provisioning SharePoint Document Library...`);
-        const createEndpoint = `${this._siteServerRelativeUrl}/_api/web/lists`;
-        const createRes = await this._spHttpClient.post(createEndpoint, SPHttpClient.configurations.v1, {
-          headers: {
-            Accept: 'application/json;odata=nometadata',
-            'Content-Type': 'application/json;odata=verbose'
-          },
-          body: JSON.stringify({
-            '__metadata': { 'type': 'SP.List' },
-            'BaseTemplate': 101,
-            'Description': 'Storage repository for Full-Width Dashboard backups, templates, and snapshot configurations.',
-            'Title': this._libraryTitle
-          })
-        });
+      console.log(`[DashboardStorageService] Successfully provisioned Document Library '${this._libraryTitle}'. Initialising root folders...`);
+      // Automatically ensure root 'Backups' and 'Templates' folders exist in the newly provisioned library
+      await this._ensureRootLibraryFolder('Backups');
+      await this._ensureRootLibraryFolder('Templates');
+    }
+  }
 
-        if (createRes.ok) {
-          console.log(`[DashboardStorageService] Successfully provisioned Document Library '${this._libraryTitle}'.`);
-        }
-      }
-    } catch (e) {
-      console.warn('[DashboardStorageService] Could not auto-provision Document Library:', e);
+  /**
+   * Helper to ensure a root folder (e.g. Backups, Templates) exists directly under the Dashboards library.
+   */
+  private async _ensureRootLibraryFolder(folderName: string): Promise<void> {
+    if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
+    const parentFullServerRel = this._siteServerRelativeUrl
+      ? `${this._siteServerRelativeUrl}/${this._libraryTitle}`
+      : `/${this._libraryTitle}`;
+    try {
+      const escapedParentUrl = this.escapeSpPath(parentFullServerRel);
+      const endpoint = `${this._siteServerRelativeUrl}/_api/web/GetFolderByServerRelativeUrl('${escapedParentUrl}')/folders`;
+      await this._spHttpClient.post(endpoint, SPHttpClient.configurations.v1, {
+        headers: {
+          Accept: 'application/json;odata=nometadata',
+          'Content-Type': 'application/json;odata=verbose'
+        },
+        body: JSON.stringify({ ServerRelativeUrl: folderName })
+      });
+    } catch {
+      // Ignore if folder already exists
     }
   }
 
   /**
    * Iteratively creates folders in the SharePoint Document Library if they don't already exist.
    * Traverses from library root down into subfolders ('Backups'/'Templates' -> DashboardTitle).
+   * Automatically creates 'Backups' or 'Templates' as part of the saving process.
    */
-  private async _ensureSharePointFolderPath(relativeFolderPath: string): Promise<void> {
+  private async _ensureSharePointFolderPath(
+    relativeFolderPath: string,
+    promptLibraryCreation?: (libraryName: string) => Promise<boolean> | boolean
+  ): Promise<void> {
     if (!this._spHttpClient || !this._siteServerRelativeUrl) return;
 
-    // Ensure library itself exists first
-    await this._ensureDocumentLibraryExists();
+    // Ensure library itself exists first (with prompt if missing)
+    await this._ensureDocumentLibraryExists(promptLibraryCreation);
 
     const segments = relativeFolderPath.split('/').filter(Boolean);
     if (segments.length === 0) return;
@@ -369,7 +421,7 @@ export class DashboardStorageService {
     const libraryName = segments[0];
     let currentRelPath = libraryName;
 
-    // Iterate through sub-folders (e.g. Backups, then DashboardTitle)
+    // Iterate through sub-folders (e.g. Backups or Templates, then DashboardTitle)
     for (let i = 1; i < segments.length; i++) {
       const segment = segments[i];
       const parentRelPath = currentRelPath;

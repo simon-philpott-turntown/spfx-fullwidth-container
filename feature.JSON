@@ -219,7 +219,7 @@
     {
       "id": "FEAT-019",
       "name": "SharePointDocumentLibraryBackupAndRestore",
-      "description": "Complete self-contained dashboard backup and restore targeting SharePoint Document Library ('Dashboards') in 'Backups' or 'Templates' subfolders with timestamped version control, cross-site portability, and auto-save on page exit.",
+      "description": "Complete self-contained dashboard backup and restore targeting SharePoint Document Library ('Dashboards') in 'Backups' or 'Templates' subfolders. Prompts user before provisioning the 'Dashboards' library if it does not exist, and automatically creates root 'Backups' and 'Templates' folders plus dashboard-specific subfolders during saving, with timestamped version control, cross-site portability, and instant snapshot restore.",
       "status": "Active",
       "implementedIn": [
         "src/webparts/fullWidthContainer/services/DashboardStorageService.ts",

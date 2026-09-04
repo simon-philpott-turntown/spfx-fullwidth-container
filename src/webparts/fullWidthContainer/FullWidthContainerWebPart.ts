@@ -191,7 +191,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         webPartBackgroundColor: this.properties.webPartBackgroundColor,
         sectionBackgroundColor: this.properties.sectionBackgroundColor,
         sections: this._getActiveSections(),
-        trigger
+        trigger,
+        promptLibraryCreation: (libraryName: string) => {
+          if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+            return window.confirm(
+              `The '${libraryName}' document library does not exist on this SharePoint site.\n\n` +
+              `Would you like to create the '${libraryName}' library now with 'Backups' and 'Templates' folders to store your dashboard snapshots?`
+            );
+          }
+          return true;
+        }
       });
 
       this._isModifiedSinceLastBackup = false;
