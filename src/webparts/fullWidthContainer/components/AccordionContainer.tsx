@@ -137,6 +137,7 @@ export interface IAccordionContainerProps {
   onAddSection?: () => void;
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
   onDeleteSection?: (sectionId: string) => void;
+  assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }
 
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
@@ -186,7 +187,8 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   onEditBlockProperties,
   onAddSection,
   onUpdateSection,
-  onDeleteSection
+  onDeleteSection,
+  assetPickerService
 }) => {
   const styles = useStyles();
   const [openItems, setOpenItems] = React.useState<string[]>(() =>
@@ -271,6 +273,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         isOpen={isSectionDialogOpen}
         section={editingSection}
         canDelete={sections.length > 1}
+        assetPickerService={assetPickerService}
         onSave={(updated) => {
           if (editingSection && onUpdateSection) {
             onUpdateSection(editingSection.id, updated);
@@ -323,6 +326,22 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                 return titleMatch || descMatch || badgeMatch || metricMatch || trendMatch || tagMatch || termStoreMatch || innerItemsMatch;
               })
             : blocks;
+
+          const panelStyle: React.CSSProperties = {
+            ...(section.backgroundColor
+              ? { backgroundColor: section.backgroundColor, padding: '12px', borderRadius: '8px' }
+              : {}),
+            ...(section.backgroundImage
+              ? {
+                  backgroundImage: `url("${section.backgroundImage}")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  padding: '12px',
+                  borderRadius: '8px'
+                }
+              : {})
+          };
 
           return (
             <AccordionItem
@@ -386,7 +405,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                 </div>
               </AccordionHeader>
 
-              <AccordionPanel style={section.backgroundColor ? { backgroundColor: section.backgroundColor, padding: '12px', borderRadius: '8px' } : undefined}>
+              <AccordionPanel style={Object.keys(panelStyle).length > 0 ? panelStyle : undefined}>
                 <div className={styles.grid} style={gridStyle}>
                   {filteredBlocks.map((block, blkIdx) => (
                     <BlockRenderer
@@ -411,6 +430,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                           onEditBlockProperties(secIdx, blkIdx);
                         }
                       }}
+                      assetPickerService={assetPickerService}
                     />
                   ))}
 

@@ -110,6 +110,7 @@ export interface ITabsContainerProps {
   onAddSection?: () => void;
   onUpdateSection?: (sectionId: string, updatedFields: Partial<IContainerSection>) => void;
   onDeleteSection?: (sectionId: string) => void;
+  assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }
 
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
@@ -158,7 +159,8 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
   onEditBlockProperties,
   onAddSection,
   onUpdateSection,
-  onDeleteSection
+  onDeleteSection,
+  assetPickerService
 }) => {
   const styles = useStyles();
   const [selectedTab, setSelectedTab] = React.useState<TabValue>(() =>
@@ -225,6 +227,16 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
     ...(activeSection?.backgroundColor
       ? {
           backgroundColor: activeSection.backgroundColor,
+          padding: '16px',
+          borderRadius: '8px'
+        }
+      : {}),
+    ...(activeSection?.backgroundImage
+      ? {
+          backgroundImage: `url("${activeSection.backgroundImage}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           padding: '16px',
           borderRadius: '8px'
         }
@@ -311,6 +323,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
         isOpen={isSectionDialogOpen}
         section={editingSection}
         canDelete={sections.length > 1}
+        assetPickerService={assetPickerService}
         onSave={(updated) => {
           if (editingSection && onUpdateSection) {
             onUpdateSection(editingSection.id, updated);
@@ -352,6 +365,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
                 onEditBlockProperties(activeSectionIndex, blkIdx);
               }
             }}
+            assetPickerService={assetPickerService}
           />
         ))}
 

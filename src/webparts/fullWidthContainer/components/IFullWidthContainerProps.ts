@@ -37,4 +37,5 @@ export interface IFullWidthContainerProps {
   onSaveBackupToLibrary?: (folderType: 'Backups' | 'Templates') => Promise<void>;
   onRestoreFromLibrary?: () => void;
   lastBackupMessage?: string;
+  assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }

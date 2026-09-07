@@ -65,6 +65,7 @@ export interface ICardItem {
   ctaDescription?: string;
   ctaButtonText?: string;
   ctaButtonUrl?: string;
+  ctaBgUrl?: string;
   dividerStyle?: 'solid' | 'dashed';
   imageUrl?: string;
   imageAlt?: string;
@@ -78,6 +79,7 @@ export interface ICardItem {
   editorialTitle?: string;
   editorialBody?: string;
   editorialUrl?: string;
+  editorialImageUrl?: string;
   heroTitle?: string;
   heroSubtitle?: string;
   heroBgUrl?: string;
@@ -115,6 +117,7 @@ export interface IContentBlock {
   rowSpan?: number; // 1, 2 rows
   heightMode?: 'default' | 'auto' | 'equal'; // Auto (fit content) vs Equal (match tallest on row)
   backgroundColor?: string; // Custom card background color (independent)
+  backgroundImage?: string; // Custom card background image URL
   textColor?: string; // Custom card text color override
   fontFamily?: string; // Custom font family override (e.g. 'Inter', 'Georgia', system fonts)
   titleFontSize?: string; // Custom title font size override (e.g. '1.25rem', '18px')
@@ -135,6 +138,7 @@ export interface IContainerSection {
   badge?: string;
   description?: string;
   backgroundColor?: string; // Custom section background color (independent)
+  backgroundImage?: string; // Custom section background image URL
   textColor?: string; // Custom section text color override
   blocks: IContentBlock[];
 }

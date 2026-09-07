@@ -42,13 +42,13 @@ const useStyles = makeStyles({
   toolbarContainer: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.padding('3px', '6px'),
+    ...shorthands.padding('4px', '8px'),
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
     boxShadow: tokens.shadow28,
-    ...shorthands.gap('2px'),
-    zIndex: 1000,
+    ...shorthands.gap('3px'),
+    zIndex: 2000,
     marginBottom: tokens.spacingVerticalXS,
     flexWrap: 'nowrap',
     whiteSpace: 'nowrap',
@@ -62,29 +62,47 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     color: tokens.colorNeutralForeground3,
-    paddingRight: '4px'
+    paddingRight: '6px',
+    paddingLeft: '2px',
+    transitionProperty: 'color',
+    transitionDuration: '100ms',
+    ':hover': {
+      color: tokens.colorNeutralForeground1
+    }
   },
   btnActive: {
     backgroundColor: tokens.colorNeutralBackground1Selected,
-    color: tokens.colorBrandForeground1
+    color: tokens.colorBrandForeground1,
+    ':hover': {
+      backgroundColor: tokens.colorNeutralBackground1Hover,
+      color: tokens.colorBrandForeground1
+    }
   },
   dropdownBtn: {
-    height: '26px',
+    height: '28px',
     fontSize: '0.8rem',
     fontWeight: tokens.fontWeightSemibold,
-    padding: '0 6px',
+    padding: '0 8px',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '4px'
+    gap: '4px',
+    ...shorthands.borderRadius(tokens.borderRadiusSmall),
+    ':hover': {
+      backgroundColor: tokens.colorNeutralBackground1Hover
+    }
   },
   menuSurface: {
     display: 'flex',
     flexDirection: 'column',
     gap: '2px',
     padding: '6px',
-    minWidth: '150px',
+    minWidth: '160px',
     maxHeight: '260px',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    boxShadow: tokens.shadow28
   },
   menuItem: {
     display: 'flex',
@@ -101,11 +119,28 @@ const useStyles = makeStyles({
       color: tokens.colorBrandForeground1
     }
   },
+  colorPickerSurface: {
+    padding: '10px',
+    minWidth: '240px',
+    maxWidth: '270px',
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    boxShadow: tokens.shadow28
+  },
+  highlightPickerSurface: {
+    padding: '8px',
+    minWidth: '190px',
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    boxShadow: tokens.shadow28
+  },
   colorGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(6, 1fr)',
     ...shorthands.gap('6px'),
-    ...shorthands.padding('8px')
+    ...shorthands.padding('6px', '8px')
   },
   colorSectionHeader: {
     fontSize: '0.72rem',
@@ -121,11 +156,12 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius('4px'),
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     cursor: 'pointer',
-    transitionProperty: 'transform, border-color',
+    transitionProperty: 'transform, border-color, box-shadow',
     transitionDuration: '100ms',
     ':hover': {
       transform: 'scale(1.18)',
-      ...shorthands.borderColor(tokens.colorBrandStroke1)
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
+      boxShadow: tokens.shadow4
     }
   }
 });
@@ -250,7 +286,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
 
   return (
     <div
-      className={styles.toolbarContainer}
+      className={`${styles.toolbarContainer} floating-toolbar-container fui-floating-toolbar`}
       onMouseDown={handleToolbarMouseDown}
       onClick={(e) => e.stopPropagation()}
     >
@@ -390,7 +426,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             onMouseDown={handleToolbarMouseDown}
           />
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '8px', minWidth: '220px', maxWidth: '260px' }}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.colorPickerSurface}>
           {/* Default Text Color Option */}
           <div className={styles.colorSectionHeader}>Default Option</div>
           <div
@@ -497,7 +533,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             onMouseDown={handleToolbarMouseDown}
           />
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} style={{ padding: '6px', minWidth: '180px' }}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.highlightPickerSurface}>
           {/* Default Highlight Option */}
           <div className={styles.colorSectionHeader}>Default Option</div>
           <div

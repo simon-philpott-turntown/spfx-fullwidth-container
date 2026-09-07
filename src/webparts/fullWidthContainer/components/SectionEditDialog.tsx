@@ -1,8 +1,9 @@
 /**
  * @file SectionEditDialog.tsx
  * @description In-place Fluent UI 2 Right-Hand Side Property Panel for editing section properties
- * (Title, Badge, Icon, Glyph Color, Background Box, and Background Color).
+ * (Title, Badge, Icon, Glyph Color, Background Box, Background Color, and Background Image).
  * Matches the CardEditDialog slide-out architecture without blocking/blurring underlying dashboard items.
+ * Supports Microsoft ODSP File Picker & Fluent UI 2 site asset explorer for background images.
  */
 
 import * as React from 'react';
@@ -23,11 +24,14 @@ import {
   DismissRegular,
   SaveRegular,
   AppsRegular,
-  DeleteRegular
+  DeleteRegular,
+  FolderOpenRegular
 } from '@fluentui/react-icons';
 import { IContainerSection } from '../models/IContainerModels';
 import { FluentIconPicker } from './FluentIconPicker';
 import { BrandColorPickerPopover } from './BrandColorPickerPopover';
+import { IAssetPickerService } from '../services/IAssetPickerService';
+import { FluentAssetExplorerDialog } from './FluentAssetExplorerDialog';
 
 const useStyles = makeStyles({
   backdrop: {
@@ -124,6 +128,7 @@ export interface ISectionEditDialogProps {
   isOpen: boolean;
   section?: IContainerSection;
   canDelete?: boolean;
+  assetPickerService?: IAssetPickerService;
   onSave: (updatedSection: Partial<IContainerSection>) => void;
   onDelete?: () => void;
   onDismiss: () => void;
@@ -133,6 +138,7 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
   isOpen,
   section,
   canDelete = false,
+  assetPickerService,
   onSave,
   onDelete,
   onDismiss
@@ -141,6 +147,7 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
   const [formData, setFormData] = React.useState<Partial<IContainerSection>>({});
   const [panelWidth, setPanelWidth] = React.useState<number>(440);
   const [isIconPickerOpen, setIsIconPickerOpen] = React.useState<boolean>(false);
+  const [isAssetExplorerOpen, setIsAssetExplorerOpen] = React.useState<boolean>(false);
 
   // Drag-to-resize side panel
   const startResizeDrag = (e: React.MouseEvent): void => {
@@ -173,7 +180,8 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
         iconColor: section.iconColor || '',
         iconBackgroundColor: section.iconBackgroundColor || '',
         showIconBackground: section.showIconBackground !== false,
-        backgroundColor: section.backgroundColor || ''
+        backgroundColor: section.backgroundColor || '',
+        backgroundImage: section.backgroundImage || ''
       });
     }
   }, [section, isOpen]);
@@ -209,7 +217,7 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
                 Edit Section Properties
               </Subtitle2>
               <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                Configure section title, icon, badge, and custom theme background.
+                Configure section title, icon, badge, background colour, and background image.
               </Caption1>
             </div>
             <Button
@@ -305,7 +313,7 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
               />
             </div>
 
-            {/* Custom Section Background */}
+            {/* Custom Section Background Colour */}
             <div className={styles.fieldRow}>
               <Label weight="semibold">Section Background Colour</Label>
               <BrandColorPickerPopover
@@ -314,6 +322,68 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
                 defaultLabel="Default (Transparent canvas)"
                 defaultColorHex="transparent"
               />
+            </div>
+
+            {/* Section Background Image (Native File Picker & Site Assets) */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Section Background Image (optional)</Label>
+              <Input
+                value={formData.backgroundImage || ''}
+                placeholder="https://... or /sites/.../banner.png"
+                onChange={(e, data) => setFormData({ ...formData, backgroundImage: data.value })}
+              />
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <Button
+                  size="small"
+                  appearance="primary"
+                  icon={<FolderOpenRegular />}
+                  onClick={async () => {
+                    if (assetPickerService) {
+                      try {
+                        const results = await assetPickerService.openNativeFilePicker({
+                          title: 'Select Section Background Image',
+                          itemType: 'image',
+                          acceptedExtensions: ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'],
+                          allowMultiple: false
+                        });
+                        if (results && results.length > 0) {
+                          setFormData({
+                            ...formData,
+                            backgroundImage: results[0].fileAbsoluteUrl || results[0].serverRelativeUrl
+                          });
+                          return;
+                        }
+                      } catch (err) {
+                        console.warn('[SectionEditDialog] Native picker fallback:', err);
+                      }
+                    }
+                    setIsAssetExplorerOpen(true);
+                  }}
+                >
+                  Pick from SharePoint / OneDrive
+                </Button>
+                {assetPickerService && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => setIsAssetExplorerOpen(true)}
+                  >
+                    Browse Site Assets
+                  </Button>
+                )}
+                {formData.backgroundImage && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => setFormData({ ...formData, backgroundImage: '' })}
+                  >
+                    Clear Image
+                  </Button>
+                )}
+              </div>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>
+                Display a background image watermark or pattern behind this section&apos;s cards.
+              </Caption1>
             </div>
           </div>
 
@@ -361,6 +431,28 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
         }}
         onDismiss={() => setIsIconPickerOpen(false)}
       />
+
+      {/* Pure Fluent UI 2 Site Asset Explorer for Section Background */}
+      {assetPickerService && (
+        <FluentAssetExplorerDialog
+          isOpen={isAssetExplorerOpen}
+          assetService={assetPickerService}
+          title="Select Section Background Image"
+          itemType="image"
+          allowMultiple={false}
+          acceptedExtensions={['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp']}
+          onDismiss={() => setIsAssetExplorerOpen(false)}
+          onSelect={(results) => {
+            if (results && results.length > 0) {
+              setFormData({
+                ...formData,
+                backgroundImage: results[0].fileAbsoluteUrl || results[0].serverRelativeUrl
+              });
+            }
+            setIsAssetExplorerOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

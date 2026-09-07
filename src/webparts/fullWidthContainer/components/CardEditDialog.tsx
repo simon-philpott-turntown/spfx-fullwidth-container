@@ -43,12 +43,14 @@ import {
   BuildingRegular,
   MegaphoneRegular,
   StarRegular,
-  DeleteRegular
+  DeleteRegular,
+  FolderOpenRegular
 } from '@fluentui/react-icons';
 import { IContentBlock, BlockType, ICardItem } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { FluentIconPicker } from './FluentIconPicker';
 import { BrandColorPickerPopover } from './BrandColorPickerPopover';
+import { FluentAssetExplorerDialog } from './FluentAssetExplorerDialog';
 
 const useStyles = makeStyles({
   backdrop: {
@@ -166,6 +168,7 @@ export interface ICardEditDialogProps {
   block: IContentBlock | undefined;
   maxColumns?: number;
   maxRows?: number;
+  assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
   onSave: (updatedBlock: IContentBlock) => void;
   onDismiss: () => void;
 }
@@ -179,6 +182,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
   block,
   maxColumns = 4,
   maxRows = 5,
+  assetPickerService,
   onSave,
   onDismiss
 }) => {
@@ -188,6 +192,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
   const [formData, setFormData] = React.useState<Partial<IContentBlock>>({});
   const [tagsInput, setTagsInput] = React.useState<string>('');
   const [isIconPickerOpen, setIsIconPickerOpen] = React.useState<boolean>(false);
+  const [isAssetExplorerOpen, setIsAssetExplorerOpen] = React.useState<boolean>(false);
   const [panelWidth, setPanelWidth] = React.useState<number>(400);
 
   const startResizeDrag = (e: React.MouseEvent): void => {
@@ -530,6 +535,68 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                   defaultColorHex="#FFFFFF"
                 />
               </div>
+            </div>
+
+            {/* Card Background Image */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Card background image (optional)</Label>
+              <Input
+                value={formData.backgroundImage || ''}
+                placeholder="https://... or /sites/.../banner.png"
+                onChange={(e, data) => setFormData({ ...formData, backgroundImage: data.value })}
+              />
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <Button
+                  size="small"
+                  appearance="primary"
+                  icon={<FolderOpenRegular />}
+                  onClick={async () => {
+                    if (assetPickerService) {
+                      try {
+                        const results = await assetPickerService.openNativeFilePicker({
+                          title: 'Select Card Background Image',
+                          itemType: 'image',
+                          acceptedExtensions: ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'],
+                          allowMultiple: false
+                        });
+                        if (results && results.length > 0) {
+                          setFormData({
+                            ...formData,
+                            backgroundImage: results[0].fileAbsoluteUrl || results[0].serverRelativeUrl
+                          });
+                          return;
+                        }
+                      } catch (err) {
+                        console.warn('[CardEditDialog] Native picker fallback:', err);
+                      }
+                    }
+                    setIsAssetExplorerOpen(true);
+                  }}
+                >
+                  Pick from SharePoint / OneDrive
+                </Button>
+                {assetPickerService && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => setIsAssetExplorerOpen(true)}
+                  >
+                    Browse Site Assets
+                  </Button>
+                )}
+                {formData.backgroundImage && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => setFormData({ ...formData, backgroundImage: '' })}
+                  >
+                    Clear Image
+                  </Button>
+                )}
+              </div>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>
+                Display a background image watermark or pattern behind the card contents.
+              </Caption1>
             </div>
 
             {/* ── Typography ─────────────────────────────────────── */}
@@ -1091,6 +1158,28 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
         }}
         onDismiss={() => setIsIconPickerOpen(false)}
       />
+
+      {/* Pure Fluent UI 2 Site Asset Explorer for Card Background */}
+      {assetPickerService && (
+        <FluentAssetExplorerDialog
+          isOpen={isAssetExplorerOpen}
+          assetService={assetPickerService}
+          title="Select Card Background Image"
+          itemType="image"
+          allowMultiple={false}
+          acceptedExtensions={['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp']}
+          onDismiss={() => setIsAssetExplorerOpen(false)}
+          onSelect={(results) => {
+            if (results && results.length > 0) {
+              setFormData({
+                ...formData,
+                backgroundImage: results[0].fileAbsoluteUrl || results[0].serverRelativeUrl
+              });
+            }
+            setIsAssetExplorerOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };

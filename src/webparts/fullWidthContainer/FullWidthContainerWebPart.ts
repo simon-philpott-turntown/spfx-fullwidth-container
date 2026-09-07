@@ -31,6 +31,7 @@ import { FullWidthContainer } from './components/FullWidthContainer';
 import { IFullWidthContainerProps } from './components/IFullWidthContainerProps';
 import { BrandColorPickerPopover } from './components/BrandColorPickerPopover';
 import { PropertyPaneIconField } from './components/PropertyPaneIconField';
+import { SharePointAssetPickerService } from './services/SharePointAssetPickerService';
 
 /**
  * Creates an SPFx custom property pane field rendering the visual BrandColorPickerPopover.
@@ -133,6 +134,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   private _isDarkTheme: boolean = false;
   private _currentTheme: IReadonlyTheme | undefined;
   private _storageService!: DashboardStorageService;
+  private _assetPickerService!: SharePointAssetPickerService;
   private _isModifiedSinceLastBackup: boolean = false;
   private _backupStatusMessage: string = '';
   private _cachedBackups: IBackupFileInfo[] = [];
@@ -277,6 +279,11 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.context.spHttpClient,
       this.context.pageContext.web.serverRelativeUrl,
       'Dashboards'
+    );
+    this._assetPickerService = new SharePointAssetPickerService(
+      this.context.spHttpClient,
+      this.context.pageContext.web.absoluteUrl,
+      this.context.pageContext.web.serverRelativeUrl
     );
     if (!this.properties.backupTargetFolder) {
       this.properties.backupTargetFolder = 'Backups';
@@ -425,7 +432,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
               this.context.propertyPane.open();
             }
           },
-          lastBackupMessage: this._backupStatusMessage
+          lastBackupMessage: this._backupStatusMessage,
+          assetPickerService: this._assetPickerService
         }
       );
 

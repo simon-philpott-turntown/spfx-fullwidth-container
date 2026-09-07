@@ -1,6 +1,7 @@
 /**
  * @file CardItemPropertyEditor.tsx
  * @description Contextual Item Property Editor dialog for editing any of the 13 card inner item types.
+ * Supports native SharePoint asset picking (ODSP FilePicker) and Fluent UI 2 site asset explorer.
  */
 
 import * as React from 'react';
@@ -39,10 +40,13 @@ import {
   LinkSquareRegular,
   DataTrendingRegular,
   TagRegular,
-  TextDescriptionRegular
+  TextDescriptionRegular,
+  FolderOpenRegular
 } from '@fluentui/react-icons';
 import { ICardItem, ICardItemType } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
+import { IAssetPickerService, IFilePickerResult } from '../services/IAssetPickerService';
+import { FluentAssetExplorerDialog } from './FluentAssetExplorerDialog';
 
 const useStyles = makeStyles({
   surface: {
@@ -84,12 +88,18 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground2,
     borderRadius: tokens.borderRadiusMedium,
     border: `1px solid ${tokens.colorNeutralStroke2}`
+  },
+  pickerActionsRow: {
+    display: 'flex',
+    gap: '8px',
+    marginTop: '6px'
   }
 });
 
 export interface ICardItemPropertyEditorProps {
   isOpen: boolean;
   item: ICardItem | null;
+  assetPickerService?: IAssetPickerService;
   onDismiss: () => void;
   onSave: (updatedItem: ICardItem) => void;
 }
@@ -118,11 +128,17 @@ const getItemIcon = (type?: ICardItemType): React.ReactElement => {
 export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
   isOpen,
   item,
+  assetPickerService,
   onDismiss,
   onSave
 }) => {
   const styles = useStyles();
   const [formData, setFormData] = React.useState<ICardItem | null>(null);
+  const [isFluentExplorerOpen, setIsFluentExplorerOpen] = React.useState<boolean>(false);
+  const [explorerMode, setExplorerMode] = React.useState<{
+    type: 'image' | 'video' | 'gallery' | 'hero' | 'cta' | 'editorial';
+    allowMultiple: boolean;
+  }>({ type: 'image', allowMultiple: false });
 
   React.useEffect(() => {
     if (item) {
@@ -136,6 +152,74 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
 
   const handleFieldChange = (field: keyof ICardItem, value: any): void => {
     setFormData((prev) => (prev ? { ...prev, [field]: value } : null));
+  };
+
+  /**
+   * Primary: Trigger native SharePoint hosted FilePicker modal dialog.
+   * If cancelled or unavailable, fall back to pure Fluent UI 2 site asset explorer.
+   */
+  const handleLaunchNativePicker = async (
+    pickerType: 'image' | 'video' | 'gallery' | 'hero' | 'cta' | 'editorial',
+    allowMultiple: boolean = false
+  ): Promise<void> => {
+    if (assetPickerService) {
+      const accepted = pickerType === 'video'
+        ? ['.mp4', '.webm', '.mov']
+        : ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'];
+
+      try {
+        const results = await assetPickerService.openNativeFilePicker({
+          title: `Select ${pickerType === 'video' ? 'Video' : 'Image'}`,
+          itemType: pickerType === 'video' ? 'video' : 'image',
+          acceptedExtensions: accepted,
+          allowMultiple
+        });
+
+        if (results && results.length > 0) {
+          applySelectedAssets(pickerType, results);
+          return;
+        }
+      } catch (err) {
+        console.warn('[CardItemPropertyEditor] Native picker fallback:', err);
+      }
+    }
+
+    // Fallback: Open Pure Fluent UI 2 Explorer Modal
+    setExplorerMode({ type: pickerType, allowMultiple });
+    setIsFluentExplorerOpen(true);
+  };
+
+  const applySelectedAssets = (
+    pickerType: 'image' | 'video' | 'gallery' | 'hero' | 'cta' | 'editorial',
+    results: IFilePickerResult[]
+  ): void => {
+    if (!results || results.length === 0) return;
+
+    if (pickerType === 'gallery') {
+      const existing = formData.galleryImages || [];
+      const newImages = results.map(r => ({
+        url: r.fileAbsoluteUrl || r.serverRelativeUrl,
+        caption: r.fileName
+      }));
+      handleFieldChange('galleryImages', [...existing, ...newImages]);
+    } else if (pickerType === 'video') {
+      handleFieldChange('videoUrl', results[0].fileAbsoluteUrl || results[0].serverRelativeUrl);
+    } else if (pickerType === 'hero') {
+      handleFieldChange('heroBgUrl', results[0].fileAbsoluteUrl || results[0].serverRelativeUrl);
+    } else if (pickerType === 'cta') {
+      handleFieldChange('ctaBgUrl', results[0].fileAbsoluteUrl || results[0].serverRelativeUrl);
+    } else if (pickerType === 'editorial') {
+      handleFieldChange('editorialImageUrl', results[0].fileAbsoluteUrl || results[0].serverRelativeUrl);
+    } else {
+      // Standard image
+      handleFieldChange('imageUrl', results[0].fileAbsoluteUrl || results[0].serverRelativeUrl);
+      if (!formData.imageCaption) {
+        handleFieldChange('imageCaption', results[0].fileName);
+      }
+      if (!formData.imageAlt) {
+        handleFieldChange('imageAlt', results[0].fileName);
+      }
+    }
   };
 
   const renderTypeSpecificFields = (): React.ReactElement => {
@@ -185,8 +269,30 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 placeholder="https://images.unsplash.com/... or /sites/.../image.png"
                 onChange={(e, data) => handleFieldChange('imageUrl', data.value)}
               />
-              <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                Enter an external URL or a SharePoint library asset link.
+              <div className={styles.pickerActionsRow}>
+                <Button
+                  size="small"
+                  appearance="primary"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('image', false)}
+                >
+                  Pick from SharePoint / OneDrive
+                </Button>
+                {assetPickerService && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => {
+                      setExplorerMode({ type: 'image', allowMultiple: false });
+                      setIsFluentExplorerOpen(true);
+                    }}
+                  >
+                    Browse Site Library Explorer
+                  </Button>
+                )}
+              </div>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '4px' }}>
+                Select an image via native SharePoint File Picker (Site Assets, OneDrive, Stock Images) or paste a URL.
               </Caption1>
             </div>
             <div className={styles.twoColRow}>
@@ -229,8 +335,30 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 placeholder="https://.../video.mp4"
                 onChange={(e, data) => handleFieldChange('videoUrl', data.value)}
               />
-              <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                Paste a direct video file link or SharePoint asset URL.
+              <div className={styles.pickerActionsRow}>
+                <Button
+                  size="small"
+                  appearance="primary"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('video', false)}
+                >
+                  Pick from SharePoint / OneDrive
+                </Button>
+                {assetPickerService && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => {
+                      setExplorerMode({ type: 'video', allowMultiple: false });
+                      setIsFluentExplorerOpen(true);
+                    }}
+                  >
+                    Browse Library Explorer
+                  </Button>
+                )}
+              </div>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '4px' }}>
+                Select a video file from SharePoint/Stream or paste a direct video link.
               </Caption1>
             </div>
             {formData.videoUrl && (
@@ -282,6 +410,24 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 />
               </div>
             </div>
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">CTA background image (optional)</Label>
+              <Input
+                value={formData.ctaBgUrl || ''}
+                placeholder="https://... or /sites/.../cta-banner.png"
+                onChange={(e, data) => handleFieldChange('ctaBgUrl', data.value)}
+              />
+              <div className={styles.pickerActionsRow}>
+                <Button
+                  size="small"
+                  appearance="subtle"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('cta', false)}
+                >
+                  Pick CTA Background from SharePoint
+                </Button>
+              </div>
+            </div>
           </>
         );
 
@@ -303,6 +449,24 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 placeholder="e.g. Net zero delivery frameworks"
                 onChange={(e, data) => handleFieldChange('editorialTitle', data.value)}
               />
+            </div>
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Lead thumbnail image (optional)</Label>
+              <Input
+                value={formData.editorialImageUrl || ''}
+                placeholder="https://... or /sites/.../news.png"
+                onChange={(e, data) => handleFieldChange('editorialImageUrl', data.value)}
+              />
+              <div className={styles.pickerActionsRow}>
+                <Button
+                  size="small"
+                  appearance="subtle"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('editorial', false)}
+                >
+                  Pick Lead Image from SharePoint
+                </Button>
+              </div>
             </div>
             <div className={styles.fieldRow}>
               <Label weight="semibold">Summary paragraph</Label>
@@ -349,6 +513,16 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 placeholder="https://images.unsplash.com/... (optional banner)"
                 onChange={(e, data) => handleFieldChange('heroBgUrl', data.value)}
               />
+              <div className={styles.pickerActionsRow}>
+                <Button
+                  size="small"
+                  appearance="subtle"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('hero', false)}
+                >
+                  Pick Background from SharePoint
+                </Button>
+              </div>
             </div>
           </>
         );
@@ -453,17 +627,27 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Label weight="semibold">Gallery Images ({images.length})</Label>
-              <Button
-                size="small"
-                appearance="subtle"
-                icon={<AddRegular />}
-                onClick={() => {
-                  const updated = [...images, { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', caption: 'Image' }];
-                  handleFieldChange('galleryImages', updated);
-                }}
-              >
-                Add Image
-              </Button>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <Button
+                  size="small"
+                  appearance="primary"
+                  icon={<FolderOpenRegular />}
+                  onClick={() => void handleLaunchNativePicker('gallery', true)}
+                >
+                  Pick from SharePoint
+                </Button>
+                <Button
+                  size="small"
+                  appearance="subtle"
+                  icon={<AddRegular />}
+                  onClick={() => {
+                    const updated = [...images, { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', caption: 'Image' }];
+                    handleFieldChange('galleryImages', updated);
+                  }}
+                >
+                  Add URL
+                </Button>
+              </div>
             </div>
             <div className={styles.listContainer}>
               {images.map((img, idx) => (
@@ -591,45 +775,68 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && onDismiss()}>
-      <DialogSurface className={styles.surface}>
-        <div className={styles.headerRow}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '20px', color: tokens.colorBrandForeground1, display: 'flex' }}>
-              {getItemIcon(formData.type)}
-            </span>
-            <DialogTitle>Configure {formData.type.toUpperCase()} Item</DialogTitle>
-          </div>
-          <Button
-            appearance="subtle"
-            icon={<DismissRegular />}
-            onClick={onDismiss}
-            aria-label="Close"
-          />
-        </div>
-
-        <DialogBody>
-          <DialogContent>
-            {renderTypeSpecificFields()}
-          </DialogContent>
-
-          <DialogActions style={{ marginTop: '16px' }}>
-            <Button appearance="secondary" onClick={onDismiss}>
-              Cancel
-            </Button>
+    <>
+      <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && onDismiss()}>
+        <DialogSurface className={styles.surface}>
+          <div className={styles.headerRow}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px', color: tokens.colorBrandForeground1, display: 'flex' }}>
+                {getItemIcon(formData.type)}
+              </span>
+              <DialogTitle>Configure {formData.type.toUpperCase()} Item</DialogTitle>
+            </div>
             <Button
-              appearance="primary"
-              icon={<SaveRegular />}
-              onClick={() => {
-                onSave(formData);
-                onDismiss();
-              }}
-            >
-              Apply Changes
-            </Button>
-          </DialogActions>
-        </DialogBody>
-      </DialogSurface>
-    </Dialog>
+              appearance="subtle"
+              icon={<DismissRegular />}
+              onClick={onDismiss}
+              aria-label="Close"
+            />
+          </div>
+
+          <DialogBody>
+            <DialogContent>
+              {renderTypeSpecificFields()}
+            </DialogContent>
+
+            <DialogActions style={{ marginTop: '16px' }}>
+              <Button appearance="secondary" onClick={onDismiss}>
+                Cancel
+              </Button>
+              <Button
+                appearance="primary"
+                icon={<SaveRegular />}
+                onClick={() => {
+                  onSave(formData);
+                  onDismiss();
+                }}
+              >
+                Apply Changes
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
+
+      {/* Pure Fluent UI 2 Site Asset Explorer Dialog */}
+      {assetPickerService && (
+        <FluentAssetExplorerDialog
+          isOpen={isFluentExplorerOpen}
+          assetService={assetPickerService}
+          title={`Select ${explorerMode.type === 'video' ? 'Video' : 'Image'} Asset`}
+          itemType={explorerMode.type === 'video' ? 'video' : 'image'}
+          allowMultiple={explorerMode.allowMultiple}
+          acceptedExtensions={
+            explorerMode.type === 'video'
+              ? ['.mp4', '.webm', '.mov']
+              : ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp']
+          }
+          onDismiss={() => setIsFluentExplorerOpen(false)}
+          onSelect={(results) => {
+            applySelectedAssets(explorerMode.type, results);
+            setIsFluentExplorerOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 };

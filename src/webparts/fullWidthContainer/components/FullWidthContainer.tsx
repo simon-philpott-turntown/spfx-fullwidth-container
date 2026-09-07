@@ -200,7 +200,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onEditBlockProperties,
     onSaveBackupToLibrary,
     onRestoreFromLibrary,
-    lastBackupMessage
+    lastBackupMessage,
+    assetPickerService
   } = props;
 
   const styles = useStyles();
@@ -370,6 +371,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             onAddSection={onAddSection}
             onUpdateSection={onUpdateSection}
             onDeleteSection={onDeleteSection}
+            assetPickerService={assetPickerService}
           />
         ) : (
           <AccordionContainer
@@ -386,6 +388,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             onAddSection={onAddSection}
             onUpdateSection={onUpdateSection}
             onDeleteSection={onDeleteSection}
+            assetPickerService={assetPickerService}
           />
         )}
       </div>

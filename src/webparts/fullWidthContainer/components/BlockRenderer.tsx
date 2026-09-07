@@ -73,7 +73,7 @@ const useStyles = makeStyles({
       ...shorthands.borderColor(tokens.colorBrandStroke1)
     },
     ':focus-within': {
-      zIndex: 1000
+      zIndex: 999
     }
   },
   cardEditMode: {
@@ -324,6 +324,7 @@ export interface IBlockRendererProps {
   onEditProperties?: () => void;
   onDelete?: () => void;
   onUpdate?: (updatedFields: Partial<IContentBlock>) => void;
+  assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }
 
 /**
@@ -461,7 +462,8 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   isEditMode = false,
   onEditProperties,
   onDelete,
-  onUpdate
+  onUpdate,
+  assetPickerService
 }) => {
   const styles = useStyles();
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
@@ -759,7 +761,14 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'cta' && (
-          <div className={styles.ctaBox}>
+          <div
+            className={styles.ctaBox}
+            style={item.ctaBgUrl ? {
+              backgroundImage: `linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url(${item.ctaBgUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            } : undefined}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <MegaphoneRegular style={{ color: tokens.colorBrandForeground1 }} />
               <Subtitle2>{item.ctaHeading || 'Call to Action'}</Subtitle2>
@@ -777,6 +786,15 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 
         {item.type === 'editorial' && (
           <div className={styles.editorialBox}>
+            {item.editorialImageUrl && (
+              <div style={{ width: '100%', marginBottom: '8px', borderRadius: '6px', overflow: 'hidden' }}>
+                <img
+                  src={item.editorialImageUrl}
+                  alt={item.editorialTitle || 'Editorial image'}
+                  style={{ width: '100%', maxHeight: '140px', objectFit: 'cover', display: 'block' }}
+                />
+              </div>
+            )}
             {item.editorialKicker && (
               <Caption1 style={{ color: tokens.colorBrandForeground1, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 {item.editorialKicker}
@@ -940,6 +958,11 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   const cardDynamicStyle: React.CSSProperties = {
     height: isAutoHeight ? 'auto' : '100%',
     backgroundColor: block.backgroundColor || undefined,
+    backgroundImage: block.backgroundImage
+      ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url("${block.backgroundImage}")`
+      : undefined,
+    backgroundSize: block.backgroundImage ? 'cover' : undefined,
+    backgroundPosition: block.backgroundImage ? 'center' : undefined,
     color: block.textColor || (isDarkBg ? '#FFFFFF' : undefined),
     fontFamily: block.fontFamily || undefined,
     borderColor: isDraggingBoundary
@@ -1037,6 +1060,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           block={block}
           maxColumns={containerGridColumns}
           maxRows={containerGridRows}
+          assetPickerService={assetPickerService}
           onSave={(updated) => onUpdate && onUpdate(updated)}
           onDismiss={() => setIsDialogOpen(false)}
         />
@@ -1130,6 +1154,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           block={block}
           maxColumns={containerGridColumns}
           maxRows={containerGridRows}
+          assetPickerService={assetPickerService}
           onSave={(updated) => onUpdate && onUpdate(updated)}
           onDismiss={() => setIsDialogOpen(false)}
         />
@@ -1275,6 +1300,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         block={block}
         maxColumns={containerGridColumns}
         maxRows={containerGridRows}
+        assetPickerService={assetPickerService}
         onSave={(updated) => onUpdate && onUpdate(updated)}
         onDismiss={() => setIsDialogOpen(false)}
       />
@@ -1283,6 +1309,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
       <CardItemPropertyEditor
         isOpen={!!editingItem}
         item={editingItem ? editingItem.item : null}
+        assetPickerService={assetPickerService}
         onDismiss={() => setEditingItem(null)}
         onSave={handleUpdateCardItem}
       />

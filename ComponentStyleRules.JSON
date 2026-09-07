@@ -57,7 +57,7 @@
     },
     "FloatingTextToolbar": {
       "classes": ["Button", "Dropdown", "Divider", "Popover", "PopoverSurface", "fui-floating-toolbar"],
-      "aesthetic": "Subtle floating pill toolbar positioned above card boundaries (bottom: calc(100% + 8px), z-index: 2000) with mousedown blur prevention, site theme palette swatches, font selector, highlight background colors, and active formatting indicators. Parent card wrapper elevates to z-index: 1000 with overflow: visible when focused."
+      "aesthetic": "Fluent UI 2 Popover portal anchored to active editable text target with positioning position='above', align='start', and offset=8, escaping card stacking contexts and grid cell boundaries with shadow28 elevation, colorNeutralStroke1 border, tokens.borderRadiusMedium corners, mousedown blur prevention, site theme palette swatches, font selector, highlight background colors, and active formatting indicators."
     },
     "FluentIconPicker": {
       "classes": ["Dialog", "DialogSurface", "DialogTitle", "Input", "Badge", "Button"],

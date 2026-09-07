@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
+import { makeStyles, shorthands, tokens, Popover, PopoverSurface } from '@fluentui/react-components';
 import { FloatingTextToolbar } from './FloatingTextToolbar';
 import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
 
@@ -14,16 +14,12 @@ const useStyles = makeStyles({
     position: 'relative',
     width: '100%'
   },
-  toolbarWrapper: {
-    position: 'absolute',
-    bottom: 'calc(100% + 8px)',
-    left: 0,
-    zIndex: 1000,
-    width: 'max-content',
-    minWidth: 'max-content',
-    maxWidth: 'none',
-    whiteSpace: 'nowrap',
-    pointerEvents: 'auto'
+  toolbarSurface: {
+    ...shorthands.padding('0px'),
+    ...shorthands.border('none'),
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    overflow: 'visible'
   },
   editable: {
     outlineStyle: 'none',
@@ -66,8 +62,20 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
 }) => {
   const styles = useStyles();
   const elementRef = React.useRef<HTMLDivElement | null>(null);
+  const popoverSurfaceRef = React.useRef<HTMLDivElement | null>(null);
+  const blurTimeoutRef = React.useRef<number | null>(null);
+  const isInteractingWithToolbarRef = React.useRef<boolean>(false);
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
   const [savedRange, setSavedRange] = React.useState<Range | null>(null);
+
+  // Clear pending blur timeouts on unmount
+  React.useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        window.clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Sync incoming HTML to DOM when not actively typing
   React.useEffect(() => {
@@ -173,23 +181,41 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
   };
 
   const handleFocus = (): void => {
+    if (blurTimeoutRef.current) {
+      window.clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
     setIsFocused(true);
     handleSelectionSave();
     suppressSharePointWebPartDrag(true, elementRef.current || undefined);
   };
 
   const handleBlur = (e: React.FocusEvent): void => {
-    // If blur was caused by clicking inside the floating toolbar, do not close
-    if (e.relatedTarget && (e.relatedTarget as HTMLElement).closest('.floating-toolbar-container')) {
+    // If actively interacting with the toolbar or focus moved to the toolbar/popover, do not close
+    if (isInteractingWithToolbarRef.current) {
       return;
     }
-    suppressSharePointWebPartDrag(false, elementRef.current || undefined);
-    setTimeout(() => {
+    const relatedTarget = e.relatedTarget as HTMLElement | null;
+    if (
+      relatedTarget &&
+      (relatedTarget.closest('.floating-toolbar-container') ||
+        (popoverSurfaceRef.current && popoverSurfaceRef.current.contains(relatedTarget)))
+    ) {
+      return;
+    }
+
+    if (blurTimeoutRef.current) {
+      window.clearTimeout(blurTimeoutRef.current);
+    }
+
+    blurTimeoutRef.current = window.setTimeout(() => {
+      if (isInteractingWithToolbarRef.current) return;
+      suppressSharePointWebPartDrag(false, elementRef.current || undefined);
       setIsFocused(false);
       if (elementRef.current) {
         onChange(elementRef.current.innerHTML);
       }
-    }, 200);
+    }, 250);
   };
 
   const commonStyle: React.CSSProperties = {
@@ -213,11 +239,43 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
       draggable={false}
       onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
-      {isFocused && (
-        <div className={styles.toolbarWrapper} onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+      <Popover
+        open={isFocused}
+        trapFocus={false}
+        positioning={{
+          target: elementRef.current || undefined,
+          position: 'above',
+          align: 'start',
+          offset: 8
+        }}
+      >
+        <PopoverSurface
+          ref={popoverSurfaceRef}
+          className={styles.toolbarSurface}
+          onMouseEnter={() => {
+            isInteractingWithToolbarRef.current = true;
+          }}
+          onMouseLeave={() => {
+            isInteractingWithToolbarRef.current = false;
+          }}
+          onPointerDown={() => {
+            isInteractingWithToolbarRef.current = true;
+          }}
+          onPointerUp={() => {
+            // Keep active for subsequent clicks
+            setTimeout(() => {
+              isInteractingWithToolbarRef.current = false;
+            }, 300);
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isInteractingWithToolbarRef.current = true;
+          }}
+        >
           <FloatingTextToolbar onFormat={handleFormat} />
-        </div>
-      )}
+        </PopoverSurface>
+      </Popover>
       {React.createElement(tag, {
         ref: elementRef,
         contentEditable: true,
