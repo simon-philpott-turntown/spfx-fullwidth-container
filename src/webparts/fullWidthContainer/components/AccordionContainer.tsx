@@ -56,7 +56,11 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
     backgroundColor: tokens.colorNeutralBackground1,
     marginBottom: tokens.spacingVerticalS,
-    overflow: 'hidden'
+    overflow: 'visible',
+    ':focus-within': {
+      zIndex: 100,
+      position: 'relative'
+    }
   },
   headerContent: {
     display: 'flex',

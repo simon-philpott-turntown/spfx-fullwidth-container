@@ -74,6 +74,16 @@ export interface ICardItem {
   videoUrl?: string;
   liveDataConfig?: ILiveDataConfig;
   termStoreTags?: ITermStoreTag[];
+  editorialKicker?: string;
+  editorialTitle?: string;
+  editorialBody?: string;
+  editorialUrl?: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroBgUrl?: string;
+  linkText?: string;
+  linkUrl?: string;
+  openInNewTab?: boolean;
 }
 
 export type CardHeightMode = 'auto' | 'equal';

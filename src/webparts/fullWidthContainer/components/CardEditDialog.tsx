@@ -42,9 +42,10 @@ import {
   PeopleRegular,
   BuildingRegular,
   MegaphoneRegular,
-  StarRegular
+  StarRegular,
+  DeleteRegular
 } from '@fluentui/react-icons';
-import { IContentBlock, BlockType } from '../models/IContainerModels';
+import { IContentBlock, BlockType, ICardItem } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { FluentIconPicker } from './FluentIconPicker';
 import { BrandColorPickerPopover } from './BrandColorPickerPopover';
@@ -738,6 +739,331 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                 />
               </div>
             </div>
+
+            {/* Composable Inner Items Configuration */}
+            {formData.items && formData.items.length > 0 && (
+              <>
+                <Divider style={{ margin: '8px 0 4px' }}>
+                  <Caption1 style={{ color: tokens.colorNeutralForeground3, fontWeight: 600 }}>
+                    Card Inner Items ({formData.items.length})
+                  </Caption1>
+                </Divider>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {formData.items.map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      style={{
+                        padding: '8px',
+                        borderRadius: tokens.borderRadiusMedium,
+                        border: `1px solid ${tokens.colorNeutralStroke2}`,
+                        backgroundColor: tokens.colorNeutralBackground2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Caption1 style={{ fontWeight: 600, textTransform: 'uppercase', color: tokens.colorBrandForeground1 }}>
+                          #{idx + 1} {item.type}
+                        </Caption1>
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<DeleteRegular />}
+                          title="Remove item"
+                          onClick={() => {
+                            const newItems = [...(formData.items || [])];
+                            newItems.splice(idx, 1);
+                            setFormData({ ...formData, items: newItems });
+                          }}
+                        />
+                      </div>
+
+                      {item.type === 'button' && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                          <div>
+                            <Label size="small">Button Label</Label>
+                            <Input
+                              size="small"
+                              value={item.buttonLabel || ''}
+                              placeholder="Action Button"
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], buttonLabel: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Label size="small">Button URL</Label>
+                            <Input
+                              size="small"
+                              value={item.buttonUrl || ''}
+                              placeholder="https://..."
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], buttonUrl: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {item.type === 'image' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <Label size="small">Image URL</Label>
+                          <Input
+                            size="small"
+                            value={item.imageUrl || ''}
+                            placeholder="https://images.unsplash.com/..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], imageUrl: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Caption / Alt text</Label>
+                          <Input
+                            size="small"
+                            value={item.imageCaption || ''}
+                            placeholder="Image caption"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], imageCaption: data.value, imageAlt: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {item.type === 'video' && (
+                        <div>
+                          <Label size="small">Video URL (MP4 / WebM)</Label>
+                          <Input
+                            size="small"
+                            value={item.videoUrl || ''}
+                            placeholder="https://..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], videoUrl: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {item.type === 'cta' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                            <div>
+                              <Label size="small">Heading</Label>
+                              <Input
+                                size="small"
+                                value={item.ctaHeading || ''}
+                                placeholder="Call to Action"
+                                onChange={(e, data) => {
+                                  const newItems = [...(formData.items || [])];
+                                  newItems[idx] = { ...newItems[idx], ctaHeading: data.value };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <Label size="small">Button Text</Label>
+                              <Input
+                                size="small"
+                                value={item.ctaButtonText || ''}
+                                placeholder="Proceed"
+                                onChange={(e, data) => {
+                                  const newItems = [...(formData.items || [])];
+                                  newItems[idx] = { ...newItems[idx], ctaButtonText: data.value };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label size="small">Button URL</Label>
+                            <Input
+                              size="small"
+                              value={item.ctaButtonUrl || ''}
+                              placeholder="https://..."
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], ctaButtonUrl: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Label size="small">Guidance details</Label>
+                            <Input
+                              size="small"
+                              value={item.ctaDescription || ''}
+                              placeholder="Guidance text"
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], ctaDescription: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      {item.type === 'editorial' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <Label size="small">Kicker / Category</Label>
+                          <Input
+                            size="small"
+                            value={item.editorialKicker || ''}
+                            placeholder="e.g. INSIGHT • STRATEGY"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], editorialKicker: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Editorial Title</Label>
+                          <Input
+                            size="small"
+                            value={item.editorialTitle || ''}
+                            placeholder="Article title"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], editorialTitle: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Summary Body</Label>
+                          <Textarea
+                            value={item.editorialBody || ''}
+                            placeholder="Editorial commentary..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], editorialBody: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Read More URL</Label>
+                          <Input
+                            size="small"
+                            value={item.editorialUrl || ''}
+                            placeholder="https://..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], editorialUrl: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {item.type === 'hero' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <Label size="small">Hero Title</Label>
+                          <Input
+                            size="small"
+                            value={item.heroTitle || ''}
+                            placeholder="Hero banner heading"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], heroTitle: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Hero Subtitle</Label>
+                          <Textarea
+                            value={item.heroSubtitle || ''}
+                            placeholder="Hero description message..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], heroSubtitle: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Background Image URL (optional)</Label>
+                          <Input
+                            size="small"
+                            value={item.heroBgUrl || ''}
+                            placeholder="https://images.unsplash.com/..."
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], heroBgUrl: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {item.type === 'link' && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                          <div>
+                            <Label size="small">Link Text</Label>
+                            <Input
+                              size="small"
+                              value={item.linkText || item.buttonLabel || ''}
+                              placeholder="Access Resource"
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], linkText: data.value, buttonLabel: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Label size="small">Destination URL</Label>
+                            <Input
+                              size="small"
+                              value={item.linkUrl || item.buttonUrl || ''}
+                              placeholder="https://..."
+                              onChange={(e, data) => {
+                                const newItems = [...(formData.items || [])];
+                                newItems[idx] = { ...newItems[idx], linkUrl: data.value, buttonUrl: data.value };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {item.type === 'divider' && (
+                        <div>
+                          <Label size="small">Line Style</Label>
+                          <Dropdown
+                            value={item.dividerStyle || 'solid'}
+                            onOptionSelect={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], dividerStyle: data.optionValue as 'solid' | 'dashed' };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          >
+                            <Option value="solid">Solid separator</Option>
+                            <Option value="dashed">Dashed divider</Option>
+                          </Dropdown>
+                        </div>
+                      )}
+
+                      {item.type === 'text' && (
+                        <div>
+                          <Label size="small">Text Content</Label>
+                          <Textarea
+                            value={item.text || ''}
+                            placeholder="Section text content..."
+                            rows={3}
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], text: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Footer */}

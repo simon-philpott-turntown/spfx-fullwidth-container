@@ -329,6 +329,31 @@
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-028",
+      "name": "UnclippedFloatingTextToolbarAndCardTypography",
+      "description": "Ensures the floating formatting ribbon sits above card boundaries without clipping (z-index 2000, card wrapper focus z-index 1000, overflow visible), and enables fully functional font family, font color, highlight color, font size, and inner composable item configuration in both canvas inline editing and the Card properties sidebar.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-029",
+      "name": "ContextualItemPropertyEditor",
+      "description": "Dedicated contextual property modal dialog (CardItemPropertyEditor) and property pane controls for all 13 inner card item types (text, button, cta, divider, editorial, hero, image, gallery, link, quickLinks, video, liveData, termStoreTags), supporting live canvas updates, full item editing, and first-class visual rendering parity across SPFx and preview.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "preview/index.html"
+      ]
     }
   ]
 }

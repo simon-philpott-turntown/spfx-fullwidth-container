@@ -470,6 +470,7 @@
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.25rem;
       width: 100%;
+      overflow: visible;
     }
 
     .fui-card {
@@ -483,11 +484,20 @@
       box-shadow: var(--fui-shadow4);
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
       position: relative;
+      overflow: visible;
     }
     .fui-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--fui-shadow8);
       border-color: var(--fui-colorBrandStroke1);
+    }
+    /* Ensure card with active editing sits above all adjacent cards, tab lines, and section headers */
+    .fui-card:focus-within,
+    .fui-card:has(.fui-editable:focus),
+    .fui-card.is-editing-active {
+      z-index: 1000 !important;
+      position: relative !important;
+      overflow: visible !important;
     }
 
     .fui-card-header {
@@ -571,7 +581,11 @@
       border: 1px solid var(--fui-colorNeutralStroke1);
       border-radius: var(--fui-borderRadiusMedium);
       margin-bottom: 0.75rem;
-      overflow: hidden;
+      overflow: visible;
+    }
+    .fui-accordion-item:focus-within {
+      z-index: 100;
+      position: relative;
     }
 
     .fui-accordion-header {
@@ -678,14 +692,14 @@
     /* Floating Formatting Toolbar */
     .fui-floating-toolbar {
       position: absolute;
-      bottom: calc(100% + 6px);
+      bottom: calc(100% + 8px);
       top: auto;
       left: 0;
-      z-index: 1000;
+      z-index: 2000 !important;
       background-color: var(--fui-colorNeutralBackground1);
       border: 1px solid var(--fui-colorNeutralStroke1);
       border-radius: var(--fui-borderRadiusMedium);
-      box-shadow: var(--fui-shadow28);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.12);
       display: inline-flex;
       align-items: center;
       gap: 2px;
@@ -695,7 +709,8 @@
       flex-wrap: nowrap;
       width: max-content;
       min-width: max-content;
-      max-width: none;
+      max-width: calc(100vw - 40px);
+      pointer-events: auto;
     }
 
     .fui-toolbar-btn {
@@ -1354,6 +1369,61 @@
             <div class="color-popover-surface" id="popover-surface-card-bg" style="display: none;"></div>
           </div>
         </div>
+
+        <!-- Card Typography Controls -->
+        <div class="form-group">
+          <label class="form-label">Card text colour (override)</label>
+          <div class="color-picker-wrapper" id="cp-wrapper-card-text-color">
+            <button type="button" class="color-picker-trigger" id="btn-trigger-card-text-color" onclick="toggleColorPopover('card-text-color')">
+              <div class="color-picker-preview-box is-empty" id="preview-box-card-text-color"></div>
+              <span class="color-picker-label-text" id="label-text-card-text-color">Default (inherit theme foreground)</span>
+              <i class="fa-solid fa-chevron-down color-picker-icon" id="icon-chevron-card-text-color"></i>
+            </button>
+            <div class="color-popover-surface" id="popover-surface-card-text-color" style="display: none;"></div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label class="form-label">Font family</label>
+            <select class="form-select" id="sel-card-font-family" onchange="updateCardFontFamily(this.value)">
+              <option value="__default__">Default (site theme)</option>
+              <option value="Inter, sans-serif">Inter</option>
+              <option value="'Segoe UI', sans-serif">Segoe UI</option>
+              <option value="Georgia, serif">Georgia (serif)</option>
+              <option value="'Courier New', monospace">Courier New (mono)</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Tahoma, sans-serif">Tahoma</option>
+              <option value="'Times New Roman', serif">Times New Roman</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Title font size</label>
+            <select class="form-select" id="sel-card-title-size" onchange="updateCardTitleFontSize(this.value)">
+              <option value="__default__">Default</option>
+              <option value="0.85rem">Small (0.85rem)</option>
+              <option value="1rem">Normal (1rem)</option>
+              <option value="1.1rem">Medium (1.1rem)</option>
+              <option value="1.25rem">Large (1.25rem)</option>
+              <option value="1.5rem">X-Large (1.5rem)</option>
+              <option value="1.75rem">2X-Large (1.75rem)</option>
+              <option value="2rem">3X-Large (2rem)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Body / description font size</label>
+          <select class="form-select" id="sel-card-body-size" onchange="updateCardBodyFontSize(this.value)">
+            <option value="__default__">Default</option>
+            <option value="0.75rem">X-Small (0.75rem)</option>
+            <option value="0.825rem">Small (0.825rem)</option>
+            <option value="0.9rem">Slightly small (0.9rem)</option>
+            <option value="0.95rem">Near-default (0.95rem)</option>
+            <option value="1rem">Normal (1rem)</option>
+            <option value="1.1rem">Slightly large (1.1rem)</option>
+            <option value="1.25rem">Large (1.25rem)</option>
+          </select>
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
           <div class="form-group">
             <label class="form-label" id="lbl-card-colspan">Column span</label>
@@ -1434,6 +1504,40 @@
           </div>
           <input type="text" class="form-input" id="inp-card-badge" placeholder="Leave empty for no badge" oninput="updateCardBadge(this.value)" style="margin-top: 4px;" />
         </div>
+
+        <!-- Action / Destination Link -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <div class="form-group">
+            <label class="form-label">Button or link text</label>
+            <input type="text" class="form-input" id="inp-card-action-text" placeholder="Open link" oninput="updateCardActionText(this.value)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination URL</label>
+            <input type="text" class="form-input" id="inp-card-action-url" placeholder="#" oninput="updateCardActionUrl(this.value)" />
+          </div>
+        </div>
+
+        <!-- Composable Inner Items Management -->
+        <div class="form-group" style="margin-top: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">Card inner items (<span id="card-inner-items-count">0</span>)</label>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('button')" title="Add button">+ Button</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('editorial')" title="Add editorial summary">+ Editorial</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('link')" title="Add text link">+ Link</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('image')" title="Add image">+ Image</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('gallery')" title="Add gallery">+ Gallery</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('video')" title="Add video">+ Video</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('cta')" title="Add call to action">+ CTA</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('quickLinks')" title="Add quick links">+ Quick Links</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('hero')" title="Add hero">+ Hero</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('divider')" title="Add divider">+ Divider</button>
+            </div>
+          </div>
+          <div id="card-inner-items-list" style="display: flex; flex-direction: column; gap: 6px; background: var(--fui-colorNeutralBackground2); padding: 8px; border-radius: var(--fui-borderRadiusMedium); border: 1px solid var(--fui-colorNeutralStroke2);">
+            <!-- Dynamic inner items rendered by renderCardInnerItemsEditor -->
+          </div>
+        </div>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
           <button class="sp-btn" style="flex: 1;" onclick="addCard()">+ Add card</button>
           <button class="sp-btn sp-btn-secondary" onclick="deleteCard()">Delete</button>
@@ -1462,6 +1566,26 @@
         <div class="fui-icon-grid-picker" id="grid-visual-icons">
           <!-- Icon cells populated via JS -->
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contextual Inner Item Property Editor Modal -->
+  <div id="modal-item-editor" class="fui-modal-backdrop" style="display: none;">
+    <div class="fui-modal-surface" style="max-width: 520px; width: 92vw;">
+      <div class="fui-modal-header">
+        <h3 id="modal-item-editor-title" style="font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-sliders" style="color: var(--fui-colorBrandForeground1);"></i>
+          <span>Configure Card Item</span>
+        </h3>
+        <button class="fui-toolbar-btn" onclick="closeInnerItemModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="fui-modal-body" id="modal-item-editor-body" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto;">
+        <!-- Dynamic form fields injected via JS -->
+      </div>
+      <div class="fui-modal-footer" style="padding: 12px 16px; border-top: 1px solid var(--fui-colorNeutralStroke2); display: flex; justify-content: flex-end; gap: 8px; background: var(--fui-colorNeutralBackground2);">
+        <button type="button" class="sp-btn sp-btn-secondary" onclick="closeInnerItemModal()">Cancel</button>
+        <button type="button" class="sp-btn" onclick="saveInnerItemModal()"><i class="fa-solid fa-check"></i> Apply changes</button>
       </div>
     </div>
   </div>
@@ -2058,13 +2182,19 @@
             if (txtIcon) txtIcon.textContent = curCard.iconName || 'BookAnswers';
             setVal('sel-card-item-height-mode', curCard.heightMode || 'default');
             syncColorPickerTrigger('card-bg', curCard.backgroundColor, getDefaultLabelForType('card-bg'));
+            syncColorPickerTrigger('card-text-color', curCard.textColor, getDefaultLabelForType('card-text-color'));
             syncColorPickerTrigger('icon-color', curCard.iconColor, getDefaultLabelForType('icon-color'));
             syncColorPickerTrigger('icon-bg', curCard.iconBackgroundColor, getDefaultLabelForType('icon-bg'));
             const chkIconBg = document.getElementById('chk-show-icon-bg');
             if (chkIconBg) chkIconBg.checked = curCard.showIconBackground !== false;
+            setVal('sel-card-font-family', curCard.fontFamily || '__default__');
+            setVal('sel-card-title-size', curCard.titleFontSize || '__default__');
+            setVal('sel-card-body-size', curCard.bodyFontSize || '__default__');
             setVal('inp-card-title', curCard.title || '');
             setVal('inp-card-desc', curCard.description || '');
             setVal('inp-card-badge', curCard.badge || '');
+            setVal('inp-card-action-text', curCard.actionText || '');
+            setVal('inp-card-action-url', curCard.actionUrl || '');
             setVal('inp-card-metric-val', curCard.metricValue || '');
             setVal('inp-card-metric-trend', curCard.metricTrend || '');
             setVal('inp-card-live-api', curCard.liveDataConfig?.apiUrl || '');
@@ -2078,6 +2208,7 @@
             if (grpTrend) grpTrend.style.display = isMetric ? 'flex' : 'none';
 
             renderTermStoreChips();
+            renderCardInnerItemsEditor(curCard);
           }
         }
       }
@@ -2190,7 +2321,7 @@
     let activeColorPopoverType = null;
 
     function closeAllColorPopovers() {
-      ['wp-bg', 'sec-bg', 'card-bg', 'icon-color', 'icon-bg', 'sec-icon-color', 'sec-icon-bg'].forEach(t => {
+      ['wp-bg', 'sec-bg', 'card-bg', 'card-text-color', 'icon-color', 'icon-bg', 'sec-icon-color', 'sec-icon-bg'].forEach(t => {
         const surface = document.getElementById(`popover-surface-${t}`);
         const icon = document.getElementById(`icon-chevron-${t}`);
         if (surface) surface.style.display = 'none';
@@ -2228,6 +2359,11 @@
         const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
         return curCard ? (curCard.backgroundColor || '') : '';
       }
+      if (type === 'card-text-color') {
+        const targetSec = currentSections[state.activeCardSecIdx];
+        const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
+        return curCard ? (curCard.textColor || '') : '';
+      }
       if (type === 'icon-color') {
         const targetSec = currentSections[state.activeCardSecIdx];
         const curCard = targetSec ? targetSec.blocks[state.activeCardIdx] : null;
@@ -2247,6 +2383,7 @@
       if (type === 'sec-icon-color') return '#0090DC';
       if (type === 'sec-icon-bg') return '#CCE9F8';
       if (type === 'card-bg') return '#FFFFFF';
+      if (type === 'card-text-color') return '#292929';
       if (type === 'icon-color') return '#0090DC';
       if (type === 'icon-bg') return '#CCE9F8';
       return 'transparent';
@@ -2258,6 +2395,7 @@
       if (type === 'sec-icon-color') return 'Default (brand cyan)';
       if (type === 'sec-icon-bg') return 'Default (soft tint box)';
       if (type === 'card-bg') return 'Default (white / inherit section background)';
+      if (type === 'card-text-color') return 'Default (inherit theme foreground)';
       if (type === 'icon-color') return 'Default (brand cyan)';
       if (type === 'icon-bg') return 'Default (soft tint box)';
       return 'Default';
@@ -2269,6 +2407,7 @@
       else if (type === 'sec-icon-color') updateSecIconColor(hex);
       else if (type === 'sec-icon-bg') updateSecIconBg(hex);
       else if (type === 'card-bg') updateCardBg(hex);
+      else if (type === 'card-text-color') updateCardTextColor(hex);
       else if (type === 'icon-color') updateCardIconColor(hex);
       else if (type === 'icon-bg') updateCardIconBg(hex);
       syncSidebar();
@@ -2436,6 +2575,14 @@
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
         targetSec.blocks[state.activeCardIdx].backgroundColor = val;
         syncColorPickerTrigger('card-bg', val, getDefaultLabelForType('card-bg'));
+        render();
+      }
+    }
+    function updateCardTextColor(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].textColor = val;
+        syncColorPickerTrigger('card-text-color', val, getDefaultLabelForType('card-text-color'));
         render();
       }
     }
@@ -2715,6 +2862,267 @@
         render();
       }
     }
+    function updateCardFontFamily(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].fontFamily = val === '__default__' ? '' : val;
+        render();
+      }
+    }
+    function updateCardTitleFontSize(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].titleFontSize = val === '__default__' ? '' : val;
+        render();
+      }
+    }
+    function updateCardBodyFontSize(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].bodyFontSize = val === '__default__' ? '' : val;
+        render();
+      }
+    }
+    function updateCardActionText(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].actionText = val;
+        render();
+      }
+    }
+    function updateCardActionUrl(val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        targetSec.blocks[state.activeCardIdx].actionUrl = val;
+        render();
+      }
+    }
+    function updateInnerItemField(itemIdx, field, val) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (!curCard.items) curCard.items = [];
+        if (curCard.items[itemIdx]) {
+          curCard.items[itemIdx][field] = val;
+          render();
+        }
+      }
+    }
+    function deleteInnerItem(itemIdx) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (curCard.items) {
+          curCard.items.splice(itemIdx, 1);
+          syncSidebar();
+          render();
+        }
+      }
+    }
+    function addInnerItem(type) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (!curCard.items) curCard.items = [];
+        const id = 'item-' + Date.now();
+        if (type === 'button') {
+          curCard.items.push({ id: id, type: 'button', buttonLabel: 'Action Button', buttonUrl: '#' });
+        } else if (type === 'editorial') {
+          curCard.items.push({ id: id, type: 'editorial', editorialKicker: 'INSIGHT • ADVISORY', editorialTitle: 'Strategic Programme Delivery', editorialBody: 'Executive review and advisory summary for major capital programmes.', editorialUrl: '#' });
+        } else if (type === 'link') {
+          curCard.items.push({ id: id, type: 'link', linkText: 'Commercial advisory portal', linkUrl: '#' });
+        } else if (type === 'image') {
+          curCard.items.push({ id: id, type: 'image', imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80', imageCaption: 'Project Architecture' });
+        } else if (type === 'gallery') {
+          curCard.items.push({ id: id, type: 'gallery', galleryImages: [
+            { url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400', caption: 'Infrastructure' },
+            { url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400', caption: 'Advisory' }
+          ]});
+        } else if (type === 'video') {
+          curCard.items.push({ id: id, type: 'video', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' });
+        } else if (type === 'cta') {
+          curCard.items.push({ id: id, type: 'cta', ctaHeading: 'Key Milestone Ready', ctaDescription: 'Review the latest quarterly submission.', ctaButtonText: 'Review Now', ctaButtonUrl: '#' });
+        } else if (type === 'quickLinks') {
+          curCard.items.push({ id: id, type: 'quickLinks', quickLinks: [
+            { label: 'Policy Document', url: '#' },
+            { label: 'Process Map', url: '#' }
+          ]});
+        } else if (type === 'hero') {
+          curCard.items.push({ id: id, type: 'hero', heroTitle: 'Turner & Townsend Advisory', heroSubtitle: 'Driving performance across global capital programmes.' });
+        } else if (type === 'divider') {
+          curCard.items.push({ id: id, type: 'divider', dividerStyle: 'solid' });
+        }
+        syncSidebar();
+        render();
+      }
+    }
+
+    let activeModalEditingItem = null; // { secIdx, cardIdx, itemIdx, item }
+
+    function openInnerItemModal(secIdx, cardIdx, itemIdx) {
+      const targetSec = currentSections[secIdx];
+      if (!targetSec || !targetSec.blocks[cardIdx]) return;
+      const curCard = targetSec.blocks[cardIdx];
+      if (!curCard.items || !curCard.items[itemIdx]) return;
+      const item = curCard.items[itemIdx];
+      activeModalEditingItem = { secIdx, cardIdx, itemIdx, item: JSON.parse(JSON.stringify(item)) };
+
+      const modal = document.getElementById('modal-item-editor');
+      const title = document.getElementById('modal-item-editor-title');
+      const body = document.getElementById('modal-item-editor-body');
+      if (!modal || !body) return;
+
+      if (title) title.innerHTML = `<i class="fa-solid fa-sliders" style="color: var(--fui-colorBrandForeground1);"></i> <span>Configure ${item.type.toUpperCase()} Item</span>`;
+
+      let fieldsHtml = '';
+      if (item.type === 'button') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Button label</label><input type="text" class="form-input" id="inp-modal-btn-label" value="${item.buttonLabel || ''}" placeholder="Action Button" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Destination URL</label><input type="text" class="form-input" id="inp-modal-btn-url" value="${item.buttonUrl || ''}" placeholder="https://..." /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Appearance variant</label><select class="form-select" id="inp-modal-btn-var"><option value="primary" ${item.buttonVariant === 'primary' ? 'selected' : ''}>Primary (solid brand)</option><option value="outline" ${item.buttonVariant === 'outline' ? 'selected' : ''}>Outline (bordered)</option><option value="subtle" ${item.buttonVariant === 'subtle' ? 'selected' : ''}>Subtle (text link)</option></select></div>`;
+      } else if (item.type === 'editorial') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Kicker / Category tag</label><input type="text" class="form-input" id="inp-modal-edit-kicker" value="${item.editorialKicker || ''}" placeholder="e.g. INSIGHT • STRATEGY" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Editorial title</label><input type="text" class="form-input" id="inp-modal-edit-title" value="${item.editorialTitle || ''}" placeholder="Title" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Summary text</label><textarea class="form-textarea" rows="3" id="inp-modal-edit-body" placeholder="Summary text...">${item.editorialBody || ''}</textarea></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Read more URL</label><input type="text" class="form-input" id="inp-modal-edit-url" value="${item.editorialUrl || ''}" placeholder="https://..." /></div>`;
+      } else if (item.type === 'link') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Link text</label><input type="text" class="form-input" id="inp-modal-lnk-text" value="${item.linkText || item.buttonLabel || ''}" placeholder="Resource link" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Destination URL</label><input type="text" class="form-input" id="inp-modal-lnk-url" value="${item.linkUrl || item.buttonUrl || ''}" placeholder="https://..." /></div>`;
+      } else if (item.type === 'image') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Image URL</label><input type="text" class="form-input" id="inp-modal-img-url" value="${item.imageUrl || ''}" placeholder="https://..." /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Caption</label><input type="text" class="form-input" id="inp-modal-img-cap" value="${item.imageCaption || ''}" placeholder="Caption" /></div>`;
+      } else if (item.type === 'video') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Video URL (MP4 / WebM)</label><input type="text" class="form-input" id="inp-modal-vid-url" value="${item.videoUrl || ''}" placeholder="https://.../video.mp4" /></div>`;
+      } else if (item.type === 'cta') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Call to action heading</label><input type="text" class="form-input" id="inp-modal-cta-head" value="${item.ctaHeading || ''}" placeholder="Heading" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Description / guidance</label><textarea class="form-textarea" rows="2" id="inp-modal-cta-desc" placeholder="Details...">${item.ctaDescription || ''}</textarea></div>`;
+        fieldsHtml += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div class="form-group"><label class="form-label">Button text</label><input type="text" class="form-input" id="inp-modal-cta-btn" value="${item.ctaButtonText || ''}" placeholder="Proceed" /></div><div class="form-group"><label class="form-label">Button URL</label><input type="text" class="form-input" id="inp-modal-cta-url" value="${item.ctaButtonUrl || ''}" placeholder="https://..." /></div></div>`;
+      } else if (item.type === 'hero') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Hero title</label><input type="text" class="form-input" id="inp-modal-hero-title" value="${item.heroTitle || ''}" placeholder="Hero Title" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Hero subtitle</label><textarea class="form-textarea" rows="2" id="inp-modal-hero-sub" placeholder="Subtitle...">${item.heroSubtitle || ''}</textarea></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Background image URL</label><input type="text" class="form-input" id="inp-modal-hero-bg" value="${item.heroBgUrl || ''}" placeholder="https://..." /></div>`;
+      } else if (item.type === 'divider') {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Divider style</label><select class="form-select" id="inp-modal-div-style"><option value="solid" ${item.dividerStyle === 'solid' ? 'selected' : ''}>Solid line</option><option value="dashed" ${item.dividerStyle === 'dashed' ? 'selected' : ''}>Dashed line</option></select></div>`;
+      } else {
+        fieldsHtml += `<div class="form-group"><label class="form-label">Text content</label><textarea class="form-textarea" rows="4" id="inp-modal-gen-text">${item.text || ''}</textarea></div>`;
+      }
+
+      body.innerHTML = fieldsHtml;
+      modal.style.display = 'flex';
+    }
+
+    function closeInnerItemModal() {
+      const modal = document.getElementById('modal-item-editor');
+      if (modal) modal.style.display = 'none';
+      activeModalEditingItem = null;
+    }
+
+    function saveInnerItemModal() {
+      if (!activeModalEditingItem) return;
+      const { secIdx, cardIdx, itemIdx, item } = activeModalEditingItem;
+      const targetSec = currentSections[secIdx];
+      if (!targetSec || !targetSec.blocks[cardIdx]) return;
+      const curCard = targetSec.blocks[cardIdx];
+      if (!curCard.items || !curCard.items[itemIdx]) return;
+
+      if (item.type === 'button') {
+        item.buttonLabel = document.getElementById('inp-modal-btn-label')?.value || '';
+        item.buttonUrl = document.getElementById('inp-modal-btn-url')?.value || '';
+        item.buttonVariant = document.getElementById('inp-modal-btn-var')?.value || 'primary';
+      } else if (item.type === 'editorial') {
+        item.editorialKicker = document.getElementById('inp-modal-edit-kicker')?.value || '';
+        item.editorialTitle = document.getElementById('inp-modal-edit-title')?.value || '';
+        item.editorialBody = document.getElementById('inp-modal-edit-body')?.value || '';
+        item.editorialUrl = document.getElementById('inp-modal-edit-url')?.value || '';
+      } else if (item.type === 'link') {
+        item.linkText = document.getElementById('inp-modal-lnk-text')?.value || '';
+        item.linkUrl = document.getElementById('inp-modal-lnk-url')?.value || '';
+      } else if (item.type === 'image') {
+        item.imageUrl = document.getElementById('inp-modal-img-url')?.value || '';
+        item.imageCaption = document.getElementById('inp-modal-img-cap')?.value || '';
+      } else if (item.type === 'video') {
+        item.videoUrl = document.getElementById('inp-modal-vid-url')?.value || '';
+      } else if (item.type === 'cta') {
+        item.ctaHeading = document.getElementById('inp-modal-cta-head')?.value || '';
+        item.ctaDescription = document.getElementById('inp-modal-cta-desc')?.value || '';
+        item.ctaButtonText = document.getElementById('inp-modal-cta-btn')?.value || '';
+        item.ctaButtonUrl = document.getElementById('inp-modal-cta-url')?.value || '';
+      } else if (item.type === 'hero') {
+        item.heroTitle = document.getElementById('inp-modal-hero-title')?.value || '';
+        item.heroSubtitle = document.getElementById('inp-modal-hero-sub')?.value || '';
+        item.heroBgUrl = document.getElementById('inp-modal-hero-bg')?.value || '';
+      } else if (item.type === 'divider') {
+        item.dividerStyle = document.getElementById('inp-modal-div-style')?.value || 'solid';
+      } else if (document.getElementById('inp-modal-gen-text')) {
+        item.text = document.getElementById('inp-modal-gen-text')?.value || '';
+      }
+
+      curCard.items[itemIdx] = item;
+      closeInnerItemModal();
+      syncSidebar();
+      render();
+      showToast('✓ Card item updated!');
+    }
+
+    function renderCardInnerItemsEditor(curCard) {
+      const container = document.getElementById('card-inner-items-list');
+      const countLabel = document.getElementById('card-inner-items-count');
+      if (!container) return;
+      const items = curCard && curCard.items ? curCard.items : [];
+      if (countLabel) countLabel.textContent = items.length;
+
+      if (items.length === 0) {
+        container.innerHTML = '<div style="font-size: 0.78rem; color: var(--fui-colorNeutralForeground3); font-style: italic; padding: 4px;">No composable inner items added. Use the buttons above to insert elements.</div>';
+        return;
+      }
+
+      let html = '';
+      items.forEach((item, idx) => {
+        html += `<div style="padding: 8px; border-radius: var(--fui-borderRadiusMedium); border: 1px solid var(--fui-colorNeutralStroke2); background: var(--fui-colorNeutralBackground1); display: flex; flex-direction: column; gap: 6px;">`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center;">`;
+        html += `<span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--fui-colorBrandForeground1);">#${idx + 1} ${item.type}</span>`;
+        html += `<div style="display: flex; gap: 4px;">`;
+        html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" onclick="openInnerItemModal(state.activeCardSecIdx, state.activeCardIdx, ${idx})" title="Edit item properties in dialog"><i class="fa-solid fa-pen-to-square"></i></button>`;
+        html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" onclick="deleteInnerItem(${idx})" title="Remove item"><i class="fa-solid fa-trash-can"></i></button>`;
+        html += `</div>`;
+        html += `</div>`;
+
+        if (item.type === 'button') {
+          html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Label</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.buttonLabel || ''}" placeholder="Button Text" oninput="updateInnerItemField(${idx}, 'buttonLabel', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">URL</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.buttonUrl || ''}" placeholder="https://..." oninput="updateInnerItemField(${idx}, 'buttonUrl', this.value)" /></div>`;
+          html += `</div>`;
+        } else if (item.type === 'editorial') {
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Title</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.editorialTitle || ''}" placeholder="Article Title" oninput="updateInnerItemField(${idx}, 'editorialTitle', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Summary</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.editorialBody || ''}" placeholder="Summary text..." oninput="updateInnerItemField(${idx}, 'editorialBody', this.value)" /></div>`;
+        } else if (item.type === 'link') {
+          html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Text</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.linkText || item.buttonLabel || ''}" placeholder="Link Text" oninput="updateInnerItemField(${idx}, 'linkText', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">URL</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.linkUrl || item.buttonUrl || ''}" placeholder="https://..." oninput="updateInnerItemField(${idx}, 'linkUrl', this.value)" /></div>`;
+          html += `</div>`;
+        } else if (item.type === 'image') {
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Image URL</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.imageUrl || ''}" placeholder="https://images.unsplash.com/..." oninput="updateInnerItemField(${idx}, 'imageUrl', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Caption</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.imageCaption || ''}" placeholder="Image caption" oninput="updateInnerItemField(${idx}, 'imageCaption', this.value)" /></div>`;
+        } else if (item.type === 'video') {
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Video URL (MP4/WebM)</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.videoUrl || ''}" placeholder="https://..." oninput="updateInnerItemField(${idx}, 'videoUrl', this.value)" /></div>`;
+        } else if (item.type === 'cta') {
+          html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Heading</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.ctaHeading || ''}" placeholder="Call to action" oninput="updateInnerItemField(${idx}, 'ctaHeading', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Button Text</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.ctaButtonText || ''}" placeholder="Action" oninput="updateInnerItemField(${idx}, 'ctaButtonText', this.value)" /></div>`;
+          html += `</div>`;
+          html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Button URL</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.ctaButtonUrl || ''}" placeholder="https://..." oninput="updateInnerItemField(${idx}, 'ctaButtonUrl', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Description</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.ctaDescription || ''}" placeholder="Guidance text" oninput="updateInnerItemField(${idx}, 'ctaDescription', this.value)" /></div>`;
+          html += `</div>`;
+        } else if (item.type === 'hero') {
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Hero Title</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.heroTitle || ''}" placeholder="Hero Title" oninput="updateInnerItemField(${idx}, 'heroTitle', this.value)" /></div>`;
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Subtitle</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.heroSubtitle || ''}" placeholder="Subtitle..." oninput="updateInnerItemField(${idx}, 'heroSubtitle', this.value)" /></div>`;
+        } else if (item.type === 'divider') {
+          html += `<div><label class="form-label" style="font-size: 0.72rem;">Line Style</label><select class="form-select" style="font-size: 0.78rem; padding: 3px 6px;" onchange="updateInnerItemField(${idx}, 'dividerStyle', this.value)"><option value="solid" ${item.dividerStyle === 'solid' ? 'selected' : ''}>Solid</option><option value="dashed" ${item.dividerStyle === 'dashed' ? 'selected' : ''}>Dashed</option></select></div>`;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
 
     function isDarkColor(color) {
       if (!color || color === 'transparent') return false;
@@ -2804,6 +3212,182 @@
         toast.style.transform = 'translateY(10px)';
         setTimeout(() => toast.remove(), 250);
       }, 2400);
+    }
+
+    function renderInnerItemPreview(item, isDarkBg) {
+      if (!item) return null;
+      if (item.type === 'button') {
+        return React.createElement('div', { key: item.id, style: { marginTop: '8px' } },
+          React.createElement('a', {
+            href: item.buttonUrl || '#',
+            className: 'sp-btn',
+            style: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', padding: '0.35rem 0.8rem', textDecoration: 'none' }
+          }, React.createElement('i', { className: 'fa-solid fa-arrow-pointer' }), item.buttonLabel || 'Action Button')
+        );
+      }
+      if (item.type === 'image') {
+        return React.createElement('div', { key: item.id, style: { marginTop: '8px', width: '100%' } },
+          item.imageUrl ? React.createElement('img', {
+            src: item.imageUrl,
+            alt: item.imageCaption || 'Card image',
+            style: { width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '6px', display: 'block' }
+          }) : null,
+          item.imageCaption ? React.createElement('div', {
+            style: { fontSize: '0.75rem', color: isDarkBg ? 'rgba(255,255,255,0.7)' : 'var(--fui-colorNeutralForeground3)', marginTop: '4px' }
+          }, item.imageCaption) : null
+        );
+      }
+      if (item.type === 'video') {
+        return React.createElement('div', { key: item.id, style: { marginTop: '8px', width: '100%' } },
+          item.videoUrl ? React.createElement('video', {
+            src: item.videoUrl,
+            controls: true,
+            style: { width: '100%', maxHeight: '180px', borderRadius: '6px', display: 'block' }
+          }) : null
+        );
+      }
+      if (item.type === 'cta') {
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            padding: '10px 12px',
+            borderRadius: '6px',
+            backgroundColor: isDarkBg ? 'rgba(255,255,255,0.08)' : 'var(--fui-colorNeutralBackground2)',
+            border: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.15)' : 'var(--fui-colorNeutralStroke2)'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }
+        },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '0.88rem', color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorBrandForeground1)' } },
+            React.createElement('i', { className: 'fa-solid fa-bullhorn' }),
+            item.ctaHeading || 'Call to Action'
+          ),
+          item.ctaDescription ? React.createElement('div', { style: { fontSize: '0.78rem', color: isDarkBg ? 'rgba(255,255,255,0.8)' : 'var(--fui-colorNeutralForeground2)' } }, item.ctaDescription) : null,
+          item.ctaButtonText ? React.createElement('a', {
+            href: item.ctaButtonUrl || '#',
+            className: 'sp-btn',
+            style: { alignSelf: 'flex-start', marginTop: '4px', fontSize: '0.75rem', padding: '3px 8px', textDecoration: 'none' }
+          }, item.ctaButtonText) : null
+        );
+      }
+      if (item.type === 'editorial') {
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            padding: '12px 14px',
+            borderRadius: '6px',
+            backgroundColor: isDarkBg ? 'rgba(255,255,255,0.06)' : 'var(--fui-colorNeutralBackground2)',
+            borderLeft: '4px solid var(--fui-colorBrandStroke1)',
+            borderTop: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.1)' : 'var(--fui-colorNeutralStroke2)'}`,
+            borderRight: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.1)' : 'var(--fui-colorNeutralStroke2)'}`,
+            borderBottom: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.1)' : 'var(--fui-colorNeutralStroke2)'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }
+        },
+          item.editorialKicker ? React.createElement('div', { style: { fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--fui-colorBrandForeground1)', letterSpacing: '0.5px' } }, item.editorialKicker) : null,
+          React.createElement('div', { style: { fontWeight: 600, fontSize: '0.92rem', color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)' } }, item.editorialTitle || 'Editorial Summary'),
+          item.editorialBody ? React.createElement('div', { style: { fontSize: '0.82rem', color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)' } }, item.editorialBody) : null,
+          item.editorialUrl ? React.createElement('a', {
+            href: item.editorialUrl,
+            style: { alignSelf: 'flex-start', marginTop: '4px', fontSize: '0.75rem', color: 'var(--fui-colorBrandForeground1)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }
+          }, 'Read full article', React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square', style: { fontSize: '10px' } })) : null
+        );
+      }
+      if (item.type === 'link') {
+        return React.createElement('div', { key: item.id, style: { marginTop: '6px' } },
+          React.createElement('a', {
+            href: item.linkUrl || item.buttonUrl || '#',
+            style: { color: isDarkBg ? '#80D1F8' : 'var(--fui-colorBrandForeground1)', fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }
+          },
+            React.createElement('i', { className: 'fa-solid fa-link' }),
+            item.linkText || item.buttonLabel || 'Direct resource link',
+            React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square', style: { fontSize: '10px' } })
+          )
+        );
+      }
+      if (item.type === 'hero') {
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            padding: '14px',
+            borderRadius: '6px',
+            backgroundImage: item.heroBgUrl ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${item.heroBgUrl})` : `linear-gradient(135deg, var(--fui-colorBrandBackground2) 0%, var(--fui-colorNeutralBackground2) 100%)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            color: item.heroBgUrl ? '#FFFFFF' : (isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)'),
+            border: '1px solid var(--fui-colorBrandStroke2)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px'
+          }
+        },
+          React.createElement('div', { style: { fontWeight: 700, fontSize: '1rem' } }, item.heroTitle || 'Hero Title'),
+          item.heroSubtitle ? React.createElement('div', { style: { fontSize: '0.82rem', opacity: 0.9 } }, item.heroSubtitle) : null
+        );
+      }
+      if (item.type === 'gallery') {
+        const imgs = item.galleryImages || [];
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
+            gap: '6px'
+          }
+        },
+          imgs.map((img, i) => React.createElement('div', { key: i },
+            React.createElement('img', {
+              src: img.url,
+              alt: img.caption || 'Gallery',
+              style: { width: '100%', height: '80px', objectFit: 'cover', borderRadius: '4px', display: 'block' }
+            }),
+            img.caption ? React.createElement('div', { style: { fontSize: '0.7rem', color: isDarkBg ? 'rgba(255,255,255,0.7)' : 'var(--fui-colorNeutralForeground3)', marginTop: '2px' } }, img.caption) : null
+          ))
+        );
+      }
+      if (item.type === 'quickLinks') {
+        const links = item.quickLinks || [];
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px'
+          }
+        },
+          links.map((lnk, i) => React.createElement('a', {
+            key: i,
+            href: lnk.url || '#',
+            className: 'sp-btn sp-btn-secondary',
+            style: { fontSize: '0.75rem', padding: '3px 8px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }
+          }, React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square', style: { fontSize: '9px' } }), lnk.label))
+        );
+      }
+      if (item.type === 'divider') {
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            margin: '10px 0',
+            borderTop: `1px ${item.dividerStyle || 'solid'} ${isDarkBg ? 'rgba(255,255,255,0.15)' : 'var(--fui-colorNeutralStroke2)'}`
+          }
+        });
+      }
+      if (item.type === 'text') {
+        return React.createElement('div', {
+          key: item.id,
+          style: { marginTop: '6px', fontSize: '0.88rem', color: isDarkBg ? 'rgba(255,255,255,0.9)' : 'var(--fui-colorNeutralForeground1)' },
+          dangerouslySetInnerHTML: { __html: item.text || '' }
+        });
+      }
+      return null;
     }
 
     function exportDashboardJson() {
@@ -3233,6 +3817,7 @@
     function EditableText(props) {
       const [isFocused, setIsFocused] = React.useState(false);
       const [savedRange, setSavedRange] = React.useState(null);
+      const [blockOverrideStyle, setBlockOverrideStyle] = React.useState({});
       const ref = React.useRef(null);
 
       React.useEffect(() => {
@@ -3287,32 +3872,33 @@
           document.execCommand(command, false, value);
         } else {
           // Format entire text block
+          const fullRange = document.createRange();
+          fullRange.selectNodeContents(ref.current);
+          const s = window.getSelection();
+          if (s) {
+            s.removeAllRanges();
+            s.addRange(fullRange);
+          }
+
           if (command === 'fontName' && value) {
+            document.execCommand('fontName', false, value);
             ref.current.style.fontFamily = value;
+            setBlockOverrideStyle(prev => ({ ...prev, fontFamily: value }));
           } else if (command === 'foreColor' && value) {
+            document.execCommand('foreColor', false, value);
             ref.current.style.color = value;
+            setBlockOverrideStyle(prev => ({ ...prev, color: value }));
           } else if (command === 'hiliteColor' && value) {
+            document.execCommand('hiliteColor', false, value);
             ref.current.style.backgroundColor = value;
+            setBlockOverrideStyle(prev => ({ ...prev, backgroundColor: value }));
           } else if (command === 'removeFormat') {
             ref.current.style.fontFamily = '';
             ref.current.style.color = '';
             ref.current.style.backgroundColor = '';
-            const fullRange = document.createRange();
-            fullRange.selectNodeContents(ref.current);
-            const s = window.getSelection();
-            if (s) {
-              s.removeAllRanges();
-              s.addRange(fullRange);
-            }
+            setBlockOverrideStyle({});
             document.execCommand('removeFormat', false);
           } else {
-            const fullRange = document.createRange();
-            fullRange.selectNodeContents(ref.current);
-            const s = window.getSelection();
-            if (s) {
-              s.removeAllRanges();
-              s.addRange(fullRange);
-            }
             document.execCommand(command, false, value);
           }
         }
@@ -3323,15 +3909,17 @@
         saveSelection();
       };
 
+      const mergedStyle = Object.assign({}, props.style || {}, blockOverrideStyle);
+
       if (!isEditMode) {
         return React.createElement(props.tag || 'div', {
           className: props.className,
-          style: props.style,
+          style: mergedStyle,
           dangerouslySetInnerHTML: { __html: props.html || '' }
         });
       }
 
-      return React.createElement('div', { style: { position: 'relative', width: '100%' } },
+      return React.createElement('div', { style: { position: 'relative', width: '100%', overflow: 'visible' } },
         isFocused ? React.createElement(RichTextFloatingToolbar, {
           onFormat: handleFormat
         }) : null,
@@ -3340,7 +3928,7 @@
           contentEditable: true,
           suppressContentEditableWarning: true,
           className: 'fui-editable ' + (props.className || ''),
-          style: props.style,
+          style: mergedStyle,
           onFocus: () => { setIsFocused(true); saveSelection(); },
           onBlur: onBlur,
           onKeyUp: saveSelection,
@@ -3586,7 +4174,7 @@
                   backgroundColor: block.backgroundColor || undefined,
                   color: isDarkBg ? '#FFFFFF' : undefined,
                   position: 'relative',
-                  zIndex: block._isResizing ? 45 : 1,
+                  zIndex: block._isResizing ? 45 : undefined,
                   boxShadow: block._isResizing ? '0 0 0 2px var(--fui-colorBrandStroke1), 0 8px 24px rgba(0, 144, 220, 0.35)' : undefined,
                   transition: block._isResizing ? 'none' : 'grid-column 0.15s ease, grid-row 0.15s ease'
                 };
@@ -3600,13 +4188,18 @@
                     React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
                       React.createElement(EditableText, {
                         tag: 'span',
-                        style: { fontSize: '0.9rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground2)' },
+                        style: {
+                          fontSize: block.titleFontSize || '0.9rem',
+                          fontFamily: block.fontFamily || undefined,
+                          fontWeight: 600,
+                          color: block.textColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground2)')
+                        },
                         html: block.title,
                         onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
                       }),
                       isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(state.activeSecIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
                     ),
-                    React.createElement('div', { className: 'fui-metric-value', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.metricValue),
+                    React.createElement('div', { className: 'fui-metric-value', style: block.textColor ? { color: block.textColor } : (isDarkBg ? { color: '#FFFFFF' } : {}) }, block.metricValue),
                     React.createElement('div', { className: 'fui-metric-trend' },
                       React.createElement('span', { className: 'fui-badge fui-badge-success' },
                         React.createElement('i', { className: 'fa-solid fa-arrow-trend-up', style: { marginRight: '4px' } }),
@@ -3615,10 +4208,38 @@
                     ),
                     React.createElement(EditableText, {
                       tag: 'p',
-                      style: { fontSize: '0.85rem', color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground3)', marginTop: '4px' },
+                      style: {
+                        fontSize: block.bodyFontSize || '0.85rem',
+                        fontFamily: block.fontFamily || undefined,
+                        color: block.textColor || (isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground3)'),
+                        marginTop: '4px'
+                      },
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
+                    block.items && block.items.length > 0 ? React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px', margin: '6px 0' } },
+                      block.items.map((item, itmIdx) => React.createElement('div', { key: item.id || itmIdx, style: { position: 'relative' } },
+                        renderInnerItemPreview(item, isDarkBg),
+                        isEditMode ? React.createElement('div', {
+                          style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
+                        },
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                            title: 'Edit item properties',
+                            onClick: (e) => { e.stopPropagation(); openInnerItemModal(state.activeSecIdx, bIdx, itmIdx); }
+                          }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' })),
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                            title: 'Remove item',
+                            onClick: (e) => { e.stopPropagation(); deleteInnerItem(itmIdx); }
+                          }, React.createElement('i', { className: 'fa-solid fa-xmark' }))
+                        ) : null
+                      ))
+                    ) : null,
                     React.createElement(CardTagsCollapsible, {
                       termStoreTags: block.termStoreTags,
                       tags: block.tags,
@@ -3660,16 +4281,50 @@
                     ),
                     React.createElement(EditableText, {
                       tag: 'h3',
-                      style: { fontSize: '1.15rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)', marginBottom: '4px' },
+                      style: {
+                        fontSize: block.titleFontSize || '1.15rem',
+                        fontFamily: block.fontFamily || undefined,
+                        fontWeight: 600,
+                        color: block.textColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)'),
+                        marginBottom: '4px'
+                      },
                       html: block.title,
                       onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
                     }),
                     React.createElement(EditableText, {
                       tag: 'p',
-                      style: { fontSize: '0.9rem', color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)', lineHeight: '1.35rem' },
+                      style: {
+                        fontSize: block.bodyFontSize || '0.9rem',
+                        fontFamily: block.fontFamily || undefined,
+                        color: block.textColor || (isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)'),
+                        lineHeight: '1.35rem'
+                      },
                       html: block.description,
                       onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
                     }),
+                    block.items && block.items.length > 0 ? React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px', margin: '6px 0' } },
+                      block.items.map((item, itmIdx) => React.createElement('div', { key: item.id || itmIdx, style: { position: 'relative' } },
+                        renderInnerItemPreview(item, isDarkBg),
+                        isEditMode ? React.createElement('div', {
+                          style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
+                        },
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                            title: 'Edit item properties',
+                            onClick: (e) => { e.stopPropagation(); openInnerItemModal(state.activeSecIdx, bIdx, itmIdx); }
+                          }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' })),
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                            title: 'Remove item',
+                            onClick: (e) => { e.stopPropagation(); deleteInnerItem(itmIdx); }
+                          }, React.createElement('i', { className: 'fa-solid fa-xmark' }))
+                        ) : null
+                      ))
+                    ) : null,
                     React.createElement(CardTagsCollapsible, {
                       termStoreTags: block.termStoreTags,
                       tags: block.tags,
@@ -3754,7 +4409,7 @@
                       backgroundColor: block.backgroundColor || undefined,
                       color: isDarkBg ? '#FFFFFF' : undefined,
                       position: 'relative',
-                      zIndex: block._isResizing ? 45 : 1,
+                      zIndex: block._isResizing ? 45 : undefined,
                       boxShadow: block._isResizing ? '0 0 0 2px var(--fui-colorBrandStroke1), 0 8px 24px rgba(0, 144, 220, 0.35)' : undefined,
                       transition: block._isResizing ? 'none' : 'grid-column 0.15s ease, grid-row 0.15s ease'
                     };
@@ -3765,12 +4420,60 @@
                       isEditMode ? React.createElement('div', { className: 'fui-resize-handle-bottom', title: 'Drag boundary to adjust rows', onMouseDown: (e) => startCardResizeDrag(e, block, 'bottom') }) : null,
                       isEditMode ? React.createElement('div', { className: 'fui-resize-handle-corner', title: 'Drag corner to adjust column & row span', onMouseDown: (e) => startCardResizeDrag(e, block, 'corner') }) : null,
                       React.createElement('div', null,
-                        React.createElement('span', { style: { fontSize: '0.85rem', fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground3)' } }, block.title),
-                        React.createElement('div', { className: 'fui-metric-value', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.metricValue),
+                        React.createElement(EditableText, {
+                          tag: 'span',
+                          style: {
+                            fontSize: block.titleFontSize || '0.85rem',
+                            fontFamily: block.fontFamily || undefined,
+                            fontWeight: 600,
+                            color: block.textColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground3)')
+                          },
+                          html: block.title,
+                          onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
+                        }),
+                        React.createElement('div', { className: 'fui-metric-value', style: block.textColor ? { color: block.textColor } : (isDarkBg ? { color: '#FFFFFF' } : {}) }, block.metricValue),
                         React.createElement('div', { className: 'fui-metric-trend' },
                           React.createElement('span', { className: 'fui-badge fui-badge-success' }, block.metricTrend)
                         ),
-                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description),
+                        React.createElement(EditableText, {
+                          tag: 'p',
+                          style: {
+                            fontSize: block.bodyFontSize || '0.85rem',
+                            fontFamily: block.fontFamily || undefined,
+                            color: block.textColor || (isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground3)'),
+                            marginTop: '4px'
+                          },
+                          html: block.description,
+                          onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
+                        }),
+                        block.items && block.items.length > 0 ? React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px', margin: '6px 0' } },
+                          block.items.map((item, itmIdx) => React.createElement('div', { key: item.id || itmIdx, style: { position: 'relative' } },
+                            renderInnerItemPreview(item, isDarkBg),
+                            isEditMode ? React.createElement('div', {
+                              style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
+                            },
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                                title: 'Edit item properties',
+                                onClick: (e) => { e.stopPropagation(); openInnerItemModal(secIdx, bIdx, itmIdx); }
+                              }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' })),
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                                title: 'Remove item',
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  block.items.splice(itmIdx, 1);
+                                  syncSidebar();
+                                  render();
+                                }
+                              }, React.createElement('i', { className: 'fa-solid fa-xmark' }))
+                            ) : null
+                          ))
+                        ) : null,
                         React.createElement(CardTagsCollapsible, {
                           termStoreTags: block.termStoreTags,
                           tags: block.tags,
@@ -3805,16 +4508,72 @@
                               fontSize: '20px'
                             }
                           }, renderIconUnified(block.iconName, block.iconColor)),
-                          block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge)
+                          React.createElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center' } },
+                            block.badge && React.createElement('span', { className: 'fui-badge' }, block.badge),
+                            isEditMode ? React.createElement('span', { className: 'fui-badge', style: { cursor: 'pointer' }, onClick: () => { selectCardSection(secIdx); selectCard(bIdx); setPanePage(3); } }, '✏️ Edit') : null
+                          )
                         ),
-                        React.createElement('h3', { className: 'fui-card-title', style: isDarkBg ? { color: '#FFFFFF' } : {} }, block.title),
-                        React.createElement('p', { className: 'fui-card-desc', style: isDarkBg ? { color: 'rgba(255,255,255,0.85)' } : {} }, block.description),
+                        React.createElement(EditableText, {
+                          tag: 'h3',
+                          style: {
+                            fontSize: block.titleFontSize || '1.15rem',
+                            fontFamily: block.fontFamily || undefined,
+                            fontWeight: 600,
+                            color: block.textColor || (isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)'),
+                            marginBottom: '4px'
+                          },
+                          html: block.title,
+                          onChange: (newTitle) => { block.title = newTitle; syncSidebar(); }
+                        }),
+                        React.createElement(EditableText, {
+                          tag: 'p',
+                          style: {
+                            fontSize: block.bodyFontSize || '0.9rem',
+                            fontFamily: block.fontFamily || undefined,
+                            color: block.textColor || (isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)'),
+                            lineHeight: '1.35rem'
+                          },
+                          html: block.description,
+                          onChange: (newDesc) => { block.description = newDesc; syncSidebar(); }
+                        }),
+                        block.items && block.items.length > 0 ? React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px', margin: '6px 0' } },
+                          block.items.map((item, itmIdx) => React.createElement('div', { key: item.id || itmIdx, style: { position: 'relative' } },
+                            renderInnerItemPreview(item, isDarkBg),
+                            isEditMode ? React.createElement('div', {
+                              style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
+                            },
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                                title: 'Edit item properties',
+                                onClick: (e) => { e.stopPropagation(); openInnerItemModal(secIdx, bIdx, itmIdx); }
+                              }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' })),
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
+                                title: 'Remove item',
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  block.items.splice(itmIdx, 1);
+                                  syncSidebar();
+                                  render();
+                                }
+                              }, React.createElement('i', { className: 'fa-solid fa-xmark' }))
+                            ) : null
+                          ))
+                        ) : null,
                         React.createElement(CardTagsCollapsible, {
                           termStoreTags: block.termStoreTags,
                           tags: block.tags,
                           isDarkBg: isDarkBg,
                           isEditMode: isEditMode
                         })
+                      ),
+                      React.createElement('a', { href: block.actionUrl || '#', className: 'fui-btn-subtle' },
+                        block.actionText || 'Open link',
+                        React.createElement('i', { className: 'fa-solid fa-arrow-up-right-from-square' })
                       )
                     );
                   })

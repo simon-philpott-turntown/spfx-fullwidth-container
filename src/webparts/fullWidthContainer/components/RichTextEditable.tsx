@@ -16,14 +16,14 @@ const useStyles = makeStyles({
   },
   toolbarWrapper: {
     position: 'absolute',
-    bottom: 'calc(100% + 4px)',
+    bottom: 'calc(100% + 8px)',
     left: 0,
-    marginBottom: '2px',
     zIndex: 1000,
     width: 'max-content',
     minWidth: 'max-content',
     maxWidth: 'none',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    pointerEvents: 'auto'
   },
   editable: {
     outlineStyle: 'none',
@@ -135,14 +135,25 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
         // User highlighted specific text: format only that highlighted selection
         document.execCommand(command, false, value);
       } else {
-        // No specific text selected: format the whole text block as requested
+        // No specific text selected: format the whole text block using DOM selectNodeContents so formatting is saved in HTML
+        const fullRange = document.createRange();
+        fullRange.selectNodeContents(elementRef.current);
+        const sel = window.getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(fullRange);
+        }
+
         if (command === 'fontName' && value) {
+          document.execCommand('fontName', false, value);
           elementRef.current.style.fontFamily = value;
           setBlockOverrideStyle((prev) => ({ ...prev, fontFamily: value }));
         } else if (command === 'foreColor' && value) {
+          document.execCommand('foreColor', false, value);
           elementRef.current.style.color = value;
           setBlockOverrideStyle((prev) => ({ ...prev, color: value }));
         } else if (command === 'hiliteColor' && value) {
+          document.execCommand('hiliteColor', false, value);
           elementRef.current.style.backgroundColor = value;
           setBlockOverrideStyle((prev) => ({ ...prev, backgroundColor: value }));
         } else if (command === 'removeFormat') {
@@ -150,23 +161,8 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
           elementRef.current.style.color = '';
           elementRef.current.style.backgroundColor = '';
           setBlockOverrideStyle({});
-          const fullRange = document.createRange();
-          fullRange.selectNodeContents(elementRef.current);
-          const sel = window.getSelection();
-          if (sel) {
-            sel.removeAllRanges();
-            sel.addRange(fullRange);
-          }
           document.execCommand('removeFormat', false);
         } else {
-          // Alignment, list, bold, italic, underline, strike, formatBlock applied across the entire block contents
-          const fullRange = document.createRange();
-          fullRange.selectNodeContents(elementRef.current);
-          const sel = window.getSelection();
-          if (sel) {
-            sel.removeAllRanges();
-            sel.addRange(fullRange);
-          }
           document.execCommand(command, false, value);
         }
       }

@@ -35,6 +35,7 @@ import {
   ChevronDownRegular
 } from '@fluentui/react-icons';
 import { CardEditDialog, renderFluentIconPreview } from './CardEditDialog';
+import { CardItemPropertyEditor } from './CardItemPropertyEditor';
 import { RichTextEditable } from './RichTextEditable';
 import { InsertionBar } from './InsertionBar';
 import { TermStorePicker } from './TermStorePicker';
@@ -46,7 +47,11 @@ const useStyles = makeStyles({
     position: 'relative',
     width: '100%',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflow: 'visible',
+    ':focus-within': {
+      zIndex: 1000
+    }
   },
   card: {
     width: '100%',
@@ -55,6 +60,7 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    overflow: 'visible',
     transitionProperty: 'transform, box-shadow, border-color',
     transitionDuration: '200ms',
     transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -65,6 +71,9 @@ const useStyles = makeStyles({
       transform: 'translateY(-2px)',
       boxShadow: tokens.shadow8,
       ...shorthands.borderColor(tokens.colorBrandStroke1)
+    },
+    ':focus-within': {
+      zIndex: 1000
     }
   },
   cardEditMode: {
@@ -99,6 +108,9 @@ const useStyles = makeStyles({
       transform: 'translateY(-2px)',
       boxShadow: tokens.shadow8,
       ...shorthands.borderColor(tokens.colorBrandStroke1)
+    },
+    ':focus-within': {
+      zIndex: 120
     }
   },
   metricValue: {
@@ -182,6 +194,18 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     gap: '8px'
+  },
+  editorialBox: {
+    ...shorthands.padding('14px', '16px'),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    backgroundColor: tokens.colorNeutralBackground2,
+    ...shorthands.borderLeft('4px', 'solid', tokens.colorBrandStroke1),
+    ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke2),
+    ...shorthands.borderRight('1px', 'solid', tokens.colorNeutralStroke2),
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px'
   },
   galleryGrid: {
     display: 'grid',
@@ -441,6 +465,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 }) => {
   const styles = useStyles();
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
+  const [editingItem, setEditingItem] = React.useState<{ item: ICardItem; index: number } | null>(null);
   const [isDraggingBoundary, setIsDraggingBoundary] = React.useState<boolean>(false);
   const [liveColSpan, setLiveColSpan] = React.useState<number>(block.colSpan || 1);
   const [liveRowSpan, setLiveRowSpan] = React.useState<number>(block.rowSpan || 1);
@@ -672,11 +697,25 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     onUpdate({ items: block.items.filter((i) => i.id !== itemId) });
   };
 
+  const handleUpdateCardItem = (updatedItem: ICardItem): void => {
+    if (!onUpdate || !block.items || !editingItem) return;
+    const updatedItems = [...block.items];
+    updatedItems[editingItem.index] = updatedItem;
+    onUpdate({ items: updatedItems });
+  };
+
   const renderInnerItem = (item: ICardItem, idx: number): React.ReactElement => {
     return (
       <div key={item.id} style={{ position: 'relative', width: '100%' }}>
         {isEditMode && (
-          <div style={{ position: 'absolute', right: 0, top: 0, zIndex: 5 }}>
+          <div style={{ position: 'absolute', right: 0, top: 0, zIndex: 10, display: 'flex', gap: '2px', backgroundColor: 'rgba(255,255,255,0.85)', borderRadius: '4px', padding: '1px' }}>
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={<EditRegular />}
+              onClick={() => setEditingItem({ item, index: idx })}
+              title="Edit item properties"
+            />
             <Button
               size="small"
               appearance="subtle"
@@ -736,20 +775,83 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           </div>
         )}
 
-        {item.type === 'hero' && (
-          <div className={styles.heroBox}>
-            <Title3>{block.title}</Title3>
-            <Body1 style={{ color: tokens.colorNeutralForeground2 }}>{block.description}</Body1>
+        {item.type === 'editorial' && (
+          <div className={styles.editorialBox}>
+            {item.editorialKicker && (
+              <Caption1 style={{ color: tokens.colorBrandForeground1, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {item.editorialKicker}
+              </Caption1>
+            )}
+            <Subtitle2 style={{ fontWeight: 600 }}>{item.editorialTitle || 'Editorial Summary'}</Subtitle2>
+            {item.editorialBody && (
+              <Body1 style={{ color: tokens.colorNeutralForeground2, fontSize: '0.9rem' }}>
+                {item.editorialBody}
+              </Body1>
+            )}
+            {item.editorialUrl && (
+              <Button
+                size="small"
+                appearance="subtle"
+                as="a"
+                href={item.editorialUrl}
+                icon={<OpenRegular />}
+                iconPosition="after"
+                style={{ alignSelf: 'flex-start', padding: 0, height: 'auto', marginTop: '4px' }}
+              >
+                Read full article
+              </Button>
+            )}
           </div>
         )}
 
-        {item.type === 'divider' && <Divider style={{ margin: '8px 0' }} />}
+        {item.type === 'hero' && (
+          <div
+            className={styles.heroBox}
+            style={item.heroBgUrl ? {
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${item.heroBgUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              color: '#FFFFFF'
+            } : undefined}
+          >
+            <Title3 style={item.heroBgUrl ? { color: '#FFFFFF' } : undefined}>
+              {item.heroTitle || block.title || 'Hero Banner'}
+            </Title3>
+            <Body1 style={item.heroBgUrl ? { color: 'rgba(255,255,255,0.9)' } : { color: tokens.colorNeutralForeground2 }}>
+              {item.heroSubtitle || block.description || 'Highlighting key announcements and strategic objectives.'}
+            </Body1>
+          </div>
+        )}
+
+        {item.type === 'link' && (
+          <div style={{ padding: '4px 0' }}>
+            <Button
+              appearance="subtle"
+              icon={<OpenRegular />}
+              iconPosition="after"
+              as="a"
+              href={item.linkUrl || item.buttonUrl || '#'}
+              style={{ fontWeight: 600, color: tokens.colorBrandForeground1 }}
+            >
+              {item.linkText || item.buttonLabel || 'Direct resource link'}
+            </Button>
+          </div>
+        )}
+
+        {item.type === 'divider' && (
+          <Divider
+            style={{
+              margin: '8px 0',
+              borderStyle: item.dividerStyle || 'solid'
+            }}
+          />
+        )}
 
         {item.type === 'image' && item.imageUrl && (
           <div style={{ width: '100%' }}>
             <img
               src={item.imageUrl}
-              alt={item.imageAlt || 'Card image'}
+              alt={item.imageAlt || item.imageCaption || 'Card image'}
               style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '6px' }}
             />
             {item.imageCaption && (
@@ -763,7 +865,14 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {item.type === 'gallery' && item.galleryImages && (
           <div className={styles.galleryGrid}>
             {item.galleryImages.map((img, i) => (
-              <img key={i} src={img.url} alt="Gallery" className={styles.galleryImg} />
+              <div key={i} style={{ position: 'relative' }}>
+                <img src={img.url} alt={img.caption || 'Gallery image'} className={styles.galleryImg} />
+                {img.caption && (
+                  <Caption1 style={{ fontSize: '0.7rem', color: tokens.colorNeutralForeground3, display: 'block', marginTop: '2px' }}>
+                    {img.caption}
+                  </Caption1>
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -788,109 +897,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 
         {item.type === 'liveData' && item.liveDataConfig && (
           <div>
-            {isEditMode ? (
-              <div
-                style={{
-                  padding: '10px',
-                  borderRadius: tokens.borderRadiusMedium,
-                  backgroundColor: tokens.colorNeutralBackground2,
-                  border: `1px solid ${tokens.colorNeutralStroke2}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  marginBottom: '8px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Caption1 style={{ color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
-                    Real-time live data API (optional)
-                  </Caption1>
-                  <Badge appearance="tint" color="brand" size="small">
-                    Live REST
-                  </Badge>
-                </div>
-                <input
-                  className={styles.inlineInput}
-                  style={{
-                    backgroundColor: tokens.colorNeutralBackground1,
-                    border: `1px solid ${tokens.colorNeutralStroke1}`,
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.85rem'
-                  }}
-                  placeholder="API endpoint URL (e.g. https://... or demo-api/burnDown)"
-                  value={item.liveDataConfig.apiUrl || ''}
-                  onChange={(e) => {
-                    if (block.items && onUpdate) {
-                      const updatedItems = [...block.items];
-                      updatedItems[idx].liveDataConfig = {
-                        ...item.liveDataConfig,
-                        apiUrl: e.target.value,
-                        jsonPath: item.liveDataConfig?.jsonPath || 'value',
-                        prefix: item.liveDataConfig?.prefix || '£',
-                        refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
-                      };
-                      onUpdate({ items: updatedItems });
-                    }
-                  }}
-                />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <input
-                    className={styles.inlineInput}
-                    style={{
-                      backgroundColor: tokens.colorNeutralBackground1,
-                      border: `1px solid ${tokens.colorNeutralStroke1}`,
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '0.85rem'
-                    }}
-                    placeholder="JSON path (e.g. data.metric)"
-                    value={item.liveDataConfig.jsonPath || ''}
-                    onChange={(e) => {
-                      if (block.items && onUpdate) {
-                        const updatedItems = [...block.items];
-                        updatedItems[idx].liveDataConfig = {
-                          ...item.liveDataConfig,
-                          apiUrl: item.liveDataConfig?.apiUrl || '',
-                          jsonPath: e.target.value,
-                          prefix: item.liveDataConfig?.prefix || '£',
-                          refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
-                        };
-                        onUpdate({ items: updatedItems });
-                      }
-                    }}
-                  />
-                  <input
-                    className={styles.inlineInput}
-                    style={{
-                      backgroundColor: tokens.colorNeutralBackground1,
-                      border: `1px solid ${tokens.colorNeutralStroke1}`,
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '0.85rem'
-                    }}
-                    placeholder="Prefix (e.g. £)"
-                    value={item.liveDataConfig.prefix || ''}
-                    onChange={(e) => {
-                      if (block.items && onUpdate) {
-                        const updatedItems = [...block.items];
-                        updatedItems[idx].liveDataConfig = {
-                          ...item.liveDataConfig,
-                          apiUrl: item.liveDataConfig?.apiUrl || '',
-                          jsonPath: item.liveDataConfig?.jsonPath || 'value',
-                          prefix: e.target.value,
-                          refreshIntervalSeconds: item.liveDataConfig?.refreshIntervalSeconds || 30
-                        };
-                        onUpdate({ items: updatedItems });
-                      }
-                    }}
-                  />
-                </div>
-                <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
-              </div>
-            ) : (
-              <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
-            )}
+            <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
           </div>
         )}
 
@@ -1270,6 +1277,14 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         maxRows={containerGridRows}
         onSave={(updated) => onUpdate && onUpdate(updated)}
         onDismiss={() => setIsDialogOpen(false)}
+      />
+
+      {/* Contextual Inner Item Property Editor Dialog */}
+      <CardItemPropertyEditor
+        isOpen={!!editingItem}
+        item={editingItem ? editingItem.item : null}
+        onDismiss={() => setEditingItem(null)}
+        onSave={handleUpdateCardItem}
       />
     </div>
   );

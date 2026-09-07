@@ -38,7 +38,7 @@
     {
       "name": "CardEditDialog",
       "path": "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
-      "role": "In-place Fluent UI 2 Modal Dialog for editing card type, icon, badge, links, and British financial metrics on canvas."
+      "role": "In-place Fluent UI 2 Modal Dialog for editing card type, typography (font family, font colour, title/body font sizes), inner composable items (buttons, images, videos, CTAs), icon, badge, links, and British financial metrics on canvas."
     },
     {
       "name": "FloatingTextToolbar",
@@ -124,6 +124,11 @@
       "name": "SectionEditDialog",
       "path": "src/webparts/fullWidthContainer/components/SectionEditDialog.tsx",
       "role": "In-place Fluent UI 2 side panel for configuring section titles, badges, icons, glyph colors, icon containers, and section background colors."
+    },
+    {
+      "name": "CardItemPropertyEditor",
+      "path": "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+      "role": "Fluent UI 2 modal dialog providing tailored contextual property editing forms for all 13 card inner item types with real-time live canvas syncing."
     }
   ]
 }

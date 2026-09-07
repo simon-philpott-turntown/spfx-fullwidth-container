@@ -56,8 +56,8 @@
       "aesthetic": "Elevated modal dialog with shadow28, responsive form layout, icon picker, and action buttons."
     },
     "FloatingTextToolbar": {
-      "classes": ["Button", "Dropdown", "Divider", "Popover", "PopoverSurface"],
-      "aesthetic": "Subtle floating pill toolbar with mousedown blur prevention, site theme palette swatches, highlight background colors, and active formatting indicators."
+      "classes": ["Button", "Dropdown", "Divider", "Popover", "PopoverSurface", "fui-floating-toolbar"],
+      "aesthetic": "Subtle floating pill toolbar positioned above card boundaries (bottom: calc(100% + 8px), z-index: 2000) with mousedown blur prevention, site theme palette swatches, font selector, highlight background colors, and active formatting indicators. Parent card wrapper elevates to z-index: 1000 with overflow: visible when focused."
     },
     "FluentIconPicker": {
       "classes": ["Dialog", "DialogSurface", "DialogTitle", "Input", "Badge", "Button"],
@@ -110,6 +110,10 @@
     "SectionEditDialog": {
       "classes": ["Dialog", "DialogSurface", "DialogTitle", "DialogBody", "Input", "Textarea", "BrandColorPickerPopover", "FluentIconPicker"],
       "aesthetic": "Elevated Fluent UI 2 side panel with transparent non-dimming backdrop, responsive form layout, draggable resize handle, icon picker, and brand color pickers."
+    },
+    "CardItemPropertyEditor": {
+      "classes": ["Dialog", "DialogSurface", "DialogTitle", "DialogBody", "Input", "Textarea", "Dropdown", "Button", "CardItemEditor"],
+      "aesthetic": "Fluent UI 2 elevated modal dialog (width: 580px, max-width: 90vw) with shadow28, responsive contextual form inputs tailored to each of the 13 card inner item types, brand accent header, live error validation, and synchronous state commitment."
     }
   }
 }
