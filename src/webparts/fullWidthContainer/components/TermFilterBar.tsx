@@ -33,7 +33,9 @@ import {
   PeopleRegular,
   BookOpenRegular,
   SparkleRegular,
-  TargetRegular
+  TargetRegular,
+  ArrowLeftRegular,
+  ArrowRightRegular
 } from '@fluentui/react-icons';
 import { ITermFilterConfig, ITermStoreTag } from '../models/IContainerModels';
 import { TaxonomyService } from '../services/TaxonomyService';
@@ -253,7 +255,7 @@ export const TermFilterBar: React.FC<ITermFilterBarProps> = ({
   return (
     <div className={styles.root}>
       <div className={styles.filterGroup}>
-        {filters.map((filter) => {
+        {filters.map((filter, idx) => {
           const terms = termsCache[filter.termSetName] || [];
           const currentVal = selectedValues[filter.id] || '';
 
@@ -278,19 +280,53 @@ export const TermFilterBar: React.FC<ITermFilterBarProps> = ({
                 ))}
               </Dropdown>
 
-              {/* Edit button in Edit Mode */}
+              {/* Edit & Reorder buttons in Edit Mode */}
               {isEditMode && onUpdateFilters && (
-                <Button
-                  appearance="subtle"
-                  size="small"
-                  icon={<SettingsRegular fontSize={14} />}
-                  className={styles.editActionBtn}
-                  title={`Configure ${filter.label} dropdown`}
-                  onClick={() => {
-                    setEditingFilter(filter);
-                    setDialogOpen(true);
-                  }}
-                />
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<ArrowLeftRegular fontSize={13} />}
+                    className={styles.editActionBtn}
+                    disabled={idx === 0}
+                    title={`Move ${filter.label} filter left`}
+                    onClick={() => {
+                      if (idx === 0) return;
+                      const updated = [...filters];
+                      const temp = updated[idx - 1];
+                      updated[idx - 1] = updated[idx];
+                      updated[idx] = temp;
+                      onUpdateFilters(updated);
+                    }}
+                  />
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<ArrowRightRegular fontSize={13} />}
+                    className={styles.editActionBtn}
+                    disabled={idx === filters.length - 1}
+                    title={`Move ${filter.label} filter right`}
+                    onClick={() => {
+                      if (idx === filters.length - 1) return;
+                      const updated = [...filters];
+                      const temp = updated[idx + 1];
+                      updated[idx + 1] = updated[idx];
+                      updated[idx] = temp;
+                      onUpdateFilters(updated);
+                    }}
+                  />
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<SettingsRegular fontSize={14} />}
+                    className={styles.editActionBtn}
+                    title={`Configure ${filter.label} dropdown`}
+                    onClick={() => {
+                      setEditingFilter(filter);
+                      setDialogOpen(true);
+                    }}
+                  />
+                </div>
               )}
             </div>
           );

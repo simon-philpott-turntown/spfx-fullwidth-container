@@ -43,7 +43,7 @@ const useStyles = makeStyles({
   },
   rootStandard: {
     backgroundColor: tokens.colorNeutralBackground2,
-    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2)
+    ...shorthands.border('none')
   },
   rootGlassmorphism: {
     backgroundColor: 'rgba(255, 255, 255, 0.65)',
@@ -53,7 +53,7 @@ const useStyles = makeStyles({
   },
   rootBranded: {
     backgroundColor: tokens.colorBrandBackground2,
-    ...shorthands.border('1px', 'solid', tokens.colorBrandStroke2)
+    ...shorthands.border('none')
   },
   rootMinimal: {
     backgroundColor: 'transparent',
@@ -61,7 +61,7 @@ const useStyles = makeStyles({
   },
   rootGradient: {
     backgroundImage: 'linear-gradient(135deg, rgba(0, 120, 212, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%)',
-    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2)
+    ...shorthands.border('none')
   },
   inner: {
     width: '100%',
@@ -76,25 +76,30 @@ const useStyles = makeStyles({
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    ...shorthands.gap(tokens.spacingVerticalM),
-    '@media (min-width: 768px)': {
-      flexDirection: 'row',
-      alignItems: 'flex-end'
-    }
+    width: '100%',
+    gap: '16px'
   },
   headerTextCol: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS)
+    ...shorthands.gap(tokens.spacingVerticalXXS),
+    flex: 1
   },
-  headerControls: {
+  headerTopRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexShrink: 0
+  },
+  searchAndFiltersRow: {
     display: 'flex',
     alignItems: 'center',
     flexWrap: 'wrap',
-    ...shorthands.gap(tokens.spacingHorizontalM)
+    gap: tokens.spacingHorizontalM,
+    width: '100%'
   },
   searchInput: {
     minWidth: '240px'
@@ -109,8 +114,8 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
-    backgroundColor: tokens.colorBrandBackground2,
-    ...shorthands.border('1px', 'dashed', tokens.colorBrandStroke1),
+    backgroundColor: tokens.colorNeutralBackground3,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
     ...shorthands.gap(tokens.spacingHorizontalM)
   },
@@ -172,6 +177,7 @@ const useStyles = makeStyles({
 
 import { FloatingTextToolbar } from './FloatingTextToolbar';
 import { TermFilterBar } from './TermFilterBar';
+import { ComposableContentSection } from './ComposableContentSection';
 
 export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) => {
   const {
@@ -181,11 +187,14 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     containerStyle = 'standard',
     compactPadding,
     showSearch,
+    searchAlignment = 'left',
     gridColumns,
     gridRows,
     cardHeightMode,
     webPartBackgroundColor,
     sections,
+    headerContentItems = [],
+    onUpdateHeaderContentItems,
     termFilters = [],
     onUpdateTermFilters,
     isDarkTheme,
@@ -298,9 +307,9 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           </div>
         )}
 
-        {/* Header with Title & Controls */}
+        {/* Header: Title on Left, Mode Switcher Permanently Pinned to Top Right */}
         <div className={styles.header}>
-          <div className={styles.headerTextCol} style={{ flex: 1, minWidth: '280px' }}>
+          <div className={styles.headerTextCol}>
             <RichTextEditable
               tag="h1"
               html={title || ''}
@@ -329,37 +338,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             />
           </div>
 
-          <div className={styles.headerControls}>
-            {/* Search Filter Bar */}
-            {showSearch !== false && (
-              <Input
-                className={styles.searchInput}
-                contentBefore={<SearchRegular />}
-                placeholder="Filter items, tags, GBP..."
-                value={searchQuery}
-                onChange={(e, data) => setSearchQuery(data.value)}
-                size="medium"
-              />
-            )}
-
-            {/* Global Term Store Filter Dropdowns Bar */}
-            <TermFilterBar
-              filters={termFilters}
-              selectedValues={selectedFilterTerms}
-              onChangeFilter={(filterId, termLabel) => {
-                setSelectedFilterTerms((prev) => ({
-                  ...prev,
-                  [filterId]: termLabel
-                }));
-              }}
-              onClearAllFilters={() => {
-                setSelectedFilterTerms({});
-              }}
-              isEditMode={isEditMode}
-              onUpdateFilters={onUpdateTermFilters}
-            />
-
-            {/* Layout Mode Switcher */}
+          {/* Layout Mode Switcher (Pinned Permanently to Top Right) */}
+          <div className={styles.headerTopRight}>
             <TabList
               selectedValue={layoutMode}
               onTabSelect={(e, data) => setLayoutMode(data.value as LayoutMode)}
@@ -376,6 +356,61 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             </TabList>
           </div>
         </div>
+
+        {/* Web Part Top Content Section (Buttons, Process Model, Content blocks before sections) */}
+        <ComposableContentSection
+          items={headerContentItems}
+          isEditMode={isEditMode}
+          contextTitle="Add content to dashboard header"
+          assetPickerService={assetPickerService}
+          onUpdateItems={(newItems) => {
+            if (onUpdateHeaderContentItems) {
+              onUpdateHeaderContentItems(newItems);
+            }
+          }}
+        />
+
+        {/* Search Filter Bar & Term Store Filter Dropdowns Bar with Alignment */}
+        {(showSearch !== false || (termFilters && termFilters.length > 0)) && (
+          <div
+            className={styles.searchAndFiltersRow}
+            style={{
+              justifyContent:
+                searchAlignment === 'center'
+                  ? 'center'
+                  : searchAlignment === 'right'
+                  ? 'flex-end'
+                  : 'flex-start'
+            }}
+          >
+            {showSearch !== false && (
+              <Input
+                className={styles.searchInput}
+                contentBefore={<SearchRegular />}
+                placeholder="Filter items, tags, GBP..."
+                value={searchQuery}
+                onChange={(e, data) => setSearchQuery(data.value)}
+                size="medium"
+              />
+            )}
+
+            <TermFilterBar
+              filters={termFilters}
+              selectedValues={selectedFilterTerms}
+              onChangeFilter={(filterId, termLabel) => {
+                setSelectedFilterTerms((prev) => ({
+                  ...prev,
+                  [filterId]: termLabel
+                }));
+              }}
+              onClearAllFilters={() => {
+                setSelectedFilterTerms({});
+              }}
+              isEditMode={isEditMode}
+              onUpdateFilters={onUpdateTermFilters}
+            />
+          </div>
+        )}
 
         {/* Content Container Body */}
         {layoutMode === 'tabs' ? (

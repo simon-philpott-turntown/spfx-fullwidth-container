@@ -25,6 +25,8 @@ export interface IDashboardPackage {
   cardHeightMode?: string;
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
+  searchAlignment?: 'left' | 'center' | 'right';
+  headerContentItems?: import('../models/IContainerModels').ICardItem[];
   termFilters?: ITermFilterConfig[];
   sections: IContainerSection[];
   metadata?: {
@@ -65,6 +67,8 @@ export interface ISaveBackupOptions {
   cardHeightMode?: string;
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
+  searchAlignment?: 'left' | 'center' | 'right';
+  headerContentItems?: import('../models/IContainerModels').ICardItem[];
   termFilters?: ITermFilterConfig[];
   sections: IContainerSection[];
   trigger?: 'manual' | 'auto';
@@ -168,6 +172,8 @@ export class DashboardStorageService {
       cardHeightMode: options.cardHeightMode || 'default',
       webPartBackgroundColor: options.webPartBackgroundColor || '',
       sectionBackgroundColor: options.sectionBackgroundColor || '',
+      searchAlignment: options.searchAlignment || 'left',
+      headerContentItems: options.headerContentItems ? JSON.parse(JSON.stringify(options.headerContentItems)) : undefined,
       termFilters: options.termFilters ? JSON.parse(JSON.stringify(options.termFilters)) : undefined,
       sections: JSON.parse(JSON.stringify(sections)),
       metadata: {

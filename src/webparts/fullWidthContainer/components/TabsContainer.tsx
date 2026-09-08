@@ -27,6 +27,7 @@ import {
   DeleteRegular
 } from '@fluentui/react-icons';
 import { SectionEditDialog } from './SectionEditDialog';
+import { ComposableContentSection } from './ComposableContentSection';
 
 const useStyles = makeStyles({
   container: {
@@ -418,6 +419,21 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
           setEditingSection(undefined);
         }}
       />
+
+      {/* Section Top Content Area (composable content items above section cards) */}
+      {activeSection && (
+        <ComposableContentSection
+          items={activeSection.topContentItems || []}
+          isEditMode={isEditMode}
+          contextTitle={`Add content to section "${activeSection.title}"`}
+          assetPickerService={assetPickerService}
+          onUpdateItems={(newItems) => {
+            if (onUpdateSection) {
+              onUpdateSection(activeSection.id, { topContentItems: newItems });
+            }
+          }}
+        />
+      )}
 
       {/* Cards Grid */}
       <div className={styles.grid} style={gridStyle}>

@@ -93,6 +93,8 @@ export interface IFullWidthContainerWebPartProps {
   cardHeightMode?: 'auto' | 'equal';
   presetTemplate?: string;
   sectionsJson: string;
+  headerContentJson?: string;
+  searchAlignment?: 'left' | 'center' | 'right';
   termFiltersJson?: string;
 
   // Active section editor state in Property Pane
@@ -215,6 +217,34 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
+   * Retrieves active header content items from canonical properties or initializes empty array.
+   */
+  private _getHeaderContentItems(): import('./models/IContainerModels').ICardItem[] {
+    if (this.properties && this.properties.headerContentJson && this.properties.headerContentJson.trim()) {
+      try {
+        const parsed = JSON.parse(this.properties.headerContentJson);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+        // Fallback if JSON parsing fails
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Serializes updated header content items array to web part properties.
+   */
+  private _saveHeaderContentItems(items: import('./models/IContainerModels').ICardItem[]): void {
+    if (this.properties) {
+      this.properties.headerContentJson = JSON.stringify(items);
+      this._isModifiedSinceLastBackup = true;
+    }
+    this.render();
+  }
+
+  /**
    * Serializes updated term filters array to web part properties.
    */
   private _saveTermFilters(filters: ITermFilterConfig[]): void {
@@ -246,6 +276,8 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         cardHeightMode: this.properties.cardHeightMode,
         webPartBackgroundColor: this.properties.webPartBackgroundColor,
         sectionBackgroundColor: this.properties.sectionBackgroundColor,
+        searchAlignment: this.properties.searchAlignment || 'left',
+        headerContentItems: this._getHeaderContentItems(),
         termFilters: this._getActiveTermFilters(),
         sections: this._getActiveSections(),
         trigger,
@@ -307,6 +339,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (pkg.cardHeightMode) this.properties.cardHeightMode = pkg.cardHeightMode as 'auto' | 'equal';
         if (pkg.webPartBackgroundColor !== undefined) this.properties.webPartBackgroundColor = pkg.webPartBackgroundColor;
         if (pkg.sectionBackgroundColor !== undefined) this.properties.sectionBackgroundColor = pkg.sectionBackgroundColor;
+        if (pkg.searchAlignment !== undefined) this.properties.searchAlignment = pkg.searchAlignment;
+        if (pkg.headerContentItems && Array.isArray(pkg.headerContentItems)) {
+          this._saveHeaderContentItems(pkg.headerContentItems);
+        }
         if (pkg.sections && Array.isArray(pkg.sections)) {
           this._saveSections(pkg.sections);
         }
@@ -388,11 +424,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           enableAnimation: props.enableAnimation !== false,
           compactPadding: !!props.compactPadding,
           showSearch: props.showSearch !== false,
+          searchAlignment: props.searchAlignment || 'left',
           gridColumns: props.gridColumns,
           gridRows: props.gridRows,
           cardHeightMode: props.cardHeightMode || 'auto',
           webPartBackgroundColor: props.webPartBackgroundColor,
           sections: activeSections,
+          headerContentItems: this._getHeaderContentItems(),
+          onUpdateHeaderContentItems: (newItems) => {
+            this._saveHeaderContentItems(newItems);
+          },
           termFilters: this._getActiveTermFilters(),
           onUpdateTermFilters: (newFilters: ITermFilterConfig[]) => {
             this._saveTermFilters(newFilters);
@@ -793,6 +834,12 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       if (parsed.gridColumns !== undefined) this.properties.gridColumns = parsed.gridColumns;
       if (parsed.gridRows !== undefined) this.properties.gridRows = parsed.gridRows;
       if (parsed.cardHeightMode) this.properties.cardHeightMode = parsed.cardHeightMode;
+      if (parsed.searchAlignment) this.properties.searchAlignment = parsed.searchAlignment;
+      if (parsed.headerContentJson) {
+        this.properties.headerContentJson = parsed.headerContentJson;
+      } else if (parsed.headerContentItems && Array.isArray(parsed.headerContentItems)) {
+        this.properties.headerContentJson = JSON.stringify(parsed.headerContentItems);
+      }
 
       this.render();
       this.context.propertyPane.refresh();
@@ -894,6 +941,16 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                 PropertyPaneToggle('showSearch', {
                   label: 'Enable real-time search and filter',
                   checked: this.properties.showSearch !== false
+                }),
+                PropertyPaneDropdown('searchAlignment', {
+                  label: 'Search bar & filters alignment',
+                  selectedKey: this.properties.searchAlignment || 'left',
+                  disabled: this.properties.showSearch === false,
+                  options: [
+                    { key: 'left', text: 'Left align' },
+                    { key: 'center', text: 'Center align' },
+                    { key: 'right', text: 'Right align' }
+                  ]
                 }),
                 PropertyPaneToggle('compactPadding', {
                   label: 'Compact vertical padding',

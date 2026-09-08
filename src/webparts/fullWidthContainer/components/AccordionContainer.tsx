@@ -32,6 +32,7 @@ import {
   DeleteRegular
 } from '@fluentui/react-icons';
 import { SectionEditDialog } from './SectionEditDialog';
+import { ComposableContentSection } from './ComposableContentSection';
 
 const useStyles = makeStyles({
   container: {
@@ -483,6 +484,19 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
               </AccordionHeader>
 
               <AccordionPanel style={Object.keys(panelStyle).length > 0 ? panelStyle : undefined}>
+                {/* Section Top Content Area (composable content items above section cards) */}
+                <ComposableContentSection
+                  items={section.topContentItems || []}
+                  isEditMode={isEditMode}
+                  contextTitle={`Add content to section "${section.title}"`}
+                  assetPickerService={assetPickerService}
+                  onUpdateItems={(newItems) => {
+                    if (onUpdateSection) {
+                      onUpdateSection(section.id, { topContentItems: newItems });
+                    }
+                  }}
+                />
+
                 <div className={styles.grid} style={gridStyle}>
                   {filteredBlocks.map((block, blkIdx) => (
                     <BlockRenderer

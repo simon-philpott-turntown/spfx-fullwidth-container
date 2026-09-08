@@ -400,6 +400,30 @@
         "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
         "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
       ]
+    },
+    {
+      "id": "FEAT-033",
+      "name": "ComposableHeaderAndSectionContent",
+      "description": "Composable content slots at the top of the web part (above sections) and at the top of each individual section (above the card grid). Enables authors to insert any of the 15 inner composable items (buttons, filter buttons, process models, call-to-action banners, rich editorial blocks, text, and media) with dedicated Left, Centre, and Right content alignment options and persistent header tab/accordion mode toggle.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts"
+      ]
+    },
+    {
+      "id": "FEAT-034",
+      "name": "FloatingTextToolbarFocusDismissalAndSubSurfacePreservation",
+      "description": "Inline WYSIWYG text formatting ribbon lifecycle management ensuring the floating formatting toolbar is only visible when an editable text surface is actively focused, dismissing immediately on pointerdown outside the active container or its dropdown popovers, preventing ghost toolbar lingering across card transitions.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
+        "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx"
+      ]
     }
   ]
 }

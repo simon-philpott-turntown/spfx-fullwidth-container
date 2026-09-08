@@ -19,7 +19,8 @@ import {
   Subtitle2,
   Caption1,
   Checkbox,
-  Divider
+  Divider,
+  Portal
 } from '@fluentui/react-components';
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import {
@@ -44,7 +45,9 @@ import {
   MegaphoneRegular,
   StarRegular,
   DeleteRegular,
-  FolderOpenRegular
+  FolderOpenRegular,
+  ArrowUpRegular,
+  ArrowDownRegular
 } from '@fluentui/react-icons';
 import { IContentBlock, BlockType, ICardItem } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
@@ -59,15 +62,15 @@ const useStyles = makeStyles({
     left: 0,
     width: '100vw',
     height: '100vh',
-    backgroundColor: 'transparent',
-    zIndex: 999,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    zIndex: 1000000,
     display: 'flex',
     justifyContent: 'flex-end',
     pointerEvents: 'auto'
   },
   sidePanel: {
     position: 'relative',
-    maxWidth: '92vw',
+    maxWidth: 'calc(100vw - 64px)',
     height: '100vh',
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.borderLeft('1px', 'solid', tokens.colorNeutralStroke1),
@@ -75,7 +78,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
-    pointerEvents: 'auto'
+    pointerEvents: 'auto',
+    marginRight: '48px'
   },
   leftResizeHandle: {
     position: 'absolute',
@@ -113,7 +117,10 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground2,
     display: 'flex',
     justifyContent: 'flex-end',
-    ...shorthands.gap('8px')
+    ...shorthands.gap('8px'),
+    position: 'sticky',
+    bottom: 0,
+    zIndex: 10
   },
   fieldRow: {
     display: 'flex',
@@ -122,7 +129,7 @@ const useStyles = makeStyles({
   },
   twoColRow: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
     ...shorthands.gap(tokens.spacingHorizontalM)
   },
   iconPreviewBox: {
@@ -265,18 +272,19 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
 
   return (
     <>
-      <div className={styles.backdrop} onClick={onDismiss}>
-        <div
-          className={styles.sidePanel}
-          style={{ width: `${panelWidth}px` }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Left-edge draggable resize bar */}
+      <Portal>
+        <div className={styles.backdrop} onClick={onDismiss}>
           <div
-            className={styles.leftResizeHandle}
-            onMouseDown={startResizeDrag}
-            title="Drag to adjust sidebar width"
-          />
+            className={styles.sidePanel}
+            style={{ width: `${panelWidth}px` }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Left-edge draggable resize bar */}
+            <div
+              className={styles.leftResizeHandle}
+              onMouseDown={startResizeDrag}
+              title="Drag to adjust sidebar width"
+            />
           {/* Header */}
           <div className={styles.panelHeader}>
             <div>
@@ -850,17 +858,49 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                         <Caption1 style={{ fontWeight: 600, textTransform: 'uppercase', color: tokens.colorBrandForeground1 }}>
                           #{idx + 1} {item.type}
                         </Caption1>
-                        <Button
-                          size="small"
-                          appearance="subtle"
-                          icon={<DeleteRegular />}
-                          title="Remove item"
-                          onClick={() => {
-                            const newItems = [...(formData.items || [])];
-                            newItems.splice(idx, 1);
-                            setFormData({ ...formData, items: newItems });
-                          }}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <Button
+                            size="small"
+                            appearance="subtle"
+                            icon={<ArrowUpRegular />}
+                            disabled={idx === 0}
+                            title="Move item up"
+                            onClick={() => {
+                              if (idx === 0) return;
+                              const newItems = [...(formData.items || [])];
+                              const temp = newItems[idx - 1];
+                              newItems[idx - 1] = newItems[idx];
+                              newItems[idx] = temp;
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Button
+                            size="small"
+                            appearance="subtle"
+                            icon={<ArrowDownRegular />}
+                            disabled={!formData.items || idx === formData.items.length - 1}
+                            title="Move item down"
+                            onClick={() => {
+                              if (!formData.items || idx === formData.items.length - 1) return;
+                              const newItems = [...(formData.items || [])];
+                              const temp = newItems[idx + 1];
+                              newItems[idx + 1] = newItems[idx];
+                              newItems[idx] = temp;
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Button
+                            size="small"
+                            appearance="subtle"
+                            icon={<DeleteRegular />}
+                            title="Remove item"
+                            onClick={() => {
+                              const newItems = [...(formData.items || [])];
+                              newItems.splice(idx, 1);
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                        </div>
                       </div>
 
                       {item.type === 'button' && (
@@ -1165,6 +1205,7 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
           </div>
         </div>
       </div>
+      </Portal>
 
       {/* Visual Fluent UI 2 Icon Picker */}
       <FluentIconPicker

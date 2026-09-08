@@ -17,7 +17,8 @@ import {
   tokens,
   Subtitle2,
   Caption1,
-  Checkbox
+  Checkbox,
+  Portal
 } from '@fluentui/react-components';
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import {
@@ -40,15 +41,15 @@ const useStyles = makeStyles({
     left: 0,
     width: '100vw',
     height: '100vh',
-    backgroundColor: 'transparent',
-    zIndex: 999,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    zIndex: 1000000,
     display: 'flex',
     justifyContent: 'flex-end',
-    pointerEvents: 'none'
+    pointerEvents: 'auto'
   },
   sidePanel: {
     position: 'relative',
-    maxWidth: '92vw',
+    maxWidth: 'calc(100vw - 64px)',
     height: '100vh',
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.borderLeft('1px', 'solid', tokens.colorNeutralStroke1),
@@ -56,7 +57,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
-    pointerEvents: 'auto'
+    pointerEvents: 'auto',
+    marginRight: '48px'
   },
   leftResizeHandle: {
     position: 'absolute',
@@ -197,18 +199,19 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
 
   return (
     <>
-      <div className={styles.backdrop} onClick={onDismiss}>
-        <div
-          className={styles.sidePanel}
-          style={{ width: `${panelWidth}px` }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Left-edge draggable resize bar */}
+      <Portal>
+        <div className={styles.backdrop} onClick={onDismiss}>
           <div
-            className={styles.leftResizeHandle}
-            onMouseDown={startResizeDrag}
-            title="Drag to adjust sidebar width"
-          />
+            className={styles.sidePanel}
+            style={{ width: `${panelWidth}px` }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Left-edge draggable resize bar */}
+            <div
+              className={styles.leftResizeHandle}
+              onMouseDown={startResizeDrag}
+              title="Drag to adjust sidebar width"
+            />
 
           {/* Header */}
           <div className={styles.panelHeader}>
@@ -421,6 +424,7 @@ export const SectionEditDialog: React.FC<ISectionEditDialogProps> = ({
           </div>
         </div>
       </div>
+      </Portal>
 
       {/* Visual Fluent UI 2 & Corporate SVG Icon Picker */}
       <FluentIconPicker

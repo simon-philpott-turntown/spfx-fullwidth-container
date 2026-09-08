@@ -176,6 +176,7 @@ const useStyles = makeStyles({
 export interface IProcessModelRendererProps {
   steps: IProcessStepItem[];
   activeStepId?: string;
+  alignment?: 'left' | 'center' | 'right';
   onSelectStep?: (step: IProcessStepItem | null) => void;
   isEditMode?: boolean;
   onEdit?: () => void;
@@ -184,6 +185,7 @@ export interface IProcessModelRendererProps {
 export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
   steps,
   activeStepId,
+  alignment = 'left',
   onSelectStep,
   isEditMode,
   onEdit

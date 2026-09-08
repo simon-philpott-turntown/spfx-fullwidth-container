@@ -106,6 +106,7 @@ const useStyles = makeStyles({
 export interface IFilterButtonsRendererProps {
   buttons: IFilterButtonItem[];
   activeFilterId?: string;
+  alignment?: 'left' | 'center' | 'right';
   onSelectFilter?: (button: IFilterButtonItem | null) => void;
   isEditMode?: boolean;
   onEdit?: () => void;
@@ -114,6 +115,7 @@ export interface IFilterButtonsRendererProps {
 export const FilterButtonsRenderer: React.FC<IFilterButtonsRendererProps> = ({
   buttons,
   activeFilterId,
+  alignment = 'left',
   onSelectFilter,
   isEditMode,
   onEdit
@@ -135,9 +137,11 @@ export const FilterButtonsRenderer: React.FC<IFilterButtonsRendererProps> = ({
 
   const activeBtn = buttons.find((b) => b.id === activeFilterId);
 
+  const justifyVal = alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start';
+
   return (
     <div className={styles.container}>
-      <div className={styles.pillsRow} role="toolbar" aria-label="Filter cards">
+      <div className={styles.pillsRow} style={{ justifyContent: justifyVal }} role="toolbar" aria-label="Filter cards">
         {buttons.map((btn) => {
           const isActive = activeFilterId === btn.id;
           return (

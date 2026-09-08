@@ -1534,6 +1534,7 @@
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('quickLinks')" title="Add quick links">+ Quick Links</button>
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('hero')" title="Add hero">+ Hero</button>
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('divider')" title="Add divider">+ Divider</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('processModel')" title="Add process model flow">+ Process Model</button>
             </div>
           </div>
           <div id="card-inner-items-list" style="display: flex; flex-direction: column; gap: 6px; background: var(--fui-colorNeutralBackground2); padding: 8px; border-radius: var(--fui-borderRadiusMedium); border: 1px solid var(--fui-colorNeutralStroke2);">
@@ -1574,15 +1575,15 @@
 
   <!-- Contextual Inner Item Property Editor Modal -->
   <div id="modal-item-editor" class="fui-modal-backdrop" style="display: none;">
-    <div class="fui-modal-surface" style="max-width: 520px; width: 92vw;">
-      <div class="fui-modal-header">
+    <div class="fui-modal-surface" style="max-width: 740px; width: 92vw; border-radius: 12px; box-shadow: var(--fui-shadow28);">
+      <div class="fui-modal-header" style="border-bottom: 1px solid var(--fui-colorNeutralStroke2); padding: 16px 20px;">
         <h3 id="modal-item-editor-title" style="font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-sliders" style="color: var(--fui-colorBrandForeground1);"></i>
           <span>Configure Card Item</span>
         </h3>
         <button class="fui-toolbar-btn" onclick="closeInnerItemModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="fui-modal-body" id="modal-item-editor-body" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto;">
+      <div class="fui-modal-body" id="modal-item-editor-body" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 78vh; overflow-y: auto;">
         <!-- Dynamic form fields injected via JS -->
       </div>
       <div class="fui-modal-footer" style="padding: 12px 16px; border-top: 1px solid var(--fui-colorNeutralStroke2); display: flex; justify-content: flex-end; gap: 8px; background: var(--fui-colorNeutralBackground2);">
@@ -1715,7 +1716,20 @@
             iconName: 'BookAnswers',
             tags: ['Policy', 'Procurement'],
             actionText: 'Open playbook',
-            actionUrl: '#'
+            actionUrl: '#',
+            items: [
+              {
+                id: 'item-pm-1',
+                type: 'processModel',
+                processSteps: [
+                  { id: 'st-1', stageNumber: 'Stage 1', title: 'Shape', description: 'Define strategic objectives and case for change.', badgeText: 'Advisory', actionType: 'none', actionUrl: '' },
+                  { id: 'st-2', stageNumber: 'Stage 2', title: 'Plan', description: 'Establish commercial governance, procurement models, and scope.', badgeText: 'Controls', actionType: 'url', actionUrl: '#' },
+                  { id: 'st-3', stageNumber: 'Stage 3', title: 'Deliver', description: 'Execute capital works with live milestone tracking.', badgeText: 'Delivery', actionType: 'none', actionUrl: '' },
+                  { id: 'st-4', stageNumber: 'Stage 4', title: 'Validate', description: 'Assure quality, verify deliverables, and certify compliance.', badgeText: 'Assurance', actionType: 'none', actionUrl: '' },
+                  { id: 'st-5', stageNumber: 'Stage 5', title: 'Review', description: 'Assess outcomes and capture operational knowledge.', badgeText: 'Learning', actionType: 'none', actionUrl: '' }
+                ]
+              }
+            ]
           },
           {
             id: 'blk-2',
@@ -2921,6 +2935,21 @@
         }
       }
     }
+    function moveInnerItem(itemIdx, dir) {
+      const targetSec = currentSections[state.activeCardSecIdx];
+      if (targetSec && targetSec.blocks[state.activeCardIdx]) {
+        const curCard = targetSec.blocks[state.activeCardIdx];
+        if (curCard.items) {
+          const newIdx = itemIdx + dir;
+          if (newIdx < 0 || newIdx >= curCard.items.length) return;
+          const temp = curCard.items[newIdx];
+          curCard.items[newIdx] = curCard.items[itemIdx];
+          curCard.items[itemIdx] = temp;
+          syncSidebar();
+          render();
+        }
+      }
+    }
     function addInnerItem(type) {
       const targetSec = currentSections[state.activeCardSecIdx];
       if (targetSec && targetSec.blocks[state.activeCardIdx]) {
@@ -2953,6 +2982,18 @@
           curCard.items.push({ id: id, type: 'hero', heroTitle: 'Turner & Townsend Advisory', heroSubtitle: 'Driving performance across global capital programmes.' });
         } else if (type === 'divider') {
           curCard.items.push({ id: id, type: 'divider', dividerStyle: 'solid' });
+        } else if (type === 'processModel') {
+          curCard.items.push({
+            id: id,
+            type: 'processModel',
+            processSteps: [
+              { id: 'st-1', stageNumber: 'Stage 1', title: 'Shape', description: 'Define strategic objectives and case for change.', badgeText: 'Advisory', actionType: 'none', actionUrl: '' },
+              { id: 'st-2', stageNumber: 'Stage 2', title: 'Plan', description: 'Establish commercial governance, procurement models, and scope.', badgeText: 'Controls', actionType: 'url', actionUrl: '#' },
+              { id: 'st-3', stageNumber: 'Stage 3', title: 'Deliver', description: 'Execute capital works with live milestone tracking.', badgeText: 'Delivery', actionType: 'none', actionUrl: '' },
+              { id: 'st-4', stageNumber: 'Stage 4', title: 'Validate', description: 'Assure quality, verify deliverables, and certify compliance.', badgeText: 'Assurance', actionType: 'none', actionUrl: '' },
+              { id: 'st-5', stageNumber: 'Stage 5', title: 'Review', description: 'Assess outcomes and capture operational knowledge.', badgeText: 'Learning', actionType: 'none', actionUrl: '' }
+            ]
+          });
         }
         syncSidebar();
         render();
@@ -2976,7 +3017,26 @@
 
       if (title) title.innerHTML = `<i class="fa-solid fa-sliders" style="color: var(--fui-colorBrandForeground1);"></i> <span>Configure ${item.type.toUpperCase()} Item</span>`;
 
-      let fieldsHtml = '';
+      const alignVal = item.alignment || 'left';
+      let fieldsHtml = `
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" style="font-weight: 600;">Content alignment</label>
+          <div style="display: inline-flex; gap: 4px; background: var(--fui-colorNeutralBackground3); padding: 3px; border-radius: 6px; width: fit-content;" id="modal-alignment-btn-group">
+            <button type="button" class="sp-btn ${alignVal === 'left' ? 'sp-btn-primary' : 'sp-btn-secondary'}" id="btn-align-left" style="font-size: 0.75rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;" onclick="setModalAlignment('left')">
+              <i class="fa-solid fa-align-left"></i> Left
+            </button>
+            <button type="button" class="sp-btn ${alignVal === 'center' ? 'sp-btn-primary' : 'sp-btn-secondary'}" id="btn-align-center" style="font-size: 0.75rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;" onclick="setModalAlignment('center')">
+              <i class="fa-solid fa-align-center"></i> Centre
+            </button>
+            <button type="button" class="sp-btn ${alignVal === 'right' ? 'sp-btn-primary' : 'sp-btn-secondary'}" id="btn-align-right" style="font-size: 0.75rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;" onclick="setModalAlignment('right')">
+              <i class="fa-solid fa-align-right"></i> Right
+            </button>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--fui-colorNeutralForeground3); margin-top: 3px;">
+            Align this content block to the left, centre, or right of the container.
+          </div>
+        </div>
+      `;
       if (item.type === 'button') {
         fieldsHtml += `<div class="form-group"><label class="form-label">Button label</label><input type="text" class="form-input" id="inp-modal-btn-label" value="${item.buttonLabel || ''}" placeholder="Action Button" /></div>`;
         fieldsHtml += `<div class="form-group"><label class="form-label">Destination URL</label><input type="text" class="form-input" id="inp-modal-btn-url" value="${item.buttonUrl || ''}" placeholder="https://..." /></div>`;
@@ -3002,6 +3062,96 @@
         fieldsHtml += `<div class="form-group"><label class="form-label">Hero title</label><input type="text" class="form-input" id="inp-modal-hero-title" value="${item.heroTitle || ''}" placeholder="Hero Title" /></div>`;
         fieldsHtml += `<div class="form-group"><label class="form-label">Hero subtitle</label><textarea class="form-textarea" rows="2" id="inp-modal-hero-sub" placeholder="Subtitle...">${item.heroSubtitle || ''}</textarea></div>`;
         fieldsHtml += `<div class="form-group"><label class="form-label">Background image URL</label><input type="text" class="form-input" id="inp-modal-hero-bg" value="${item.heroBgUrl || ''}" placeholder="https://..." /></div>`;
+      } else if (item.type === 'processModel') {
+        const steps = item.processSteps || [];
+        fieldsHtml += `
+          <div style="background: var(--fui-colorNeutralBackground2); border: 1px dashed var(--fui-colorNeutralStroke1); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--fui-colorBrandForeground1); display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-route"></i> Live Flow Preview (${steps.length} Stages)
+              </span>
+              <span style="font-size: 0.72rem; color: var(--fui-colorNeutralForeground3);">Click a stage below to edit details</span>
+            </div>
+            <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;" id="modal-pm-preview-bar">
+              ${steps.map((st, i) => `
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <div style="background: var(--fui-colorNeutralBackground1); border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 4px; padding: 4px 10px; font-size: 0.72rem; white-space: nowrap; cursor: pointer;" onclick="toggleModalPmStep(${i})">
+                    <span style="font-weight: 700; color: var(--fui-colorBrandForeground1);">${st.stageNumber || 'Stage ' + (i + 1)}</span>:
+                    <span style="font-weight: 600;">${st.title || 'Untitled'}</span>
+                  </div>
+                  ${i < steps.length - 1 ? '<span style="color: var(--fui-colorNeutralForeground3); font-size: 0.68rem;">▶</span>' : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0; font-weight: 700;">Process Stages & Milestones (${steps.length})</label>
+            <button type="button" class="sp-btn" style="font-size: 0.75rem; padding: 4px 10px;" onclick="addModalPmStep()"><i class="fa-solid fa-plus"></i> Add Stage</button>
+          </div>
+
+          <div id="modal-pm-steps-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+            ${steps.map((st, i) => `
+              <div class="modal-pm-card" id="modal-pm-card-${i}" style="border: 1px solid var(--fui-colorNeutralStroke2); border-radius: 6px; background: var(--fui-colorNeutralBackground1); box-shadow: var(--fui-shadow4); overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--fui-colorNeutralBackground2); cursor: pointer; user-select: none;" onclick="toggleModalPmStep(${i})">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-chevron-${i === 0 ? 'down' : 'right'}" id="modal-pm-chevron-${i}" style="font-size: 0.75rem; color: var(--fui-colorBrandForeground1);"></i>
+                    <span class="fui-badge" style="background: var(--fui-colorBrandBackground2); color: var(--fui-colorBrandForeground1); font-weight: 700;">${st.stageNumber || 'Stage ' + (i + 1)}</span>
+                    <span style="font-weight: 600; font-size: 0.85rem;">${st.title || 'Untitled Stage'}</span>
+                    ${st.metricBadge ? `<span class="fui-badge" style="font-size: 0.7rem;">${st.metricBadge}</span>` : ''}
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 4px;" onclick="event.stopPropagation()">
+                    <span style="font-size: 0.72rem; color: var(--fui-colorNeutralForeground3); margin-right: 4px;">${st.actionType === 'navigate' ? '🔗 URL' : '🔍 Filter'}</span>
+                    <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" ${i === 0 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : `onclick="moveModalPmStep(${i}, -1)"`} title="Move stage up"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" ${i === steps.length - 1 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : `onclick="moveModalPmStep(${i}, 1)"`} title="Move stage down"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" onclick="deleteModalPmStep(${i})" title="Delete stage"><i class="fa-solid fa-trash-can"></i></button>
+                  </div>
+                </div>
+
+                <div id="modal-pm-body-${i}" style="padding: 14px 16px; display: ${i === 0 ? 'flex' : 'none'}; flex-direction: column; gap: 12px; border-top: 1px solid var(--fui-colorNeutralStroke2);">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" style="font-size: 0.75rem;">Stage label</label>
+                      <input type="text" class="form-input" id="inp-pm-label-${i}" value="${st.stageNumber || ''}" placeholder="e.g. Stage 1" oninput="syncModalPmPreview()" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" style="font-size: 0.75rem;">Stage title</label>
+                      <input type="text" class="form-input" id="inp-pm-title-${i}" value="${st.title || ''}" placeholder="e.g. Shape" oninput="syncModalPmPreview()" />
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.75rem;">Description / Case for acting</label>
+                    <textarea class="form-textarea" rows="2" id="inp-pm-desc-${i}" placeholder="Define problem and case for acting...">${st.description || ''}</textarea>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px; color: var(--fui-colorNeutralForeground3); font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">
+                    <span>Interactivity & Action</span>
+                    <div style="flex-grow: 1; height: 1px; background: var(--fui-colorNeutralStroke2);"></div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" style="font-size: 0.75rem;">Capabilities badge</label>
+                      <input type="text" class="form-input" id="inp-pm-badge-${i}" value="${st.metricBadge || ''}" placeholder="e.g. 4 capabilities" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" style="font-size: 0.75rem;">Action on click</label>
+                      <select class="form-select" id="inp-pm-action-${i}" onchange="toggleModalPmAction(${i}, this.value)">
+                        <option value="filter" ${st.actionType !== 'navigate' ? 'selected' : ''}>Filter Cards</option>
+                        <option value="navigate" ${st.actionType === 'navigate' ? 'selected' : ''}>Follow URL link</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" style="font-size: 0.75rem;" id="lbl-pm-target-${i}">${st.actionType === 'navigate' ? 'Destination URL' : 'Custom filter term'}</label>
+                      <input type="text" class="form-input" id="inp-pm-target-${i}" value="${st.actionType === 'navigate' ? (st.url || '') : (st.filterValue || '')}" placeholder="${st.actionType === 'navigate' ? 'https://...' : 'Defaults to stage title'}" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
       } else if (item.type === 'divider') {
         fieldsHtml += `<div class="form-group"><label class="form-label">Divider style</label><select class="form-select" id="inp-modal-div-style"><option value="solid" ${item.dividerStyle === 'solid' ? 'selected' : ''}>Solid line</option><option value="dashed" ${item.dividerStyle === 'dashed' ? 'selected' : ''}>Dashed line</option></select></div>`;
       } else {
@@ -3010,6 +3160,102 @@
 
       body.innerHTML = fieldsHtml;
       modal.style.display = 'flex';
+    }
+
+    function toggleModalPmStep(idx) {
+      const cards = document.querySelectorAll('.modal-pm-card');
+      cards.forEach((card, i) => {
+        const body = document.getElementById(`modal-pm-body-${i}`);
+        const chevron = document.getElementById(`modal-pm-chevron-${i}`);
+        if (i === idx) {
+          const isOpen = body && body.style.display === 'flex';
+          if (body) body.style.display = isOpen ? 'none' : 'flex';
+          if (chevron) chevron.className = isOpen ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down';
+        } else {
+          if (body) body.style.display = 'none';
+          if (chevron) chevron.className = 'fa-solid fa-chevron-right';
+        }
+      });
+    }
+
+    function toggleModalPmAction(idx, val) {
+      const lbl = document.getElementById(`lbl-pm-target-${idx}`);
+      const inp = document.getElementById(`inp-pm-target-${idx}`);
+      if (!lbl || !inp) return;
+      if (val === 'navigate') {
+        lbl.textContent = 'Destination URL';
+        inp.placeholder = 'https://...';
+      } else {
+        lbl.textContent = 'Custom filter term';
+        inp.placeholder = 'Defaults to stage title';
+      }
+    }
+
+    function addModalPmStep() {
+      if (!activeModalEditingItem || !activeModalEditingItem.item) return;
+      const item = activeModalEditingItem.item;
+      if (!item.processSteps) item.processSteps = [];
+      const newIdx = item.processSteps.length + 1;
+      item.processSteps.push({
+        id: 'step-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        stageNumber: `Stage ${newIdx}`,
+        title: `Stage ${newIdx} Title`,
+        description: 'Define stage objective and actions',
+        metricBadge: `${newIdx} capabilities`,
+        actionType: 'filter'
+      });
+      openInnerItemModal(activeModalEditingItem.secIdx, activeModalEditingItem.cardIdx, activeModalEditingItem.itemIdx);
+      setTimeout(() => toggleModalPmStep(newIdx - 1), 50);
+    }
+
+    function deleteModalPmStep(idx) {
+      if (!activeModalEditingItem || !activeModalEditingItem.item) return;
+      const item = activeModalEditingItem.item;
+      if (item.processSteps && item.processSteps[idx]) {
+        item.processSteps.splice(idx, 1);
+        openInnerItemModal(activeModalEditingItem.secIdx, activeModalEditingItem.cardIdx, activeModalEditingItem.itemIdx);
+      }
+    }
+
+    function moveModalPmStep(idx, dir) {
+      if (!activeModalEditingItem || !activeModalEditingItem.item) return;
+      syncModalPmPreview();
+      const item = activeModalEditingItem.item;
+      const steps = item.processSteps || [];
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= steps.length) return;
+      const temp = steps[newIdx];
+      steps[newIdx] = steps[idx];
+      steps[idx] = temp;
+      openInnerItemModal(activeModalEditingItem.secIdx, activeModalEditingItem.cardIdx, activeModalEditingItem.itemIdx);
+      setTimeout(() => toggleModalPmStep(newIdx), 50);
+    }
+
+    function setModalAlignment(align) {
+      if (!activeModalEditingItem || !activeModalEditingItem.item) return;
+      activeModalEditingItem.item.alignment = align;
+      ['left', 'center', 'right'].forEach(a => {
+        const btn = document.getElementById('btn-align-' + a);
+        if (btn) {
+          if (a === align) {
+            btn.className = 'sp-btn sp-btn-primary';
+          } else {
+            btn.className = 'sp-btn sp-btn-secondary';
+          }
+        }
+      });
+    }
+
+    function syncModalPmPreview() {
+      if (!activeModalEditingItem || !activeModalEditingItem.item) return;
+      const item = activeModalEditingItem.item;
+      const steps = item.processSteps || [];
+      steps.forEach((st, i) => {
+        const inpLabel = document.getElementById(`inp-pm-label-${i}`);
+        const inpTitle = document.getElementById(`inp-pm-title-${i}`);
+        if (inpLabel) st.stageNumber = inpLabel.value;
+        if (inpTitle) st.title = inpTitle.value;
+      });
     }
 
     function closeInnerItemModal() {
@@ -3026,7 +3272,22 @@
       const curCard = targetSec.blocks[cardIdx];
       if (!curCard.items || !curCard.items[itemIdx]) return;
 
-      if (item.type === 'button') {
+      if (item.type === 'processModel') {
+        const steps = item.processSteps || [];
+        steps.forEach((st, i) => {
+          st.stageNumber = document.getElementById(`inp-pm-label-${i}`)?.value || st.stageNumber;
+          st.title = document.getElementById(`inp-pm-title-${i}`)?.value || st.title;
+          st.description = document.getElementById(`inp-pm-desc-${i}`)?.value || st.description;
+          st.metricBadge = document.getElementById(`inp-pm-badge-${i}`)?.value || st.metricBadge;
+          st.actionType = document.getElementById(`inp-pm-action-${i}`)?.value || 'filter';
+          const targetVal = document.getElementById(`inp-pm-target-${i}`)?.value || '';
+          if (st.actionType === 'navigate') {
+            st.url = targetVal;
+          } else {
+            st.filterValue = targetVal;
+          }
+        });
+      } else if (item.type === 'button') {
         item.buttonLabel = document.getElementById('inp-modal-btn-label')?.value || '';
         item.buttonUrl = document.getElementById('inp-modal-btn-url')?.value || '';
         item.buttonVariant = document.getElementById('inp-modal-btn-var')?.value || 'primary';
@@ -3082,7 +3343,9 @@
         html += `<div style="padding: 8px; border-radius: var(--fui-borderRadiusMedium); border: 1px solid var(--fui-colorNeutralStroke2); background: var(--fui-colorNeutralBackground1); display: flex; flex-direction: column; gap: 6px;">`;
         html += `<div style="display: flex; justify-content: space-between; align-items: center;">`;
         html += `<span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--fui-colorBrandForeground1);">#${idx + 1} ${item.type}</span>`;
-        html += `<div style="display: flex; gap: 4px;">`;
+        html += `<div style="display: flex; gap: 3px;">`;
+        html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" ${idx === 0 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : `onclick="moveInnerItem(${idx}, -1)"`} title="Move item up"><i class="fa-solid fa-arrow-up"></i></button>`;
+        html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" ${idx === items.length - 1 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : `onclick="moveInnerItem(${idx}, 1)"`} title="Move item down"><i class="fa-solid fa-arrow-down"></i></button>`;
         html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" onclick="openInnerItemModal(state.activeCardSecIdx, state.activeCardIdx, ${idx})" title="Edit item properties in dialog"><i class="fa-solid fa-pen-to-square"></i></button>`;
         html += `<button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.7rem; padding: 2px 6px; height: auto;" onclick="deleteInnerItem(${idx})" title="Remove item"><i class="fa-solid fa-trash-can"></i></button>`;
         html += `</div>`;
@@ -3120,6 +3383,9 @@
           html += `<div><label class="form-label" style="font-size: 0.72rem;">Subtitle</label><input type="text" class="form-input" style="font-size: 0.78rem; padding: 3px 6px;" value="${item.heroSubtitle || ''}" placeholder="Subtitle..." oninput="updateInnerItemField(${idx}, 'heroSubtitle', this.value)" /></div>`;
         } else if (item.type === 'divider') {
           html += `<div><label class="form-label" style="font-size: 0.72rem;">Line Style</label><select class="form-select" style="font-size: 0.78rem; padding: 3px 6px;" onchange="updateInnerItemField(${idx}, 'dividerStyle', this.value)"><option value="solid" ${item.dividerStyle === 'solid' ? 'selected' : ''}>Solid</option><option value="dashed" ${item.dividerStyle === 'dashed' ? 'selected' : ''}>Dashed</option></select></div>`;
+        } else if (item.type === 'processModel') {
+          const stCount = (item.processSteps || []).length;
+          html += `<div style="display: flex; justify-content: space-between; align-items: center; background: var(--fui-colorNeutralBackground2); padding: 6px 8px; border-radius: var(--fui-borderRadiusSmall);"><span style="font-size: 0.75rem; color: var(--fui-colorNeutralForeground2);"><i class="fa-solid fa-route" style="margin-right: 4px; color: var(--fui-colorBrandForeground1);"></i> ${stCount} Process Stages Defined</span><button type="button" class="sp-btn" style="font-size: 0.7rem; padding: 2px 8px;" onclick="openInnerItemModal(state.activeCardSecIdx, state.activeCardIdx, ${idx})">Configure Stages</button></div>`;
         }
         html += `</div>`;
       });
@@ -3388,6 +3654,68 @@
           style: { marginTop: '6px', fontSize: '0.88rem', color: isDarkBg ? 'rgba(255,255,255,0.9)' : 'var(--fui-colorNeutralForeground1)' },
           dangerouslySetInnerHTML: { __html: item.text || '' }
         });
+      }
+      if (item.type === 'processModel') {
+        const steps = item.processSteps || [];
+        return React.createElement('div', {
+          key: item.id,
+          style: {
+            marginTop: '8px',
+            padding: '10px 12px',
+            borderRadius: '6px',
+            backgroundColor: isDarkBg ? 'rgba(255,255,255,0.06)' : 'var(--fui-colorNeutralBackground2)',
+            border: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.15)' : 'var(--fui-colorNeutralStroke2)'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }
+        },
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              color: 'var(--fui-colorBrandForeground1)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }
+          },
+            React.createElement('i', { className: 'fa-solid fa-route' }),
+            `Process Model (${steps.length} Stages)`
+          ),
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              gap: '6px',
+              overflowX: 'auto',
+              paddingBottom: '4px'
+            }
+          },
+            steps.map((st, i) => React.createElement('div', {
+              key: st.id || i,
+              style: { display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }
+            },
+              React.createElement('div', {
+                style: {
+                  padding: '6px 10px',
+                  borderRadius: '4px',
+                  backgroundColor: isDarkBg ? 'rgba(255,255,255,0.1)' : 'var(--fui-colorNeutralBackground1)',
+                  border: `1px solid ${isDarkBg ? 'rgba(255,255,255,0.2)' : 'var(--fui-colorNeutralStroke1)'}`,
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }
+              },
+                React.createElement('span', { style: { fontWeight: 700, color: 'var(--fui-colorBrandForeground1)', fontSize: '0.68rem' } }, st.stageNumber || `Stage ${i + 1}`),
+                React.createElement('span', { style: { fontWeight: 600, color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)' } }, st.title || 'Untitled')
+              ),
+              i < steps.length - 1 ? React.createElement('span', { style: { color: 'var(--fui-colorNeutralForeground3)', fontSize: '0.7rem' } }, '▶') : null
+            ))
+          )
+        );
       }
       return null;
     }
@@ -4228,6 +4556,38 @@
                           React.createElement('button', {
                             type: 'button',
                             className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === 0 ? 0.4 : 1, cursor: itmIdx === 0 ? 'not-allowed' : 'pointer' },
+                            disabled: itmIdx === 0,
+                            title: 'Move item up',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              if (itmIdx === 0) return;
+                              const temp = block.items[itmIdx - 1];
+                              block.items[itmIdx - 1] = block.items[itmIdx];
+                              block.items[itmIdx] = temp;
+                              syncSidebar();
+                              render();
+                            }
+                          }, React.createElement('i', { className: 'fa-solid fa-arrow-up' })),
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === block.items.length - 1 ? 0.4 : 1, cursor: itmIdx === block.items.length - 1 ? 'not-allowed' : 'pointer' },
+                            disabled: itmIdx === block.items.length - 1,
+                            title: 'Move item down',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              if (itmIdx === block.items.length - 1) return;
+                              const temp = block.items[itmIdx + 1];
+                              block.items[itmIdx + 1] = block.items[itmIdx];
+                              block.items[itmIdx] = temp;
+                              syncSidebar();
+                              render();
+                            }
+                          }, React.createElement('i', { className: 'fa-solid fa-arrow-down' })),
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
                             style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px' },
                             title: 'Edit item properties',
                             onClick: (e) => { e.stopPropagation(); openInnerItemModal(state.activeSecIdx, bIdx, itmIdx); }
@@ -4310,6 +4670,38 @@
                         isEditMode ? React.createElement('div', {
                           style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
                         },
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === 0 ? 0.4 : 1, cursor: itmIdx === 0 ? 'not-allowed' : 'pointer' },
+                            disabled: itmIdx === 0,
+                            title: 'Move item up',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              if (itmIdx === 0) return;
+                              const temp = block.items[itmIdx - 1];
+                              block.items[itmIdx - 1] = block.items[itmIdx];
+                              block.items[itmIdx] = temp;
+                              syncSidebar();
+                              render();
+                            }
+                          }, React.createElement('i', { className: 'fa-solid fa-arrow-up' })),
+                          React.createElement('button', {
+                            type: 'button',
+                            className: 'sp-btn sp-btn-secondary',
+                            style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === block.items.length - 1 ? 0.4 : 1, cursor: itmIdx === block.items.length - 1 ? 'not-allowed' : 'pointer' },
+                            disabled: itmIdx === block.items.length - 1,
+                            title: 'Move item down',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              if (itmIdx === block.items.length - 1) return;
+                              const temp = block.items[itmIdx + 1];
+                              block.items[itmIdx + 1] = block.items[itmIdx];
+                              block.items[itmIdx] = temp;
+                              syncSidebar();
+                              render();
+                            }
+                          }, React.createElement('i', { className: 'fa-solid fa-arrow-down' })),
                           React.createElement('button', {
                             type: 'button',
                             className: 'sp-btn sp-btn-secondary',
@@ -4454,6 +4846,38 @@
                             isEditMode ? React.createElement('div', {
                               style: { position: 'absolute', right: '4px', top: '4px', display: 'flex', gap: '2px', zIndex: 10 }
                             },
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === 0 ? 0.4 : 1, cursor: itmIdx === 0 ? 'not-allowed' : 'pointer' },
+                                disabled: itmIdx === 0,
+                                title: 'Move item up',
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  if (itmIdx === 0) return;
+                                  const temp = block.items[itmIdx - 1];
+                                  block.items[itmIdx - 1] = block.items[itmIdx];
+                                  block.items[itmIdx] = temp;
+                                  syncSidebar();
+                                  render();
+                                }
+                              }, React.createElement('i', { className: 'fa-solid fa-arrow-up' })),
+                              React.createElement('button', {
+                                type: 'button',
+                                className: 'sp-btn sp-btn-secondary',
+                                style: { padding: '1px 5px', fontSize: '0.68rem', height: '20px', opacity: itmIdx === block.items.length - 1 ? 0.4 : 1, cursor: itmIdx === block.items.length - 1 ? 'not-allowed' : 'pointer' },
+                                disabled: itmIdx === block.items.length - 1,
+                                title: 'Move item down',
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  if (itmIdx === block.items.length - 1) return;
+                                  const temp = block.items[itmIdx + 1];
+                                  block.items[itmIdx + 1] = block.items[itmIdx];
+                                  block.items[itmIdx] = temp;
+                                  syncSidebar();
+                                  render();
+                                }
+                              }, React.createElement('i', { className: 'fa-solid fa-arrow-down' })),
                               React.createElement('button', {
                                 type: 'button',
                                 className: 'sp-btn sp-btn-secondary',

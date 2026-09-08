@@ -149,6 +149,11 @@
       "name": "ProcessModelRenderer",
       "path": "src/webparts/fullWidthContainer/components/ProcessModelRenderer.tsx",
       "role": "Customisable process stage chevron flow component with configurable step count, capability badges, and URL navigation / card filtering."
+    },
+    {
+      "name": "ComposableContentSection",
+      "path": "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+      "role": "Composable content area for top-of-webpart and top-of-section content authoring supporting all 15 inner item types, alignment controls, insertion bars, and inline editing."
     }
   ]
 }

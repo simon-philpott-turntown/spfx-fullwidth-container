@@ -18,11 +18,22 @@ Users require the ability to:
 ### Context
 Users requested the ability to disable visual card chrome (card backgrounds, borders, shadows, elevation) so that the card acts purely as a layout container slot on the section canvas, seamlessly hosting elements such as filter button rows, process models, or media without a boxed card frame.
 
+## DEC-003: Composable Header & Section Top Content, Alignment Controls & Portal Mounting (FIX-001)
+
+### Context
+1. Authors required the ability to add composable content items (text, buttons, filter buttons, process models, media, etc.) directly into the web part top header (above sections) and at the top of each section (above the cards grid).
+2. Content sections and search bar needed alignment options (Left, Centre, Right).
+3. The tabs/accordion layout mode switcher needed to be permanently anchored to the top right of the web part header.
+4. The blue outline/border in Edit Mode needed to be removed.
+5. In-place property dialogs ([CardEditDialog.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardEditDialog.tsx) and [SectionEditDialog.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/SectionEditDialog.tsx)) were being clipped by the right-hand SharePoint page rail and overlapping card contents.
+
 ### Decision
-- Added `transparentCard?: boolean` to `IContentBlock` data contract in [IContainerModels.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/models/IContainerModels.ts).
-- Exposed the setting as a toggle in both the in-place [CardEditDialog.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardEditDialog.tsx) ("Transparent card (layout container only)") and the SPFx Property Pane sidebar in [FullWidthContainerWebPart.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts).
-- In [BlockRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/BlockRenderer.tsx), when `transparentCard` is enabled:
-  - Clears `border`, `box-shadow`, and `background-color` in published mode.
-  - In Edit Mode, renders an unobtrusive dashed indicator (`rgba(0, 144, 220, 0.45)`) so authors can still easily hover, drag resize boundaries, click the card settings toolbar, and use (+) insertion bars.
-  - Removes outer container padding on inner composable items for flush layout alignment.
+- **Composable Content Areas**: Created [ComposableContentSection.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ComposableContentSection.tsx), allowing authors to insert and edit any of the 15 composable item types at both the top of the web part (`headerContentItems`) and top of sections (`section.topContentItems`).
+- **Alignment Controls**:
+  - Added `alignment?: 'left' | 'center' | 'right'` to `ICardItem` and exposed an alignment dropdown in [CardItemPropertyEditor.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx).
+  - Applied flex justification and text alignment across [BlockRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/BlockRenderer.tsx), [FilterButtonsRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/FilterButtonsRenderer.tsx), and [ProcessModelRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ProcessModelRenderer.tsx).
+  - Added `searchAlignment` property in Property Pane and aligned search and term filter dropdowns accordingly.
+- **Top-Right Mode Switcher**: Restructured [FullWidthContainer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/FullWidthContainer.tsx) header with flex row layout, keeping title/subtitle on the left and the tabs/accordion switcher pinned to the top right.
+- **Removed Blue Border**: Suppressed dashed blue border on `editBanner` and neutralised canvas selection styling on container root.
+- **Fluent UI 2 Portal & Responsive Side Panels**: Mounted both `CardEditDialog` and `SectionEditDialog` in `<Portal>` at `z-index: 1000000`, added right margin of `48px` to clear the SharePoint page editing rail, set sticky footers, and used auto-wrapping two-column grids so action buttons and controls are never clipped.
 

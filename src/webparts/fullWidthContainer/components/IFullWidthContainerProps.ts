@@ -3,7 +3,7 @@
  * @description Props contract for the FullWidthContainer root React component.
  */
 
-import { IContainerSection, LayoutMode, ContainerStyle, ITermFilterConfig } from '../models/IContainerModels';
+import { IContainerSection, LayoutMode, ContainerStyle, ITermFilterConfig, ICardItem } from '../models/IContainerModels';
 
 export interface IFullWidthContainerProps {
   title: string;
@@ -14,11 +14,14 @@ export interface IFullWidthContainerProps {
   enableAnimation: boolean;
   compactPadding: boolean;
   showSearch: boolean;
+  searchAlignment?: 'left' | 'center' | 'right';
   gridColumns?: number;
   gridRows?: number;
   cardHeightMode?: 'auto' | 'equal';
   webPartBackgroundColor?: string;
   sections: IContainerSection[];
+  headerContentItems?: ICardItem[];
+  onUpdateHeaderContentItems?: (items: ICardItem[]) => void;
   termFilters?: ITermFilterConfig[];
   onUpdateTermFilters?: (filters: ITermFilterConfig[]) => void;
   isDarkTheme: boolean;

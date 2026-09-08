@@ -3,6 +3,7 @@
  * @description In-place modal dialog for configuring Global Term Store filter dropdowns
  * using Fluent UI 2 (@fluentui/react-components v9). Allows dashboard authors to select
  * a term group, term set, placeholder text, label, and custom icon.
+ * Wrapped in Fluent UI 2 Portal with zIndex: 1000000 to prevent clipping in SharePoint edit mode.
  */
 
 import * as React from 'react';
@@ -17,6 +18,7 @@ import {
   Input,
   Field,
   Select,
+  Portal,
   makeStyles,
   tokens,
   shorthands
@@ -33,7 +35,9 @@ import { TaxonomyService, ITermGroup } from '../services/TaxonomyService';
 const useStyles = makeStyles({
   surface: {
     maxWidth: '520px',
-    width: '90vw'
+    width: '90vw',
+    zIndex: 1000000,
+    boxShadow: tokens.shadow16
   },
   form: {
     display: 'flex',
@@ -178,115 +182,117 @@ export const TermFilterConfigDialog: React.FC<ITermFilterConfigDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(e, data) => { if (!data.open) onDismiss(); }}>
-      <DialogSurface className={styles.surface}>
-        <DialogTitle
-          action={
-            <Button
-              appearance="subtle"
-              aria-label="close"
-              icon={<DismissRegular />}
-              onClick={onDismiss}
-            />
-          }
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FilterRegular fontSize={20} />
-            <span>{filterConfig ? 'Configure filter dropdown' : 'Add filter dropdown'}</span>
-          </div>
-        </DialogTitle>
-
-        <DialogBody>
-          <DialogContent className={styles.form}>
-            {/* Global Term Store Group */}
-            <Field label="Term Store group">
-              <Select
-                value={selectedGroupName}
-                onChange={handleGroupChange}
-              >
-                {termGroups.map((g) => (
-                  <option key={g.id} value={g.name}>
-                    {g.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-
-            {/* Term Set */}
-            <Field label="Source term set">
-              <Select
-                value={selectedTermSetName}
-                onChange={handleSetChange}
-              >
-                {availableSets.map((s) => (
-                  <option key={s.id} value={s.name}>
-                    {s.name} ({s.terms.length} terms)
-                  </option>
-                ))}
-              </Select>
-            </Field>
-
-            {/* Label / Filter Category */}
-            <Field label="Filter category label">
-              <Input
-                value={label}
-                onChange={(e, data) => setLabel(data.value)}
-                placeholder="e.g. Region, Segment, Sector"
-              />
-            </Field>
-
-            {/* Placeholder Text */}
-            <Field label="Dropdown placeholder / holding text">
-              <Input
-                value={placeholder}
-                onChange={(e, data) => setPlaceholder(data.value)}
-                placeholder="e.g. Choose a segment"
-              />
-            </Field>
-
-            {/* Icon */}
-            <Field label="Dropdown icon">
-              <Select
-                value={iconName}
-                onChange={(e) => setIconName(e.target.value)}
-              >
-                {AVAILABLE_ICONS.map((ic) => (
-                  <option key={ic.id} value={ic.id}>
-                    {ic.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          </DialogContent>
-
-          <DialogActions className={styles.actions}>
-            <div className={styles.leftActions}>
-              {filterConfig && onDelete && (
-                <Button
-                  appearance="subtle"
-                  icon={<DeleteRegular />}
-                  onClick={handleDelete}
-                  style={{ color: tokens.colorPaletteRedForeground1 }}
-                >
-                  Delete filter
-                </Button>
-              )}
-            </div>
-            <div className={styles.rightActions}>
-              <Button appearance="secondary" onClick={onDismiss}>
-                Cancel
-              </Button>
+    <Portal>
+      <Dialog open={isOpen} onOpenChange={(e, data) => { if (!data.open) onDismiss(); }}>
+        <DialogSurface className={styles.surface}>
+          <DialogTitle
+            action={
               <Button
-                appearance="primary"
-                icon={<CheckmarkRegular />}
-                onClick={handleSave}
-              >
-                Save filter
-              </Button>
+                appearance="subtle"
+                aria-label="close"
+                icon={<DismissRegular />}
+                onClick={onDismiss}
+              />
+            }
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterRegular fontSize={20} />
+              <span>{filterConfig ? 'Configure filter dropdown' : 'Add filter dropdown'}</span>
             </div>
-          </DialogActions>
-        </DialogBody>
-      </DialogSurface>
-    </Dialog>
+          </DialogTitle>
+
+          <DialogBody>
+            <DialogContent className={styles.form}>
+              {/* Global Term Store Group */}
+              <Field label="Term Store group">
+                <Select
+                  value={selectedGroupName}
+                  onChange={handleGroupChange}
+                >
+                  {termGroups.map((g) => (
+                    <option key={g.id} value={g.name}>
+                      {g.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+
+              {/* Term Set */}
+              <Field label="Source term set">
+                <Select
+                  value={selectedTermSetName}
+                  onChange={handleSetChange}
+                >
+                  {availableSets.map((s) => (
+                    <option key={s.id} value={s.name}>
+                      {s.name} ({s.terms.length} terms)
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+
+              {/* Label / Filter Category */}
+              <Field label="Filter category label">
+                <Input
+                  value={label}
+                  onChange={(e, data) => setLabel(data.value)}
+                  placeholder="e.g. Region, Segment, Sector"
+                />
+              </Field>
+
+              {/* Placeholder Text */}
+              <Field label="Dropdown placeholder / holding text">
+                <Input
+                  value={placeholder}
+                  onChange={(e, data) => setPlaceholder(data.value)}
+                  placeholder="e.g. Choose a segment"
+                />
+              </Field>
+
+              {/* Icon */}
+              <Field label="Dropdown icon">
+                <Select
+                  value={iconName}
+                  onChange={(e) => setIconName(e.target.value)}
+                >
+                  {AVAILABLE_ICONS.map((ic) => (
+                    <option key={ic.id} value={ic.id}>
+                      {ic.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </DialogContent>
+
+            <DialogActions className={styles.actions}>
+              <div className={styles.leftActions}>
+                {filterConfig && onDelete && (
+                  <Button
+                    appearance="subtle"
+                    icon={<DeleteRegular />}
+                    onClick={handleDelete}
+                    style={{ color: tokens.colorPaletteRedForeground1 }}
+                  >
+                    Delete filter
+                  </Button>
+                )}
+              </div>
+              <div className={styles.rightActions}>
+                <Button appearance="secondary" onClick={onDismiss}>
+                  Cancel
+                </Button>
+                <Button
+                  appearance="primary"
+                  icon={<CheckmarkRegular />}
+                  onClick={handleSave}
+                >
+                  Save filter
+                </Button>
+              </div>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
+    </Portal>
   );
 };

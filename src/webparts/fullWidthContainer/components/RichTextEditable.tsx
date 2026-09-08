@@ -2,6 +2,7 @@
  * @file RichTextEditable.tsx
  * @description Inline WYSIWYG rich text editor with non-collapsing Floating Toolbar.
  * Inherits SharePoint site theme colors, brand fonts, and typography tokens.
+ * Only displays floating formatting toolbar when text element is actively focused or selected.
  */
 
 import * as React from 'react';
@@ -19,7 +20,8 @@ const useStyles = makeStyles({
     ...shorthands.border('none'),
     backgroundColor: 'transparent',
     boxShadow: 'none',
-    overflow: 'visible'
+    overflow: 'visible',
+    zIndex: 1000001
   },
   editable: {
     outlineStyle: 'none',
@@ -76,6 +78,48 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
       }
     };
   }, []);
+
+  // Global document click listener: if user clicks outside this editable element and its floating toolbar, hide toolbar
+  React.useEffect(() => {
+    if (!isFocused) return;
+
+    const handleDocumentPointerDown = (event: PointerEvent): void => {
+      const target = event.target as Node | null;
+      if (!target) return;
+
+      // Check if click is inside editable content element
+      if (elementRef.current && elementRef.current.contains(target)) {
+        return;
+      }
+
+      // Check if click is inside the toolbar popover surface
+      if (popoverSurfaceRef.current && popoverSurfaceRef.current.contains(target)) {
+        return;
+      }
+
+      // Check if click is inside any child Popover dropdown (e.g. Font family, styles, color picker)
+      if ((target as HTMLElement).closest && (target as HTMLElement).closest('.floating-toolbar-container')) {
+        return;
+      }
+
+      // Click occurred completely outside: dismiss toolbar immediately
+      isInteractingWithToolbarRef.current = false;
+      if (blurTimeoutRef.current) {
+        window.clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
+      suppressSharePointWebPartDrag(false, elementRef.current || undefined);
+      setIsFocused(false);
+      if (elementRef.current) {
+        onChange(elementRef.current.innerHTML);
+      }
+    };
+
+    document.addEventListener('pointerdown', handleDocumentPointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
+    };
+  }, [isFocused, onChange]);
 
   // Sync incoming HTML to DOM when not actively typing
   React.useEffect(() => {
@@ -191,14 +235,13 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent): void => {
-    // If actively interacting with the toolbar or focus moved to the toolbar/popover, do not close
-    if (isInteractingWithToolbarRef.current) {
-      return;
-    }
     const relatedTarget = e.relatedTarget as HTMLElement | null;
+
+    // If focus explicitly moved to the floating toolbar or any of its children / dropdown popovers, stay focused
     if (
       relatedTarget &&
       (relatedTarget.closest('.floating-toolbar-container') ||
+        relatedTarget.closest('.fui-floating-toolbar') ||
         (popoverSurfaceRef.current && popoverSurfaceRef.current.contains(relatedTarget)))
     ) {
       return;
@@ -209,13 +252,24 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
     }
 
     blurTimeoutRef.current = window.setTimeout(() => {
-      if (isInteractingWithToolbarRef.current) return;
+      // Check activeElement to see if focus is inside toolbar
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (activeEl.closest('.floating-toolbar-container') ||
+          activeEl.closest('.fui-floating-toolbar') ||
+          (popoverSurfaceRef.current && popoverSurfaceRef.current.contains(activeEl)))
+      ) {
+        return;
+      }
+
+      isInteractingWithToolbarRef.current = false;
       suppressSharePointWebPartDrag(false, elementRef.current || undefined);
       setIsFocused(false);
       if (elementRef.current) {
         onChange(elementRef.current.innerHTML);
       }
-    }, 250);
+    }, 150);
   };
 
   const commonStyle: React.CSSProperties = {
@@ -262,10 +316,9 @@ export const RichTextEditable: React.FC<IRichTextEditableProps> = ({
             isInteractingWithToolbarRef.current = true;
           }}
           onPointerUp={() => {
-            // Keep active for subsequent clicks
             setTimeout(() => {
               isInteractingWithToolbarRef.current = false;
-            }, 300);
+            }, 150);
           }}
           onMouseDown={(e) => {
             e.preventDefault();

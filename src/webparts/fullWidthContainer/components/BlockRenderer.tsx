@@ -32,7 +32,9 @@ import {
   DismissRegular,
   TagRegular,
   ChevronRightRegular,
-  ChevronDownRegular
+  ChevronDownRegular,
+  ArrowUpRegular,
+  ArrowDownRegular
 } from '@fluentui/react-icons';
 import { CardEditDialog, renderFluentIconPreview } from './CardEditDialog';
 import { CardItemPropertyEditor } from './CardItemPropertyEditor';
@@ -782,10 +784,54 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   };
 
   const renderInnerItem = (item: ICardItem, idx: number): React.ReactElement => {
+    const alignVal = item.alignment || 'left';
+    const textAlignVal = alignVal === 'center' ? 'center' : alignVal === 'right' ? 'right' : 'left';
+    const justifyVal = alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'flex-start';
+
     return (
-      <div key={item.id} style={{ position: 'relative', width: '100%' }}>
+      <div
+        key={item.id}
+        style={{
+          position: 'relative',
+          width: '100%',
+          textAlign: textAlignVal,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'stretch'
+        }}
+      >
         {isEditMode && (
           <div style={{ position: 'absolute', right: 0, top: 0, zIndex: 10, display: 'flex', gap: '2px', backgroundColor: 'rgba(255,255,255,0.85)', borderRadius: '4px', padding: '1px' }}>
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={<ArrowUpRegular />}
+              disabled={idx === 0}
+              onClick={() => {
+                if (idx === 0 || !block.items || !onUpdate) return;
+                const next = [...block.items];
+                const temp = next[idx - 1];
+                next[idx - 1] = next[idx];
+                next[idx] = temp;
+                onUpdate({ items: next });
+              }}
+              title="Move item up"
+            />
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={<ArrowDownRegular />}
+              disabled={!block.items || idx === block.items.length - 1}
+              onClick={() => {
+                if (!block.items || idx === block.items.length - 1 || !onUpdate) return;
+                const next = [...block.items];
+                const temp = next[idx + 1];
+                next[idx + 1] = next[idx];
+                next[idx] = temp;
+                onUpdate({ items: next });
+              }}
+              title="Move item down"
+            />
             <Button
               size="small"
               appearance="subtle"
@@ -804,7 +850,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'text' && (
-          <div>
+          <div style={{ width: '100%', textAlign: textAlignVal }}>
             <RichTextEditable
               html={item.text || ''}
               isEditMode={isEditMode}
@@ -818,37 +864,44 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               }}
               style={{
                 color: tokens.colorNeutralForeground1,
-                fontSize: '0.95rem'
+                fontSize: '0.95rem',
+                textAlign: textAlignVal
               }}
             />
           </div>
         )}
 
         {item.type === 'button' && (
-          <Button
-            appearance={item.buttonVariant || 'primary'}
-            as="a"
-            href={item.buttonUrl || '#'}
-            icon={<CursorClickRegular />}
-          >
-            {item.buttonLabel || 'Action Button'}
-          </Button>
+          <div style={{ display: 'flex', width: '100%', justifyContent: justifyVal }}>
+            <Button
+              appearance={item.buttonVariant || 'primary'}
+              as="a"
+              href={item.buttonUrl || '#'}
+              icon={<CursorClickRegular />}
+            >
+              {item.buttonLabel || 'Action Button'}
+            </Button>
+          </div>
         )}
 
         {item.type === 'cta' && (
           <div
             className={styles.ctaBox}
-            style={item.ctaBgUrl ? {
-              backgroundImage: `linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url(${item.ctaBgUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            } : undefined}
+            style={{
+              textAlign: textAlignVal,
+              alignItems: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'flex-start',
+              ...(item.ctaBgUrl ? {
+                backgroundImage: `linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url(${item.ctaBgUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              } : {})
+            }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <MegaphoneRegular style={{ color: tokens.colorBrandForeground1 }} />
               <Subtitle2>{item.ctaHeading || 'Call to Action'}</Subtitle2>
             </div>
-            <Caption1 style={{ color: tokens.colorNeutralForeground2 }}>
+            <Caption1 style={{ color: tokens.colorNeutralForeground2, textAlign: textAlignVal }}>
               {item.ctaDescription || 'Guidance details here.'}
             </Caption1>
             {item.ctaButtonText && (
@@ -860,7 +913,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'editorial' && (
-          <div className={styles.editorialBox}>
+          <div className={styles.editorialBox} style={{ textAlign: textAlignVal }}>
             {item.editorialImageUrl && (
               <div style={{ width: '100%', marginBottom: '8px', borderRadius: '6px', overflow: 'hidden' }}>
                 <img
@@ -877,7 +930,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             )}
             <Subtitle2 style={{ fontWeight: 600 }}>{item.editorialTitle || 'Editorial Summary'}</Subtitle2>
             {item.editorialBody && (
-              <Body1 style={{ color: tokens.colorNeutralForeground2, fontSize: '0.9rem' }}>
+              <Body1 style={{ color: tokens.colorNeutralForeground2, fontSize: '0.9rem', textAlign: textAlignVal }}>
                 {item.editorialBody}
               </Body1>
             )}
@@ -889,7 +942,12 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
                 href={item.editorialUrl}
                 icon={<OpenRegular />}
                 iconPosition="after"
-                style={{ alignSelf: 'flex-start', padding: 0, height: 'auto', marginTop: '4px' }}
+                style={{
+                  alignSelf: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'flex-start',
+                  padding: 0,
+                  height: 'auto',
+                  marginTop: '4px'
+                }}
               >
                 Read full article
               </Button>
@@ -900,12 +958,16 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         {item.type === 'hero' && (
           <div
             className={styles.heroBox}
-            style={item.heroBgUrl ? {
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${item.heroBgUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              color: '#FFFFFF'
-            } : undefined}
+            style={{
+              textAlign: textAlignVal,
+              alignItems: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'flex-start',
+              ...(item.heroBgUrl ? {
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${item.heroBgUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                color: '#FFFFFF'
+              } : {})
+            }}
           >
             <Title3 style={item.heroBgUrl ? { color: '#FFFFFF' } : undefined}>
               {item.heroTitle || block.title || 'Hero Banner'}
@@ -917,7 +979,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'link' && (
-          <div style={{ padding: '4px 0' }}>
+          <div style={{ padding: '4px 0', width: '100%', display: 'flex', justifyContent: justifyVal }}>
             <Button
               appearance="subtle"
               icon={<OpenRegular />}
@@ -941,14 +1003,14 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'image' && item.imageUrl && (
-          <div style={{ width: '100%' }}>
+          <div style={{ width: '100%', textAlign: textAlignVal }}>
             <img
               src={item.imageUrl}
               alt={item.imageAlt || item.imageCaption || 'Card image'}
               style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '6px' }}
             />
             {item.imageCaption && (
-              <Caption1 style={{ color: tokens.colorNeutralForeground4, display: 'block', marginTop: '4px' }}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground4, display: 'block', marginTop: '4px', textAlign: textAlignVal }}>
                 {item.imageCaption}
               </Caption1>
             )}
@@ -956,12 +1018,12 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'gallery' && item.galleryImages && (
-          <div className={styles.galleryGrid}>
+          <div className={styles.galleryGrid} style={{ justifyContent: justifyVal }}>
             {item.galleryImages.map((img, i) => (
               <div key={i} style={{ position: 'relative' }}>
                 <img src={img.url} alt={img.caption || 'Gallery image'} className={styles.galleryImg} />
                 {img.caption && (
-                  <Caption1 style={{ fontSize: '0.7rem', color: tokens.colorNeutralForeground3, display: 'block', marginTop: '2px' }}>
+                  <Caption1 style={{ fontSize: '0.7rem', color: tokens.colorNeutralForeground3, display: 'block', marginTop: '2px', textAlign: textAlignVal }}>
                     {img.caption}
                   </Caption1>
                 )}
@@ -971,7 +1033,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'quickLinks' && item.quickLinks && (
-          <div className={styles.quickLinksRow}>
+          <div className={styles.quickLinksRow} style={{ justifyContent: justifyVal }}>
             {item.quickLinks.map((ql, i) => (
               <Button key={i} size="small" appearance="outline" as="a" href={ql.url} icon={<OpenRegular />}>
                 {ql.label}
@@ -981,37 +1043,42 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'video' && item.videoUrl && (
-          <video
-            src={item.videoUrl}
-            controls
-            style={{ width: '100%', maxHeight: '180px', borderRadius: '6px' }}
-          />
+          <div style={{ width: '100%', textAlign: textAlignVal }}>
+            <video
+              src={item.videoUrl}
+              controls
+              style={{ width: '100%', maxHeight: '180px', borderRadius: '6px' }}
+            />
+          </div>
         )}
 
         {item.type === 'liveData' && item.liveDataConfig && (
-          <div>
+          <div style={{ width: '100%', textAlign: textAlignVal }}>
             <LiveDataRenderer config={item.liveDataConfig} isEditMode={isEditMode} />
           </div>
         )}
 
         {item.type === 'termStoreTags' && (
-          <TermStorePicker
-            selectedTags={item.termStoreTags || []}
-            onChange={(tags) => {
-              if (block.items && onUpdate) {
-                const updatedItems = [...block.items];
-                updatedItems[idx].termStoreTags = tags;
-                onUpdate({ items: updatedItems });
-              }
-            }}
-            isEditMode={isEditMode}
-          />
+          <div style={{ width: '100%', display: 'flex', justifyContent: justifyVal }}>
+            <TermStorePicker
+              selectedTags={item.termStoreTags || []}
+              onChange={(tags) => {
+                if (block.items && onUpdate) {
+                  const updatedItems = [...block.items];
+                  updatedItems[idx].termStoreTags = tags;
+                  onUpdate({ items: updatedItems });
+                }
+              }}
+              isEditMode={isEditMode}
+            />
+          </div>
         )}
 
         {item.type === 'filterButtons' && item.filterButtons && (
           <FilterButtonsRenderer
             buttons={item.filterButtons}
             activeFilterId={item.activeFilterId}
+            alignment={item.alignment || 'left'}
             onSelectFilter={(selectedBtn) => {
               if (block.items && onUpdate) {
                 const updatedItems = [...block.items];
@@ -1037,6 +1104,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           <ProcessModelRenderer
             steps={item.processSteps}
             activeStepId={item.activeFilterId}
+            alignment={item.alignment || 'left'}
             onSelectStep={(selectedStep) => {
               if (block.items && onUpdate) {
                 const updatedItems = [...block.items];

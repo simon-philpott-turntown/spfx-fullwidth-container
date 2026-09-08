@@ -158,17 +158,26 @@ export const TermStorePicker: React.FC<ITermStorePickerProps> = ({
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
+    let isMounted = true;
     setIsLoading(true);
     Promise.all([
       TaxonomyService.getTerms(),
       TaxonomyService.getTermGroups()
     ]).then(([terms, groups]) => {
-      setAllTerms(terms);
-      setTermGroups(groups);
-      setIsLoading(false);
+      if (isMounted) {
+        setAllTerms(terms);
+        setTermGroups(groups);
+        setIsLoading(false);
+      }
     }).catch(() => {
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSelectTerm = (term: ITermStoreTag): void => {

@@ -127,6 +127,7 @@ export interface ICardItem {
   filterButtons?: IFilterButtonItem[];
   processSteps?: IProcessStepItem[];
   activeFilterId?: string;
+  alignment?: 'left' | 'center' | 'right'; // Content alignment option
 }
 
 export type CardHeightMode = 'auto' | 'equal';
@@ -182,6 +183,7 @@ export interface IContainerSection {
   backgroundColor?: string; // Custom section background color (independent)
   backgroundImage?: string; // Custom section background image URL
   textColor?: string; // Custom section text color override
+  topContentItems?: ICardItem[]; // Composable content items above the cards in this section
   blocks: IContentBlock[];
 }
 
