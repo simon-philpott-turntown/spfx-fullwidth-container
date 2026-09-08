@@ -3,7 +3,7 @@
  * @description Props contract for the FullWidthContainer root React component.
  */
 
-import { IContainerSection, LayoutMode, ContainerStyle } from '../models/IContainerModels';
+import { IContainerSection, LayoutMode, ContainerStyle, ITermFilterConfig } from '../models/IContainerModels';
 
 export interface IFullWidthContainerProps {
   title: string;
@@ -19,6 +19,8 @@ export interface IFullWidthContainerProps {
   cardHeightMode?: 'auto' | 'equal';
   webPartBackgroundColor?: string;
   sections: IContainerSection[];
+  termFilters?: ITermFilterConfig[];
+  onUpdateTermFilters?: (filters: ITermFilterConfig[]) => void;
   isDarkTheme: boolean;
   userDisplayName: string;
   spfxTheme?: unknown;
@@ -39,3 +41,4 @@ export interface IFullWidthContainerProps {
   lastBackupMessage?: string;
   assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }
+

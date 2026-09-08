@@ -126,6 +126,7 @@ const useStyles = makeStyles({
 export interface IAccordionContainerProps {
   sections: IContainerSection[];
   searchQuery: string;
+  selectedFilterTerms?: Record<string, string>;
   gridColumns?: number;
   gridRows?: number;
   cardHeightMode?: 'auto' | 'equal';
@@ -139,6 +140,7 @@ export interface IAccordionContainerProps {
   onDeleteSection?: (sectionId: string) => void;
   assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
 }
+
 
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 
@@ -177,6 +179,7 @@ function renderSectionIcon(section?: IContainerSection): React.ReactElement {
 export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   sections,
   searchQuery,
+  selectedFilterTerms,
   gridColumns,
   gridRows,
   cardHeightMode = 'auto',
@@ -196,6 +199,18 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
   );
   const [isSectionDialogOpen, setIsSectionDialogOpen] = React.useState<boolean>(false);
   const [editingSection, setEditingSection] = React.useState<IContainerSection | undefined>(undefined);
+  const [activeItemFilter, setActiveItemFilter] = React.useState<string>('');
+
+  React.useEffect(() => {
+    const handleCardFilterApply = (e: Event): void => {
+      const ce = e as CustomEvent<{ sourceItemId: string; filterValue: string }>;
+      setActiveItemFilter(ce.detail?.filterValue || '');
+    };
+    window.addEventListener('dashboard:card-filter-apply', handleCardFilterApply);
+    return () => {
+      window.removeEventListener('dashboard:card-filter-apply', handleCardFilterApply);
+    };
+  }, []);
 
   const handleToggle: AccordionToggleEventHandler<string> = (
     event: AccordionToggleEvent,
@@ -221,6 +236,14 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
     );
   }
 
+  // Active term filters from dropdowns (filterId -> term label)
+  const activeDropdownFilters: string[] = selectedFilterTerms
+    ? Object.keys(selectedFilterTerms)
+        .map((key) => selectedFilterTerms[key])
+        .filter((val): val is string => !!val && val.trim().length > 0)
+    : [];
+
+
   const q = searchQuery ? searchQuery.toLowerCase().trim() : '';
 
   const gridStyle: React.CSSProperties = {
@@ -229,6 +252,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         ? `repeat(${gridColumns}, 1fr)`
         : 'repeat(auto-fill, minmax(320px, 1fr))'
   };
+
 
   return (
     <div className={styles.container}>
@@ -298,34 +322,87 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
         onToggle={handleToggle}
       >
         {sections.map((section, secIdx) => {
+          const itemFilt = activeItemFilter ? activeItemFilter.toLowerCase().trim() : '';
           const blocks = (section && Array.isArray(section.blocks)) ? section.blocks : [];
-          const filteredBlocks = q
-            ? blocks.filter((b) => {
-                const titleMatch = b.title ? b.title.toLowerCase().includes(q) : false;
-                const descMatch = b.description ? b.description.toLowerCase().includes(q) : false;
-                const badgeMatch = b.badge ? b.badge.toLowerCase().includes(q) : false;
-                const metricMatch = b.metricValue ? b.metricValue.toLowerCase().includes(q) : false;
-                const trendMatch = b.metricTrend ? b.metricTrend.toLowerCase().includes(q) : false;
-                const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q));
-                const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
-                  const labelMatch = t.label ? t.label.toLowerCase().includes(q) : false;
-                  const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(q) : false;
-                  const pathMatch = t.path ? t.path.toLowerCase().includes(q) : false;
-                  return labelMatch || setMatch || pathMatch;
-                });
-                const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
-                  const textMatch = item.text ? item.text.toLowerCase().includes(q) : false;
-                  const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().includes(q) : false;
-                  const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().includes(q) : false;
-                  const innerTermMatch = item.termStoreTags && Array.isArray(item.termStoreTags) && item.termStoreTags.some((t) => {
-                    return (t.label && t.label.toLowerCase().includes(q)) || (t.termSetName && t.termSetName.toLowerCase().includes(q));
-                  });
-                  return textMatch || ctaMatch || btnMatch || innerTermMatch;
-                });
+          const filteredBlocks = blocks.filter((b) => {
+            const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel');
 
-                return titleMatch || descMatch || badgeMatch || metricMatch || trendMatch || tagMatch || termStoreMatch || innerItemsMatch;
-              })
-            : blocks;
+            // 1. Interactive Button / Process Stage Filter Matching
+            if (itemFilt && !isFilterHost) {
+              const titleMatch = b.title ? b.title.toLowerCase().includes(itemFilt) : false;
+              const descMatch = b.description ? b.description.toLowerCase().includes(itemFilt) : false;
+              const badgeMatch = b.badge ? b.badge.toLowerCase().includes(itemFilt) : false;
+              const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(itemFilt));
+              const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
+                const labelMatch = t.label ? t.label.toLowerCase().includes(itemFilt) : false;
+                const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(itemFilt) : false;
+                return labelMatch || setMatch;
+              });
+              const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
+                const textMatch = item.text ? item.text.toLowerCase().includes(itemFilt) : false;
+                const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().includes(itemFilt) : false;
+                const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().includes(itemFilt) : false;
+                return textMatch || ctaMatch || btnMatch;
+              });
+
+              const matchesItemFilter = titleMatch || descMatch || badgeMatch || tagMatch || termStoreMatch || innerItemsMatch;
+              if (!matchesItemFilter) return false;
+            }
+
+            // 2. Search Query
+            if (q) {
+              const titleMatch = b.title ? b.title.toLowerCase().includes(q) : false;
+              const descMatch = b.description ? b.description.toLowerCase().includes(q) : false;
+              const badgeMatch = b.badge ? b.badge.toLowerCase().includes(q) : false;
+              const metricMatch = b.metricValue ? b.metricValue.toLowerCase().includes(q) : false;
+              const trendMatch = b.metricTrend ? b.metricTrend.toLowerCase().includes(q) : false;
+              const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q));
+              const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
+                const labelMatch = t.label ? t.label.toLowerCase().includes(q) : false;
+                const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(q) : false;
+                const pathMatch = t.path ? t.path.toLowerCase().includes(q) : false;
+                return labelMatch || setMatch || pathMatch;
+              });
+              const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
+                const textMatch = item.text ? item.text.toLowerCase().includes(q) : false;
+                const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().includes(q) : false;
+                const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().includes(q) : false;
+                const innerTermMatch = item.termStoreTags && Array.isArray(item.termStoreTags) && item.termStoreTags.some((t) => {
+                  return (t.label && t.label.toLowerCase().includes(q)) || (t.termSetName && t.termSetName.toLowerCase().includes(q));
+                });
+                return textMatch || ctaMatch || btnMatch || innerTermMatch;
+              });
+
+              const matchesSearch = titleMatch || descMatch || badgeMatch || metricMatch || trendMatch || tagMatch || termStoreMatch || innerItemsMatch;
+              if (!matchesSearch) return false;
+            }
+
+            // 2. Global Term Store Dropdown Filters Matching (conjunction / AND match)
+            if (activeDropdownFilters.length > 0) {
+              const blockTags = b.termStoreTags || [];
+              const itemTags: import('../models/IContainerModels').ITermStoreTag[] = (b.items || []).reduce<import('../models/IContainerModels').ITermStoreTag[]>(
+                (acc, it) => acc.concat(it.termStoreTags || []),
+                []
+              );
+              const allCardTags = blockTags.concat(itemTags);
+
+              const matchesAllDropdowns = activeDropdownFilters.every((reqTerm: string) => {
+                const target = reqTerm.toLowerCase().trim();
+                return allCardTags.some((tag) => {
+                  return (
+                    (tag.label && tag.label.toLowerCase() === target) ||
+                    (tag.path && tag.path.toLowerCase().includes(target))
+                  );
+                });
+              });
+
+              if (!matchesAllDropdowns) return false;
+            }
+
+
+            return true;
+          });
+
 
           const panelStyle: React.CSSProperties = {
             ...(section.backgroundColor

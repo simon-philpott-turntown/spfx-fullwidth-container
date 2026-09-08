@@ -521,6 +521,23 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
               </Dropdown>
             </div>
 
+            {/* Transparent Card Mode (Layout Only) */}
+            <div className={styles.fieldRow} style={{ marginTop: '2px', marginBottom: '2px' }}>
+              <Checkbox
+                label="Transparent card (layout container only)"
+                checked={formData.transparentCard === true}
+                onChange={(e, data) => {
+                  setFormData({
+                    ...formData,
+                    transparentCard: data.checked === true
+                  });
+                }}
+              />
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginLeft: '28px' }}>
+                Hides the card box, border, shadow, and background so only its inner content appears directly on the section canvas.
+              </Caption1>
+            </div>
+
             {/* Card Background Colour (Independent Visual Popup) */}
             <div className={styles.fieldRow}>
               <Label weight="semibold">Card background colour (Turner &amp; Townsend brand)</Label>

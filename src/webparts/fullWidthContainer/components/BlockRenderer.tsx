@@ -40,6 +40,8 @@ import { RichTextEditable } from './RichTextEditable';
 import { InsertionBar } from './InsertionBar';
 import { TermStorePicker } from './TermStorePicker';
 import { LiveDataRenderer } from './LiveDataRenderer';
+import { FilterButtonsRenderer } from './FilterButtonsRenderer';
+import { ProcessModelRenderer } from './ProcessModelRenderer';
 import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
 
 const useStyles = makeStyles({
@@ -78,6 +80,26 @@ const useStyles = makeStyles({
   },
   cardEditMode: {
     ...shorthands.border('1px', 'dashed', tokens.colorBrandStroke2)
+  },
+  cardTransparent: {
+    backgroundColor: 'transparent !important',
+    ...shorthands.border('none'),
+    boxShadow: 'none !important',
+    transform: 'none !important',
+    ':hover': {
+      backgroundColor: 'transparent !important',
+      ...shorthands.border('none'),
+      boxShadow: 'none !important',
+      transform: 'none !important'
+    }
+  },
+  cardTransparentEditMode: {
+    ...shorthands.border('1px', 'dashed', 'rgba(0, 144, 220, 0.45) !important'),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ':hover': {
+      ...shorthands.border('1px', 'dashed', `${tokens.colorBrandStroke1} !important`),
+      boxShadow: 'none !important'
+    }
   },
   cardToolbar: {
     position: 'absolute',
@@ -687,6 +709,59 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
       termStoreTags: itemType === 'termStoreTags' ? [
         { id: 'sec-infra', label: 'Infrastructure', termSetName: 'Our Sectors' },
         { id: 'seg-comm', label: 'Commercial advisory', termSetName: 'Our Segments' }
+      ] : undefined,
+      filterButtons: itemType === 'filterButtons' ? [
+        { id: 'btn-1', label: 'Programme advisory' },
+        { id: 'btn-2', label: 'Cost and commercial management' },
+        { id: 'btn-3', label: 'Controls and performance' },
+        { id: 'btn-4', label: 'Project management' },
+        { id: 'btn-5', label: 'Procurement and supply chain' },
+        { id: 'btn-6', label: 'Construction management' },
+        { id: 'btn-7', label: 'Sustainability' },
+        { id: 'btn-8', label: 'Digital' },
+        { id: 'btn-9', label: 'Asset and building consultancy' }
+      ] : undefined,
+      processSteps: itemType === 'processModel' ? [
+        {
+          id: 'stg-1',
+          stageNumber: 'Stage 1',
+          title: 'Shape',
+          description: 'Define the problem and the case for acting',
+          metricBadge: '4 capabilities',
+          actionType: 'filter'
+        },
+        {
+          id: 'stg-2',
+          stageNumber: 'Stage 2',
+          title: 'Plan',
+          description: 'Establish the approach, baseline and controls',
+          metricBadge: '4 capabilities',
+          actionType: 'filter'
+        },
+        {
+          id: 'stg-3',
+          stageNumber: 'Stage 3',
+          title: 'Source',
+          description: 'Take it to market and contract for delivery',
+          metricBadge: '2 capabilities',
+          actionType: 'filter'
+        },
+        {
+          id: 'stg-4',
+          stageNumber: 'Stage 4',
+          title: 'Deliver',
+          description: 'Execute, control and assure',
+          metricBadge: '3 capabilities',
+          actionType: 'filter'
+        },
+        {
+          id: 'stg-5',
+          stageNumber: 'Stage 5',
+          title: 'Realise',
+          description: 'Hand over, close out and bank the learning',
+          metricBadge: '3 capabilities',
+          actionType: 'filter'
+        }
       ] : undefined
     };
 
@@ -932,6 +1007,56 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             isEditMode={isEditMode}
           />
         )}
+
+        {item.type === 'filterButtons' && item.filterButtons && (
+          <FilterButtonsRenderer
+            buttons={item.filterButtons}
+            activeFilterId={item.activeFilterId}
+            onSelectFilter={(selectedBtn) => {
+              if (block.items && onUpdate) {
+                const updatedItems = [...block.items];
+                updatedItems[idx].activeFilterId = selectedBtn ? selectedBtn.id : undefined;
+                onUpdate({ items: updatedItems });
+              }
+              // Broadcast custom event so parent containers can filter cards
+              window.dispatchEvent(
+                new CustomEvent('dashboard:card-filter-apply', {
+                  detail: {
+                    sourceItemId: item.id,
+                    filterValue: selectedBtn ? (selectedBtn.filterValue || selectedBtn.label) : ''
+                  }
+                })
+              );
+            }}
+            isEditMode={isEditMode}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
+        )}
+
+        {item.type === 'processModel' && item.processSteps && (
+          <ProcessModelRenderer
+            steps={item.processSteps}
+            activeStepId={item.activeFilterId}
+            onSelectStep={(selectedStep) => {
+              if (block.items && onUpdate) {
+                const updatedItems = [...block.items];
+                updatedItems[idx].activeFilterId = selectedStep ? selectedStep.id : undefined;
+                onUpdate({ items: updatedItems });
+              }
+              // Broadcast custom event so parent containers can filter cards
+              window.dispatchEvent(
+                new CustomEvent('dashboard:card-filter-apply', {
+                  detail: {
+                    sourceItemId: item.id,
+                    filterValue: selectedStep ? (selectedStep.filterValue || selectedStep.title) : ''
+                  }
+                })
+              );
+            }}
+            isEditMode={isEditMode}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
+        )}
       </div>
     );
   };
@@ -955,22 +1080,29 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   };
 
   const isDarkBg = isDarkColor(block.backgroundColor);
+  const isTransparent = block.transparentCard === true;
+
   const cardDynamicStyle: React.CSSProperties = {
     height: isAutoHeight ? 'auto' : '100%',
-    backgroundColor: block.backgroundColor || undefined,
-    backgroundImage: block.backgroundImage
+    backgroundColor: isTransparent ? 'transparent' : (block.backgroundColor || undefined),
+    backgroundImage: (!isTransparent && block.backgroundImage)
       ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url("${block.backgroundImage}")`
       : undefined,
     backgroundSize: block.backgroundImage ? 'cover' : undefined,
     backgroundPosition: block.backgroundImage ? 'center' : undefined,
     color: block.textColor || (isDarkBg ? '#FFFFFF' : undefined),
     fontFamily: block.fontFamily || undefined,
+    border: isTransparent
+      ? (isEditMode ? undefined : 'none')
+      : undefined,
     borderColor: isDraggingBoundary
       ? tokens.colorBrandStroke1
       : (isDarkBg ? 'rgba(255, 255, 255, 0.2)' : undefined),
-    boxShadow: isDraggingBoundary
-      ? `0 0 0 2px ${tokens.colorBrandStroke1}, 0 8px 24px rgba(0, 144, 220, 0.35)`
-      : undefined
+    boxShadow: isTransparent
+      ? (isDraggingBoundary ? `0 0 0 2px ${tokens.colorBrandStroke1}` : 'none')
+      : (isDraggingBoundary
+        ? `0 0 0 2px ${tokens.colorBrandStroke1}, 0 8px 24px rgba(0, 144, 220, 0.35)`
+        : undefined)
   };
 
   // Metric Block
@@ -978,7 +1110,12 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     return (
       <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
         {renderResizeHandles()}
-        <div className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
+        <div
+          className={`${styles.metricCard} ${isEditMode ? styles.cardEditMode : ''} ${
+            isTransparent ? `${styles.cardTransparent} ${isEditMode ? styles.cardTransparentEditMode : ''}` : ''
+          }`}
+          style={cardDynamicStyle}
+        >
           {renderCardToolbar()}
           {/* Metric Title with Rich Text Editing */}
           <RichTextEditable
@@ -1073,7 +1210,12 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     return (
       <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
         {renderResizeHandles()}
-        <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
+        <Card
+          className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''} ${
+            isTransparent ? `${styles.cardTransparent} ${isEditMode ? styles.cardTransparentEditMode : ''}` : ''
+          }`}
+          style={cardDynamicStyle}
+        >
           {renderCardToolbar()}
           <CardHeader
             image={
@@ -1163,78 +1305,93 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
   }
 
   // Standard / Composable Card Block
+  const hasItems = block.items && block.items.length > 0;
+  const showHeader = !isTransparent || !!(block.title && block.title.trim() && block.title !== '<p><br></p>' && block.title !== 'Card title') || !!block.iconName || !!block.badge || isEditMode;
+  const showDescription = !isTransparent || !!(block.description && block.description.trim() && block.description !== '<p><br></p>' && block.description !== 'Card summary') || (isEditMode && !hasItems);
+
   return (
     <div ref={cardWrapperRef} className={styles.cardWrapper} style={wrapperGridStyle}>
       {renderResizeHandles()}
-      <Card className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''}`} style={cardDynamicStyle}>
+      <Card
+        className={`${styles.card} ${isEditMode ? styles.cardEditMode : ''} ${
+          isTransparent ? `${styles.cardTransparent} ${isEditMode ? styles.cardTransparentEditMode : ''}` : ''
+        }`}
+        style={cardDynamicStyle}
+      >
         {renderCardToolbar()}
-        <CardHeader
-          image={
-            <div
-              className={styles.iconBox}
-              style={{
-                backgroundColor: block.showIconBackground !== false
-                  ? (block.iconBackgroundColor || tokens.colorBrandBackground2)
-                  : 'transparent',
-                border: block.showIconBackground !== false
-                  ? (block.iconBackgroundColor ? 'none' : `1px solid ${tokens.colorNeutralStroke2}`)
-                  : 'none',
-                color: block.iconColor || tokens.colorBrandForeground2
-              }}
-            >
-              {renderFluentIconPreview(block.iconName, block.iconColor)}
-            </div>
-          }
-          header={
-            <div style={{ width: '100%' }}>
-              <RichTextEditable
-                tag="h3"
-                html={block.title || ''}
-                isEditMode={isEditMode}
-                placeholder="Card title"
-                onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
-                style={{
-                  fontWeight: 600,
-                  fontSize: block.titleFontSize || '1.15rem',
-                  color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
-                }}
-              />
-            </div>
-          }
-          action={
-            block.badge ? (
-              <Badge appearance="tint" color="brand" className={styles.badge}>
-                {block.badge}
-              </Badge>
-            ) : undefined
-          }
-        />
+        {showHeader && (
+          <CardHeader
+            image={
+              (block.iconName || isEditMode) ? (
+                <div
+                  className={styles.iconBox}
+                  style={{
+                    backgroundColor: block.showIconBackground !== false
+                      ? (block.iconBackgroundColor || tokens.colorBrandBackground2)
+                      : 'transparent',
+                    border: block.showIconBackground !== false
+                      ? (block.iconBackgroundColor ? 'none' : `1px solid ${tokens.colorNeutralStroke2}`)
+                      : 'none',
+                    color: block.iconColor || tokens.colorBrandForeground2
+                  }}
+                >
+                  {renderFluentIconPreview(block.iconName, block.iconColor)}
+                </div>
+              ) : undefined
+            }
+            header={
+              <div style={{ width: '100%' }}>
+                <RichTextEditable
+                  tag="h3"
+                  html={block.title || ''}
+                  isEditMode={isEditMode}
+                  placeholder="Card title"
+                  onChange={(newTitle) => onUpdate && onUpdate({ title: newTitle })}
+                  style={{
+                    fontWeight: 600,
+                    fontSize: block.titleFontSize || '1.15rem',
+                    color: block.textColor || (isDarkBg ? '#FFFFFF' : tokens.colorNeutralForeground1)
+                  }}
+                />
+              </div>
+            }
+            action={
+              block.badge ? (
+                <Badge appearance="tint" color="brand" className={styles.badge}>
+                  {block.badge}
+                </Badge>
+              ) : undefined
+            }
+          />
+        )}
 
         {/* Card Body Description with Rich Text Formatting */}
-        <div style={{ padding: '0 16px', marginTop: '6px' }}>
-          <RichTextEditable
-            tag="p"
-            html={block.description || ''}
-            isEditMode={isEditMode}
-            placeholder="Card summary"
-            onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
-            style={{
-              color: block.textColor || (isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground2),
-              fontSize: block.bodyFontSize || '0.95rem',
-              lineHeight: '1.4rem'
-            }}
-          />
-        </div>
+        {showDescription && (
+          <div style={{ padding: isTransparent ? '0' : '0 16px', marginTop: showHeader ? '6px' : '0' }}>
+            <RichTextEditable
+              tag="p"
+              html={block.description || ''}
+              isEditMode={isEditMode}
+              placeholder="Card summary"
+              onChange={(newDesc) => onUpdate && onUpdate({ description: newDesc })}
+              style={{
+                color: block.textColor || (isDarkBg ? 'rgba(255, 255, 255, 0.85)' : tokens.colorNeutralForeground2),
+                fontSize: block.bodyFontSize || '0.95rem',
+                lineHeight: '1.4rem'
+              }}
+            />
+          </div>
+        )}
 
         {/* Nested Composable Items & Insertion Bars */}
         {block.items && block.items.length > 0 && (
-          <div className={styles.innerItemsContainer}>
+          <div className={styles.innerItemsContainer} style={isTransparent ? { padding: '4px 0' } : undefined}>
             {block.items.map((item, index) => (
               <React.Fragment key={item.id}>
                 {isEditMode && (
                   <InsertionBar
                     onInsert={(type) => handleInsertCardItem(index, type)}
-                    contextTitle={`Insert into ${block.title}`}
+                    contextTitle={`Insert into ${block.title || 'transparent layout'}`}
                   />
                 )}
                 {renderInnerItem(item, index)}
@@ -1243,7 +1400,7 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             {isEditMode && (
               <InsertionBar
                 onInsert={(type) => handleInsertCardItem(block.items ? block.items.length : 0, type)}
-                contextTitle={`Insert into ${block.title}`}
+                contextTitle={`Insert into ${block.title || 'transparent layout'}`}
               />
             )}
           </div>
@@ -1251,35 +1408,37 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
 
         {/* Empty state insertion bar for Edit Mode when no items exist */}
         {isEditMode && (!block.items || block.items.length === 0) && (
-          <div style={{ padding: '0 12px' }}>
+          <div style={{ padding: isTransparent ? '4px 0' : '0 12px' }}>
             <InsertionBar
               alwaysVisible={true}
               onInsert={(type) => handleInsertCardItem(0, type)}
-              contextTitle={`Add content to ${block.title}`}
+              contextTitle={`Add content to ${block.title || 'transparent layout'}`}
             />
           </div>
         )}
 
         {/* Live Data API Field */}
         {block.liveDataConfig && (
-          <div style={{ padding: '0 12px', marginTop: '6px' }}>
+          <div style={{ padding: isTransparent ? '0' : '0 12px', marginTop: '6px' }}>
             <LiveDataRenderer config={block.liveDataConfig} isEditMode={isEditMode} />
           </div>
         )}
 
         {/* Mini Collapsible Tags */}
-        <div style={{ padding: '0 12px' }}>
-          <CardTagsCollapsible
-            termStoreTags={block.termStoreTags}
-            tags={block.tags}
-            isEditMode={isEditMode}
-            onUpdateTermStoreTags={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
-            isDarkBg={isDarkBg}
-          />
-        </div>
+        {(!isTransparent || (block.termStoreTags && block.termStoreTags.length > 0) || (block.tags && block.tags.length > 0) || isEditMode) && (
+          <div style={{ padding: isTransparent ? '0' : '0 12px' }}>
+            <CardTagsCollapsible
+              termStoreTags={block.termStoreTags}
+              tags={block.tags}
+              isEditMode={isEditMode}
+              onUpdateTermStoreTags={(tags) => onUpdate && onUpdate({ termStoreTags: tags })}
+              isDarkBg={isDarkBg}
+            />
+          </div>
+        )}
 
         {block.linkUrl && (
-          <CardFooter style={{ marginTop: tokens.spacingVerticalM }}>
+          <CardFooter style={{ marginTop: tokens.spacingVerticalM, padding: isTransparent ? '4px 0' : undefined }}>
             <Button
               appearance="subtle"
               icon={<OpenRegular />}

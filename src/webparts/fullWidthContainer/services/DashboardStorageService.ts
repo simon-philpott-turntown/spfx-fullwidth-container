@@ -6,7 +6,7 @@
  */
 
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { IContainerSection, LayoutMode, ContainerStyle } from '../models/IContainerModels';
+import { IContainerSection, LayoutMode, ContainerStyle, ITermFilterConfig } from '../models/IContainerModels';
 
 /**
  * Self-contained cross-site portable dashboard package schema.
@@ -25,6 +25,7 @@ export interface IDashboardPackage {
   cardHeightMode?: string;
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
+  termFilters?: ITermFilterConfig[];
   sections: IContainerSection[];
   metadata?: {
     totalSections: number;
@@ -64,6 +65,7 @@ export interface ISaveBackupOptions {
   cardHeightMode?: string;
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
+  termFilters?: ITermFilterConfig[];
   sections: IContainerSection[];
   trigger?: 'manual' | 'auto';
   customFileName?: string;
@@ -166,6 +168,7 @@ export class DashboardStorageService {
       cardHeightMode: options.cardHeightMode || 'default',
       webPartBackgroundColor: options.webPartBackgroundColor || '',
       sectionBackgroundColor: options.sectionBackgroundColor || '',
+      termFilters: options.termFilters ? JSON.parse(JSON.stringify(options.termFilters)) : undefined,
       sections: JSON.parse(JSON.stringify(sections)),
       metadata: {
         totalSections: sections.length,

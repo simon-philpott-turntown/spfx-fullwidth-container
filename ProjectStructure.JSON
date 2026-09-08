@@ -129,6 +129,27 @@
       "name": "CardItemPropertyEditor",
       "path": "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
       "role": "Fluent UI 2 modal dialog providing tailored contextual property editing forms for all 13 card inner item types with real-time live canvas syncing."
+    },
+    {
+      "name": "TermFilterBar",
+      "path": "src/webparts/fullWidthContainer/components/TermFilterBar.tsx",
+      "role": "Fluent UI 2 component rendering configurable Global Term Store filter dropdowns, dynamic term population, and reactive selection summary pill with clear controls."
+    },
+    {
+      "name": "TermFilterConfigDialog",
+      "path": "src/webparts/fullWidthContainer/components/TermFilterConfigDialog.tsx",
+      "role": "Fluent UI 2 in-place modal dialog for adding, configuring, and removing Global Term Store filter dropdowns in Edit Mode."
+    },
+    {
+      "name": "FilterButtonsRenderer",
+      "path": "src/webparts/fullWidthContainer/components/FilterButtonsRenderer.tsx",
+      "role": "Interactive pill button filters with active state highlighting and card filtering dispatch."
+    },
+    {
+      "name": "ProcessModelRenderer",
+      "path": "src/webparts/fullWidthContainer/components/ProcessModelRenderer.tsx",
+      "role": "Customisable process stage chevron flow component with configurable step count, capability badges, and URL navigation / card filtering."
     }
   ]
 }
+

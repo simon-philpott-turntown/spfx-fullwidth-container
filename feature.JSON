@@ -355,6 +355,52 @@
         "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
         "preview/index.html"
       ]
+    },
+    {
+      "id": "FEAT-030",
+      "name": "GlobalTermStoreDropdownFilters",
+      "description": "Configurable Global Term Store filter dropdowns in the web part controls bar. Allows authors to add unlimited taxonomy dropdowns populated directly from SharePoint Term Store (e.g. Our regions, Our segments, Our sectors), interactively filters cards based on matching taxonomy tags, renders an active selection summary pill (e.g. '✓ updated — showing UK requirements for Infrastructure'), and provides full authoring dialogs in Edit Mode.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/services/TaxonomyService.ts",
+        "src/webparts/fullWidthContainer/components/TermFilterBar.tsx",
+        "src/webparts/fullWidthContainer/components/TermFilterConfigDialog.tsx",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/services/DashboardStorageService.ts"
+      ]
+    },
+    {
+      "id": "FEAT-031",
+      "name": "FilterButtonsAndProcessModel",
+      "description": "Two new composable items for the add content section: 1) Interactive Filter Buttons (customisable pill buttons with active selection highlighting that filter cards in the view), and 2) Customisable Process Model (horizontal connected stage chevron flow with configurable step count, titles, descriptions, capability badges, and interactive URL navigation or card filtering).",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/FilterButtonsRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ProcessModelRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx"
+      ]
+    },
+    {
+      "id": "FEAT-032",
+      "name": "TransparentCardLayoutContainer",
+      "description": "Property on cards ('transparentCard') that renders them without card chrome (transparent background, no borders, no box-shadow, and compact edge-to-edge content alignment), treating the card as an invisible layout container. In Edit Mode, shows a subtle dashed outline so editors can still select, resize, and configure the block.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts"
+      ]
     }
   ]
 }
+

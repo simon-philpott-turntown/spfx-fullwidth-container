@@ -41,9 +41,11 @@ import {
   DataTrendingRegular,
   TagRegular,
   TextDescriptionRegular,
-  FolderOpenRegular
+  FolderOpenRegular,
+  FilterRegular,
+  ArrowRoutingRegular
 } from '@fluentui/react-icons';
-import { ICardItem, ICardItemType } from '../models/IContainerModels';
+import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { IAssetPickerService, IFilePickerResult } from '../services/IAssetPickerService';
 import { FluentAssetExplorerDialog } from './FluentAssetExplorerDialog';
@@ -110,6 +112,8 @@ export interface ICardItemPropertyEditorProps {
 const getItemIcon = (type?: ICardItemType): React.ReactElement => {
   switch (type) {
     case 'button': return <CursorClickRegular />;
+    case 'filterButtons': return <FilterRegular />;
+    case 'processModel': return <ArrowRoutingRegular />;
     case 'image': return <ImageRegular />;
     case 'video': return <VideoRegular />;
     case 'cta': return <MegaphoneRegular />;
@@ -749,6 +753,242 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 onChange={(tags) => handleFieldChange('termStoreTags', tags)}
                 isEditMode={true}
               />
+            </div>
+          </>
+        );
+
+      case 'filterButtons':
+        const filterBtns: IFilterButtonItem[] = formData.filterButtons || [];
+        return (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <Label weight="semibold">Filter Buttons ({filterBtns.length})</Label>
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<AddRegular />}
+                onClick={() => {
+                  const updated: IFilterButtonItem[] = [
+                    ...filterBtns,
+                    {
+                      id: `btn-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                      label: 'New filter'
+                    }
+                  ];
+                  handleFieldChange('filterButtons', updated);
+                }}
+              >
+                Add Button
+              </Button>
+            </div>
+            <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '8px', display: 'block' }}>
+              Clicking these pill buttons will filter cards whose title, summary, or tags match the button title.
+            </Caption1>
+            <div className={styles.listContainer}>
+              {filterBtns.map((btn, idx) => (
+                <div key={btn.id || idx} className={styles.listItemRow}>
+                  <Input
+                    size="small"
+                    value={btn.label}
+                    placeholder="Button Title (e.g. Programme advisory)"
+                    onChange={(e, data) => {
+                      const updated = [...filterBtns];
+                      updated[idx] = { ...updated[idx], label: data.value };
+                      handleFieldChange('filterButtons', updated);
+                    }}
+                  />
+                  <Input
+                    size="small"
+                    value={btn.filterValue || ''}
+                    placeholder="Filter criterion (optional)"
+                    onChange={(e, data) => {
+                      const updated = [...filterBtns];
+                      updated[idx] = { ...updated[idx], filterValue: data.value };
+                      handleFieldChange('filterButtons', updated);
+                    }}
+                  />
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    icon={<DeleteRegular />}
+                    onClick={() => {
+                      const updated = filterBtns.filter((_, i) => i !== idx);
+                      handleFieldChange('filterButtons', updated);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        );
+
+      case 'processModel':
+        const steps: IProcessStepItem[] = formData.processSteps || [];
+        return (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <Label weight="semibold">Process Stages / Steps ({steps.length})</Label>
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<AddRegular />}
+                onClick={() => {
+                  const newIndex = steps.length + 1;
+                  const updated: IProcessStepItem[] = [
+                    ...steps,
+                    {
+                      id: `step-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                      stageNumber: `Stage ${newIndex}`,
+                      title: `Stage ${newIndex} Title`,
+                      description: 'Define stage objective and actions',
+                      metricBadge: `${newIndex} capabilities`,
+                      actionType: 'filter'
+                    }
+                  ];
+                  handleFieldChange('processSteps', updated);
+                }}
+              >
+                Add Stage
+              </Button>
+            </div>
+            <div className={styles.listContainer} style={{ maxHeight: '340px', overflowY: 'auto', paddingRight: '4px' }}>
+              {steps.map((step, idx) => (
+                <div
+                  key={step.id || idx}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    padding: '10px',
+                    backgroundColor: tokens.colorNeutralBackground2,
+                    borderRadius: tokens.borderRadiusMedium,
+                    border: `1px solid ${tokens.colorNeutralStroke2}`
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: tokens.colorBrandForeground1 }}>
+                      Step #{idx + 1}
+                    </span>
+                    <Button
+                      size="small"
+                      appearance="subtle"
+                      icon={<DeleteRegular />}
+                      onClick={() => {
+                        const updated = steps.filter((_, i) => i !== idx);
+                        handleFieldChange('processSteps', updated);
+                      }}
+                      title="Remove stage"
+                    />
+                  </div>
+
+                  <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                    <div>
+                      <Label size="small">Stage label</Label>
+                      <Input
+                        size="small"
+                        value={step.stageNumber || ''}
+                        placeholder="e.g. Stage 1"
+                        onChange={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = { ...updated[idx], stageNumber: data.value };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Label size="small">Stage title</Label>
+                      <Input
+                        size="small"
+                        value={step.title || ''}
+                        placeholder="e.g. Shape"
+                        onChange={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = { ...updated[idx], title: data.value };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label size="small">Description / Case for acting</Label>
+                    <Input
+                      size="small"
+                      value={step.description || ''}
+                      placeholder="e.g. Define the problem and the case for acting"
+                      onChange={(e, data) => {
+                        const updated = [...steps];
+                        updated[idx] = { ...updated[idx], description: data.value };
+                        handleFieldChange('processSteps', updated);
+                      }}
+                    />
+                  </div>
+
+                  <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                    <div>
+                      <Label size="small">Capabilities badge</Label>
+                      <Input
+                        size="small"
+                        value={step.metricBadge || ''}
+                        placeholder="e.g. 4 capabilities"
+                        onChange={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = { ...updated[idx], metricBadge: data.value };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Label size="small">Action on click</Label>
+                      <Dropdown
+                        size="small"
+                        value={step.actionType === 'navigate' ? 'Follow URL' : 'Filter Cards'}
+                        onOptionSelect={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = {
+                            ...updated[idx],
+                            actionType: data.optionValue as 'filter' | 'navigate'
+                          };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      >
+                        <Option value="filter">Filter Cards</Option>
+                        <Option value="navigate">Follow URL link</Option>
+                      </Dropdown>
+                    </div>
+                  </div>
+
+                  {step.actionType === 'navigate' ? (
+                    <div>
+                      <Label size="small">Destination URL</Label>
+                      <Input
+                        size="small"
+                        value={step.url || ''}
+                        placeholder="https://..."
+                        onChange={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = { ...updated[idx], url: data.value };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <Label size="small">Custom filter term (optional)</Label>
+                      <Input
+                        size="small"
+                        value={step.filterValue || ''}
+                        placeholder="Defaults to stage title if blank"
+                        onChange={(e, data) => {
+                          const updated = [...steps];
+                          updated[idx] = { ...updated[idx], filterValue: data.value };
+                          handleFieldChange('processSteps', updated);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </>
         );

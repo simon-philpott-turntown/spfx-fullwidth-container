@@ -74,7 +74,8 @@ import {
   IContentBlock,
   LayoutMode,
   ContainerStyle,
-  BlockType
+  BlockType,
+  ITermFilterConfig
 } from './models/IContainerModels';
 import { DashboardStorageService, IBackupFileInfo } from './services/DashboardStorageService';
 
@@ -92,6 +93,7 @@ export interface IFullWidthContainerWebPartProps {
   cardHeightMode?: 'auto' | 'equal';
   presetTemplate?: string;
   sectionsJson: string;
+  termFiltersJson?: string;
 
   // Active section editor state in Property Pane
   activeSectionIndex: number;
@@ -124,6 +126,7 @@ export interface IFullWidthContainerWebPartProps {
   webPartBackgroundColor?: string;
   sectionBackgroundColor?: string;
   blockBackgroundColor?: string;
+  blockTransparentCard?: boolean;
 
   // SharePoint Document Library (Dashboards) backup & template properties
   backupTargetFolder?: 'Backups' | 'Templates';
@@ -173,6 +176,56 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   }
 
   /**
+   * Retrieves active term filter configurations from canonical properties or initializes default.
+   */
+  private _getActiveTermFilters(): ITermFilterConfig[] {
+    if (this.properties && this.properties.termFiltersJson && this.properties.termFiltersJson.trim()) {
+      try {
+        const parsed = JSON.parse(this.properties.termFiltersJson);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+        // Fallback if JSON parsing fails
+      }
+    }
+    // Default sample filters matching screenshot: Our regions and Our segments
+    const defaults: ITermFilterConfig[] = [
+      {
+        id: 'filter-region',
+        label: 'Region',
+        placeholder: 'Choose a region',
+        termGroupName: 'Our business',
+        termSetName: 'Our regions',
+        iconName: 'Pin'
+      },
+      {
+        id: 'filter-segment',
+        label: 'Segment',
+        placeholder: 'Choose a segment',
+        termGroupName: 'Our business',
+        termSetName: 'Our segments',
+        iconName: 'Building'
+      }
+    ];
+    if (this.properties) {
+      this.properties.termFiltersJson = JSON.stringify(defaults);
+    }
+    return defaults;
+  }
+
+  /**
+   * Serializes updated term filters array to web part properties.
+   */
+  private _saveTermFilters(filters: ITermFilterConfig[]): void {
+    if (this.properties) {
+      this.properties.termFiltersJson = JSON.stringify(filters);
+      this._isModifiedSinceLastBackup = true;
+    }
+    this.render();
+  }
+
+  /**
    * Saves dashboard snapshot into SharePoint Document Library 'Dashboards' under Backups or Templates.
    */
   private async _handleSaveBackupToLibrary(
@@ -193,6 +246,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         cardHeightMode: this.properties.cardHeightMode,
         webPartBackgroundColor: this.properties.webPartBackgroundColor,
         sectionBackgroundColor: this.properties.sectionBackgroundColor,
+        termFilters: this._getActiveTermFilters(),
         sections: this._getActiveSections(),
         trigger,
         promptLibraryCreation: (libraryName: string) => {
@@ -255,6 +309,9 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (pkg.sectionBackgroundColor !== undefined) this.properties.sectionBackgroundColor = pkg.sectionBackgroundColor;
         if (pkg.sections && Array.isArray(pkg.sections)) {
           this._saveSections(pkg.sections);
+        }
+        if (pkg.termFilters && Array.isArray(pkg.termFilters)) {
+          this._saveTermFilters(pkg.termFilters);
         }
         const fileNameOnly = selectedFile.split('/').pop() || selectedFile;
         this._backupStatusMessage = `✓ Restored from ${fileNameOnly}`;
@@ -336,6 +393,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           cardHeightMode: props.cardHeightMode || 'auto',
           webPartBackgroundColor: props.webPartBackgroundColor,
           sections: activeSections,
+          termFilters: this._getActiveTermFilters(),
+          onUpdateTermFilters: (newFilters: ITermFilterConfig[]) => {
+            this._saveTermFilters(newFilters);
+          },
           isDarkTheme: this._isDarkTheme,
           userDisplayName: userDisplayName,
           spfxTheme: this._currentTheme,
@@ -569,6 +630,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         if (propertyPath === 'blockActionText') block.linkText = String(newValue || '');
         if (propertyPath === 'blockActionUrl') block.linkUrl = String(newValue || '');
         if (propertyPath === 'blockBackgroundColor') block.backgroundColor = String(newValue || '');
+        if (propertyPath === 'blockTransparentCard') block.transparentCard = Boolean(newValue);
         if (propertyPath === 'blockTags') {
           block.tags = String(newValue || '').split(',').map(t => t.trim()).filter(Boolean);
         }
@@ -609,6 +671,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.blockActionText = blk.linkText || '';
       this.properties.blockActionUrl = blk.linkUrl || '';
       this.properties.blockBackgroundColor = blk.backgroundColor || '';
+      this.properties.blockTransparentCard = blk.transparentCard === true;
       this.properties.blockTags = blk.tags ? blk.tags.join(', ') : '';
     }
   }
@@ -1149,6 +1212,10 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 'equal', text: 'Equal row height (match tallest)' }
                   ],
                   selectedKey: currentBlocks[activeBlkIdx]?.heightMode || 'default'
+                }),
+                PropertyPaneToggle('blockTransparentCard', {
+                  label: 'Transparent card (layout container only)',
+                  checked: currentBlocks[activeBlkIdx]?.transparentCard === true
                 }),
                 createColorPickerPropertyField(
                   `blockBackgroundColorField_${activeBlockSecIdx}_${activeBlkIdx}`,

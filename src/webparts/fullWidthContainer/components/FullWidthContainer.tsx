@@ -171,6 +171,7 @@ const useStyles = makeStyles({
 });
 
 import { FloatingTextToolbar } from './FloatingTextToolbar';
+import { TermFilterBar } from './TermFilterBar';
 
 export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) => {
   const {
@@ -185,6 +186,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     cardHeightMode,
     webPartBackgroundColor,
     sections,
+    termFilters = [],
+    onUpdateTermFilters,
     isDarkTheme,
     spfxTheme,
     isEditMode,
@@ -207,7 +210,9 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
   const styles = useStyles();
   const [layoutMode, setLayoutMode] = React.useState<LayoutMode>(initialLayoutMode || 'tabs');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [selectedFilterTerms, setSelectedFilterTerms] = React.useState<Record<string, string>>({});
   const [isSavingSnapshot, setIsSavingSnapshot] = React.useState<boolean>(false);
+
 
   // Sync state if property pane changes
   React.useEffect(() => {
@@ -337,6 +342,23 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               />
             )}
 
+            {/* Global Term Store Filter Dropdowns Bar */}
+            <TermFilterBar
+              filters={termFilters}
+              selectedValues={selectedFilterTerms}
+              onChangeFilter={(filterId, termLabel) => {
+                setSelectedFilterTerms((prev) => ({
+                  ...prev,
+                  [filterId]: termLabel
+                }));
+              }}
+              onClearAllFilters={() => {
+                setSelectedFilterTerms({});
+              }}
+              isEditMode={isEditMode}
+              onUpdateFilters={onUpdateTermFilters}
+            />
+
             {/* Layout Mode Switcher */}
             <TabList
               selectedValue={layoutMode}
@@ -360,6 +382,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <TabsContainer
             sections={sections}
             searchQuery={searchQuery}
+            selectedFilterTerms={selectedFilterTerms}
             gridColumns={gridColumns}
             gridRows={gridRows}
             cardHeightMode={cardHeightMode}
@@ -377,6 +400,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           <AccordionContainer
             sections={sections}
             searchQuery={searchQuery}
+            selectedFilterTerms={selectedFilterTerms}
             gridColumns={gridColumns}
             gridRows={gridRows}
             cardHeightMode={cardHeightMode}
@@ -391,6 +415,7 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             assetPickerService={assetPickerService}
           />
         )}
+
       </div>
     </FluentProvider>
   );

@@ -25,7 +25,32 @@ export type ICardItemType =
   | 'quickLinks'
   | 'video'
   | 'liveData'
-  | 'termStoreTags';
+  | 'termStoreTags'
+  | 'filterButtons'
+  | 'processModel';
+
+/**
+ * Filter button item for the interactive Filter Buttons component.
+ */
+export interface IFilterButtonItem {
+  id: string;
+  label: string;
+  filterValue?: string;
+}
+
+/**
+ * Process stage item for the customisable Process Model component.
+ */
+export interface IProcessStepItem {
+  id: string;
+  stageNumber: string; // e.g. "Stage 1"
+  title: string; // e.g. "Shape"
+  description?: string; // e.g. "Define the problem and the case for acting"
+  metricBadge?: string; // e.g. "4 capabilities"
+  actionType: 'filter' | 'navigate';
+  url?: string;
+  filterValue?: string;
+}
 
 /**
  * Term Store Tag reference.
@@ -36,6 +61,19 @@ export interface ITermStoreTag {
   path?: string;
   termSetId?: string;
   termSetName?: string;
+}
+
+/**
+ * Configuration for a Global Term Store filter dropdown component.
+ */
+export interface ITermFilterConfig {
+  id: string;
+  label: string;
+  placeholder: string;
+  termGroupName?: string;
+  termSetName: string;
+  iconName?: string;
+  defaultValue?: string;
 }
 
 /**
@@ -86,6 +124,9 @@ export interface ICardItem {
   linkText?: string;
   linkUrl?: string;
   openInNewTab?: boolean;
+  filterButtons?: IFilterButtonItem[];
+  processSteps?: IProcessStepItem[];
+  activeFilterId?: string;
 }
 
 export type CardHeightMode = 'auto' | 'equal';
@@ -118,6 +159,7 @@ export interface IContentBlock {
   heightMode?: 'default' | 'auto' | 'equal'; // Auto (fit content) vs Equal (match tallest on row)
   backgroundColor?: string; // Custom card background color (independent)
   backgroundImage?: string; // Custom card background image URL
+  transparentCard?: boolean; // Transparent card mode (hide card chrome/border/background, display content only for layout)
   textColor?: string; // Custom card text color override
   fontFamily?: string; // Custom font family override (e.g. 'Inter', 'Georgia', system fonts)
   titleFontSize?: string; // Custom title font size override (e.g. '1.25rem', '18px')
