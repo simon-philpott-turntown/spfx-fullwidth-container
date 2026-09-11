@@ -15,7 +15,10 @@ import {
   Caption1,
   Divider,
   Title3,
-  Body1
+  Body1,
+  Dropdown,
+  Option,
+  Label
 } from '@fluentui/react-components';
 import {
   EditRegular,
@@ -35,6 +38,8 @@ import { TermStorePicker } from './TermStorePicker';
 import { FilterButtonsRenderer } from './FilterButtonsRenderer';
 import { ProcessModelRenderer } from './ProcessModelRenderer';
 import { IAssetPickerService } from '../services/IAssetPickerService';
+import { renderUnifiedIcon } from './CustomSvgIconRegistry';
+import { TaxonomyService } from '../services/TaxonomyService';
 
 const useStyles = makeStyles({
   container: {
@@ -48,19 +53,21 @@ const useStyles = makeStyles({
     position: 'relative',
     width: '100%',
     boxSizing: 'border-box',
-    padding: '4px 0'
+    padding: '10px 0 6px 0'
   },
   itemEditControls: {
     position: 'absolute',
-    right: 0,
-    top: 0,
-    zIndex: 10,
+    right: '4px',
+    top: '-14px',
+    zIndex: 50,
     display: 'flex',
+    alignItems: 'center',
     gap: '2px',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#FFFFFF',
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: '4px',
-    padding: '1px',
-    boxShadow: tokens.shadow4
+    padding: '2px 4px',
+    boxShadow: tokens.shadow8
   },
   ctaBox: {
     padding: '16px',
@@ -202,6 +209,12 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
           metricBadge: '3 capabilities',
           actionType: 'filter'
         }
+      ] : undefined,
+      dropdownLabel: itemType === 'dropdown' ? 'Filter by' : undefined,
+      dropdownPlaceholder: itemType === 'dropdown' ? 'Select an option' : undefined,
+      dropdownOptions: itemType === 'dropdown' ? [
+        { label: 'Option 1', value: 'option-1' },
+        { label: 'Option 2', value: 'option-2' }
       ] : undefined
     };
 
@@ -554,6 +567,83 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
             onEdit={() => setEditingItem({ item, index: idx })}
           />
         )}
+
+        {item.type === 'dropdown' && (() => {
+          // Resolve options: dynamic taxonomy terms if termSetName set, otherwise static dropdownOptions
+          const [loadedOptions, setLoadedOptions] = React.useState<Array<{ label: string; value: string }>>(item.dropdownOptions || []);
+
+          React.useEffect(() => {
+            let isMounted = true;
+            if (item.dropdownTermSetName && item.dropdownTermSetName.trim()) {
+              TaxonomyService.getTermsByTermSet(item.dropdownTermSetName.trim())
+                .then((terms) => {
+                  if (isMounted && terms && terms.length > 0) {
+                    setLoadedOptions(terms.map((t) => ({ label: t.label, value: t.label })));
+                  }
+                })
+                .catch((err) => console.warn('Failed to load terms for dropdown item', err));
+            } else {
+              setLoadedOptions(item.dropdownOptions || []);
+            }
+            return () => {
+              isMounted = false;
+            };
+          }, [item.dropdownTermSetName, item.dropdownOptions]);
+
+          const currentOptions = loadedOptions.length > 0 ? loadedOptions : (item.dropdownOptions || []);
+          const activeLabel = currentOptions.find((o) => o.value === item.selectedDropdownValue)?.label || '';
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: item.alignment === 'center' ? 'center' : item.alignment === 'right' ? 'flex-end' : 'flex-start' }}>
+              {item.dropdownLabel && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {item.dropdownIconName && (
+                    <span style={{ fontSize: '15px', color: tokens.colorBrandForeground1, display: 'inline-flex' }}>
+                      {renderUnifiedIcon(item.dropdownIconName)}
+                    </span>
+                  )}
+                  <Label size="small" weight="semibold">{item.dropdownLabel}</Label>
+                </div>
+              )}
+              <Dropdown
+                placeholder={item.dropdownPlaceholder || 'Select an option'}
+                selectedOptions={item.selectedDropdownValue ? [item.selectedDropdownValue] : []}
+                value={activeLabel}
+                onOptionSelect={(_, data) => {
+                  const next = [...items];
+                  next[idx] = { ...next[idx], selectedDropdownValue: data.optionValue || undefined };
+                  onUpdateItems(next);
+
+                  window.dispatchEvent(
+                    new CustomEvent('dashboard:card-filter-apply', {
+                      detail: {
+                        sourceItemId: item.id,
+                        filterValue: data.optionValue || ''
+                      }
+                    })
+                  );
+                }}
+                style={{ minWidth: '220px' }}
+              >
+                {currentOptions.map((opt) => (
+                  <Option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </Option>
+                ))}
+              </Dropdown>
+              {isEditMode && (
+                <Button
+                  size="small"
+                  appearance="subtle"
+                  onClick={() => setEditingItem({ item, index: idx })}
+                  style={{ marginTop: '2px', fontSize: '11px', color: tokens.colorNeutralForeground3 }}
+                >
+                  Configure dropdown
+                </Button>
+              )}
+            </div>
+          );
+        })()}
       </div>
     );
   };

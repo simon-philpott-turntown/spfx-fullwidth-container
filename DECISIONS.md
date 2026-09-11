@@ -37,3 +37,29 @@ Users requested the ability to disable visual card chrome (card backgrounds, bor
 - **Removed Blue Border**: Suppressed dashed blue border on `editBanner` and neutralised canvas selection styling on container root.
 - **Fluent UI 2 Portal & Responsive Side Panels**: Mounted both `CardEditDialog` and `SectionEditDialog` in `<Portal>` at `z-index: 1000000`, added right margin of `48px` to clear the SharePoint page editing rail, set sticky footers, and used auto-wrapping two-column grids so action buttons and controls are never clipped.
 
+---
+
+## DEC-003: Search Bar Permanent Top-Right Relocation & Editable Placeholder (FEAT-035)
+
+### Context
+The search input was previously positioned inside a mid-page `searchAndFiltersRow`, causing it to disappear when section-level content pushed the layout down. Authors also had no way to change the default placeholder text (`Filter items, tags, GBP...`) without a code change.
+
+### Decision
+- **Relocation**: The `<Input>` is moved out of the mid-page row and into `headerTopRight` — the same flex container that holds the Tabs/Accordion mode switcher — so it remains permanently visible regardless of content scroll position.
+- **Editable Placeholder**: In edit mode, an `EditRegular` icon button is rendered alongside the search input. Clicking it opens a Fluent UI 2 `<Popover>` containing a labelled `<Input>` pre-filled with the current placeholder. Pressing Enter commits the change via the `onSearchPlaceholderChange` callback; pressing Escape reverts.
+- **Prop Surface**: `searchPlaceholder` and `onSearchPlaceholderChange` are added to `IFullWidthContainerProps`. The web part root passes both from `this.properties.searchPlaceholder`.
+- **Preview Parity**: `preview/index.html` mirrors this by adding `searchPlaceholder` to the state object and rendering a `window.prompt`-based edit path in edit mode.
+
+---
+
+## DEC-004: Dropdown as a Composable Content Item (FEAT-036)
+
+### Context
+Authors need a native dropdown control that can be placed as a composable item inside cards, sections, or the dashboard header to drive card-level filtering — the same pattern established by `filterButtons` and `processModel`. The existing Term Store filter bar operates at a global scope; this new item operates at the card/section scope.
+
+### Decision
+- **Model Extension**: `ICardItem` gains `dropdownLabel`, `dropdownPlaceholder`, `dropdownTermSetName`, `dropdownOptions: Array<{ label, value }>`, and `selectedDropdownValue` fields in [IContainerModels.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/models/IContainerModels.ts).
+- **Rendering**: The Fluent UI 2 `<Dropdown>` + `<Option>` components are used in both [ComposableContentSection.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ComposableContentSection.tsx) and [BlockRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/BlockRenderer.tsx). On selection change, a `dashboard:card-filter-apply` custom event is dispatched with the `optionValue`.
+- **Property Editor**: `CardItemPropertyEditor.tsx` handles `case 'dropdown'` with label, placeholder, term set name, and a reorderable static options list (Add / Up / Down / Delete).
+- **Filter-Host Safety**: Both `TabsContainer.tsx` and `AccordionContainer.tsx` extend their `isFilterHost` guard to include `it.type === 'dropdown'`, preventing the hosting card from being hidden by its own filter event.
+- **Static Options as Primary / Term Set as Future Enhancement**: The term set name field is stored and serialised, but live term population from the SharePoint taxonomy API is deferred to a future sprint. Static options serve as the primary data source.

@@ -54,10 +54,17 @@ import {
   TextAlignCenterRegular,
   TextAlignRightRegular,
   ArrowUpRegular,
-  ArrowDownRegular
+  ArrowDownRegular,
+  TextBoldRegular,
+  TextItalicRegular,
+  TextBulletListRegular,
+  EraserRegular
 } from '@fluentui/react-icons';
 import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
+import { TaxonomyService, ITermGroup } from '../services/TaxonomyService';
+import { FluentIconPicker } from './FluentIconPicker';
+import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import { IAssetPickerService, IFilePickerResult } from '../services/IAssetPickerService';
 import { FluentAssetExplorerDialog } from './FluentAssetExplorerDialog';
 
@@ -102,8 +109,14 @@ const useStyles = makeStyles({
   listContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
-    marginTop: '6px'
+    gap: '12px',
+    marginTop: '8px'
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginBottom: '8px'
   },
   stepCard: {
     backgroundColor: tokens.colorNeutralBackground1,
@@ -145,13 +158,13 @@ const useStyles = makeStyles({
     flexShrink: 0
   },
   stepBody: {
-    paddingTop: '14px',
-    paddingBottom: '14px',
-    paddingLeft: '16px',
-    paddingRight: '16px',
+    paddingTop: '18px',
+    paddingBottom: '20px',
+    paddingLeft: '18px',
+    paddingRight: '18px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '16px',
     backgroundColor: tokens.colorNeutralBackground1,
     borderTop: `1px solid ${tokens.colorNeutralStroke2}`
   },
@@ -212,6 +225,66 @@ const useStyles = makeStyles({
     borderRadius: tokens.borderRadiusMedium,
     border: `1px solid ${tokens.colorNeutralStroke2}`
   },
+  dialogBody: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
+    overflow: 'hidden'
+  },
+  dialogContent: {
+    flex: 1,
+    overflowY: 'auto',
+    minHeight: 0,
+    paddingRight: '6px'
+  },
+  dialogFooter: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '8px',
+    paddingTop: '16px',
+    marginTop: '12px',
+    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
+    flexShrink: 0,
+    backgroundColor: tokens.colorNeutralBackground1
+  },
+  richEditorBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: tokens.borderRadiusMedium,
+    border: `1px solid ${tokens.colorNeutralStroke1}`,
+    backgroundColor: tokens.colorNeutralBackground1,
+    overflow: 'hidden',
+    ':focus-within': {
+      border: `1px solid ${tokens.colorBrandStroke1}`
+    }
+  },
+  richToolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '4px 8px',
+    backgroundColor: tokens.colorNeutralBackground3,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`
+  },
+  actionTypeSelector: {
+    display: 'inline-flex',
+    gap: '4px',
+    padding: '3px',
+    borderRadius: tokens.borderRadiusMedium,
+    backgroundColor: tokens.colorNeutralBackground3,
+    width: 'fit-content'
+  },
+  actionDetailCard: {
+    marginTop: '8px',
+    padding: '10px 12px',
+    borderRadius: tokens.borderRadiusMedium,
+    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    backgroundColor: tokens.colorNeutralBackground2,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
+  },
   pickerActionsRow: {
     display: 'flex',
     gap: '8px',
@@ -228,6 +301,30 @@ export interface ICardItemPropertyEditorProps {
 }
 
 /**
+ * Returns human-readable modal dialog title for each card item type.
+ */
+const getItemTitle = (type?: ICardItemType): string => {
+  switch (type) {
+    case 'processModel': return 'Configure the process model';
+    case 'dropdown': return 'Configure filter dropdown';
+    case 'filterButtons': return 'Configure filter buttons';
+    case 'liveData': return 'Configure live data API';
+    case 'termStoreTags': return 'Configure Term Store tags';
+    case 'quickLinks': return 'Configure quick links';
+    case 'editorial': return 'Configure editorial card';
+    case 'button': return 'Configure action button';
+    case 'cta': return 'Configure call to action';
+    case 'divider': return 'Configure divider';
+    case 'hero': return 'Configure hero banner';
+    case 'image': return 'Configure image block';
+    case 'gallery': return 'Configure image gallery';
+    case 'link': return 'Configure resource link';
+    case 'video': return 'Configure video player';
+    default: return `Configure ${(type || 'item').charAt(0).toUpperCase() + (type || 'item').slice(1)}`;
+  }
+};
+
+/**
  * Returns an icon representing the card item type.
  */
 const getItemIcon = (type?: ICardItemType): React.ReactElement => {
@@ -235,6 +332,7 @@ const getItemIcon = (type?: ICardItemType): React.ReactElement => {
     case 'button': return <CursorClickRegular />;
     case 'filterButtons': return <FilterRegular />;
     case 'processModel': return <ArrowRoutingRegular />;
+    case 'dropdown': return <ChevronDownRegular />;
     case 'image': return <ImageRegular />;
     case 'video': return <VideoRegular />;
     case 'cta': return <MegaphoneRegular />;
@@ -265,6 +363,14 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
     type: 'image' | 'video' | 'gallery' | 'hero' | 'cta' | 'editorial';
     allowMultiple: boolean;
   }>({ type: 'image', allowMultiple: false });
+  const [taxonomyGroups, setTaxonomyGroups] = React.useState<ITermGroup[]>([]);
+  const [isDropdownIconPickerOpen, setIsDropdownIconPickerOpen] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    TaxonomyService.getTermGroups()
+      .then((groups) => setTaxonomyGroups(groups))
+      .catch((err) => console.warn('Failed to load taxonomy groups', err));
+  }, []);
 
   React.useEffect(() => {
     if (item) {
@@ -1038,7 +1144,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
           </>
         );
 
-      case 'processModel':
+      case 'processModel': {
         const steps: IProcessStepItem[] = formData.processSteps || [];
         return (
           <>
@@ -1055,30 +1161,70 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                   Click a step card below to edit details
                 </Caption1>
               </div>
-              <div className={styles.miniPreviewBar}>
-                {steps.map((st, i) => (
-                  <React.Fragment key={st.id || i}>
+              <div className={styles.miniPreviewBar} style={{ backgroundColor: '#FFFFFF', padding: '6px 8px', borderRadius: '6px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+                {steps.map((st, i) => {
+                  const isStepExpanded = expandedStepId === (st.id || `step-${i}`) || (expandedStepId === null && i === 0);
+                  const isFirst = i === 0;
+                  const isLast = i === steps.length - 1;
+                  const isSingle = steps.length === 1;
+
+                  let clipPath = 'none';
+                  let marginLeft = '0px';
+                  let paddingLeft = '10px';
+                  let paddingRight = '10px';
+
+                  if (!isSingle) {
+                    if (isFirst) {
+                      clipPath = 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%)';
+                      marginLeft = '0px';
+                      paddingLeft = '10px';
+                      paddingRight = '16px';
+                    } else if (isLast) {
+                      clipPath = 'polygon(0% 0%, 10px 50%, 0% 100%, 100% 100%, 100% 0%)';
+                      marginLeft = '-8px';
+                      paddingLeft = '16px';
+                      paddingRight = '10px';
+                    } else {
+                      clipPath = 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%)';
+                      marginLeft = '-8px';
+                      paddingLeft = '16px';
+                      paddingRight = '16px';
+                    }
+                  }
+
+                  const zIndex = isStepExpanded ? 10 : steps.length - i;
+
+                  return (
                     <div
+                      key={st.id || i}
                       className={styles.miniChevron}
                       style={{
-                        borderColor: expandedStepId === (st.id || `step-${i}`) ? tokens.colorBrandStroke1 : tokens.colorNeutralStroke2,
-                        backgroundColor: expandedStepId === (st.id || `step-${i}`) ? tokens.colorBrandBackground2 : tokens.colorNeutralBackground1,
-                        cursor: 'pointer'
+                        clipPath,
+                        marginLeft,
+                        paddingLeft,
+                        paddingRight,
+                        paddingTop: '6px',
+                        paddingBottom: '6px',
+                        zIndex,
+                        border: 'none',
+                        borderRadius: 0,
+                        backgroundColor: isStepExpanded ? '#001436' : '#F1F5F9',
+                        color: isStepExpanded ? '#FFFFFF' : '#1E293B',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
                       }}
                       onClick={() => setExpandedStepId(st.id || `step-${i}`)}
+                      title={`Click to edit ${st.stageNumber || `Stage ${i + 1}`}`}
                     >
-                      <span style={{ fontWeight: 700, color: tokens.colorBrandForeground1, fontSize: '0.68rem' }}>
+                      <span style={{ fontWeight: 700, color: isStepExpanded ? '#93C5FD' : '#1E4479', fontSize: '0.68rem' }}>
                         {st.stageNumber || `Stage ${i + 1}`}
                       </span>
-                      <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground1, fontSize: '0.72rem' }}>
+                      <span style={{ fontWeight: 600, color: isStepExpanded ? '#FFFFFF' : '#0F172A', fontSize: '0.72rem' }}>
                         {st.title || 'Untitled'}
                       </span>
                     </div>
-                    {i < steps.length - 1 && (
-                      <span style={{ color: tokens.colorNeutralForeground3, fontSize: '0.68rem', margin: '0 1px' }}>▶</span>
-                    )}
-                  </React.Fragment>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -1115,7 +1261,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
             </div>
 
             {/* Collapsible Step Cards List */}
-            <div className={styles.listContainer} style={{ maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
+            <div className={styles.listContainer}>
               {steps.map((step, idx) => {
                 const stepKey = step.id || `step-${idx}`;
                 const isExpanded = expandedStepId === stepKey || (expandedStepId === null && idx === 0);
@@ -1129,43 +1275,56 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                     <div
                       className={styles.stepHeader}
                       onClick={() => setExpandedStepId(isExpanded ? '' : stepKey)}
-                      title={isExpanded ? 'Click to collapse' : 'Click to expand and edit'}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setExpandedStepId(isExpanded ? '' : stepKey);
+                        }
+                      }}
                     >
                       <div className={styles.stepHeaderLeft}>
                         {isExpanded ? (
-                          <ChevronDownRegular style={{ fontSize: '14px', color: tokens.colorBrandForeground1 }} />
+                          <ChevronDownRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground2, flexShrink: 0 }} />
                         ) : (
-                          <ChevronRightRegular style={{ fontSize: '14px', color: tokens.colorNeutralForeground3 }} />
+                          <ChevronRightRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground3, flexShrink: 0 }} />
                         )}
                         <Badge
-                          appearance={isExpanded ? 'filled' : 'tint'}
-                          color={isExpanded ? 'brand' : 'informative'}
                           size="small"
-                          style={{ fontWeight: 700 }}
+                          appearance="filled"
+                          color="brand"
+                          style={{ fontWeight: 600, flexShrink: 0 }}
                         >
                           {step.stageNumber || `Stage ${idx + 1}`}
                         </Badge>
-                        <span style={{ fontWeight: 600, fontSize: '0.85rem', color: tokens.colorNeutralForeground1 }}>
-                          {step.title || 'Untitled Stage'}
+                        <span style={{ fontWeight: 600, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {step.title || `Stage ${idx + 1}`}
                         </span>
                         {step.metricBadge && (
-                          <Badge appearance="tint" color="informative" size="small" style={{ fontSize: '0.7rem' }}>
+                          <Badge size="small" appearance="outline" style={{ color: tokens.colorNeutralForeground3, flexShrink: 0 }}>
                             {step.metricBadge}
                           </Badge>
                         )}
                       </div>
 
-                      <div className={styles.stepHeaderRight}>
-                        <span style={{ fontSize: '0.72rem', color: tokens.colorNeutralForeground3 }}>
-                          {step.actionType === 'navigate' ? '🔗 URL' : '🔍 Filter'}
-                        </span>
+                      <div className={styles.stepHeaderRight} onClick={(e) => e.stopPropagation()}>
+                        {step.actionType === 'navigate' ? (
+                          <span style={{ fontSize: '0.72rem', color: tokens.colorBrandForeground1, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <OpenRegular style={{ fontSize: '12px' }} /> Link
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.72rem', color: tokens.colorNeutralForeground3, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <FilterRegular style={{ fontSize: '12px' }} /> Filter Cards
+                          </span>
+                        )}
                         <Button
                           size="small"
                           appearance="subtle"
                           icon={<ArrowUpRegular />}
                           disabled={idx === 0}
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          title="Move stage up"
+                          onClick={() => {
                             if (idx === 0) return;
                             const updated = [...steps];
                             const temp = updated[idx - 1];
@@ -1173,15 +1332,14 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                             updated[idx] = temp;
                             handleFieldChange('processSteps', updated);
                           }}
-                          title="Move stage up"
                         />
                         <Button
                           size="small"
                           appearance="subtle"
                           icon={<ArrowDownRegular />}
                           disabled={idx === steps.length - 1}
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          title="Move stage down"
+                          onClick={() => {
                             if (idx === steps.length - 1) return;
                             const updated = [...steps];
                             const temp = updated[idx + 1];
@@ -1189,21 +1347,19 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                             updated[idx] = temp;
                             handleFieldChange('processSteps', updated);
                           }}
-                          title="Move stage down"
                         />
                         <Button
                           size="small"
                           appearance="subtle"
                           icon={<DeleteRegular />}
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          title="Delete stage"
+                          onClick={() => {
                             const updated = steps.filter((_, i) => i !== idx);
                             handleFieldChange('processSteps', updated);
                             if (expandedStepId === stepKey) {
-                              setExpandedStepId(updated.length > 0 ? (updated[0].id || 'step-0') : null);
+                              setExpandedStepId(null);
                             }
                           }}
-                          title="Delete stage"
                         />
                       </div>
                     </div>
@@ -1213,7 +1369,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                       <div className={styles.stepBody}>
                         {/* Section 1: Stage Identity & Titles */}
                         <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
-                          <div>
+                          <div className={styles.inputGroup}>
                             <Label size="small" weight="semibold">Stage label</Label>
                             <Input
                               size="medium"
@@ -1225,9 +1381,9 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                                 handleFieldChange('processSteps', updated);
                               }}
                             />
-                            <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Displayed as the top step pill</Caption1>
+                            <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>Displayed on the top milestone badge</Caption1>
                           </div>
-                          <div>
+                          <div className={styles.inputGroup}>
                             <Label size="small" weight="semibold">Stage title</Label>
                             <Input
                               size="medium"
@@ -1239,95 +1395,171 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                                 handleFieldChange('processSteps', updated);
                               }}
                             />
-                            <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Main headline for this milestone</Caption1>
+                            <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>Main headline for this milestone</Caption1>
                           </div>
                         </div>
 
-                        {/* Section 2: Description & Case for acting */}
-                        <div>
-                          <Label size="small" weight="semibold">Description / Case for acting</Label>
-                          <Textarea
-                            rows={2}
-                            size="medium"
-                            value={step.description || ''}
-                            placeholder="e.g. Define the problem and the case for acting..."
-                            onChange={(e, data) => {
-                              const updated = [...steps];
-                              updated[idx] = { ...updated[idx], description: data.value };
-                              handleFieldChange('processSteps', updated);
-                            }}
-                          />
-                        </div>
-
-                        {/* Section 3: Capabilities & Interactivity */}
-                        <div className={styles.stepSectionDivider}>
-                          <span>Interactivity & Action</span>
-                          <Divider style={{ flexGrow: 1 }} />
-                        </div>
-
-                        <div className={styles.threeColRow} style={{ marginBottom: 0 }}>
-                          <div>
-                            <Label size="small" weight="semibold">Capabilities badge</Label>
-                            <Input
+                        {/* Section 2: Rich Formatted Stage Description */}
+                        <div className={styles.inputGroup}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <Label size="small" weight="semibold">Stage description & case for acting</Label>
+                            <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Rich formatted text</Caption1>
+                          </div>
+                          <div className={styles.richEditorBox}>
+                            <div className={styles.richToolbar}>
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<TextBoldRegular />}
+                                title="Bold (Wrap with **text**)"
+                                onClick={() => {
+                                  const cur = step.description || '';
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], description: cur ? `**${cur}**` : '**Bold text**' };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<TextItalicRegular />}
+                                title="Italic (Wrap with *text*)"
+                                onClick={() => {
+                                  const cur = step.description || '';
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], description: cur ? `*${cur}*` : '*Italic text*' };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<TextBulletListRegular />}
+                                title="Add bullet item"
+                                onClick={() => {
+                                  const cur = step.description || '';
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], description: cur ? `${cur}\n• New bullet point` : '• Key objective point' };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<EraserRegular />}
+                                title="Clear formatting"
+                                onClick={() => {
+                                  const cur = step.description || '';
+                                  const cleaned = cur.replace(/[*_~`•]/g, '').trim();
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], description: cleaned };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                            </div>
+                            <Textarea
+                              rows={3}
                               size="medium"
-                              value={step.metricBadge || ''}
-                              placeholder="e.g. 4 capabilities"
+                              value={step.description || ''}
+                              placeholder="Define stage objective, case for acting, and deliverables..."
+                              style={{ border: 'none', borderRadius: 0 }}
                               onChange={(e, data) => {
                                 const updated = [...steps];
-                                updated[idx] = { ...updated[idx], metricBadge: data.value };
+                                updated[idx] = { ...updated[idx], description: data.value };
                                 handleFieldChange('processSteps', updated);
                               }}
                             />
                           </div>
-                          <div>
-                            <Label size="small" weight="semibold">Action on click</Label>
-                            <Dropdown
-                              size="medium"
-                              value={step.actionType === 'navigate' ? 'Follow URL link' : 'Filter Cards'}
-                              onOptionSelect={(e, data) => {
-                                const updated = [...steps];
-                                updated[idx] = {
-                                  ...updated[idx],
-                                  actionType: data.optionValue as 'filter' | 'navigate'
-                                };
-                                handleFieldChange('processSteps', updated);
-                              }}
-                            >
-                              <Option value="filter">Filter Cards</Option>
-                              <Option value="navigate">Follow URL link</Option>
-                            </Dropdown>
+                        </div>
+
+                        {/* Capabilities badge row */}
+                        <div className={styles.inputGroup}>
+                          <Label size="small" weight="semibold">Capabilities metric badge</Label>
+                          <Input
+                            size="medium"
+                            value={step.metricBadge || ''}
+                            placeholder="e.g. 4 capabilities"
+                            onChange={(e, data) => {
+                              const updated = [...steps];
+                              updated[idx] = { ...updated[idx], metricBadge: data.value };
+                              handleFieldChange('processSteps', updated);
+                            }}
+                          />
+                          <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>Summary count or badge displayed at the bottom of the stage</Caption1>
+                        </div>
+
+                        {/* Section 3: Interactivity & Action Selection */}
+                        <div className={styles.stepSectionDivider}>
+                          <span>Interactivity & Click Action</span>
+                          <Divider style={{ flexGrow: 1 }} />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                          <Label size="small" weight="semibold">Choose what happens when this stage is clicked</Label>
+                          <div style={{ marginTop: '6px' }}>
+                            <div className={styles.actionTypeSelector}>
+                              <Button
+                                size="small"
+                                appearance={step.actionType !== 'navigate' ? 'primary' : 'subtle'}
+                                icon={<FilterRegular />}
+                                onClick={() => {
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], actionType: 'filter' };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              >
+                                Filter Cards
+                              </Button>
+                              <Button
+                                size="small"
+                                appearance={step.actionType === 'navigate' ? 'primary' : 'subtle'}
+                                icon={<OpenRegular />}
+                                onClick={() => {
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], actionType: 'navigate' };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              >
+                                Open Web Link
+                              </Button>
+                            </div>
                           </div>
-                          <div>
-                            {step.actionType === 'navigate' ? (
-                              <>
-                                <Label size="small" weight="semibold">Destination URL</Label>
-                                <Input
-                                  size="medium"
-                                  value={step.url || ''}
-                                  placeholder="https://..."
-                                  onChange={(e, data) => {
-                                    const updated = [...steps];
-                                    updated[idx] = { ...updated[idx], url: data.value };
-                                    handleFieldChange('processSteps', updated);
-                                  }}
-                                />
-                              </>
-                            ) : (
-                              <>
-                                <Label size="small" weight="semibold">Custom filter term</Label>
-                                <Input
-                                  size="medium"
-                                  value={step.filterValue || ''}
-                                  placeholder="Defaults to stage title"
-                                  onChange={(e, data) => {
-                                    const updated = [...steps];
-                                    updated[idx] = { ...updated[idx], filterValue: data.value };
-                                    handleFieldChange('processSteps', updated);
-                                  }}
-                                />
-                              </>
-                            )}
-                          </div>
+
+                          {step.actionType === 'navigate' ? (
+                            <div className={styles.actionDetailCard} style={{ marginTop: '8px' }}>
+                              <Label size="small" weight="semibold">Destination web link (URL)</Label>
+                              <Input
+                                size="medium"
+                                value={step.url || ''}
+                                placeholder="https://tenant.sharepoint.com/sites/... or external URL"
+                                onChange={(e, data) => {
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], url: data.value };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>
+                                Clicking this stage will open the destination link in a new browser tab.
+                              </Caption1>
+                            </div>
+                          ) : (
+                            <div className={styles.actionDetailCard} style={{ marginTop: '8px' }}>
+                              <Label size="small" weight="semibold">Filter criterion (optional)</Label>
+                              <Input
+                                size="medium"
+                                value={step.filterValue || ''}
+                                placeholder={`Defaults to stage title: "${step.title || 'Stage title'}"`}
+                                onChange={(e, data) => {
+                                  const updated = [...steps];
+                                  updated[idx] = { ...updated[idx], filterValue: data.value };
+                                  handleFieldChange('processSteps', updated);
+                                }}
+                              />
+                              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginTop: '2px' }}>
+                                Clicking this stage filters all cards across the container matching this term. Leave blank to match the stage title.
+                              </Caption1>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1337,6 +1569,232 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
             </div>
           </>
         );
+      }
+
+      case 'dropdown': {
+        const dropdownOpts: Array<{ label: string; value: string }> = formData.dropdownOptions || [];
+        const selectedGroup = taxonomyGroups.find((g) => g.name === formData.dropdownTermGroupName);
+        const availableSets = selectedGroup ? selectedGroup.termSets : [];
+
+        return (
+          <>
+            <div className={styles.twoColRow}>
+              <div>
+                <Label weight="semibold">Dropdown label</Label>
+                <Input
+                  size="medium"
+                  value={formData.dropdownLabel || ''}
+                  placeholder="e.g. Filter by region"
+                  onChange={(e, data) => handleFieldChange('dropdownLabel', data.value)}
+                />
+                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Header label above dropdown.</Caption1>
+              </div>
+              <div>
+                <Label weight="semibold">Placeholder text</Label>
+                <Input
+                  size="medium"
+                  value={formData.dropdownPlaceholder || ''}
+                  placeholder="e.g. Select an option..."
+                  onChange={(e, data) => handleFieldChange('dropdownPlaceholder', data.value)}
+                />
+                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Initial prompt before selection.</Caption1>
+              </div>
+            </div>
+
+            {/* Icon Picker for Dropdown Header */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">Dropdown icon</Label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: tokens.borderRadiusMedium,
+                    border: `1px solid ${tokens.colorNeutralStroke1}`,
+                    backgroundColor: tokens.colorNeutralBackground2,
+                    fontSize: '18px',
+                    color: tokens.colorBrandForeground1
+                  }}
+                >
+                  {renderUnifiedIcon(formData.dropdownIconName || 'Filter')}
+                </div>
+                <Button
+                  size="small"
+                  appearance="secondary"
+                  onClick={() => setIsDropdownIconPickerOpen(true)}
+                >
+                  {formData.dropdownIconName ? `Change Icon (${formData.dropdownIconName})` : 'Select Icon'}
+                </Button>
+                {formData.dropdownIconName && (
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    onClick={() => handleFieldChange('dropdownIconName', undefined)}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <Divider style={{ margin: '12px 0' }} />
+
+            {/* Taxonomy Term Set Picker */}
+            <div className={styles.fieldRow}>
+              <Label weight="semibold">SharePoint Global Term Store Source</Label>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '6px' }}>
+                Optionally populate this dropdown dynamically from an enterprise taxonomy term set.
+              </Caption1>
+
+              <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                <div>
+                  <Label size="small">Taxonomy Group</Label>
+                  <Dropdown
+                    size="medium"
+                    placeholder="Choose taxonomy group..."
+                    value={formData.dropdownTermGroupName || ''}
+                    selectedOptions={formData.dropdownTermGroupName ? [formData.dropdownTermGroupName] : []}
+                    onOptionSelect={(e, data) => {
+                      handleFieldChange('dropdownTermGroupName', data.optionValue || '');
+                      handleFieldChange('dropdownTermSetName', '');
+                    }}
+                  >
+                    {taxonomyGroups.map((g) => (
+                      <Option key={g.id} value={g.name}>{g.name}</Option>
+                    ))}
+                  </Dropdown>
+                </div>
+
+                <div>
+                  <Label size="small">Term Set</Label>
+                  <Dropdown
+                    size="medium"
+                    placeholder={formData.dropdownTermGroupName ? 'Choose term set...' : 'Select group first'}
+                    disabled={!formData.dropdownTermGroupName}
+                    value={formData.dropdownTermSetName || ''}
+                    selectedOptions={formData.dropdownTermSetName ? [formData.dropdownTermSetName] : []}
+                    onOptionSelect={(e, data) => handleFieldChange('dropdownTermSetName', data.optionValue || '')}
+                  >
+                    {availableSets.map((s) => (
+                      <Option key={s.id} value={s.name}>{s.name}</Option>
+                    ))}
+                  </Dropdown>
+                </div>
+              </div>
+            </div>
+
+            <Divider style={{ margin: '12px 0' }} />
+
+            {/* Static Options fallback */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div>
+                <Label weight="semibold">Custom / Static Options ({dropdownOpts.length})</Label>
+                <Caption1 style={{ color: tokens.colorNeutralForeground3, display: 'block' }}>
+                  Used when no term set is connected, or as initial fallback values.
+                </Caption1>
+              </div>
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<AddRegular />}
+                onClick={() => {
+                  const updated = [
+                    ...dropdownOpts,
+                    {
+                      label: 'New option',
+                      value: `opt-${Date.now()}`
+                    }
+                  ];
+                  handleFieldChange('dropdownOptions', updated);
+                }}
+              >
+                Add Option
+              </Button>
+            </div>
+            <div className={styles.listContainer}>
+              {dropdownOpts.map((opt, idx) => (
+                <div key={idx} className={styles.listItemRow}>
+                  <Input
+                    size="small"
+                    value={opt.label}
+                    placeholder="Display label (e.g. Infrastructure)"
+                    onChange={(e, data) => {
+                      const updated = [...dropdownOpts];
+                      updated[idx] = { ...updated[idx], label: data.value };
+                      handleFieldChange('dropdownOptions', updated);
+                    }}
+                  />
+                  <Input
+                    size="small"
+                    value={opt.value}
+                    placeholder="Filter value (e.g. infrastructure)"
+                    onChange={(e, data) => {
+                      const updated = [...dropdownOpts];
+                      updated[idx] = { ...updated[idx], value: data.value };
+                      handleFieldChange('dropdownOptions', updated);
+                    }}
+                  />
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    icon={<ArrowUpRegular />}
+                    disabled={idx === 0}
+                    onClick={() => {
+                      if (idx === 0) return;
+                      const updated = [...dropdownOpts];
+                      const temp = updated[idx - 1];
+                      updated[idx - 1] = updated[idx];
+                      updated[idx] = temp;
+                      handleFieldChange('dropdownOptions', updated);
+                    }}
+                    title="Move option up"
+                  />
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    icon={<ArrowDownRegular />}
+                    disabled={idx === dropdownOpts.length - 1}
+                    onClick={() => {
+                      if (idx === dropdownOpts.length - 1) return;
+                      const updated = [...dropdownOpts];
+                      const temp = updated[idx + 1];
+                      updated[idx + 1] = updated[idx];
+                      updated[idx] = temp;
+                      handleFieldChange('dropdownOptions', updated);
+                    }}
+                    title="Move option down"
+                  />
+                  <Button
+                    size="small"
+                    appearance="subtle"
+                    icon={<DeleteRegular />}
+                    onClick={() => {
+                      handleFieldChange('dropdownOptions', dropdownOpts.filter((_, i) => i !== idx));
+                    }}
+                    title="Remove option"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Dedicated Icon Picker for Dropdown */}
+            {isDropdownIconPickerOpen && (
+              <FluentIconPicker
+                isOpen={isDropdownIconPickerOpen}
+                selectedIconKey={formData.dropdownIconName || ''}
+                onSelectIcon={(iconKey) => {
+                  handleFieldChange('dropdownIconName', iconKey);
+                  setIsDropdownIconPickerOpen(false);
+                }}
+                onDismiss={() => setIsDropdownIconPickerOpen(false)}
+              />
+            )}
+          </>
+        );
+      }
 
       case 'text':
       default:
@@ -1369,7 +1827,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 <span style={{ fontSize: '20px', color: tokens.colorBrandForeground1, display: 'flex' }}>
                   {getItemIcon(formData.type)}
                 </span>
-                <DialogTitle>Configure {formData.type.toUpperCase()} Item</DialogTitle>
+                <DialogTitle>{getItemTitle(formData.type)}</DialogTitle>
               </div>
               <Button
                 appearance="subtle"
@@ -1379,8 +1837,8 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
               />
             </div>
 
-            <DialogBody>
-              <DialogContent>
+            <div className={styles.dialogBody}>
+              <div className={styles.dialogContent}>
                 {/* Alignment Selector across composable items - Icon buttons */}
                 <div className={styles.fieldRow} style={{ marginBottom: '16px' }}>
                   <Label weight="semibold">Content alignment</Label>
@@ -1419,9 +1877,9 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 </div>
 
                 {renderTypeSpecificFields()}
-              </DialogContent>
+              </div>
 
-              <DialogActions style={{ marginTop: '16px' }}>
+              <div className={styles.dialogFooter}>
                 <Button appearance="secondary" onClick={onDismiss}>
                   Cancel
                 </Button>
@@ -1435,8 +1893,8 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 >
                   Apply Changes
                 </Button>
-              </DialogActions>
-            </DialogBody>
+              </div>
+            </div>
           </DialogSurface>
         </Dialog>
       </Portal>

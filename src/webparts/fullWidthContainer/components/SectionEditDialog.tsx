@@ -57,8 +57,7 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
-    pointerEvents: 'auto',
-    marginRight: '48px'
+    pointerEvents: 'auto'
   },
   leftResizeHandle: {
     position: 'absolute',

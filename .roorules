@@ -1,0 +1,8 @@
+# Roo Code Global Execution Protocol
+
+Before executing any plan, reading code, or performing edits, you MUST read and strictly adhere to:
+1. Golden rules `C:\Users\sideb\.gemini\GEMINI.md`
+2. All operational rules in `./.agents/rules`
+3. All procedural execution steps in `./.agents/workflows`
+
+Enforce all identity standards, Triple Registry invariants, Definition of Done, and full-module output requirements defined in those files.

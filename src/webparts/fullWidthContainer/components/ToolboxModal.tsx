@@ -31,7 +31,8 @@ import {
   TagRegular,
   SparkleRegular,
   FilterRegular,
-  ArrowRoutingRegular
+  ArrowRoutingRegular,
+  ChevronDownRegular
 } from '@fluentui/react-icons';
 import { ICardItemType } from '../models/IContainerModels';
 
@@ -120,6 +121,7 @@ export const ToolboxModal: React.FC<IToolboxModalProps> = ({
     { type: 'button', label: 'Button', icon: <CursorClickRegular /> },
     { type: 'filterButtons', label: 'Filter Buttons', icon: <FilterRegular /> },
     { type: 'processModel', label: 'Process Model', icon: <ArrowRoutingRegular /> },
+    { type: 'dropdown', label: 'Filter Dropdown', icon: <ChevronDownRegular /> },
     { type: 'cta', label: 'Call to action', icon: <MegaphoneRegular /> },
     { type: 'divider', label: 'Divider', icon: <LineHorizontal1Regular /> },
     { type: 'editorial', label: 'Editorial card', icon: <NewsRegular /> },

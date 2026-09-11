@@ -219,7 +219,7 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
 
   const filteredBlocks = blocks.filter((b) => {
     // If the card itself is the host of the filter buttons or process model, keep it visible so author can interact
-    const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel');
+    const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel' || it.type === 'dropdown');
 
     // 1. Interactive Button / Process Stage Filter Matching
     if (itemFilt && !isFilterHost) {

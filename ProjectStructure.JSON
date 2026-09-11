@@ -128,7 +128,7 @@
     {
       "name": "CardItemPropertyEditor",
       "path": "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
-      "role": "Fluent UI 2 modal dialog providing tailored contextual property editing forms for all 13 card inner item types with real-time live canvas syncing."
+      "role": "Fluent UI 2 modal dialog providing tailored contextual property editing forms for all 14 card inner item types (including the new 'dropdown' filter type with reorderable options) with real-time live canvas syncing."
     },
     {
       "name": "TermFilterBar",
@@ -153,7 +153,53 @@
     {
       "name": "ComposableContentSection",
       "path": "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
-      "role": "Composable content area for top-of-webpart and top-of-section content authoring supporting all 15 inner item types, alignment controls, insertion bars, and inline editing."
+      "role": "Composable content area for top-of-webpart and top-of-section content authoring supporting all 16 inner item types (including 'dropdown' filter), alignment controls, insertion bars, and inline editing."
+    }
+  ],
+  "recentChanges": [
+    {
+      "feature": "FEAT-035",
+      "description": "Search bar permanently relocated to headerTopRight. In edit mode a pencil icon opens a Fluent UI 2 Popover to edit the placeholder text, persisted via onSearchPlaceholderChange.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
+        "preview/index.html"
+      ]
+    },
+    {
+      "feature": "FEAT-036",
+      "description": "New 'dropdown' ICardItemType composable item. Renders as a Fluent UI 2 Dropdown dispatching dashboard:card-filter-apply. Editable via CardItemPropertyEditor and CardEditDialog (label, placeholder, term set name, reorderable static options). Filter-host protection extended in TabsContainer and AccordionContainer.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "preview/index.html"
+      ]
+    },
+    {
+      "feature": "FEAT-037",
+      "description": "Author-only user profile diagnostics inspection icon in the edit banner next to 'Save snapshot to Library'. Clicking reveals a Fluent UI 2 popover listing active pageContext.user properties and values (displayName, email, loginName, guest flags) for instant debugging.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts"
+      ]
+    },
+    {
+      "feature": "FEAT-038",
+      "description": "Process model property modal redesign: fixed clipped buttons by enforcing a pinned flexbox footer with sticky positioning and scrolling dialog content; added rich text editing micro-toolbar (bold, italic, list, eraser) for stage descriptions; introduced a segmented interactivity selector clearly separating 'Filter Cards' and 'Open Web Link' with helper callouts; humanised dialog title to 'Configure the process model'; and provided dedicated taxonomy group/term set picker for composable dropdown filters.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx"
+      ]
     }
   ]
 }

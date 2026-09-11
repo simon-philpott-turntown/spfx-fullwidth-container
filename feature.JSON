@@ -424,6 +424,57 @@
         "src/webparts/fullWidthContainer/components/RichTextEditable.tsx",
         "src/webparts/fullWidthContainer/components/FloatingTextToolbar.tsx"
       ]
+    },
+    {
+      "id": "FEAT-035",
+      "name": "SearchBarTopRightRelocationWithEditablePlaceholder",
+      "description": "Moves the global search input from the mid-page searchAndFiltersRow into the permanent headerTopRight alongside the layout mode switcher, so it is always visible. In edit mode, an EditRegular button opens a Fluent UI 2 Popover allowing the author to change the placeholder text; Enter confirms, Escape reverts. The placeholder value is persisted via a new searchPlaceholder prop on IFullWidthContainerProps.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-036",
+      "name": "DropdownFilterComposableContentItem",
+      "description": "Adds 'dropdown' as a full ICardItemType, available in all composable insertion contexts (card, section, dashboard header). Supports label, placeholder text, term set name, and reorderable static options. Renders as a Fluent UI 2 Dropdown component dispatching dashboard:card-filter-apply on selection change. Property editor provides label/placeholder/termSet/options editing with Up/Down/Delete reordering. The filter-host detection in TabsContainer and AccordionContainer is extended to include dropdown items.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx",
+        "preview/index.html"
+      ]
+    },
+    {
+      "id": "FEAT-037",
+      "name": "UserProfileDiagnosticsInspection",
+      "description": "Adds an author-only user profile inspection icon next to 'Save snapshot to Library' in the dashboard edit banner. In Edit Mode, clicking the user icon reveals a Fluent UI 2 popover listing all active pageContext.user properties and values (displayName, email, loginName, guest flags) for rapid environment debugging.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts"
+      ]
+    },
+    {
+      "id": "FEAT-038",
+      "name": "ProcessModelConfigurationOverhaulAndComposableDropdownFilterPane",
+      "description": "Comprehensive ergonomic overhaul of the Process Model property window and composable dropdown filter configuration: 1) Replaces overflowing dialog surface with flexbox-constrained layout pinning action buttons permanently to the bottom with divider border, 2) Humanises dialog titles ('Configure the process model'), 3) Implements a rich text editor with micro-toolbar (bold, italic, bullet list, eraser) for stage descriptions, 4) Provides an explicit segmented pill switcher between Card Filtering (with term or step pill default) and Web Link URL opening with visual guidance banners, and 5) Integrates a dedicated taxonomy group and term set properties pane for composable dropdown filter items.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx"
+      ]
     }
   ]
 }

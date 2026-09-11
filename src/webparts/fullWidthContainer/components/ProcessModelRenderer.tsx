@@ -1,23 +1,20 @@
 /**
  * @file ProcessModelRenderer.tsx
- * @description Customisable Process Model (Chevron / Stage Flow) component built with Fluent UI 2 (@fluentui/react-components v9).
- * Renders connected process stages (Stage 1: Shape, Stage 2: Plan, Stage 3: Source, Stage 4: Deliver, Stage 5: Realise)
- * with capability badges, descriptions, and interactive click handling (URL navigation or card filtering).
+ * @description Customisable Process Model (Interlocking Chevron Arrow Flow) component built with Fluent UI 2.
+ * Renders connected chevron arrow stages (Stage 1: Shape, Stage 2: Plan, Stage 3: Source, Stage 4: Deliver, Stage 5: Realise)
+ * with the first stage having a flat left end cap, the last stage having a flat right end cap, and intermediate stages
+ * having interlocking chevron arrow points and notches matching the Turner & Townsend brand styling.
  */
 
 import * as React from 'react';
 import {
   makeStyles,
   tokens,
-  shorthands,
-  Button,
   Caption1
 } from '@fluentui/react-components';
 import {
   OpenRegular,
-  EditRegular,
-  DismissRegular,
-  ChevronRightRegular
+  DismissRegular
 } from '@fluentui/react-icons';
 import { IProcessStepItem } from '../models/IContainerModels';
 
@@ -26,9 +23,9 @@ const useStyles = makeStyles({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: '10px',
     boxSizing: 'border-box',
-    marginTop: '4px',
+    marginTop: '6px',
     marginBottom: '8px'
   },
   processFlow: {
@@ -36,12 +33,12 @@ const useStyles = makeStyles({
     flexDirection: 'row',
     width: '100%',
     boxSizing: 'border-box',
-    backgroundColor: '#F8F6F2', // Soft mushroom background matching Turner & Townsend palette
+    backgroundColor: '#FFFFFF',
     borderRadius: '8px',
-    border: '1px solid #E6DFD5',
+    border: '1px solid #E2E8F0',
     overflow: 'hidden',
-    position: 'relative',
-    '@media (max-width: 768px)': {
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+    '@media (max-width: 820px)': {
       flexDirection: 'column',
       borderRadius: '6px'
     }
@@ -51,44 +48,35 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '16px 14px',
-    minHeight: '110px',
+    minHeight: '112px',
     cursor: 'pointer',
     position: 'relative',
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFFFF',
     border: 'none',
     textAlign: 'left',
     outlineStyle: 'none',
-    transitionProperty: 'background-color, color, transform',
-    transitionDuration: '180ms',
+    boxSizing: 'border-box',
+    transitionProperty: 'background-color, color, box-shadow',
+    transitionDuration: '160ms',
+    transitionTimingFunction: 'ease-in-out',
     ':hover': {
-      backgroundColor: '#EFEAE2'
+      backgroundColor: '#F8FAFC'
     },
-    '@media (max-width: 768px)': {
-      borderBottom: '1px solid #E6DFD5',
+    '@media (max-width: 820px)': {
+      clipPath: 'none !important' as any,
+      marginLeft: '0 !important',
+      paddingLeft: '16px !important',
+      paddingRight: '16px !important',
+      borderBottom: '1px solid #E2E8F0',
       minHeight: 'auto'
     }
   },
   stageItemActive: {
     backgroundColor: '#001436 !important', // Deep Turner & Townsend navy
     color: '#FFFFFF !important',
-    boxShadow: '0 4px 12px rgba(0, 20, 54, 0.25)',
-    zIndex: 2
-  },
-  stageDivider: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: '14px',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#C8C0B4',
-    zIndex: 3,
-    '@media (max-width: 768px)': {
-      display: 'none'
+    zIndex: 4,
+    ':hover': {
+      backgroundColor: '#001E4D !important'
     }
   },
   stageHeader: {
@@ -98,24 +86,24 @@ const useStyles = makeStyles({
     marginBottom: '4px'
   },
   stageDot: {
-    width: '7px',
-    height: '7px',
+    width: '8px',
+    height: '8px',
     borderRadius: '50%',
-    backgroundColor: '#1E4479',
+    backgroundColor: '#94A3B8',
     flexShrink: 0
   },
   stageDotActive: {
-    backgroundColor: '#0090DC' // Cyan tint
+    backgroundColor: '#EAA023 !important' // Warm amber indicator dot
   },
   stageNumber: {
     fontSize: '0.72rem',
     fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    color: '#737B80'
+    color: '#64748B'
   },
   stageNumberActive: {
-    color: '#CCE9F8'
+    color: '#93C5FD'
   },
   stageTitle: {
     fontSize: '1.05rem',
@@ -129,8 +117,8 @@ const useStyles = makeStyles({
   },
   stageDescription: {
     fontSize: '0.78rem',
-    lineHeight: '1.25',
-    color: '#505A60',
+    lineHeight: '1.28',
+    color: '#475569',
     flexGrow: 1,
     marginBottom: '8px'
   },
@@ -147,12 +135,12 @@ const useStyles = makeStyles({
     marginTop: 'auto'
   },
   stageMetricActive: {
-    color: '#80D1F8'
+    color: '#93C5FD'
   },
   activeIndicatorRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
     marginTop: '2px'
   },
   clearLink: {
@@ -198,7 +186,7 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
       return;
     }
 
-    // Filter action
+    // Filter action toggle
     if (activeStepId === step.id) {
       if (onSelectStep) {
         onSelectStep(null);
@@ -217,13 +205,59 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
       <div className={styles.processFlow} role="navigation" aria-label="Process stages">
         {steps.map((step, idx) => {
           const isActive = activeStepId === step.id;
+          const isFirst = idx === 0;
           const isLast = idx === steps.length - 1;
+          const isSingle = steps.length === 1;
+
+          // Arrow chevron geometry with flat end caps:
+          // 1. Single item: completely flat rectangular card
+          // 2. First stage: flat left edge, pointy arrow right edge
+          // 3. Middle stages: notched arrow left edge, pointy arrow right edge
+          // 4. Last stage: notched arrow left edge, flat right edge
+          let clipPath = 'none';
+          let marginLeft = '0px';
+          let paddingLeft = '18px';
+          let paddingRight = '18px';
+
+          if (!isSingle) {
+            if (isFirst) {
+              // Flat left edge, arrow point on right
+              clipPath = 'polygon(0% 0%, calc(100% - 18px) 0%, 100% 50%, calc(100% - 18px) 100%, 0% 100%)';
+              marginLeft = '0px';
+              paddingLeft = '18px';
+              paddingRight = '32px';
+            } else if (isLast) {
+              // Arrow notch on left, flat right edge
+              clipPath = 'polygon(0% 0%, 18px 50%, 0% 100%, 100% 100%, 100% 0%)';
+              marginLeft = '-15px';
+              paddingLeft = '30px';
+              paddingRight = '18px';
+            } else {
+              // Arrow notch on left, arrow point on right
+              clipPath = 'polygon(0% 0%, calc(100% - 18px) 0%, 100% 50%, calc(100% - 18px) 100%, 0% 100%, 18px 50%)';
+              marginLeft = '-15px';
+              paddingLeft = '30px';
+              paddingRight = '32px';
+            }
+          }
+
+          // Layer order: Active step gets high z-index, otherwise natural cascading z-index so chevrons nest seamlessly
+          const zIndex = isActive ? 10 : steps.length - idx;
 
           return (
             <button
               key={step.id}
               type="button"
               className={`${styles.stageItem} ${isActive ? styles.stageItemActive : ''}`}
+              style={{
+                clipPath,
+                marginLeft,
+                paddingTop: '16px',
+                paddingBottom: '16px',
+                paddingLeft,
+                paddingRight,
+                zIndex
+              }}
               onClick={() => handleStepClick(step)}
               title={
                 step.actionType === 'navigate'
@@ -273,14 +307,8 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
                 >
                   {step.metricBadge}
                   {step.actionType === 'navigate' && (
-                    <OpenRegular style={{ fontSize: '11px', marginLeft: '2px' }} />
+                    <OpenRegular style={{ fontSize: '11px', marginLeft: '3px' }} />
                   )}
-                </div>
-              )}
-
-              {!isLast && (
-                <div className={styles.stageDivider}>
-                  <ChevronRightRegular fontSize={14} />
                 </div>
               )}
             </button>
@@ -288,8 +316,8 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
         })}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {activeStep && (
+      {activeStep && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className={styles.activeIndicatorRow}>
             <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
               Process filter: <strong>{activeStep.title}</strong>
@@ -303,20 +331,9 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
               <DismissRegular style={{ fontSize: '12px' }} /> Clear filter
             </button>
           </div>
-        )}
-
-        {isEditMode && onEdit && (
-          <Button
-            size="small"
-            appearance="subtle"
-            icon={<EditRegular />}
-            onClick={onEdit}
-            style={{ marginLeft: 'auto' }}
-          >
-            Configure process model
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
+

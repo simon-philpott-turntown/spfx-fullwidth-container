@@ -326,7 +326,7 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
           const itemFilt = activeItemFilter ? activeItemFilter.toLowerCase().trim() : '';
           const blocks = (section && Array.isArray(section.blocks)) ? section.blocks : [];
           const filteredBlocks = blocks.filter((b) => {
-            const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel');
+            const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel' || it.type === 'dropdown');
 
             // 1. Interactive Button / Process Stage Filter Matching
             if (itemFilt && !isFilterHost) {

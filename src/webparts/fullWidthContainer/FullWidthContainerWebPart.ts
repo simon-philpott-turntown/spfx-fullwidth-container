@@ -95,6 +95,7 @@ export interface IFullWidthContainerWebPartProps {
   sectionsJson: string;
   headerContentJson?: string;
   searchAlignment?: 'left' | 'center' | 'right';
+  searchPlaceholder?: string;
   termFiltersJson?: string;
 
   // Active section editor state in Property Pane
@@ -191,29 +192,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
         // Fallback if JSON parsing fails
       }
     }
-    // Default sample filters matching screenshot: Our regions and Our segments
-    const defaults: ITermFilterConfig[] = [
-      {
-        id: 'filter-region',
-        label: 'Region',
-        placeholder: 'Choose a region',
-        termGroupName: 'Our business',
-        termSetName: 'Our regions',
-        iconName: 'Pin'
-      },
-      {
-        id: 'filter-segment',
-        label: 'Segment',
-        placeholder: 'Choose a segment',
-        termGroupName: 'Our business',
-        termSetName: 'Our segments',
-        iconName: 'Building'
-      }
-    ];
-    if (this.properties) {
-      this.properties.termFiltersJson = JSON.stringify(defaults);
-    }
-    return defaults;
+    return [];
   }
 
   /**
@@ -425,10 +404,22 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           compactPadding: !!props.compactPadding,
           showSearch: props.showSearch !== false,
           searchAlignment: props.searchAlignment || 'left',
+          searchPlaceholder: props.searchPlaceholder || 'Filter items, tags, GBP...',
+          onSearchPlaceholderChange: (newVal: string) => {
+            this.properties.searchPlaceholder = newVal;
+            this.render();
+          },
           gridColumns: props.gridColumns,
           gridRows: props.gridRows,
           cardHeightMode: props.cardHeightMode || 'auto',
           webPartBackgroundColor: props.webPartBackgroundColor,
+          userProfileDetails: this.context?.pageContext?.user ? {
+            displayName: this.context.pageContext.user.displayName,
+            email: this.context.pageContext.user.email,
+            loginName: this.context.pageContext.user.loginName,
+            isAnonymousGuestUser: this.context.pageContext.user.isAnonymousGuestUser,
+            isExternalGuestUser: this.context.pageContext.user.isExternalGuestUser
+          } : undefined,
           sections: activeSections,
           headerContentItems: this._getHeaderContentItems(),
           onUpdateHeaderContentItems: (newItems) => {
@@ -951,6 +942,11 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
                     { key: 'center', text: 'Center align' },
                     { key: 'right', text: 'Right align' }
                   ]
+                }),
+                PropertyPaneTextField('searchPlaceholder', {
+                  label: 'Search prompt placeholder text',
+                  value: this.properties.searchPlaceholder || 'Filter items, tags, GBP...',
+                  disabled: this.properties.showSearch === false
                 }),
                 PropertyPaneToggle('compactPadding', {
                   label: 'Compact vertical padding',

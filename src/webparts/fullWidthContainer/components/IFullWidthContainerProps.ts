@@ -15,6 +15,8 @@ export interface IFullWidthContainerProps {
   compactPadding: boolean;
   showSearch: boolean;
   searchAlignment?: 'left' | 'center' | 'right';
+  searchPlaceholder?: string;
+  onSearchPlaceholderChange?: (val: string) => void;
   gridColumns?: number;
   gridRows?: number;
   cardHeightMode?: 'auto' | 'equal';
@@ -43,5 +45,6 @@ export interface IFullWidthContainerProps {
   onRestoreFromLibrary?: () => void;
   lastBackupMessage?: string;
   assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
+  userProfileDetails?: Record<string, any>;
 }
 

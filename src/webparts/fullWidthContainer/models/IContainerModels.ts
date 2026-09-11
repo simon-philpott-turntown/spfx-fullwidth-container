@@ -27,7 +27,8 @@ export type ICardItemType =
   | 'liveData'
   | 'termStoreTags'
   | 'filterButtons'
-  | 'processModel';
+  | 'processModel'
+  | 'dropdown';
 
 /**
  * Filter button item for the interactive Filter Buttons component.
@@ -128,6 +129,14 @@ export interface ICardItem {
   processSteps?: IProcessStepItem[];
   activeFilterId?: string;
   alignment?: 'left' | 'center' | 'right'; // Content alignment option
+  // Dropdown filter item fields
+  dropdownLabel?: string;
+  dropdownPlaceholder?: string;
+  dropdownOptions?: Array<{ label: string; value: string }>;
+  dropdownTermGroupName?: string;
+  dropdownTermSetName?: string;
+  dropdownIconName?: string;
+  selectedDropdownValue?: string;
 }
 
 export type CardHeightMode = 'auto' | 'equal';

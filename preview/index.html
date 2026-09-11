@@ -1193,9 +1193,32 @@
               </label>
             </div>
           </div>
-          <button class="sp-btn sp-btn-primary" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; margin-bottom: 8px;" onclick="saveDashboardToLibrarySnapshot()">
-            <i class="fa-solid fa-floppy-disk"></i> Save Snapshot to Dashboards Library
-          </button>
+          <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 8px;">
+            <button class="sp-btn sp-btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px 10px;" onclick="saveDashboardToLibrarySnapshot()">
+              <i class="fa-solid fa-floppy-disk"></i> Save Snapshot to Dashboards Library
+            </button>
+            <div style="position: relative;">
+              <button
+                id="btn-user-context-info"
+                title="View pageContext.user properties"
+                onclick="toggleUserContextPopup()"
+                style="width: 28px; height: 28px; padding: 0; border: 1px solid var(--fui-colorNeutralStroke1); border-radius: 50%; background: var(--fui-colorNeutralBackground3); color: var(--fui-colorNeutralForeground2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; transition: all 0.15s ease;"
+                onmouseenter="this.style.borderColor='var(--fui-colorBrandStroke1)'; this.style.color='var(--fui-colorBrandForeground1)';"
+                onmouseleave="this.style.borderColor='var(--fui-colorNeutralStroke1)'; this.style.color='var(--fui-colorNeutralForeground2)';">
+                <i class="fa-solid fa-user"></i>
+              </button>
+              <div id="user-context-popup" style="display: none; position: absolute; bottom: calc(100% + 6px); right: 0; width: 300px; background: var(--fui-colorNeutralBackground1); border: 1px solid var(--fui-colorNeutralStroke1); border-radius: 8px; box-shadow: var(--fui-shadow16); z-index: 9999; overflow: hidden; animation: popover-fade-in 0.15s ease-out;">
+                <div style="padding: 10px 12px; background: var(--fui-colorBrandBackground2); border-bottom: 1px solid var(--fui-colorBrandStroke2); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-user-circle" style="color: var(--fui-colorBrandForeground1); font-size: 1rem;"></i>
+                  <div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--fui-colorNeutralForeground1);">pageContext.user</div>
+                    <div style="font-size: 0.68rem; color: var(--fui-colorNeutralForeground3);">Simulated — available in live SPFx web part</div>
+                  </div>
+                </div>
+                <div style="padding: 8px; max-height: 320px; overflow-y: auto;" id="user-context-popup-body"></div>
+              </div>
+            </div>
+          </div>
           <div class="form-group" style="margin-bottom: 6px;">
             <label class="form-label">Select snapshot to restore</label>
             <select class="form-select" id="sel-library-backups" style="font-size: 0.78rem;">
@@ -1535,6 +1558,7 @@
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('hero')" title="Add hero">+ Hero</button>
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('divider')" title="Add divider">+ Divider</button>
               <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('processModel')" title="Add process model flow">+ Process Model</button>
+              <button type="button" class="sp-btn sp-btn-secondary" style="font-size: 0.72rem; padding: 2px 6px;" onclick="addInnerItem('dropdown')" title="Add filter dropdown">+ Filter Dropdown</button>
             </div>
           </div>
           <div id="card-inner-items-list" style="display: flex; flex-direction: column; gap: 6px; background: var(--fui-colorNeutralBackground2); padding: 8px; border-radius: var(--fui-borderRadiusMedium); border: 1px solid var(--fui-colorNeutralStroke2);">
@@ -1832,6 +1856,7 @@
       cardHeightMode: 'auto',
       activeTabId: 'sec-1',
       searchQuery: '',
+      searchPlaceholder: 'Filter items, tags, GBP...',
       activeSecIdx: 0,
       activeCardSecIdx: 0,
       activeCardIdx: 0
@@ -1850,6 +1875,94 @@
       document.getElementById('edit-mode-label').textContent = isEditMode ? 'Exit Edit' : 'Edit Page';
       document.getElementById('property-pane').style.display = isEditMode ? 'flex' : 'none';
       render();
+    }
+
+    /* ── pageContext.user Inspector ─────────────────────────────────── */
+    const mockPageContextUser = {
+      displayName:          'Simon Philpott',
+      email:                'simon.philpott@turntown.com',
+      loginName:            'i:0#.f|membership|simon.philpott@turntown.com',
+      isAnonymousGuestUser: false,
+      isExternalGuestUser:  false,
+      preferUserTimeZone:   false,
+      firstDayOfWeek:       1,
+      // — Graph /me fields (requires User.Read scope) —
+      jobTitle:             'Senior Consultant',
+      department:           'Infrastructure Advisory',
+      officeLocation:       'London, Cannon Place',
+      city:                 'London',
+      country:              'United Kingdom',
+      mobilePhone:          '+44 7700 900123',
+      aboutMe:              'Senior consultant specialising in commercial advisory and capital programme delivery.',
+      // — SharePoint Profile Service —
+      'SPS-Location':       'London',
+      'SPS-Skills':         'Commercial Advisory, Cost Management, NEC3',
+      'SPS-Interests':      'Infrastructure, Sustainability, ESG',
+      pictureUrl:           'https://turntown.sharepoint.com/_layouts/15/userphoto.aspx?size=L&username=simon.philpott%40turntown.com',
+    };
+
+    let userContextPopupOpen = false;
+
+    function toggleUserContextPopup() {
+      const popup = document.getElementById('user-context-popup');
+      if (!popup) return;
+      userContextPopupOpen = !userContextPopupOpen;
+      if (userContextPopupOpen) {
+        renderUserContextPopup();
+        popup.style.display = 'block';
+        // Close on outside click
+        setTimeout(() => {
+          document.addEventListener('click', closeUserContextPopupOutside, { once: true });
+        }, 0);
+      } else {
+        popup.style.display = 'none';
+      }
+    }
+
+    function closeUserContextPopupOutside(e) {
+      const popup = document.getElementById('user-context-popup');
+      const btn   = document.getElementById('btn-user-context-info');
+      if (popup && btn && !popup.contains(e.target) && !btn.contains(e.target)) {
+        popup.style.display = 'none';
+        userContextPopupOpen = false;
+      }
+    }
+
+    function renderUserContextPopup() {
+      const body = document.getElementById('user-context-popup-body');
+      if (!body) return;
+      const entries = Object.entries(mockPageContextUser);
+      // Group: core SPFx context vs Graph/Profile extras
+      const coreKeys = ['displayName','email','loginName','isAnonymousGuestUser','isExternalGuestUser','preferUserTimeZone','firstDayOfWeek'];
+      const graphKeys = ['jobTitle','department','officeLocation','city','country','mobilePhone','aboutMe'];
+      const spKeys = ['SPS-Location','SPS-Skills','SPS-Interests','pictureUrl'];
+
+      function buildSection(heading, keys, iconClass) {
+        const relevant = entries.filter(([k]) => keys.includes(k));
+        if (!relevant.length) return '';
+        return `
+          <div style="margin-bottom: 6px;">
+            <div style="font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fui-colorNeutralForeground3); padding: 4px 4px 2px; display: flex; align-items: center; gap: 4px;">
+              <i class="${iconClass}" style="font-size: 0.7rem;"></i> ${heading}
+            </div>
+            ${relevant.map(([key, val]) => `
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 4px; padding: 3px 4px; border-radius: 4px; transition: background 0.1s;" onmouseenter="this.style.background='var(--fui-colorNeutralBackground3)'" onmouseleave="this.style.background='transparent'">
+                <span style="font-size: 0.72rem; font-family: 'Courier New', monospace; color: var(--fui-colorBrandForeground1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${key}">${key}</span>
+                <span style="font-size: 0.72rem; color: var(--fui-colorNeutralForeground1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${String(val)}">${typeof val === 'boolean' ? (val ? '<span style="color:#107c10">true</span>' : '<span style="color:#a4262c">false</span>') : (val === null || val === undefined ? '<span style="color:var(--fui-colorNeutralForeground4)">null</span>' : String(val))}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      body.innerHTML = [
+        buildSection('pageContext.user (zero-permission)', coreKeys, 'fa-solid fa-bolt'),
+        `<div style="border-top: 1px solid var(--fui-colorNeutralStroke2); margin: 4px 0;"></div>`,
+        buildSection('Graph /me — requires User.Read', graphKeys, 'fa-brands fa-microsoft'),
+        `<div style="border-top: 1px solid var(--fui-colorNeutralStroke2); margin: 4px 0;"></div>`,
+        buildSection('SharePoint Profile Service', spKeys, 'fa-solid fa-share-nodes'),
+        `<div style="padding: 6px 4px; font-size: 0.65rem; color: var(--fui-colorNeutralForeground4); border-top: 1px solid var(--fui-colorNeutralStroke2); margin-top: 2px;">ℹ️ Values shown are simulated. Live values come from <code style="font-size:0.65rem;">this.context.pageContext.user</code></div>`
+      ].join('');
     }
 
     function toggleSidebar() {
@@ -2994,6 +3107,17 @@
               { id: 'st-5', stageNumber: 'Stage 5', title: 'Review', description: 'Assess outcomes and capture operational knowledge.', badgeText: 'Learning', actionType: 'none', actionUrl: '' }
             ]
           });
+        } else if (type === 'dropdown') {
+          curCard.items.push({
+            id: id,
+            type: 'dropdown',
+            dropdownLabel: 'Filter by',
+            dropdownPlaceholder: 'Select an option',
+            dropdownOptions: [
+              { label: 'Option 1', value: 'option-1' },
+              { label: 'Option 2', value: 'option-2' }
+            ]
+          });
         }
         syncSidebar();
         render();
@@ -3154,6 +3278,22 @@
         `;
       } else if (item.type === 'divider') {
         fieldsHtml += `<div class="form-group"><label class="form-label">Divider style</label><select class="form-select" id="inp-modal-div-style"><option value="solid" ${item.dividerStyle === 'solid' ? 'selected' : ''}>Solid line</option><option value="dashed" ${item.dividerStyle === 'dashed' ? 'selected' : ''}>Dashed line</option></select></div>`;
+      } else if (item.type === 'dropdown') {
+        const opts = item.dropdownOptions || [];
+        fieldsHtml += `<div class="form-group"><label class="form-label">Dropdown label</label><input type="text" class="form-input" id="inp-modal-dd-label" value="${item.dropdownLabel || ''}" placeholder="e.g. Filter by sector" /></div>`;
+        fieldsHtml += `<div class="form-group"><label class="form-label">Placeholder text</label><input type="text" class="form-input" id="inp-modal-dd-placeholder" value="${item.dropdownPlaceholder || ''}" placeholder="e.g. Select an option" /></div>`;
+        fieldsHtml += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;"><label class="form-label" style="margin-bottom: 0; font-weight: 700;">Options (${opts.length})</label><button type="button" class="sp-btn" style="font-size: 0.75rem; padding: 3px 8px;" onclick="addDropdownOption()"><i class="fa-solid fa-plus"></i> Add Option</button></div>`;
+        fieldsHtml += `<div id="modal-dd-opts-container" style="display: flex; flex-direction: column; gap: 6px;">`;
+        opts.forEach((opt, i) => {
+          fieldsHtml += `<div style="display: flex; gap: 4px; align-items: center;">
+            <input type="text" class="form-input" id="inp-dd-label-${i}" value="${opt.label}" placeholder="Display label" style="flex:1;" />
+            <input type="text" class="form-input" id="inp-dd-value-${i}" value="${opt.value}" placeholder="Filter value" style="flex:1;" />
+            <button type="button" class="sp-btn sp-btn-secondary" style="font-size:0.7rem;padding:2px 5px;" ${i===0?'disabled':'onclick="moveDropdownOption('+i+',-1)"'} title="Move up"><i class="fa-solid fa-arrow-up"></i></button>
+            <button type="button" class="sp-btn sp-btn-secondary" style="font-size:0.7rem;padding:2px 5px;" ${i===opts.length-1?'disabled':'onclick="moveDropdownOption('+i+',1)"'} title="Move down"><i class="fa-solid fa-arrow-down"></i></button>
+            <button type="button" class="sp-btn sp-btn-secondary" style="font-size:0.7rem;padding:2px 5px;" onclick="deleteDropdownOption(${i})" title="Remove"><i class="fa-solid fa-trash-can"></i></button>
+          </div>`;
+        });
+        fieldsHtml += `</div>`;
       } else {
         fieldsHtml += `<div class="form-group"><label class="form-label">Text content</label><textarea class="form-textarea" rows="4" id="inp-modal-gen-text">${item.text || ''}</textarea></div>`;
       }
@@ -3315,6 +3455,16 @@
         item.heroBgUrl = document.getElementById('inp-modal-hero-bg')?.value || '';
       } else if (item.type === 'divider') {
         item.dividerStyle = document.getElementById('inp-modal-div-style')?.value || 'solid';
+      } else if (item.type === 'dropdown') {
+        item.dropdownLabel = document.getElementById('inp-modal-dd-label')?.value || '';
+        item.dropdownPlaceholder = document.getElementById('inp-modal-dd-placeholder')?.value || '';
+        const opts = item.dropdownOptions || [];
+        opts.forEach((opt, i) => {
+          const lbl = document.getElementById(`inp-dd-label-${i}`);
+          const val = document.getElementById(`inp-dd-value-${i}`);
+          if (lbl) opt.label = lbl.value;
+          if (val) opt.value = val.value;
+        });
       } else if (document.getElementById('inp-modal-gen-text')) {
         item.text = document.getElementById('inp-modal-gen-text')?.value || '';
       }
@@ -3324,6 +3474,41 @@
       syncSidebar();
       render();
       showToast('✓ Card item updated!');
+    }
+
+    function addDropdownOption() {
+      if (!activeModalEditingItem) return;
+      const item = activeModalEditingItem.item;
+      if (!item.dropdownOptions) item.dropdownOptions = [];
+      item.dropdownOptions.push({ label: 'New option', value: `opt-${Date.now()}` });
+      // Re-open modal with updated item
+      const { secIdx, cardIdx, itemIdx } = activeModalEditingItem;
+      const curCard = currentSections[secIdx].blocks[cardIdx];
+      curCard.items[itemIdx] = item;
+      openInnerItemModal(secIdx, cardIdx, itemIdx);
+    }
+
+    function moveDropdownOption(idx, dir) {
+      if (!activeModalEditingItem) return;
+      const item = activeModalEditingItem.item;
+      const opts = item.dropdownOptions || [];
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= opts.length) return;
+      const temp = opts[newIdx];
+      opts[newIdx] = opts[idx];
+      opts[idx] = temp;
+      const { secIdx, cardIdx, itemIdx } = activeModalEditingItem;
+      currentSections[secIdx].blocks[cardIdx].items[itemIdx] = item;
+      openInnerItemModal(secIdx, cardIdx, itemIdx);
+    }
+
+    function deleteDropdownOption(idx) {
+      if (!activeModalEditingItem) return;
+      const item = activeModalEditingItem.item;
+      item.dropdownOptions = (item.dropdownOptions || []).filter((_, i) => i !== idx);
+      const { secIdx, cardIdx, itemIdx } = activeModalEditingItem;
+      currentSections[secIdx].blocks[cardIdx].items[itemIdx] = item;
+      openInnerItemModal(secIdx, cardIdx, itemIdx);
     }
 
     function renderCardInnerItemsEditor(curCard) {
@@ -3714,6 +3899,30 @@
               ),
               i < steps.length - 1 ? React.createElement('span', { style: { color: 'var(--fui-colorNeutralForeground3)', fontSize: '0.7rem' } }, '▶') : null
             ))
+          )
+        );
+      }
+      if (item.type === 'dropdown') {
+        const opts = item.dropdownOptions || [];
+        return React.createElement('div', { key: item.id, style: { marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' } },
+          item.dropdownLabel ? React.createElement('label', {
+            style: { fontSize: '0.75rem', fontWeight: 600, color: isDarkBg ? 'rgba(255,255,255,0.85)' : 'var(--fui-colorNeutralForeground2)' }
+          }, item.dropdownLabel) : null,
+          React.createElement('select', {
+            style: {
+              minWidth: '200px',
+              padding: '6px 10px',
+              borderRadius: '4px',
+              border: '1px solid var(--fui-colorNeutralStroke2)',
+              backgroundColor: isDarkBg ? 'rgba(255,255,255,0.08)' : 'var(--fui-colorNeutralBackground1)',
+              color: isDarkBg ? '#FFFFFF' : 'var(--fui-colorNeutralForeground1)',
+              fontSize: '0.82rem'
+            },
+            defaultValue: item.selectedDropdownValue || '',
+            onChange: (e) => { item.selectedDropdownValue = e.target.value; render(); }
+          },
+            React.createElement('option', { value: '', disabled: true }, item.dropdownPlaceholder || 'Select an option'),
+            opts.map((opt) => React.createElement('option', { key: opt.value, value: opt.value }, opt.label))
           )
         );
       }
@@ -4398,16 +4607,31 @@
             })
           ),
           React.createElement('div', { className: 'fui-controls' },
-            // Search Box
-            React.createElement('div', { className: 'fui-input-box' },
-              React.createElement('i', { className: 'fa-solid fa-magnifying-glass fui-input-icon' }),
-              React.createElement('input', {
-                type: 'text',
-                className: 'fui-input',
-                placeholder: 'Filter items, tags, GBP...',
-                value: state.searchQuery,
-                onChange: (e) => { state.searchQuery = e.target.value; render(); }
-              })
+            // Search Box — always pinned top-right
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '4px' } },
+              React.createElement('div', { className: 'fui-input-box' },
+                React.createElement('i', { className: 'fa-solid fa-magnifying-glass fui-input-icon' }),
+                React.createElement('input', {
+                  type: 'text',
+                  className: 'fui-input',
+                  placeholder: state.searchPlaceholder || 'Filter items, tags, GBP...',
+                  value: state.searchQuery,
+                  onChange: (e) => { state.searchQuery = e.target.value; render(); }
+                })
+              ),
+              // Edit placeholder button — only in edit mode
+              state.isEditMode ? React.createElement('button', {
+                className: 'fui-btn-subtle',
+                style: { padding: '4px 6px', fontSize: '12px', lineHeight: 1 },
+                title: 'Edit search prompt text',
+                onClick: () => {
+                  const newPlaceholder = window.prompt('Search prompt text:', state.searchPlaceholder || 'Filter items, tags, GBP...');
+                  if (newPlaceholder !== null) {
+                    state.searchPlaceholder = newPlaceholder;
+                    render();
+                  }
+                }
+              }, React.createElement('i', { className: 'fa-solid fa-pen-to-square' })) : null
             ),
             // Layout Switcher
             React.createElement('div', { className: 'fui-mode-tabs' },

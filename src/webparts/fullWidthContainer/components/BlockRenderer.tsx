@@ -20,7 +20,10 @@ import {
   makeStyles,
   shorthands,
   tokens,
-  Divider
+  Divider,
+  Dropdown,
+  Option,
+  Label
 } from '@fluentui/react-components';
 import {
   OpenRegular,
@@ -764,6 +767,12 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           metricBadge: '3 capabilities',
           actionType: 'filter'
         }
+      ] : undefined,
+      dropdownLabel: itemType === 'dropdown' ? 'Filter by' : undefined,
+      dropdownPlaceholder: itemType === 'dropdown' ? 'Select an option' : undefined,
+      dropdownOptions: itemType === 'dropdown' ? [
+        { label: 'Option 1', value: 'option-1' },
+        { label: 'Option 2', value: 'option-2' }
       ] : undefined
     };
 
@@ -797,11 +806,27 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
           textAlign: textAlignVal,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'stretch'
+          alignItems: alignVal === 'center' ? 'center' : alignVal === 'right' ? 'flex-end' : 'stretch',
+          paddingTop: isEditMode ? '8px' : 0
         }}
       >
         {isEditMode && (
-          <div style={{ position: 'absolute', right: 0, top: 0, zIndex: 10, display: 'flex', gap: '2px', backgroundColor: 'rgba(255,255,255,0.85)', borderRadius: '4px', padding: '1px' }}>
+          <div
+            style={{
+              position: 'absolute',
+              right: '4px',
+              top: '-14px',
+              zIndex: 50,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px',
+              backgroundColor: '#FFFFFF',
+              border: `1px solid ${tokens.colorNeutralStroke2}`,
+              borderRadius: '4px',
+              padding: '2px 4px',
+              boxShadow: tokens.shadow8
+            }}
+          >
             <Button
               size="small"
               appearance="subtle"
@@ -1124,6 +1149,51 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
             isEditMode={isEditMode}
             onEdit={() => setEditingItem({ item, index: idx })}
           />
+        )}
+
+        {item.type === 'dropdown' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: item.alignment === 'center' ? 'center' : item.alignment === 'right' ? 'flex-end' : 'flex-start' }}>
+            {item.dropdownLabel && (
+              <Label size="small" weight="semibold">{item.dropdownLabel}</Label>
+            )}
+            <Dropdown
+              placeholder={item.dropdownPlaceholder || 'Select an option'}
+              selectedOptions={item.selectedDropdownValue ? [item.selectedDropdownValue] : []}
+              value={item.dropdownOptions?.find((o) => o.value === item.selectedDropdownValue)?.label || ''}
+              onOptionSelect={(_, data) => {
+                if (block.items && onUpdate) {
+                  const updatedItems = [...block.items];
+                  updatedItems[idx] = { ...updatedItems[idx], selectedDropdownValue: data.optionValue || undefined };
+                  onUpdate({ items: updatedItems });
+                }
+                window.dispatchEvent(
+                  new CustomEvent('dashboard:card-filter-apply', {
+                    detail: {
+                      sourceItemId: item.id,
+                      filterValue: data.optionValue || ''
+                    }
+                  })
+                );
+              }}
+              style={{ minWidth: '200px' }}
+            >
+              {(item.dropdownOptions || []).map((opt) => (
+                <Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Option>
+              ))}
+            </Dropdown>
+            {isEditMode && (
+              <Button
+                size="small"
+                appearance="subtle"
+                onClick={() => setEditingItem({ item, index: idx })}
+                style={{ marginTop: '4px', fontSize: '11px', color: tokens.colorNeutralForeground3 }}
+              >
+                Edit dropdown options
+              </Button>
+            )}
+          </div>
         )}
       </div>
     );

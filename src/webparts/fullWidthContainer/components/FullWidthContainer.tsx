@@ -21,6 +21,9 @@ import {
   Badge,
   Button,
   Caption1,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   makeStyles,
   shorthands,
   tokens,
@@ -29,7 +32,9 @@ import {
 import {
   SearchRegular,
   TabRegular,
-  ListRegular
+  ListRegular,
+  EditRegular,
+  PersonRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -102,11 +107,25 @@ const useStyles = makeStyles({
     width: '100%'
   },
   searchInput: {
-    minWidth: '240px'
+    minWidth: '260px'
+  },
+  headerSearchInput: {
+    minWidth: '220px',
+    maxWidth: '320px',
+    height: '32px',
+    boxSizing: 'border-box',
+    '& input': {
+      paddingTop: '6px',
+      paddingBottom: '6px',
+      fontSize: '0.85rem'
+    }
   },
   modeSwitcher: {
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    backgroundColor: tokens.colorNeutralBackground3
+    backgroundColor: tokens.colorNeutralBackground3,
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center'
   },
   editBanner: {
     display: 'flex',
@@ -176,7 +195,6 @@ const useStyles = makeStyles({
 });
 
 import { FloatingTextToolbar } from './FloatingTextToolbar';
-import { TermFilterBar } from './TermFilterBar';
 import { ComposableContentSection } from './ComposableContentSection';
 
 export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) => {
@@ -188,6 +206,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     compactPadding,
     showSearch,
     searchAlignment = 'left',
+    searchPlaceholder,
+    onSearchPlaceholderChange,
     gridColumns,
     gridRows,
     cardHeightMode,
@@ -213,7 +233,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onSaveBackupToLibrary,
     onRestoreFromLibrary,
     lastBackupMessage,
-    assetPickerService
+    assetPickerService,
+    userProfileDetails
   } = props;
 
   const styles = useStyles();
@@ -221,6 +242,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [selectedFilterTerms, setSelectedFilterTerms] = React.useState<Record<string, string>>({});
   const [isSavingSnapshot, setIsSavingSnapshot] = React.useState<boolean>(false);
+  const [searchPlaceholderLocal, setSearchPlaceholderLocal] = React.useState<string>(searchPlaceholder || 'Filter items, tags, GBP...');
+  const [isEditingSearchPlaceholder, setIsEditingSearchPlaceholder] = React.useState<boolean>(false);
 
 
   // Sync state if property pane changes
@@ -229,6 +252,11 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
       setLayoutMode(initialLayoutMode);
     }
   }, [initialLayoutMode]);
+
+  // Sync search placeholder from property pane
+  React.useEffect(() => {
+    setSearchPlaceholderLocal(searchPlaceholder || 'Filter items, tags, GBP...');
+  }, [searchPlaceholder]);
 
   // Compute dynamic Fluent 2 theme inheriting SharePoint Online palette
   const fluentTheme = React.useMemo(() => {
@@ -283,6 +311,50 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {userProfileDetails && (
+                <Popover positioning="below-end">
+                  <PopoverTrigger disableButtonEnhancement>
+                    <Button
+                      size="small"
+                      appearance="subtle"
+                      icon={<PersonRegular />}
+                      title="Inspect user profile details (pageContext.user)"
+                      style={{ border: `1px solid ${tokens.colorNeutralStroke2}`, padding: '4px 6px' }}
+                    />
+                  </PopoverTrigger>
+                  <PopoverSurface
+                    style={{
+                      zIndex: 1000000,
+                      boxShadow: tokens.shadow28,
+                      padding: '16px',
+                      maxWidth: '380px',
+                      minWidth: '280px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      borderRadius: tokens.borderRadiusMedium
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, paddingBottom: '8px' }}>
+                      <PersonRegular style={{ fontSize: '18px', color: tokens.colorBrandForeground1 }} />
+                      <Caption1 style={{ fontWeight: 700, fontSize: '0.85rem' }}>Current User Profile</Caption1>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto' }}>
+                      {Object.keys(userProfileDetails).map((key) => {
+                        const val = userProfileDetails[key];
+                        return (
+                          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.78rem' }}>
+                            <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground3 }}>{key}:</span>
+                            <span style={{ color: tokens.colorNeutralForeground1, wordBreak: 'break-all', textAlign: 'right' }}>
+                              {typeof val === 'object' ? JSON.stringify(val) : String(val ?? '—')}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </PopoverSurface>
+                </Popover>
+              )}
               {onSaveBackupToLibrary && (
                 <Button
                   appearance="primary"
@@ -338,8 +410,82 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
             />
           </div>
 
-          {/* Layout Mode Switcher (Pinned Permanently to Top Right) */}
+          {/* Search Input + Layout Mode Switcher — permanently pinned top-right */}
           <div className={styles.headerTopRight}>
+            {/* Search input is always visible in top-right */}
+            {showSearch !== false && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Input
+                  className={styles.headerSearchInput}
+                  contentBefore={<SearchRegular style={{ fontSize: '16px' }} />}
+                  placeholder={searchPlaceholderLocal}
+                  value={searchQuery}
+                  onChange={(e, data) => setSearchQuery(data.value)}
+                  size="medium"
+                />
+                {isEditMode && (
+                  <Popover
+                    open={isEditingSearchPlaceholder}
+                    positioning="below-end"
+                    inline
+                    onOpenChange={(_, data) => {
+                      if (!data.open && onSearchPlaceholderChange) {
+                        onSearchPlaceholderChange(searchPlaceholderLocal);
+                      }
+                      setIsEditingSearchPlaceholder(data.open);
+                    }}
+                  >
+                    <PopoverTrigger disableButtonEnhancement>
+                      <Button
+                        size="small"
+                        appearance="subtle"
+                        icon={<EditRegular />}
+                        title="Edit search prompt text"
+                        onMouseDown={(e) => e.preventDefault()}
+                      />
+                    </PopoverTrigger>
+                    <PopoverSurface
+                      style={{
+                        zIndex: 1000,
+                        boxShadow: tokens.shadow16,
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        minWidth: '280px',
+                        borderRadius: tokens.borderRadiusMedium
+                      }}
+                    >
+                      <Caption1 style={{ fontWeight: 600 }}>Search prompt text</Caption1>
+                      <Input
+                        size="medium"
+                        value={searchPlaceholderLocal}
+                        placeholder="Filter items, tags, GBP..."
+                        onChange={(e, data) => setSearchPlaceholderLocal(data.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            if (onSearchPlaceholderChange) {
+                              onSearchPlaceholderChange(searchPlaceholderLocal);
+                            }
+                            setIsEditingSearchPlaceholder(false);
+                          }
+                          if (e.key === 'Escape') {
+                            setSearchPlaceholderLocal(searchPlaceholder || 'Filter items, tags, GBP...');
+                            setIsEditingSearchPlaceholder(false);
+                          }
+                        }}
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus
+                      />
+                      <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                        Press Enter to apply · Escape to cancel
+                      </Caption1>
+                    </PopoverSurface>
+                  </Popover>
+                )}
+              </div>
+            )}
+
             <TabList
               selectedValue={layoutMode}
               onTabSelect={(e, data) => setLayoutMode(data.value as LayoutMode)}
@@ -370,47 +516,6 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
           }}
         />
 
-        {/* Search Filter Bar & Term Store Filter Dropdowns Bar with Alignment */}
-        {(showSearch !== false || (termFilters && termFilters.length > 0)) && (
-          <div
-            className={styles.searchAndFiltersRow}
-            style={{
-              justifyContent:
-                searchAlignment === 'center'
-                  ? 'center'
-                  : searchAlignment === 'right'
-                  ? 'flex-end'
-                  : 'flex-start'
-            }}
-          >
-            {showSearch !== false && (
-              <Input
-                className={styles.searchInput}
-                contentBefore={<SearchRegular />}
-                placeholder="Filter items, tags, GBP..."
-                value={searchQuery}
-                onChange={(e, data) => setSearchQuery(data.value)}
-                size="medium"
-              />
-            )}
-
-            <TermFilterBar
-              filters={termFilters}
-              selectedValues={selectedFilterTerms}
-              onChangeFilter={(filterId, termLabel) => {
-                setSelectedFilterTerms((prev) => ({
-                  ...prev,
-                  [filterId]: termLabel
-                }));
-              }}
-              onClearAllFilters={() => {
-                setSelectedFilterTerms({});
-              }}
-              isEditMode={isEditMode}
-              onUpdateFilters={onUpdateTermFilters}
-            />
-          </div>
-        )}
 
         {/* Content Container Body */}
         {layoutMode === 'tabs' ? (

@@ -26,6 +26,7 @@ import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import {
   DismissRegular,
   SaveRegular,
+  AddRegular,
   MoneyRegular,
   ShieldCheckmarkRegular,
   DocumentRegular,
@@ -78,8 +79,7 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
-    pointerEvents: 'auto',
-    marginRight: '48px'
+    pointerEvents: 'auto'
   },
   leftResizeHandle: {
     position: 'absolute',
@@ -1181,6 +1181,140 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                               setFormData({ ...formData, items: newItems });
                             }}
                           />
+                        </div>
+                      )}
+
+                      {item.type === 'dropdown' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <Label size="small">Dropdown Label</Label>
+                          <Input
+                            size="small"
+                            value={item.dropdownLabel || ''}
+                            placeholder="e.g. Filter by region"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], dropdownLabel: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Placeholder text</Label>
+                          <Input
+                            size="small"
+                            value={item.dropdownPlaceholder || ''}
+                            placeholder="e.g. Select an option"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], dropdownPlaceholder: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Term Store term set name (optional)</Label>
+                          <Input
+                            size="small"
+                            value={item.dropdownTermSetName || ''}
+                            placeholder="e.g. Our regions"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], dropdownTermSetName: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                            <Caption1 style={{ fontWeight: 600 }}>Static Options ({item.dropdownOptions?.length || 0})</Caption1>
+                            <Button
+                              size="small"
+                              appearance="subtle"
+                              icon={<AddRegular />}
+                              onClick={() => {
+                                const newItems = [...(formData.items || [])];
+                                const currentOpts = newItems[idx].dropdownOptions || [];
+                                newItems[idx] = {
+                                  ...newItems[idx],
+                                  dropdownOptions: [
+                                    ...currentOpts,
+                                    { label: 'New Option', value: `opt-${Date.now()}` }
+                                  ]
+                                };
+                                setFormData({ ...formData, items: newItems });
+                              }}
+                            >
+                              Add Option
+                            </Button>
+                          </div>
+                          {(item.dropdownOptions || []).map((opt, optIdx) => (
+                            <div key={optIdx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: '4px', alignItems: 'center' }}>
+                              <Input
+                                size="small"
+                                value={opt.label}
+                                placeholder="Label"
+                                onChange={(e, data) => {
+                                  const newItems = [...(formData.items || [])];
+                                  const currentOpts = [...(newItems[idx].dropdownOptions || [])];
+                                  currentOpts[optIdx] = { ...currentOpts[optIdx], label: data.value };
+                                  newItems[idx] = { ...newItems[idx], dropdownOptions: currentOpts };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                              <Input
+                                size="small"
+                                value={opt.value}
+                                placeholder="Value"
+                                onChange={(e, data) => {
+                                  const newItems = [...(formData.items || [])];
+                                  const currentOpts = [...(newItems[idx].dropdownOptions || [])];
+                                  currentOpts[optIdx] = { ...currentOpts[optIdx], value: data.value };
+                                  newItems[idx] = { ...newItems[idx], dropdownOptions: currentOpts };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<ArrowUpRegular />}
+                                disabled={optIdx === 0}
+                                title="Move up"
+                                onClick={() => {
+                                  if (optIdx === 0) return;
+                                  const newItems = [...(formData.items || [])];
+                                  const currentOpts = [...(newItems[idx].dropdownOptions || [])];
+                                  const temp = currentOpts[optIdx - 1];
+                                  currentOpts[optIdx - 1] = currentOpts[optIdx];
+                                  currentOpts[optIdx] = temp;
+                                  newItems[idx] = { ...newItems[idx], dropdownOptions: currentOpts };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<ArrowDownRegular />}
+                                disabled={optIdx === (item.dropdownOptions || []).length - 1}
+                                title="Move down"
+                                onClick={() => {
+                                  if (optIdx === (item.dropdownOptions || []).length - 1) return;
+                                  const newItems = [...(formData.items || [])];
+                                  const currentOpts = [...(newItems[idx].dropdownOptions || [])];
+                                  const temp = currentOpts[optIdx + 1];
+                                  currentOpts[optIdx + 1] = currentOpts[optIdx];
+                                  currentOpts[optIdx] = temp;
+                                  newItems[idx] = { ...newItems[idx], dropdownOptions: currentOpts };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                icon={<DeleteRegular />}
+                                title="Remove option"
+                                onClick={() => {
+                                  const newItems = [...(formData.items || [])];
+                                  const currentOpts = (newItems[idx].dropdownOptions || []).filter((_, i) => i !== optIdx);
+                                  newItems[idx] = { ...newItems[idx], dropdownOptions: currentOpts };
+                                  setFormData({ ...formData, items: newItems });
+                                }}
+                              />
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
