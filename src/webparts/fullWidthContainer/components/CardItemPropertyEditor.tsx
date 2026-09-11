@@ -98,7 +98,7 @@ const useStyles = makeStyles({
   fieldRow: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS),
+    // ...shorthands.gap(tokens.spacingVerticalXXS), // [USER_TEST: comment out vertical spacing in flex containers]
     marginBottom: '14px'
   },
   twoColRow: {

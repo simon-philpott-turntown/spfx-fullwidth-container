@@ -18,7 +18,7 @@
     {
       "name": "FullWidthContainer",
       "path": "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
-      "role": "Root React container component wrapping hierarchy in FluentProvider, handling layout switching, filtering, and search."
+      "role": "Root React container component wrapping hierarchy in FluentProvider, handling layout switching, filtering, search, and user profile avatar diagnostics with Microsoft Graph properties."
     },
     {
       "name": "TabsContainer",

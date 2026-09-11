@@ -20,6 +20,7 @@ import {
   Subtitle2,
   Badge,
   Button,
+  Avatar,
   Caption1,
   Popover,
   PopoverSurface,
@@ -34,7 +35,8 @@ import {
   TabRegular,
   ListRegular,
   EditRegular,
-  PersonRegular
+  PersonRegular,
+  ShieldCheckmarkRegular
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -74,7 +76,7 @@ const useStyles = makeStyles({
     ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXXL),
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL)
+    // ...shorthands.gap(tokens.spacingVerticalL) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   innerCompact: {
     ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL)
@@ -90,7 +92,7 @@ const useStyles = makeStyles({
   headerTextCol: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS),
+    // ...shorthands.gap(tokens.spacingVerticalXXS), // [USER_TEST: comment out vertical spacing in flex containers]
     flex: 1
   },
   headerTopRight: {
@@ -234,7 +236,8 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
     onRestoreFromLibrary,
     lastBackupMessage,
     assetPickerService,
-    userProfileDetails
+    userProfileDetails,
+    userProfilePhotoUrl
   } = props;
 
   const styles = useStyles();
@@ -314,13 +317,31 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
               {userProfileDetails && (
                 <Popover positioning="below-end">
                   <PopoverTrigger disableButtonEnhancement>
-                    <Button
-                      size="small"
-                      appearance="subtle"
-                      icon={<PersonRegular />}
-                      title="Inspect user profile details (pageContext.user)"
-                      style={{ border: `1px solid ${tokens.colorNeutralStroke2}`, padding: '4px 6px' }}
-                    />
+                    <button
+                      type="button"
+                      title={`Signed in as ${userProfileDetails.displayName || 'User'}${userProfileDetails.jobTitle ? ` (${userProfileDetails.jobTitle})` : ''}`}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        padding: 0,
+                        margin: 0,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%',
+                        outline: 'none'
+                      }}
+                    >
+                      <Avatar
+                        size={28}
+                        name={userProfileDetails.displayName || 'User'}
+                        image={userProfilePhotoUrl ? { src: userProfilePhotoUrl } : undefined}
+                        badge={{
+                          status: userProfileDetails.isSiteAdmin ? 'available' : 'do-not-disturb'
+                        }}
+                      />
+                    </button>
                   </PopoverTrigger>
                   <PopoverSurface
                     style={{
@@ -335,18 +356,52 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                       borderRadius: tokens.borderRadiusMedium
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, paddingBottom: '8px' }}>
-                      <PersonRegular style={{ fontSize: '18px', color: tokens.colorBrandForeground1 }} />
-                      <Caption1 style={{ fontWeight: 700, fontSize: '0.85rem' }}>Current User Profile</Caption1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, paddingBottom: '10px' }}>
+                      <Avatar
+                        size={40}
+                        name={userProfileDetails.displayName || 'User'}
+                        image={userProfilePhotoUrl ? { src: userProfilePhotoUrl } : undefined}
+                      />
+                      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Caption1 style={{ fontWeight: 700, fontSize: '0.9rem', color: tokens.colorNeutralForeground1 }}>
+                            {userProfileDetails.displayName || 'User'}
+                          </Caption1>
+                          {userProfileDetails.isSiteAdmin && (
+                            <Badge appearance="filled" color="success" size="extra-small" icon={<ShieldCheckmarkRegular />}>
+                              Admin
+                            </Badge>
+                          )}
+                        </div>
+                        {userProfileDetails.jobTitle && (
+                          <Caption1 style={{ color: tokens.colorNeutralForeground3, fontSize: '0.78rem' }}>
+                            {userProfileDetails.jobTitle}
+                          </Caption1>
+                        )}
+                        {userProfileDetails.officeLocation && (
+                          <Caption1 style={{ color: tokens.colorNeutralForeground4, fontSize: '0.72rem' }}>
+                            {userProfileDetails.officeLocation}
+                          </Caption1>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto' }}>
                       {Object.keys(userProfileDetails).map((key) => {
                         const val = userProfileDetails[key];
+                        let renderedVal: string;
+                        if (typeof val === 'boolean') {
+                          renderedVal = val ? 'Yes' : 'No';
+                        } else if (typeof val === 'object' && val !== null) {
+                          renderedVal = JSON.stringify(val);
+                        } else {
+                          renderedVal = String(val ?? '—');
+                        }
+
                         return (
                           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.78rem' }}>
                             <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground3 }}>{key}:</span>
                             <span style={{ color: tokens.colorNeutralForeground1, wordBreak: 'break-all', textAlign: 'right' }}>
-                              {typeof val === 'object' ? JSON.stringify(val) : String(val ?? '—')}
+                              {renderedVal}
                             </span>
                           </div>
                         );

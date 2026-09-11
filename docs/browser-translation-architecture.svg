@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 860" width="100%" height="100%" style="background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#475569"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#0090DC"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#107C41"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#D97706"/>
+    </marker>
+
+    <!-- Filters & Shadows -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Title & Header -->
+  <rect x="20" y="15" width="1060" height="60" rx="8" fill="#0F172A"/>
+  <text x="45" y="45" fill="#FFFFFF" font-size="18" font-weight="700">Enterprise In-Browser Translation Architecture</text>
+  <text x="45" y="63" fill="#94A3B8" font-size="12">Zero-Exfiltration Private Processing & Non-Destructive React DOM Traversal for Modern SharePoint</text>
+
+  <!-- Outer Boundary: Client Browser Session -->
+  <rect x="20" y="90" width="1060" height="745" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
+  <rect x="35" y="102" width="220" height="26" rx="4" fill="#E2E8F0"/>
+  <text x="45" y="120" fill="#334155" font-size="12" font-weight="700">Client Browser Session (Edge / Chrome)</text>
+
+  <!-- Step 1: SharePoint DOM -->
+  <g transform="translate(60, 150)" filter="url(#shadow)">
+    <rect width="250" height="65" rx="8" fill="#FFFFFF" stroke="#0090DC" stroke-width="2"/>
+    <rect width="6" height="65" rx="3" fill="#0090DC"/>
+    <text x="20" y="28" fill="#0F172A" font-size="13" font-weight="700">SharePoint DOM & SPFx Canvas</text>
+    <text x="20" y="48" fill="#64748B" font-size="11">Active Page, Tabs & Card Grid</text>
+  </g>
+
+  <!-- Flow 1 -> 2 -->
+  <path d="M 185 215 L 185 250" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 2: TreeWalker -->
+  <g transform="translate(60, 250)" filter="url(#shadow)">
+    <rect width="250" height="65" rx="8" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+    <text x="20" y="27" fill="#0F172A" font-size="13" font-weight="700">document.createTreeWalker()</text>
+    <text x="20" y="47" fill="#0284C7" font-size="11" font-family="monospace">NodeFilter.SHOW_TEXT</text>
+  </g>
+
+  <!-- Flow 2 -> 3 -->
+  <path d="M 185 315 L 185 350" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 3: Filter Node (Decision) -->
+  <g transform="translate(60, 350)" filter="url(#shadow)">
+    <rect width="250" height="85" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+    <text x="20" y="25" fill="#92400E" font-size="12" font-weight="700">Filter Node Criteria</text>
+    <text x="20" y="43" fill="#78350F" font-size="11">✕ Skip [contenteditable="true"]</text>
+    <text x="20" y="59" fill="#78350F" font-size="11">✕ Skip inputs, textareas, selects</text>
+    <text x="20" y="75" fill="#78350F" font-size="11">✕ Skip #SuiteNavWrapper & Edit Panes</text>
+  </g>
+
+  <!-- Flow 3 -> 4 -->
+  <path d="M 310 392 L 390 392" fill="none" stroke="#107C41" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="318" y="385" fill="#107C41" font-size="10" font-weight="700">Eligible Leaf Nodes</text>
+
+  <!-- Step 4: Translation Queue -->
+  <g transform="translate(390, 360)" filter="url(#shadow)">
+    <rect width="180" height="65" rx="8" fill="#FFFFFF" stroke="#0090DC" stroke-width="1.5"/>
+    <text x="16" y="27" fill="#0F172A" font-size="12" font-weight="700">Debounced Batch Queue</text>
+    <text x="16" y="47" fill="#64748B" font-size="10">requestIdleCallback() / RAF</text>
+  </g>
+
+  <!-- Flow 4 -> Privacy Boundary -->
+  <path d="M 570 392 L 640 392" fill="none" stroke="#0090DC" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Subgraph: Zero-Exfiltration Privacy Boundary -->
+  <rect x="640" y="140" width="410" height="430" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="2" stroke-dasharray="6,4"/>
+  <rect x="655" y="152" width="310" height="24" rx="4" fill="#DCFCE7"/>
+  <text x="665" y="168" fill="#166534" font-size="11" font-weight="700">🛡️ Zero-Exfiltration Private Execution Boundary</text>
+
+  <!-- Engine Option A -->
+  <g transform="translate(665, 195)" filter="url(#shadow)">
+    <rect width="360" height="85" rx="8" fill="#FFFFFF" stroke="#22C55E" stroke-width="1.5"/>
+    <rect width="6" height="85" rx="3" fill="#22C55E"/>
+    <text x="18" y="24" fill="#15803D" font-size="11" font-weight="700">OPTION A: Built-in Chromium On-Device API</text>
+    <text x="18" y="42" fill="#0F172A" font-size="12" font-weight="600">window.translation (Gemini Nano / Local Packs)</text>
+    <text x="18" y="60" fill="#64748B" font-size="10">Executes on client NPU/GPU. Zero network packets</text>
+    <text x="18" y="74" fill="#16A34A" font-size="10" font-weight="700">✓ Fully Private & Air-Gapped</text>
+  </g>
+
+  <!-- Engine Option B -->
+  <g transform="translate(665, 305)" filter="url(#shadow)">
+    <rect width="360" height="85" rx="8" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.5"/>
+    <rect width="6" height="85" rx="3" fill="#0284C7"/>
+    <text x="18" y="24" fill="#0369A1" font-size="11" font-weight="700">OPTION B: In-Browser Wasm / WebGPU Model</text>
+    <text x="18" y="42" fill="#0F172A" font-size="12" font-weight="600">Transformers.js / ONNX Runtime Web</text>
+    <text x="18" y="60" fill="#64748B" font-size="10">NLLB-200-distilled-600M cached in IndexedDB</text>
+    <text x="18" y="74" fill="#0284C7" font-size="10" font-weight="700">✓ In-Browser Sandbox Execution</text>
+  </g>
+
+  <!-- Engine Option C -->
+  <g transform="translate(665, 415)" filter="url(#shadow)">
+    <rect width="360" height="85" rx="8" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.5"/>
+    <rect width="6" height="85" rx="3" fill="#6366F1"/>
+    <text x="18" y="24" fill="#4338CA" font-size="11" font-weight="700">OPTION C: Private VNet Enterprise Endpoint</text>
+    <text x="18" y="42" fill="#0F172A" font-size="12" font-weight="600">Private Azure Translator / Internal Docker</text>
+    <text x="18" y="60" fill="#64748B" font-size="10">Azure Private Endpoint with No-Trace Logging</text>
+    <text x="18" y="74" fill="#4F46E5" font-size="10" font-weight="700">✓ Tenant Boundary Isolation</text>
+  </g>
+
+  <!-- Exit Flow from Privacy Boundary -->
+  <path d="M 845 570 L 845 615 L 600 615" fill="none" stroke="#107C41" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="645" y="605" fill="#107C41" font-size="11" font-weight="700">Translated String Array Returned</text>
+
+  <!-- Step 5: Non-destructive node replacement -->
+  <g transform="translate(340, 580)" filter="url(#shadow)">
+    <rect width="260" height="70" rx="8" fill="#FFFFFF" stroke="#0090DC" stroke-width="2"/>
+    <text x="16" y="26" fill="#0F172A" font-size="12" font-weight="700">Mutate textNode.nodeValue</text>
+    <text x="16" y="44" fill="#16A34A" font-size="10" font-weight="600">✓ Preserves React Virtual DOM Pointers</text>
+    <text x="16" y="58" fill="#64748B" font-size="10">✕ Never overwrites parent element.innerHTML</text>
+  </g>
+
+  <!-- Flow 5 -> 6 (RTL Check) -->
+  <path d="M 470 650 L 470 685" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 6: RTL Decision -->
+  <g transform="translate(370, 685)" filter="url(#shadow)">
+    <polygon points="100,0 200,35 100,70 0,35" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="1.5"/>
+    <text x="100" y="32" text-anchor="middle" fill="#5B21B6" font-size="11" font-weight="700">Target Language is</text>
+    <text x="100" y="46" text-anchor="middle" fill="#5B21B6" font-size="11" font-weight="700">Middle Eastern (RTL)?</text>
+  </g>
+
+  <!-- Branch: RTL (Right-to-Left) -->
+  <path d="M 570 720 L 680 720" fill="none" stroke="#8B5CF6" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="590" y="712" fill="#6D28D9" font-size="11" font-weight="700">YES (Arabic/Hebrew)</text>
+
+  <g transform="translate(680, 680)" filter="url(#shadow)">
+    <rect width="365" height="85" rx="8" fill="#FAF5FF" stroke="#A855F7" stroke-width="1.5"/>
+    <text x="18" y="24" fill="#7E22CE" font-size="12" font-weight="700">Apply Directional RTL Transformations</text>
+    <text x="18" y="42" fill="#0F172A" font-size="11">1. Set unicode-bidi: isolate; direction: rtl;</text>
+    <text x="18" y="58" fill="#0F172A" font-size="11">2. Wrap in FluentProvider dir="rtl" (Logical CSS)</text>
+    <text x="18" y="74" fill="#0F172A" font-size="11">3. Invert chevron stages & navigation arrow SVGs</text>
+  </g>
+
+  <!-- Branch: LTR -->
+  <path d="M 370 720 L 260 720" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="280" y="712" fill="#475569" font-size="11" font-weight="700">NO (LTR)</text>
+
+  <g transform="translate(60, 690)" filter="url(#shadow)">
+    <rect width="200" height="60" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="16" y="26" fill="#0F172A" font-size="12" font-weight="700">Preserve Standard LTR</text>
+    <text x="16" y="44" fill="#64748B" font-size="10">Normal text reading direction</text>
+  </g>
+
+  <!-- Dynamic MutationObserver Loop -->
+  <g transform="translate(60, 470)" filter="url(#shadow)">
+    <rect width="250" height="65" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="16" y="25" fill="#1E40AF" font-size="11" font-weight="700">MutationObserver Listener</text>
+    <text x="16" y="43" fill="#1E3A8A" font-size="10">Catches virtualised scrolling & tabs</text>
+    <text x="16" y="56" fill="#2563EB" font-size="10">Mutex: Ignores translator updates</text>
+  </g>
+
+  <!-- Feedback loop from MutationObserver up to TreeWalker -->
+  <path d="M 60 502 L 35 502 L 35 282 L 60 282" fill="none" stroke="#2563EB" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-blue)"/>
+  <text x="42" y="380" transform="rotate(-90 42 380)" fill="#2563EB" font-size="10" font-weight="700">New DOM Elements</text>
+</svg>

@@ -42,7 +42,7 @@ const useStyles = makeStyles({
   form: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    // ...shorthands.gap(tokens.spacingVerticalM), // [USER_TEST: comment out vertical spacing in flex containers]
     marginTop: tokens.spacingVerticalS
   },
   actions: {

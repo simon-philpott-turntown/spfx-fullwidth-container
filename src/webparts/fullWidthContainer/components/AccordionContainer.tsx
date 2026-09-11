@@ -38,13 +38,13 @@ const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM)
+    // ...shorthands.gap(tokens.spacingVerticalM) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: tokens.spacingVerticalS,
+    // paddingBottom: tokens.spacingVerticalS, // [USER_TEST: comment out vertical spacing in flex containers]
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2)
   },
   toolbarActions: {
@@ -126,7 +126,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     ...shorthands.padding(tokens.spacingVerticalXXL),
     color: tokens.colorNeutralForeground3,
-    ...shorthands.gap(tokens.spacingVerticalS)
+    // ...shorthands.gap(tokens.spacingVerticalS) // [USER_TEST: comment out vertical spacing in flex containers]
   }
 });
 

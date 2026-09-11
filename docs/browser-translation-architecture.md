@@ -11,6 +11,12 @@ This specification outlines the technical design for a browser-level or SPFx-lev
 
 ## Architectural Visualization
 
+![Architecture Diagram](browser-translation-architecture.svg)
+
+*Standalone vector image available at [`docs/browser-translation-architecture.svg`](docs/browser-translation-architecture.svg:1).*
+
+### Mermaid Flowchart Definition
+
 ```mermaid
 flowchart TD
     subgraph Browser["Client Browser Session (Edge / Chrome)"]

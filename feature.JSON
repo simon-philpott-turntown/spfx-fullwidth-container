@@ -490,6 +490,17 @@
         "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
         "src/webparts/fullWidthContainer/components/CardEditDialog.tsx"
       ]
+    },
+    {
+      "id": "FEAT-040",
+      "name": "UserProfileGraphAttributesAndAvatar",
+      "description": "Enriches user profile diagnostics with Microsoft Graph v3 account properties (jobTitle, officeLocation) and SharePoint site admin flag (_spPageContextInfo.isSiteAdmin / legacyPageContext.isSiteAdmin). Replaces the generic person icon button in the edit mode banner with a Fluent UI 2 Avatar displaying the user's actual profile photo (retrieved via Graph /me/photo/$value with fallback to SharePoint /_layouts/15/userphoto.aspx) and initials fallback.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts",
+        "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
+        "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx"
+      ]
     }
   ]
 }

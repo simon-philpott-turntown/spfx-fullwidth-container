@@ -87,7 +87,7 @@ const useStyles = makeStyles({
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM)
+    // ...shorthands.gap(tokens.spacingVerticalM) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   panelFooter: {
     padding: '12px 18px',
@@ -100,7 +100,7 @@ const useStyles = makeStyles({
   fieldRow: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS)
+    // ...shorthands.gap(tokens.spacingVerticalXXS) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   twoColRow: {
     display: 'grid',

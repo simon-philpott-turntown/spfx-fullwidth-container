@@ -72,7 +72,7 @@ const useStyles = makeStyles({
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM)
+    // ...shorthands.gap(tokens.spacingVerticalM) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   grid: {
     display: 'grid',

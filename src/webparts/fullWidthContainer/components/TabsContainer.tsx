@@ -33,14 +33,14 @@ const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL)
+    // ...shorthands.gap(tokens.spacingVerticalL) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   tabHeaderRow: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
-    paddingBottom: tokens.spacingVerticalXS,
+    // paddingBottom: tokens.spacingVerticalXS, // [USER_TEST: comment out vertical spacing in flex containers]
     gap: '12px'
   },
   tabList: {
@@ -91,7 +91,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     ...shorthands.padding(tokens.spacingVerticalXXL),
     color: tokens.colorNeutralForeground3,
-    ...shorthands.gap(tokens.spacingVerticalS)
+    // ...shorthands.gap(tokens.spacingVerticalS) // [USER_TEST: comment out vertical spacing in flex containers]
   },
   badge: {
     whiteSpace: 'nowrap',

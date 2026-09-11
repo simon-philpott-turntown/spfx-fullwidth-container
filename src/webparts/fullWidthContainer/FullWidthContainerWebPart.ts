@@ -144,6 +144,68 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   private _isModifiedSinceLastBackup: boolean = false;
   private _backupStatusMessage: string = '';
   private _cachedBackups: IBackupFileInfo[] = [];
+  private _userProfileDetails: Record<string, any> | undefined;
+  private _userProfilePhotoUrl: string | undefined;
+
+  /**
+   * Loads user profile attributes from pageContext, SharePoint legacy context, and Microsoft Graph.
+   */
+  private async _loadUserProfileAndPhoto(): Promise<void> {
+    const user = this.context?.pageContext?.user;
+    const isSiteAdmin = (this.context?.pageContext as any)?.legacyPageContext?.isSiteAdmin ??
+      (typeof window !== 'undefined' && (window as any)._spPageContextInfo?.isSiteAdmin) ??
+      false;
+
+    const baseDetails: Record<string, any> = {
+      displayName: user?.displayName || 'User',
+      email: user?.email || '',
+      loginName: user?.loginName || '',
+      isSiteAdmin: isSiteAdmin,
+      isAnonymousGuestUser: user?.isAnonymousGuestUser ?? false,
+      isExternalGuestUser: user?.isExternalGuestUser ?? false
+    };
+
+    // Default SharePoint userphoto fallback URL
+    const accountIdentifier = user?.email || user?.loginName || '';
+    if (accountIdentifier && this.context?.pageContext?.web?.serverRelativeUrl) {
+      const webUrl = this.context.pageContext.web.serverRelativeUrl === '/' ? '' : this.context.pageContext.web.serverRelativeUrl;
+      this._userProfilePhotoUrl = `${webUrl}/_layouts/15/userphoto.aspx?size=M&accountname=${encodeURIComponent(accountIdentifier)}`;
+    }
+
+    // Enhance with Microsoft Graph account properties (jobTitle, officeLocation, photo blob)
+    try {
+      if (this.context?.msGraphClientFactory) {
+        const graphClient = await this.context.msGraphClientFactory.getClient('3');
+        const graphUser = await graphClient
+          .api('/me')
+          .select('displayName,mail,userPrincipalName,jobTitle,officeLocation')
+          .get();
+
+        if (graphUser) {
+          if (graphUser.jobTitle) baseDetails.jobTitle = graphUser.jobTitle;
+          if (graphUser.officeLocation) baseDetails.officeLocation = graphUser.officeLocation;
+        }
+
+        try {
+          const photoBlob: Blob = await graphClient
+            .api('/me/photo/$value')
+            .responseType('blob' as any)
+            .get();
+
+          if (photoBlob && photoBlob.size > 0) {
+            this._userProfilePhotoUrl = URL.createObjectURL(photoBlob);
+          }
+        } catch {
+          // Photo not provisioned in Exchange / Graph, keeps SharePoint userphoto fallback
+        }
+      }
+    } catch (graphErr) {
+      console.warn('[FullWidthContainerWebPart] Graph profile fetch non-blocking warning:', graphErr);
+    }
+
+    this._userProfileDetails = baseDetails;
+    this.render();
+  }
 
   /**
    * Retrieves active sections array from canonical properties or initializes default.
@@ -361,6 +423,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this.properties.backupTargetFolder = 'Backups';
     }
     void this._refreshBackupsList();
+    void this._loadUserProfileAndPhoto();
   }
 
   /**
@@ -413,13 +476,17 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
           gridRows: props.gridRows,
           cardHeightMode: props.cardHeightMode || 'auto',
           webPartBackgroundColor: props.webPartBackgroundColor,
-          userProfileDetails: this.context?.pageContext?.user ? {
+          userProfileDetails: this._userProfileDetails || (this.context?.pageContext?.user ? {
             displayName: this.context.pageContext.user.displayName,
             email: this.context.pageContext.user.email,
             loginName: this.context.pageContext.user.loginName,
+            isSiteAdmin: (this.context?.pageContext as any)?.legacyPageContext?.isSiteAdmin ??
+              (typeof window !== 'undefined' && (window as any)._spPageContextInfo?.isSiteAdmin) ??
+              false,
             isAnonymousGuestUser: this.context.pageContext.user.isAnonymousGuestUser,
             isExternalGuestUser: this.context.pageContext.user.isExternalGuestUser
-          } : undefined,
+          } : undefined),
+          userProfilePhotoUrl: this._userProfilePhotoUrl,
           sections: activeSections,
           headerContentItems: this._getHeaderContentItems(),
           onUpdateHeaderContentItems: (newItems) => {

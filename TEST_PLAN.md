@@ -1,11 +1,11 @@
 # SPFx Full-Width Container Web Part — Comprehensive Test Plan
 
 ## Executive Summary
-This document establishes the end-to-end test plan and verification matrix for all **39 registered features** of the **SPFx Full-Width Container Web Part** (`spfx-fullwidth-container`), spanning layout engines, canvas editing, taxonomy integrations, backup pipelines, and defensive engineering standards.
+This document establishes the end-to-end test plan and verification matrix for all **40 registered features** of the **SPFx Full-Width Container Web Part** (`spfx-fullwidth-container`), spanning layout engines, canvas editing, taxonomy integrations, backup pipelines, and defensive engineering standards.
 
 ---
 
-## 1. Feature Verification Matrix (All 39 Features)
+## 1. Feature Verification Matrix (All 40 Features)
 
 | Feature ID | Feature Name | Primary Component / File | Verification Method | Target Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -48,6 +48,7 @@ This document establishes the end-to-end test plan and verification matrix for a
 | **FEAT-037** | UserProfileDiagnosticsInspection | [FullWidthContainerWebPart.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts) | Click author-only user profile icon in edit banner to inspect pageContext.user | PASS |
 | **FEAT-038** | ProcessModelConfigurationOverhaulAndComposableDropdownFilterPane | [CardItemPropertyEditor.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx) | Test pinned modal footer, rich text stage description, filter/link mode switch, human title, and taxonomy dropdown editor | PASS |
 | **FEAT-039** | CapabilitiesCardContentPart | [CapabilitiesRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx) | Insert capabilities item, edit section name, verify dynamic count 'Capabilities applied here X', add mini-cards and tags | PASS |
+| **FEAT-040** | UserProfileGraphAttributesAndAvatar | [FullWidthContainer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/FullWidthContainer.tsx) | Verify Graph v3 attributes (jobTitle, officeLocation), isSiteAdmin, and dynamic user avatar photo | PASS |
 
 ---
 
@@ -177,6 +178,14 @@ This document establishes the end-to-end test plan and verification matrix for a
    - Remove a capability using the delete icon: confirm count decreases in real time.
    - Verify semantic tag color rendering: template tags render in soft cyan/blue, mandatory in soft coral/red, insight in soft mint/green, and learning/notes in warm wheat/yellow.
 
+7. **User Profile Graph Attributes and Dynamic Avatar (FEAT-040)**:
+   - In Edit Mode, locate the user profile trigger in the edit banner.
+   - Confirm the generic person icon button is replaced by a Fluent UI 2 `<Avatar>` rendering the user's Microsoft Graph profile photo (or SharePoint userphoto fallback, or initials if unavailable).
+   - If the user is a site administrator (`isSiteAdmin: true`), verify the avatar status badge or the green "Admin" shield badge is rendered.
+   - Click the avatar to open the profile inspection popover.
+   - Verify that `jobTitle` and `officeLocation` are fetched from Microsoft Graph v3 (`/me`) and displayed in the popover header and key-value list.
+   - Verify that `isSiteAdmin` is displayed with formatted boolean ("Yes" / "No") derived from `_spPageContextInfo.isSiteAdmin` or `legacyPageContext.isSiteAdmin`.
+
 ---
 
 ## 3. Defensive Engineering Invariants
@@ -188,7 +197,8 @@ This document establishes the end-to-end test plan and verification matrix for a
 - **Dropdown Null Safety**: `item.dropdownOptions` must default to `[]` before `.map()` calls in all render paths (`ComposableContentSection`, `BlockRenderer`, `renderInnerItemPreview`).
 - **Capabilities Null Safety & Count Derivation**: `capabilities` must default to `[]` before `.length` access and `.map()` calls in `CapabilitiesRenderer` and `CardItemPropertyEditor` to prevent runtime crashes on empty or partially serialized blocks.
 - **Search Placeholder Persistence**: `searchPlaceholder` must survive React re-renders and be saved to web part properties via `onSearchPlaceholderChange` callback; it must not reset on layout mode switch.
-- **User Profile Diagnostic Isolation**: `userProfileDetails` dictionary passes strictly read-only serializable string/boolean primitives extracted from `this.context.pageContext.user` to avoid circular references or context leakage.
+- **User Profile Diagnostic Isolation**: `userProfileDetails` dictionary passes strictly read-only serializable string/boolean primitives extracted from `this.context.pageContext.user` and Graph `/me` to avoid circular references or context leakage.
+- **Graph Client Resilience & Object URL Lifecycle**: Microsoft Graph requests strictly use `this.context.msGraphClientFactory.getClient('3')` inside non-blocking `try/catch` blocks. Photo binary blobs fetched via `/me/photo/$value` are safely converted using `URL.createObjectURL(photoBlob)` with fallback to SharePoint server-relative `_layouts/15/userphoto.aspx`.
 - **Modal Dialog Flexbox Boundaries**: All property editors utilizing Fluent UI 2 `<DialogSurface>` must enforce `display: 'flex', flexDirection: 'column'` with scrolling contained exclusively in `<DialogContent>` (`overflowY: 'auto'`) and a rigid `flexShrink: 0` sticky footer to eliminate button clipping regardless of viewport height.
 - **Composable Content Item Toolbar Elevation**: Item-level edit, move, and remove toolbars rendered in `ComposableContentSection` and `BlockRenderer` must be anchored with negative vertical offset (`top: -14px`, `right: 4px`) at `zIndex: 50` with solid opaque backgrounds and `tokens.shadow8` elevation to prevent occlusion by inner items such as clip-path process models or hero banners.
 

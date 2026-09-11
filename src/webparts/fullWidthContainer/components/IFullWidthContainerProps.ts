@@ -46,5 +46,6 @@ export interface IFullWidthContainerProps {
   lastBackupMessage?: string;
   assetPickerService?: import('../services/IAssetPickerService').IAssetPickerService;
   userProfileDetails?: Record<string, any>;
+  userProfilePhotoUrl?: string;
 }
 
