@@ -153,7 +153,12 @@
     {
       "name": "ComposableContentSection",
       "path": "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
-      "role": "Composable content area for top-of-webpart and top-of-section content authoring supporting all 16 inner item types (including 'dropdown' filter), alignment controls, insertion bars, and inline editing."
+      "role": "Composable content area for top-of-webpart and top-of-section content authoring supporting all 16 inner item types (including 'dropdown' filter and 'capabilities' mini-cards), alignment controls, insertion bars, and inline editing."
+    },
+    {
+      "name": "CapabilitiesRenderer",
+      "path": "src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx",
+      "role": "Renders the capabilities content part: displays an editable section title with live count ('Capabilities applied here X'), styled mini-cards with title, subtitle, semantic tag badges, and action links."
     }
   ],
   "recentChanges": [
@@ -199,6 +204,19 @@
         "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx",
         "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
         "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx"
+      ]
+    },
+    {
+      "feature": "FEAT-039",
+      "description": "Capabilities Card Content Part: added 'capabilities' item type with dynamic count header ('Capabilities applied here X - [secondary label]'), responsive mini-cards layout, tag badge styling with Turner & Townsend semantic colors, and deep configuration options in CardItemPropertyEditor.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx"
       ]
     }
   ]

@@ -37,6 +37,7 @@ import { LiveDataRenderer } from './LiveDataRenderer';
 import { TermStorePicker } from './TermStorePicker';
 import { FilterButtonsRenderer } from './FilterButtonsRenderer';
 import { ProcessModelRenderer } from './ProcessModelRenderer';
+import { CapabilitiesRenderer } from './CapabilitiesRenderer';
 import { IAssetPickerService } from '../services/IAssetPickerService';
 import { renderUnifiedIcon } from './CustomSvgIconRegistry';
 import { TaxonomyService } from '../services/TaxonomyService';
@@ -215,6 +216,44 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
       dropdownOptions: itemType === 'dropdown' ? [
         { label: 'Option 1', value: 'option-1' },
         { label: 'Option 2', value: 'option-2' }
+      ] : undefined,
+      capabilitiesSectionLabel: itemType === 'capabilities' ? 'Capabilities applied here' : undefined,
+      capabilitiesSecondaryLabel: itemType === 'capabilities' ? '- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO' : undefined,
+      capabilities: itemType === 'capabilities' ? [
+        {
+          id: 'cap-1',
+          title: 'Programme strategy',
+          subtitle: 'Applied at this stage only',
+          tags: [{ id: 't-1', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-2',
+          title: 'Business case development',
+          subtitle: 'Applied at this stage only',
+          tags: [
+            { id: 't-2', label: '5 templates' },
+            { id: 't-3', label: '2 mandatory' },
+            { id: 't-4', label: '1 insight' },
+            { id: 't-5', label: 'learning' },
+            { id: 't-6', label: 'Infrastructure note' }
+          ],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-3',
+          title: 'Capability assessment',
+          subtitle: 'Shape → Source',
+          tags: [{ id: 't-7', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-4',
+          title: 'Portfolio prioritisation',
+          subtitle: 'Applied at this stage only',
+          tags: [{ id: 't-8', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        }
       ] : undefined
     };
 
@@ -644,6 +683,17 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
             </div>
           );
         })()}
+
+        {item.type === 'capabilities' && (
+          <CapabilitiesRenderer
+            sectionLabel={item.capabilitiesSectionLabel}
+            secondaryLabel={item.capabilitiesSecondaryLabel}
+            capabilities={item.capabilities || []}
+            alignment={item.alignment || 'left'}
+            isEditMode={isEditMode}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
+        )}
       </div>
     );
   };

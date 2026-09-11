@@ -1,11 +1,11 @@
 # SPFx Full-Width Container Web Part — Comprehensive Test Plan
 
 ## Executive Summary
-This document establishes the end-to-end test plan and verification matrix for all **38 registered features** of the **SPFx Full-Width Container Web Part** (`spfx-fullwidth-container`), spanning layout engines, canvas editing, taxonomy integrations, backup pipelines, and defensive engineering standards.
+This document establishes the end-to-end test plan and verification matrix for all **39 registered features** of the **SPFx Full-Width Container Web Part** (`spfx-fullwidth-container`), spanning layout engines, canvas editing, taxonomy integrations, backup pipelines, and defensive engineering standards.
 
 ---
 
-## 1. Feature Verification Matrix (All 38 Features)
+## 1. Feature Verification Matrix (All 39 Features)
 
 | Feature ID | Feature Name | Primary Component / File | Verification Method | Target Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -47,6 +47,7 @@ This document establishes the end-to-end test plan and verification matrix for a
 | **FEAT-036** | DropdownFilterComposableContentItem | [ComposableContentSection.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ComposableContentSection.tsx) | Insert dropdown item, configure options, verify filter dispatch | PASS |
 | **FEAT-037** | UserProfileDiagnosticsInspection | [FullWidthContainerWebPart.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/FullWidthContainerWebPart.ts) | Click author-only user profile icon in edit banner to inspect pageContext.user | PASS |
 | **FEAT-038** | ProcessModelConfigurationOverhaulAndComposableDropdownFilterPane | [CardItemPropertyEditor.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx) | Test pinned modal footer, rich text stage description, filter/link mode switch, human title, and taxonomy dropdown editor | PASS |
+| **FEAT-039** | CapabilitiesCardContentPart | [CapabilitiesRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx) | Insert capabilities item, edit section name, verify dynamic count 'Capabilities applied here X', add mini-cards and tags | PASS |
 
 ---
 
@@ -165,6 +166,16 @@ This document establishes the end-to-end test plan and verification matrix for a
    - Verify the final stage (Stage 5) has a left chevron notch and a flat vertical right end cap.
    - Verify that when an active stage is selected, its background turns deep Turner & Townsend navy (`#001436`), its indicator dot turns amber (`#EAA023`), and its text colors switch to crisp white and light blue.
    - Verify that on mobile/narrow viewports (<=820px), the component collapses into a clean vertical stacked process list without clipped polygons.
+6. **Capabilities Mini-Card Content Part (FEAT-039)**:
+   - In Edit Mode, click the `(+)` insertion bar inside any card or section header slot and select **Capabilities** from the Toolbox modal.
+   - Verify default mini-cards render with header: `"Capabilities applied here 4 - WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO"`.
+   - Open the item property editor by clicking `Configure capabilities (4)` or the card item edit pencil icon.
+   - Edit the Section header prefix: confirm live preview banner and rendered header update immediately.
+   - Add a 5th capability with custom name (e.g. `Commercial assurance`), subtitle (`Applied at this stage only`), and tags (`2 templates`, `1 mandatory`).
+   - Confirm header live count badge automatically increments from `4` to `5` (`Capabilities applied here 5`).
+   - Reorder capabilities with the Up / Down arrow buttons: confirm card sequence updates accurately.
+   - Remove a capability using the delete icon: confirm count decreases in real time.
+   - Verify semantic tag color rendering: template tags render in soft cyan/blue, mandatory in soft coral/red, insight in soft mint/green, and learning/notes in warm wheat/yellow.
 
 ---
 
@@ -175,6 +186,7 @@ This document establishes the end-to-end test plan and verification matrix for a
 - **Null Safety**: Optional chaining applied across all list items and term sets.
 - **Dropdown Filter-Host Safety**: Cards containing a `'dropdown'` item must be exempt from filter-hiding logic in `TabsContainer.tsx` and `AccordionContainer.tsx` (guarded by `isFilterHost` check).
 - **Dropdown Null Safety**: `item.dropdownOptions` must default to `[]` before `.map()` calls in all render paths (`ComposableContentSection`, `BlockRenderer`, `renderInnerItemPreview`).
+- **Capabilities Null Safety & Count Derivation**: `capabilities` must default to `[]` before `.length` access and `.map()` calls in `CapabilitiesRenderer` and `CardItemPropertyEditor` to prevent runtime crashes on empty or partially serialized blocks.
 - **Search Placeholder Persistence**: `searchPlaceholder` must survive React re-renders and be saved to web part properties via `onSearchPlaceholderChange` callback; it must not reset on layout mode switch.
 - **User Profile Diagnostic Isolation**: `userProfileDetails` dictionary passes strictly read-only serializable string/boolean primitives extracted from `this.context.pageContext.user` to avoid circular references or context leakage.
 - **Modal Dialog Flexbox Boundaries**: All property editors utilizing Fluent UI 2 `<DialogSurface>` must enforce `display: 'flex', flexDirection: 'column'` with scrolling contained exclusively in `<DialogContent>` (`overflowY: 'auto'`) and a rigid `flexShrink: 0` sticky footer to eliminate button clipping regardless of viewport height.

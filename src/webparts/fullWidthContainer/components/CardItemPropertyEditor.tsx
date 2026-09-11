@@ -21,7 +21,10 @@ import {
   Option,
   Divider,
   Caption1,
+  Body1,
   Portal,
+  FluentProvider,
+  webLightTheme,
   makeStyles,
   tokens,
   shorthands
@@ -58,9 +61,10 @@ import {
   TextBoldRegular,
   TextItalicRegular,
   TextBulletListRegular,
-  EraserRegular
+  EraserRegular,
+  BoardRegular
 } from '@fluentui/react-icons';
-import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem } from '../models/IContainerModels';
+import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem, ICapabilityItem, ICapabilityTag } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { TaxonomyService, ITermGroup } from '../services/TaxonomyService';
 import { FluentIconPicker } from './FluentIconPicker';
@@ -74,11 +78,14 @@ const useStyles = makeStyles({
     width: '92vw',
     maxHeight: '88vh',
     zIndex: 1000000,
-    boxShadow: tokens.shadow28,
+    backgroundColor: '#FFFFFF !important' as any,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+    boxShadow: '0 24px 48px rgba(0, 0, 0, 0.28) !important' as any,
     ...shorthands.borderRadius(tokens.borderRadiusXLarge),
     ...shorthands.padding('24px'),
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    boxSizing: 'border-box'
   },
   headerRow: {
     display: 'flex',
@@ -306,6 +313,7 @@ export interface ICardItemPropertyEditorProps {
 const getItemTitle = (type?: ICardItemType): string => {
   switch (type) {
     case 'processModel': return 'Configure the process model';
+    case 'capabilities': return 'Configure capabilities content part';
     case 'dropdown': return 'Configure filter dropdown';
     case 'filterButtons': return 'Configure filter buttons';
     case 'liveData': return 'Configure live data API';
@@ -332,6 +340,7 @@ const getItemIcon = (type?: ICardItemType): React.ReactElement => {
     case 'button': return <CursorClickRegular />;
     case 'filterButtons': return <FilterRegular />;
     case 'processModel': return <ArrowRoutingRegular />;
+    case 'capabilities': return <BoardRegular />;
     case 'dropdown': return <ChevronDownRegular />;
     case 'image': return <ImageRegular />;
     case 'video': return <VideoRegular />;
@@ -1579,7 +1588,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
         return (
           <>
             <div className={styles.twoColRow}>
-              <div>
+              <div className={styles.fieldRow}>
                 <Label weight="semibold">Dropdown label</Label>
                 <Input
                   size="medium"
@@ -1589,7 +1598,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 />
                 <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Header label above dropdown.</Caption1>
               </div>
-              <div>
+              <div className={styles.fieldRow}>
                 <Label weight="semibold">Placeholder text</Label>
                 <Input
                   size="medium"
@@ -1645,18 +1654,19 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
             {/* Taxonomy Term Set Picker */}
             <div className={styles.fieldRow}>
               <Label weight="semibold">SharePoint Global Term Store Source</Label>
-              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '6px' }}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '6px', display: 'block' }}>
                 Optionally populate this dropdown dynamically from an enterprise taxonomy term set.
               </Caption1>
 
               <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
-                <div>
+                <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
                   <Label size="small">Taxonomy Group</Label>
                   <Dropdown
                     size="medium"
                     placeholder="Choose taxonomy group..."
                     value={formData.dropdownTermGroupName || ''}
                     selectedOptions={formData.dropdownTermGroupName ? [formData.dropdownTermGroupName] : []}
+                    style={{ width: '100%' }}
                     onOptionSelect={(e, data) => {
                       handleFieldChange('dropdownTermGroupName', data.optionValue || '');
                       handleFieldChange('dropdownTermSetName', '');
@@ -1668,7 +1678,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                   </Dropdown>
                 </div>
 
-                <div>
+                <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
                   <Label size="small">Term Set</Label>
                   <Dropdown
                     size="medium"
@@ -1676,6 +1686,7 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                     disabled={!formData.dropdownTermGroupName}
                     value={formData.dropdownTermSetName || ''}
                     selectedOptions={formData.dropdownTermSetName ? [formData.dropdownTermSetName] : []}
+                    style={{ width: '100%' }}
                     onOptionSelect={(e, data) => handleFieldChange('dropdownTermSetName', data.optionValue || '')}
                   >
                     {availableSets.map((s) => (
@@ -1796,6 +1807,360 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
         );
       }
 
+      case 'capabilities': {
+        const caps: ICapabilityItem[] = formData.capabilities || [];
+
+        return (
+          <>
+            {/* Header Configuration */}
+            <div className={styles.twoColRow}>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Section header prefix</Label>
+                <Input
+                  size="medium"
+                  value={formData.capabilitiesSectionLabel !== undefined ? formData.capabilitiesSectionLabel : 'Capabilities applied here'}
+                  placeholder="e.g. Capabilities applied here"
+                  onChange={(e, data) => handleFieldChange('capabilitiesSectionLabel', data.value)}
+                />
+                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                  Main title text before the live count number.
+                </Caption1>
+              </div>
+              <div className={styles.fieldRow}>
+                <Label weight="semibold">Secondary description line</Label>
+                <Input
+                  size="medium"
+                  value={formData.capabilitiesSecondaryLabel !== undefined ? formData.capabilitiesSecondaryLabel : '- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO'}
+                  placeholder="e.g. - WHAT EACH ONE GIVES YOU"
+                  onChange={(e, data) => handleFieldChange('capabilitiesSecondaryLabel', data.value)}
+                />
+                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                  Context note displayed after the count number.
+                </Caption1>
+              </div>
+            </div>
+
+            {/* Live Count Preview Banner */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: tokens.borderRadiusMedium,
+                backgroundColor: tokens.colorBrandBackground2,
+                border: `1px solid ${tokens.colorBrandStroke2}`,
+                marginBottom: '16px'
+              }}
+            >
+              <BoardRegular fontSize={18} color={tokens.colorBrandForeground1} />
+              <div style={{ fontSize: '0.82rem', color: tokens.colorNeutralForeground1 }}>
+                Live Header Preview:{' '}
+                <strong>
+                  {formData.capabilitiesSectionLabel || 'Capabilities applied here'}{' '}
+                  <span style={{ color: tokens.colorBrandForeground1, fontSize: '0.95rem' }}>{caps.length}</span>{' '}
+                  {formData.capabilitiesSecondaryLabel || ''}
+                </strong>
+              </div>
+            </div>
+
+            <Divider style={{ margin: '8px 0 16px' }} />
+
+            {/* Capabilities List Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <Label weight="semibold">Capabilities Mini-Cards ({caps.length})</Label>
+                <Caption1 style={{ color: tokens.colorNeutralForeground3, display: 'block' }}>
+                  Each capability is styled as a mini-card with an editable name, subtitle, tags, and link.
+                </Caption1>
+              </div>
+              <Button
+                size="small"
+                appearance="primary"
+                icon={<AddRegular />}
+                onClick={() => {
+                  const newCap: ICapabilityItem = {
+                    id: `cap-${Date.now()}`,
+                    title: `Capability ${caps.length + 1}`,
+                    subtitle: 'Applied at this stage only',
+                    tags: [{ id: `tag-${Date.now()}`, label: '1 template' }],
+                    linkLabel: 'Open the standard →'
+                  };
+                  handleFieldChange('capabilities', [...caps, newCap]);
+                }}
+              >
+                Add Capability
+              </Button>
+            </div>
+
+            {/* Capabilities Cards Loop */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {caps.map((cap, capIdx) => (
+                <div
+                  key={cap.id || capIdx}
+                  style={{
+                    backgroundColor: tokens.colorNeutralBackground1,
+                    border: `1px solid ${tokens.colorNeutralStroke2}`,
+                    borderRadius: tokens.borderRadiusMedium,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                  }}
+                >
+                  {/* Card Title Bar with Reordering and Delete */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${tokens.colorNeutralStroke3}`, paddingBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          backgroundColor: tokens.colorBrandBackground,
+                          color: tokens.colorNeutralForegroundOnBrand,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '12px',
+                          fontWeight: 700
+                        }}
+                      >
+                        {capIdx + 1}
+                      </span>
+                      <strong style={{ fontSize: '0.92rem', color: tokens.colorNeutralForeground1 }}>
+                        {cap.title || `Capability ${capIdx + 1}`}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Button
+                        size="small"
+                        appearance="subtle"
+                        icon={<ArrowUpRegular />}
+                        disabled={capIdx === 0}
+                        title="Move capability up"
+                        onClick={() => {
+                          if (capIdx === 0) return;
+                          const updated = [...caps];
+                          const temp = updated[capIdx - 1];
+                          updated[capIdx - 1] = updated[capIdx];
+                          updated[capIdx] = temp;
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                      <Button
+                        size="small"
+                        appearance="subtle"
+                        icon={<ArrowDownRegular />}
+                        disabled={capIdx === caps.length - 1}
+                        title="Move capability down"
+                        onClick={() => {
+                          if (capIdx === caps.length - 1) return;
+                          const updated = [...caps];
+                          const temp = updated[capIdx + 1];
+                          updated[capIdx + 1] = updated[capIdx];
+                          updated[capIdx] = temp;
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                      <Button
+                        size="small"
+                        appearance="subtle"
+                        icon={<DeleteRegular />}
+                        title="Delete capability"
+                        onClick={() => {
+                          handleFieldChange('capabilities', caps.filter((_, i) => i !== capIdx));
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Title and Subtitle inputs */}
+                  <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                    <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                      <Label size="small" weight="semibold">Capability Name</Label>
+                      <Input
+                        size="medium"
+                        value={cap.title}
+                        placeholder="e.g. Programme strategy"
+                        onChange={(e, data) => {
+                          const updated = [...caps];
+                          updated[capIdx] = { ...updated[capIdx], title: data.value };
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                    </div>
+                    <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                      <Label size="small" weight="semibold">Subtitle / Context Note</Label>
+                      <Input
+                        size="medium"
+                        value={cap.subtitle || ''}
+                        placeholder="e.g. Applied at this stage only"
+                        onChange={(e, data) => {
+                          const updated = [...caps];
+                          updated[capIdx] = { ...updated[capIdx], subtitle: data.value };
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Tags Editor */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: tokens.colorNeutralBackground2, padding: '10px 12px', borderRadius: tokens.borderRadiusSmall, border: `1px solid ${tokens.colorNeutralStroke3}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Label size="small" weight="semibold">Tags & Badges ({(cap.tags || []).length})</Label>
+                      <Button
+                        size="small"
+                        appearance="secondary"
+                        icon={<AddRegular />}
+                        style={{ fontSize: '11px', height: '24px' }}
+                        onClick={() => {
+                          const updated = [...caps];
+                          const currentTags = updated[capIdx].tags || [];
+                          updated[capIdx] = {
+                            ...updated[capIdx],
+                            tags: [...currentTags, { id: `tag-${Date.now()}`, label: 'new tag' }]
+                          };
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      >
+                        Add Tag
+                      </Button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                      {(cap.tags || []).map((tag, tagIdx) => (
+                        <div
+                          key={tag.id || tagIdx}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            backgroundColor: '#FFFFFF',
+                            border: `1px solid ${tokens.colorNeutralStroke1}`,
+                            borderRadius: '16px',
+                            padding: '3px 8px',
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                          }}
+                        >
+                          <input
+                            type="text"
+                            value={tag.label}
+                            placeholder="Tag name"
+                            style={{
+                              border: 'none',
+                              background: 'transparent',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              outline: 'none',
+                              color: tokens.colorNeutralForeground1,
+                              width: `${Math.max(tag.label.length * 8 + 12, 55)}px`
+                            }}
+                            onChange={(e) => {
+                              const updated = [...caps];
+                              const currentTags = [...(updated[capIdx].tags || [])];
+                              currentTags[tagIdx] = { ...currentTags[tagIdx], label: e.target.value };
+                              updated[capIdx] = { ...updated[capIdx], tags: currentTags };
+                              handleFieldChange('capabilities', updated);
+                            }}
+                          />
+                          <span
+                            role="button"
+                            title="Remove tag"
+                            style={{
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '14px',
+                              fontWeight: 'bold',
+                              color: tokens.colorNeutralForeground3,
+                              lineHeight: 1,
+                              paddingLeft: '2px'
+                            }}
+                            onClick={() => {
+                              const updated = [...caps];
+                              const currentTags = (updated[capIdx].tags || []).filter((_, i) => i !== tagIdx);
+                              updated[capIdx] = { ...updated[capIdx], tags: currentTags };
+                              handleFieldChange('capabilities', updated);
+                            }}
+                          >
+                            ×
+                          </span>
+                        </div>
+                      ))}
+                      {(cap.tags || []).length === 0 && (
+                        <Caption1 style={{ color: tokens.colorNeutralForeground4, fontStyle: 'italic' }}>
+                          No tags yet. Click &apos;Add Tag&apos; to add badges.
+                        </Caption1>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Link / URL Configuration */}
+                  <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                    <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                      <Label size="small" weight="semibold">Link Label</Label>
+                      <Input
+                        size="medium"
+                        value={cap.linkLabel || ''}
+                        placeholder="e.g. Open the standard →"
+                        onChange={(e, data) => {
+                          const updated = [...caps];
+                          updated[capIdx] = { ...updated[capIdx], linkLabel: data.value };
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                    </div>
+                    <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                      <Label size="small" weight="semibold">Link Destination URL</Label>
+                      <Input
+                        size="medium"
+                        value={cap.linkUrl || ''}
+                        placeholder="https://..."
+                        onChange={(e, data) => {
+                          const updated = [...caps];
+                          updated[capIdx] = { ...updated[capIdx], linkUrl: data.value };
+                          handleFieldChange('capabilities', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {caps.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '24px 0', border: `1px dashed ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusMedium, backgroundColor: tokens.colorNeutralBackground2 }}>
+                  <BoardRegular fontSize={28} color={tokens.colorNeutralForeground3} />
+                  <Body1 style={{ display: 'block', marginTop: '6px', color: tokens.colorNeutralForeground2 }}>
+                    No capabilities in this section yet.
+                  </Body1>
+                  <Button
+                    size="small"
+                    appearance="primary"
+                    icon={<AddRegular />}
+                    style={{ marginTop: '10px' }}
+                    onClick={() => {
+                      const newCap: ICapabilityItem = {
+                        id: `cap-${Date.now()}`,
+                        title: 'New Capability',
+                        subtitle: 'Applied at this stage only',
+                        tags: [{ id: `tag-${Date.now()}`, label: '3 templates' }],
+                        linkLabel: 'Open the standard →'
+                      };
+                      handleFieldChange('capabilities', [newCap]);
+                    }}
+                  >
+                    Add First Capability
+                  </Button>
+                </div>
+              )}
+            </div>
+          </>
+        );
+      }
+
       case 'text':
       default:
         return (
@@ -1820,83 +2185,85 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
   return (
     <>
       <Portal>
-        <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && onDismiss()}>
-          <DialogSurface className={styles.surface}>
-            <div className={styles.headerRow}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px', color: tokens.colorBrandForeground1, display: 'flex' }}>
-                  {getItemIcon(formData.type)}
-                </span>
-                <DialogTitle>{getItemTitle(formData.type)}</DialogTitle>
+        <FluentProvider theme={webLightTheme}>
+          <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && onDismiss()}>
+            <DialogSurface className={styles.surface} style={{ backgroundColor: '#FFFFFF' }}>
+              <div className={styles.headerRow}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px', color: tokens.colorBrandForeground1, display: 'flex' }}>
+                    {getItemIcon(formData.type)}
+                  </span>
+                  <DialogTitle>{getItemTitle(formData.type)}</DialogTitle>
+                </div>
+                <Button
+                  appearance="subtle"
+                  icon={<DismissRegular />}
+                  onClick={onDismiss}
+                  aria-label="Close"
+                />
               </div>
-              <Button
-                appearance="subtle"
-                icon={<DismissRegular />}
-                onClick={onDismiss}
-                aria-label="Close"
-              />
-            </div>
 
-            <div className={styles.dialogBody}>
-              <div className={styles.dialogContent}>
-                {/* Alignment Selector across composable items - Icon buttons */}
-                <div className={styles.fieldRow} style={{ marginBottom: '16px' }}>
-                  <Label weight="semibold">Content alignment</Label>
-                  <div style={{ display: 'inline-flex', gap: '4px', backgroundColor: tokens.colorNeutralBackground3, padding: '3px', borderRadius: tokens.borderRadiusMedium, width: 'fit-content' }}>
-                    <Button
-                      size="small"
-                      appearance={formData.alignment === 'left' || !formData.alignment ? 'primary' : 'subtle'}
-                      icon={<TextAlignLeftRegular />}
-                      onClick={() => handleFieldChange('alignment', 'left')}
-                      title="Align left"
-                    >
-                      Left
-                    </Button>
-                    <Button
-                      size="small"
-                      appearance={formData.alignment === 'center' ? 'primary' : 'subtle'}
-                      icon={<TextAlignCenterRegular />}
-                      onClick={() => handleFieldChange('alignment', 'center')}
-                      title="Align center"
-                    >
-                      Centre
-                    </Button>
-                    <Button
-                      size="small"
-                      appearance={formData.alignment === 'right' ? 'primary' : 'subtle'}
-                      icon={<TextAlignRightRegular />}
-                      onClick={() => handleFieldChange('alignment', 'right')}
-                      title="Align right"
-                    >
-                      Right
-                    </Button>
+              <div className={styles.dialogBody}>
+                <div className={styles.dialogContent}>
+                  {/* Alignment Selector across composable items - Icon buttons */}
+                  <div className={styles.fieldRow} style={{ marginBottom: '16px' }}>
+                    <Label weight="semibold">Content alignment</Label>
+                    <div style={{ display: 'inline-flex', gap: '4px', backgroundColor: tokens.colorNeutralBackground3, padding: '3px', borderRadius: tokens.borderRadiusMedium, width: 'fit-content' }}>
+                      <Button
+                        size="small"
+                        appearance={formData.alignment === 'left' || !formData.alignment ? 'primary' : 'subtle'}
+                        icon={<TextAlignLeftRegular />}
+                        onClick={() => handleFieldChange('alignment', 'left')}
+                        title="Align left"
+                      >
+                        Left
+                      </Button>
+                      <Button
+                        size="small"
+                        appearance={formData.alignment === 'center' ? 'primary' : 'subtle'}
+                        icon={<TextAlignCenterRegular />}
+                        onClick={() => handleFieldChange('alignment', 'center')}
+                        title="Align center"
+                      >
+                        Centre
+                      </Button>
+                      <Button
+                        size="small"
+                        appearance={formData.alignment === 'right' ? 'primary' : 'subtle'}
+                        icon={<TextAlignRightRegular />}
+                        onClick={() => handleFieldChange('alignment', 'right')}
+                        title="Align right"
+                      >
+                        Right
+                      </Button>
+                    </div>
+                    <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                      Align this content block to the left, centre, or right of the container.
+                    </Caption1>
                   </div>
-                  <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
-                    Align this content block to the left, centre, or right of the container.
-                  </Caption1>
+
+                  {renderTypeSpecificFields()}
                 </div>
 
-                {renderTypeSpecificFields()}
+                <div className={styles.dialogFooter}>
+                  <Button appearance="secondary" onClick={onDismiss}>
+                    Cancel
+                  </Button>
+                  <Button
+                    appearance="primary"
+                    icon={<SaveRegular />}
+                    onClick={() => {
+                      onSave(formData);
+                      onDismiss();
+                    }}
+                  >
+                    Apply Changes
+                  </Button>
+                </div>
               </div>
-
-              <div className={styles.dialogFooter}>
-                <Button appearance="secondary" onClick={onDismiss}>
-                  Cancel
-                </Button>
-                <Button
-                  appearance="primary"
-                  icon={<SaveRegular />}
-                  onClick={() => {
-                    onSave(formData);
-                    onDismiss();
-                  }}
-                >
-                  Apply Changes
-                </Button>
-              </div>
-            </div>
-          </DialogSurface>
-        </Dialog>
+            </DialogSurface>
+          </Dialog>
+        </FluentProvider>
       </Portal>
 
       {/* Pure Fluent UI 2 Site Asset Explorer Dialog */}

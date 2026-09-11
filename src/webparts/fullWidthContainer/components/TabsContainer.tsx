@@ -60,10 +60,15 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.spacingHorizontalL),
     width: '100%'
   },
+  addCardRow: {
+    width: '100%',
+    marginTop: tokens.spacingVerticalS
+  },
   addCardButton: {
-    minHeight: '140px',
+    minHeight: '80px',
+    width: '100%',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     ...shorthands.border('2px', 'dashed', tokens.colorBrandStroke2),
@@ -71,7 +76,7 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     color: tokens.colorBrandForeground1,
     cursor: 'pointer',
-    ...shorthands.gap(tokens.spacingVerticalXS),
+    ...shorthands.gap(tokens.spacingHorizontalS),
     transitionProperty: 'border-color, background-color',
     transitionDuration: '150ms',
     ':hover': {
@@ -463,19 +468,21 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
             assetPickerService={assetPickerService}
           />
         ))}
+      </div>
 
-        {/* Quick Add Card Action in Edit Mode */}
-        {isEditMode && activeSection && onAddBlock && (
+      {/* Quick Add Card Action in Edit Mode — rendered OUTSIDE the grid so it's never subject to grid placement rules */}
+      {isEditMode && activeSection && onAddBlock && (
+        <div className={styles.addCardRow}>
           <div
             className={styles.addCardButton}
             onClick={() => onAddBlock(activeSection.id)}
             title="Add a new card to this section"
           >
-            <AddRegular fontSize={24} />
+            <AddRegular fontSize={20} />
             <Body1 style={{ fontWeight: 600 }}>Add new card</Body1>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {filteredBlocks.length === 0 && !isEditMode && (
         <div className={styles.emptyState}>

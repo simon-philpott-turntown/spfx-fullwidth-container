@@ -63,3 +63,21 @@ Authors need a native dropdown control that can be placed as a composable item i
 - **Property Editor**: `CardItemPropertyEditor.tsx` handles `case 'dropdown'` with label, placeholder, term set name, and a reorderable static options list (Add / Up / Down / Delete).
 - **Filter-Host Safety**: Both `TabsContainer.tsx` and `AccordionContainer.tsx` extend their `isFilterHost` guard to include `it.type === 'dropdown'`, preventing the hosting card from being hidden by its own filter event.
 - **Static Options as Primary / Term Set as Future Enhancement**: The term set name field is stored and serialised, but live term population from the SharePoint taxonomy API is deferred to a future sprint. Static options serve as the primary data source.
+
+---
+
+## DEC-005: Capabilities Card Content Part Architecture (FEAT-039)
+
+### Context
+Authors require a structured 'Capabilities' content part that can be added to any card (or header/section top slot) to display programme capabilities:
+1. Dynamic header reading "Capabilities applied here X - [secondary label]" where X strictly reflects the live count of capabilities added.
+2. An editable section name and optional secondary description note.
+3. Multiple capability mini-cards within the parent card, each displaying an editable title, contextual subtitle line, configurable tags/badges, and an action link ("Open the standard →").
+4. Ability to add unlimited capabilities, reorder them with Up/Down controls, and remove them dynamically.
+
+### Decision
+- **Model Extension**: Added `ICapabilityTag`, `ICapabilityItem`, and `'capabilities'` to `ICardItemType` in [IContainerModels.ts](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/models/IContainerModels.ts). Stored `capabilitiesSectionLabel`, `capabilitiesSecondaryLabel`, and `capabilities: ICapabilityItem[]` directly on `ICardItem`.
+- **Component Separation**: Implemented [CapabilitiesRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx) using 100% Fluent UI 2 Griffel tokens (`tokens.colorNeutralBackground1`, `tokens.colorBrandForeground1`, `tokens.shadow2`). Mini-cards use a responsive flex-wrap layout (`flex: 1 1 210px`, `maxWidth: 300px`) that naturally wraps within any card grid column span.
+- **Semantic Tag Color Mapping**: Built `getTagStyle()` utility mapping common capability tag types (`templates` -> soft cyan/blue `#CCE9F8`, `mandatory` -> soft coral/red `#FDE7E9`, `insight` -> soft mint/green `#DFF6DD`, `learning`/`notes` -> warm wheat `#FFF4CE`, `infra` -> TT Mushroom `#F2EEE7`) matching corporate Turner & Townsend brand standards.
+- **Deep Property Editor**: Built rich configuration UI inside [CardItemPropertyEditor.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx) with a live banner previewing the derived count header, Add/Move/Delete capability cards, and inline tag management.
+- **Insertion & Rendering Parity**: Integrated into [ToolboxModal.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ToolboxModal.tsx) (with `BoardRegular` icon), [BlockRenderer.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/BlockRenderer.tsx), and [ComposableContentSection.tsx](file:///d:/Playbook/spfx-fullwidth-container/src/webparts/fullWidthContainer/components/ComposableContentSection.tsx).

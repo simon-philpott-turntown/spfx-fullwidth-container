@@ -475,6 +475,21 @@
         "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
         "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx"
       ]
+    },
+    {
+      "id": "FEAT-039",
+      "name": "CapabilitiesCardContentPart",
+      "description": "Adds 'capabilities' as a composable card inner item and content part. Features an editable section header with dynamic count ('Capabilities applied here X - [secondary label]' where X is derived from the number of capabilities added), a responsive grid/flex-wrap layout of styled mini-cards, and per-capability editable titles, subtitles, tags (with Turner & Townsend semantic color mapping), and action links ('Open the standard →'). Integrated into InsertionBar, ToolboxModal, CardItemPropertyEditor, BlockRenderer, and ComposableContentSection.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/CardEditDialog.tsx"
+      ]
     }
   ]
 }

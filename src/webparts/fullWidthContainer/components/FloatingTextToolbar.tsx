@@ -296,7 +296,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
       </div>
 
       {/* Text Style / Type Dropdown (H1, H2, H3, H4, Body) */}
-      <Popover positioning="below">
+      <Popover positioning="below" inline>
         <PopoverTrigger disableButtonEnhancement>
           <Button
             size="small"
@@ -310,7 +310,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             <ChevronDownRegular fontSize={10} />
           </Button>
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.menuSurface}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={`${styles.menuSurface} floating-toolbar-container fui-floating-toolbar`}>
           <Caption1 style={{ fontWeight: 600, padding: '2px 8px', color: tokens.colorNeutralForeground3 }}>
             Text Styles
           </Caption1>
@@ -331,7 +331,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
       </Popover>
 
       {/* Font Family Selector Dropdown */}
-      <Popover positioning="below">
+      <Popover positioning="below" inline>
         <PopoverTrigger disableButtonEnhancement>
           <Button
             size="small"
@@ -345,7 +345,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             <ChevronDownRegular fontSize={10} />
           </Button>
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.menuSurface}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={`${styles.menuSurface} floating-toolbar-container fui-floating-toolbar`}>
           <Caption1 style={{ fontWeight: 600, padding: '2px 8px', color: tokens.colorNeutralForeground3 }}>
             Font Families
           </Caption1>
@@ -416,7 +416,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
       <Divider vertical style={{ height: '18px', margin: '0 2px' }} />
 
       {/* Full SharePoint Theme Color Picker Popover */}
-      <Popover positioning="below">
+      <Popover positioning="below" inline>
         <PopoverTrigger disableButtonEnhancement>
           <Button
             size="small"
@@ -426,7 +426,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             onMouseDown={handleToolbarMouseDown}
           />
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.colorPickerSurface}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={`${styles.colorPickerSurface} floating-toolbar-container fui-floating-toolbar`}>
           {/* Default Text Color Option */}
           <div className={styles.colorSectionHeader}>Default Option</div>
           <div
@@ -523,7 +523,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
       </Popover>
 
       {/* Highlight Background Color Picker Popover */}
-      <Popover positioning="below">
+      <Popover positioning="below" inline>
         <PopoverTrigger disableButtonEnhancement>
           <Button
             size="small"
@@ -533,7 +533,7 @@ export const FloatingTextToolbar: React.FC<IFloatingTextToolbarProps> = ({
             onMouseDown={handleToolbarMouseDown}
           />
         </PopoverTrigger>
-        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={styles.highlightPickerSurface}>
+        <PopoverSurface onMouseDown={handleToolbarMouseDown} className={`${styles.highlightPickerSurface} floating-toolbar-container fui-floating-toolbar`}>
           {/* Default Highlight Option */}
           <div className={styles.colorSectionHeader}>Default Option</div>
           <div

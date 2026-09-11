@@ -94,10 +94,16 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.spacingHorizontalL),
     ...shorthands.padding(tokens.spacingVerticalM, '0')
   },
+  addCardRow: {
+    width: '100%',
+    marginTop: tokens.spacingVerticalS,
+    marginBottom: tokens.spacingVerticalXS
+  },
   addCardButton: {
-    minHeight: '140px',
+    minHeight: '80px',
+    width: '100%',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     ...shorthands.border('2px', 'dashed', tokens.colorBrandStroke2),
@@ -105,7 +111,7 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     color: tokens.colorBrandForeground1,
     cursor: 'pointer',
-    ...shorthands.gap(tokens.spacingVerticalXS),
+    ...shorthands.gap(tokens.spacingHorizontalS),
     transitionProperty: 'border-color, background-color',
     transitionDuration: '150ms',
     ':hover': {
@@ -524,19 +530,21 @@ export const AccordionContainer: React.FC<IAccordionContainerProps> = ({
                       assetPickerService={assetPickerService}
                     />
                   ))}
+                </div>
 
-                  {/* Add Card Button in Accordion */}
-                  {isEditMode && onAddBlock && (
+                {/* Add Card Button — rendered OUTSIDE the grid so it's never subject to grid placement rules */}
+                {isEditMode && onAddBlock && (
+                  <div className={styles.addCardRow}>
                     <div
                       className={styles.addCardButton}
                       onClick={() => onAddBlock(section.id)}
                       title="Add a new card to this section"
                     >
-                      <AddRegular fontSize={24} />
+                      <AddRegular fontSize={20} />
                       <Body1 style={{ fontWeight: 600 }}>Add new card</Body1>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {filteredBlocks.length === 0 && !isEditMode && (
                   <div className={styles.emptyState}>

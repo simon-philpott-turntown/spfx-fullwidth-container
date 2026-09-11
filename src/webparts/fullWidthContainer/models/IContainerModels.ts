@@ -28,7 +28,29 @@ export type ICardItemType =
   | 'termStoreTags'
   | 'filterButtons'
   | 'processModel'
-  | 'dropdown';
+  | 'dropdown'
+  | 'capabilities';
+
+/**
+ * Individual tag badge for a capability mini-card.
+ */
+export interface ICapabilityTag {
+  id: string;
+  label: string;
+  color?: string; // Optional custom background/tint (or presets like 'templates', 'mandatory', 'insight')
+}
+
+/**
+ * Individual capability mini-card item within the capabilities content part.
+ */
+export interface ICapabilityItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  tags?: ICapabilityTag[];
+  linkUrl?: string;
+  linkLabel?: string;
+}
 
 /**
  * Filter button item for the interactive Filter Buttons component.
@@ -137,6 +159,10 @@ export interface ICardItem {
   dropdownTermSetName?: string;
   dropdownIconName?: string;
   selectedDropdownValue?: string;
+  // Capabilities content part fields
+  capabilitiesSectionLabel?: string; // Custom prefix e.g. "CAPABILITIES APPLIED HERE"
+  capabilitiesSecondaryLabel?: string; // e.g. "- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO"
+  capabilities?: ICapabilityItem[]; // Mini-card capabilities list
 }
 
 export type CardHeightMode = 'auto' | 'equal';

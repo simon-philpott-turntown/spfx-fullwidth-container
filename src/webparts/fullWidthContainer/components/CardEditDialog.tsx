@@ -187,7 +187,7 @@ export const renderFluentIconPreview = (iconKey?: string, iconColor?: string): J
 export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
   isOpen,
   block,
-  maxColumns = 4,
+  maxColumns = 12,
   maxRows = 5,
   assetPickerService,
   onSave,
@@ -1315,6 +1315,26 @@ export const CardEditDialog: React.FC<ICardEditDialogProps> = ({
                               />
                             </div>
                           ))}
+                        </div>
+                      )}
+
+                      {item.type === 'capabilities' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <Label size="small">Capabilities Section Label</Label>
+                          <Input
+                            size="small"
+                            value={item.capabilitiesSectionLabel || ''}
+                            placeholder="e.g. Capabilities applied here"
+                            onChange={(e, data) => {
+                              const newItems = [...(formData.items || [])];
+                              newItems[idx] = { ...newItems[idx], capabilitiesSectionLabel: data.value };
+                              setFormData({ ...formData, items: newItems });
+                            }}
+                          />
+                          <Label size="small">Capabilities Count</Label>
+                          <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>
+                            {(item.capabilities || []).length} capabilities configured. Use in-place card editor on canvas to configure individual mini-cards and tags.
+                          </Caption1>
                         </div>
                       )}
                     </div>

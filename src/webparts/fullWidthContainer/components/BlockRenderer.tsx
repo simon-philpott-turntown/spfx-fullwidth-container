@@ -47,6 +47,7 @@ import { TermStorePicker } from './TermStorePicker';
 import { LiveDataRenderer } from './LiveDataRenderer';
 import { FilterButtonsRenderer } from './FilterButtonsRenderer';
 import { ProcessModelRenderer } from './ProcessModelRenderer';
+import { CapabilitiesRenderer } from './CapabilitiesRenderer';
 import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
 
 const useStyles = makeStyles({
@@ -554,7 +555,9 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
     const startY = e.clientY;
     const startCols = block.colSpan || 1;
     const startRows = block.rowSpan || 1;
-    const maxCols = containerGridColumns || 4;
+    // Use the actual grid column count when explicitly set, otherwise allow up to 12
+    // (containerGridColumns === 0 means "auto-fit" mode, not "1 column")
+    const maxCols = (containerGridColumns && containerGridColumns > 0) ? containerGridColumns : 12;
     const maxRows = containerGridRows || 5;
 
     const cardRect = cardWrapperRef.current?.getBoundingClientRect();
@@ -773,6 +776,44 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
       dropdownOptions: itemType === 'dropdown' ? [
         { label: 'Option 1', value: 'option-1' },
         { label: 'Option 2', value: 'option-2' }
+      ] : undefined,
+      capabilitiesSectionLabel: itemType === 'capabilities' ? 'Capabilities applied here' : undefined,
+      capabilitiesSecondaryLabel: itemType === 'capabilities' ? '- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO' : undefined,
+      capabilities: itemType === 'capabilities' ? [
+        {
+          id: 'cap-1',
+          title: 'Programme strategy',
+          subtitle: 'Applied at this stage only',
+          tags: [{ id: 't-1', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-2',
+          title: 'Business case development',
+          subtitle: 'Applied at this stage only',
+          tags: [
+            { id: 't-2', label: '5 templates' },
+            { id: 't-3', label: '2 mandatory' },
+            { id: 't-4', label: '1 insight' },
+            { id: 't-5', label: 'learning' },
+            { id: 't-6', label: 'Infrastructure note' }
+          ],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-3',
+          title: 'Capability assessment',
+          subtitle: 'Shape → Source',
+          tags: [{ id: 't-7', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        },
+        {
+          id: 'cap-4',
+          title: 'Portfolio prioritisation',
+          subtitle: 'Applied at this stage only',
+          tags: [{ id: 't-8', label: '3 templates' }],
+          linkLabel: 'Open the standard →'
+        }
       ] : undefined
     };
 
@@ -1194,6 +1235,17 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
               </Button>
             )}
           </div>
+        )}
+
+        {item.type === 'capabilities' && (
+          <CapabilitiesRenderer
+            sectionLabel={item.capabilitiesSectionLabel}
+            secondaryLabel={item.capabilitiesSecondaryLabel}
+            capabilities={item.capabilities || []}
+            alignment={item.alignment || 'left'}
+            isEditMode={isEditMode}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
         )}
       </div>
     );

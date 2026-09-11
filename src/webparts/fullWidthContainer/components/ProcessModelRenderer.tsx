@@ -103,7 +103,7 @@ const useStyles = makeStyles({
     color: '#64748B'
   },
   stageNumberActive: {
-    color: '#93C5FD'
+    color: '#93C5FD !important'
   },
   stageTitle: {
     fontSize: '1.05rem',
@@ -113,7 +113,7 @@ const useStyles = makeStyles({
     marginBottom: '4px'
   },
   stageTitleActive: {
-    color: '#FFFFFF'
+    color: '#FFFFFF !important'
   },
   stageDescription: {
     fontSize: '0.78rem',
@@ -123,7 +123,7 @@ const useStyles = makeStyles({
     marginBottom: '8px'
   },
   stageDescriptionActive: {
-    color: '#E2E8F0'
+    color: '#E2E8F0 !important'
   },
   stageMetric: {
     fontSize: '0.75rem',
@@ -135,7 +135,7 @@ const useStyles = makeStyles({
     marginTop: 'auto'
   },
   stageMetricActive: {
-    color: '#93C5FD'
+    color: '#93C5FD !important'
   },
   activeIndicatorRow: {
     display: 'flex',
@@ -284,6 +284,7 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
                   className={`${styles.stageTitle} ${
                     isActive ? styles.stageTitleActive : ''
                   }`}
+                  style={{ color: isActive ? '#FFFFFF' : '#001436' }}
                 >
                   {step.title}
                 </div>
@@ -293,6 +294,7 @@ export const ProcessModelRenderer: React.FC<IProcessModelRendererProps> = ({
                     className={`${styles.stageDescription} ${
                       isActive ? styles.stageDescriptionActive : ''
                     }`}
+                    style={{ color: isActive ? '#E2E8F0' : '#475569' }}
                   >
                     {step.description}
                   </div>
