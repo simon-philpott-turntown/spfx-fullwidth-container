@@ -159,9 +159,28 @@
       "name": "CapabilitiesRenderer",
       "path": "src/webparts/fullWidthContainer/components/CapabilitiesRenderer.tsx",
       "role": "Renders the capabilities content part: displays an editable section title with live count ('Capabilities applied here X'), styled mini-cards with title, subtitle, semantic tag badges, and action links."
+    },
+    {
+      "name": "FilterDropdownsRenderer",
+      "path": "src/webparts/fullWidthContainer/components/FilterDropdownsRenderer.tsx",
+      "role": "Renders a responsive horizontal row of multiple filter dropdowns with SharePoint Term Store resolution, multi-filter selection dispatch, active indicators, and 'Clear all' button."
     }
   ],
   "recentChanges": [
+    {
+      "feature": "FEAT-041",
+      "description": "Multi-Dropdown Filter Bar: added capability to add, reorder, and configure multiple filter dropdowns alongside each other in a horizontal row (like Filter Buttons). Supports per-dropdown Term Store term sets or custom options, live selection dispatching, active indicators, and 'Clear all'.",
+      "filesModified": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/FilterDropdownsRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx"
+      ]
+    },
     {
       "feature": "FEAT-035",
       "description": "Search bar permanently relocated to headerTopRight. In edit mode a pencil icon opens a Fluent UI 2 Popover to edit the placeholder text, persisted via onSearchPlaceholderChange.",

@@ -226,26 +226,31 @@ export const TabsContainer: React.FC<ITabsContainerProps> = ({
     // If the card itself is the host of the filter buttons or process model, keep it visible so author can interact
     const isFilterHost = b.items && b.items.some((it) => it.type === 'filterButtons' || it.type === 'processModel' || it.type === 'dropdown');
 
-    // 1. Interactive Button / Process Stage Filter Matching
+    // 1. Interactive Button / Process Stage / Multi-Dropdown Filter Matching
     if (itemFilt && !isFilterHost) {
-      const titleMatch = b.title ? b.title.toLowerCase().includes(itemFilt) : false;
-      const descMatch = b.description ? b.description.toLowerCase().includes(itemFilt) : false;
-      const badgeMatch = b.badge ? b.badge.toLowerCase().includes(itemFilt) : false;
-      const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(itemFilt));
-      const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
-        const labelMatch = t.label ? t.label.toLowerCase().includes(itemFilt) : false;
-        const setMatch = t.termSetName ? t.termSetName.toLowerCase().includes(itemFilt) : false;
-        return labelMatch || setMatch;
-      });
-      const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
-        const textMatch = item.text ? item.text.toLowerCase().includes(itemFilt) : false;
-        const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().includes(itemFilt) : false;
-        const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().includes(itemFilt) : false;
-        return textMatch || ctaMatch || btnMatch;
+      // Split into tokens to match multiple active filters if present
+      const filterTokens = itemFilt.split(/\s+/).filter((t) => t.length > 0);
+      const matchesAllTokens = filterTokens.every((token) => {
+        const titleMatch = b.title ? b.title.toLowerCase().indexOf(token) !== -1 : false;
+        const descMatch = b.description ? b.description.toLowerCase().indexOf(token) !== -1 : false;
+        const badgeMatch = b.badge ? b.badge.toLowerCase().indexOf(token) !== -1 : false;
+        const tagMatch = b.tags && Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().indexOf(token) !== -1);
+        const termStoreMatch = b.termStoreTags && Array.isArray(b.termStoreTags) && b.termStoreTags.some((t) => {
+          const labelMatch = t.label ? t.label.toLowerCase().indexOf(token) !== -1 : false;
+          const setMatch = t.termSetName ? t.termSetName.toLowerCase().indexOf(token) !== -1 : false;
+          return labelMatch || setMatch;
+        });
+        const innerItemsMatch = b.items && Array.isArray(b.items) && b.items.some((item) => {
+          const textMatch = item.text ? item.text.toLowerCase().indexOf(token) !== -1 : false;
+          const ctaMatch = item.ctaHeading ? item.ctaHeading.toLowerCase().indexOf(token) !== -1 : false;
+          const btnMatch = item.buttonLabel ? item.buttonLabel.toLowerCase().indexOf(token) !== -1 : false;
+          return textMatch || ctaMatch || btnMatch;
+        });
+
+        return titleMatch || descMatch || badgeMatch || tagMatch || termStoreMatch || innerItemsMatch;
       });
 
-      const matchesItemFilter = titleMatch || descMatch || badgeMatch || tagMatch || termStoreMatch || innerItemsMatch;
-      if (!matchesItemFilter) return false;
+      if (!matchesAllTokens) return false;
     }
 
     // 2. Text Search Query Matching

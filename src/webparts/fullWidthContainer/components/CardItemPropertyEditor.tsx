@@ -64,7 +64,7 @@ import {
   EraserRegular,
   BoardRegular
 } from '@fluentui/react-icons';
-import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem, ICapabilityItem, ICapabilityTag } from '../models/IContainerModels';
+import { ICardItem, ICardItemType, IFilterButtonItem, IProcessStepItem, ICapabilityItem, ICapabilityTag, IDropdownFilterConfig } from '../models/IContainerModels';
 import { TermStorePicker } from './TermStorePicker';
 import { TaxonomyService, ITermGroup } from '../services/TaxonomyService';
 import { FluentIconPicker } from './FluentIconPicker';
@@ -314,7 +314,7 @@ const getItemTitle = (type?: ICardItemType): string => {
   switch (type) {
     case 'processModel': return 'Configure the process model';
     case 'capabilities': return 'Configure capabilities content part';
-    case 'dropdown': return 'Configure filter dropdown';
+    case 'dropdown': return 'Configure filter dropdowns';
     case 'filterButtons': return 'Configure filter buttons';
     case 'liveData': return 'Configure live data API';
     case 'termStoreTags': return 'Configure Term Store tags';
@@ -374,6 +374,8 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
   }>({ type: 'image', allowMultiple: false });
   const [taxonomyGroups, setTaxonomyGroups] = React.useState<ITermGroup[]>([]);
   const [isDropdownIconPickerOpen, setIsDropdownIconPickerOpen] = React.useState<boolean>(false);
+  const [expandedDropdownId, setExpandedDropdownId] = React.useState<string | null>(null);
+  const [activeDropdownIconPickerIdx, setActiveDropdownIconPickerIdx] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     TaxonomyService.getTermGroups()
@@ -387,9 +389,27 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
       if (item.type === 'processModel' && item.processSteps && item.processSteps.length > 0) {
         setExpandedStepId(item.processSteps[0].id || 'step-0');
       }
+      if (item.type === 'dropdown') {
+        const drops = item.filterDropdowns && item.filterDropdowns.length > 0
+          ? item.filterDropdowns
+          : [{
+              id: 'drop-1',
+              label: item.dropdownLabel || 'Filter by',
+              placeholder: item.dropdownPlaceholder || 'Select an option',
+              iconName: item.dropdownIconName,
+              termGroupName: item.dropdownTermGroupName,
+              termSetName: item.dropdownTermSetName,
+              options: item.dropdownOptions || [
+                { label: 'Option 1', value: 'option-1' },
+                { label: 'Option 2', value: 'option-2' }
+              ]
+            }];
+        setExpandedDropdownId(drops[0].id || 'drop-0');
+      }
     } else {
       setFormData(null);
       setExpandedStepId(null);
+      setExpandedDropdownId(null);
     }
   }, [item]);
 
@@ -1581,130 +1601,29 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
       }
 
       case 'dropdown': {
-        const dropdownOpts: Array<{ label: string; value: string }> = formData.dropdownOptions || [];
-        const selectedGroup = taxonomyGroups.find((g) => g.name === formData.dropdownTermGroupName);
-        const availableSets = selectedGroup ? selectedGroup.termSets : [];
+        // Multi-Dropdown Filter Bar support: ensure filterDropdowns list exists
+        const filterDropdowns: IDropdownFilterConfig[] = (formData.filterDropdowns && formData.filterDropdowns.length > 0)
+          ? formData.filterDropdowns
+          : [{
+              id: 'drop-1',
+              label: formData.dropdownLabel || 'Filter by',
+              placeholder: formData.dropdownPlaceholder || 'Select an option',
+              iconName: formData.dropdownIconName,
+              termGroupName: formData.dropdownTermGroupName,
+              termSetName: formData.dropdownTermSetName,
+              options: formData.dropdownOptions || [
+                { label: 'Option 1', value: 'option-1' },
+                { label: 'Option 2', value: 'option-2' }
+              ]
+            }];
 
         return (
           <>
-            <div className={styles.twoColRow}>
-              <div className={styles.fieldRow}>
-                <Label weight="semibold">Dropdown label</Label>
-                <Input
-                  size="medium"
-                  value={formData.dropdownLabel || ''}
-                  placeholder="e.g. Filter by region"
-                  onChange={(e, data) => handleFieldChange('dropdownLabel', data.value)}
-                />
-                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Header label above dropdown.</Caption1>
-              </div>
-              <div className={styles.fieldRow}>
-                <Label weight="semibold">Placeholder text</Label>
-                <Input
-                  size="medium"
-                  value={formData.dropdownPlaceholder || ''}
-                  placeholder="e.g. Select an option..."
-                  onChange={(e, data) => handleFieldChange('dropdownPlaceholder', data.value)}
-                />
-                <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Initial prompt before selection.</Caption1>
-              </div>
-            </div>
-
-            {/* Icon Picker for Dropdown Header */}
-            <div className={styles.fieldRow}>
-              <Label weight="semibold">Dropdown icon</Label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: tokens.borderRadiusMedium,
-                    border: `1px solid ${tokens.colorNeutralStroke1}`,
-                    backgroundColor: tokens.colorNeutralBackground2,
-                    fontSize: '18px',
-                    color: tokens.colorBrandForeground1
-                  }}
-                >
-                  {renderUnifiedIcon(formData.dropdownIconName || 'Filter')}
-                </div>
-                <Button
-                  size="small"
-                  appearance="secondary"
-                  onClick={() => setIsDropdownIconPickerOpen(true)}
-                >
-                  {formData.dropdownIconName ? `Change Icon (${formData.dropdownIconName})` : 'Select Icon'}
-                </Button>
-                {formData.dropdownIconName && (
-                  <Button
-                    size="small"
-                    appearance="subtle"
-                    onClick={() => handleFieldChange('dropdownIconName', undefined)}
-                  >
-                    Clear
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <Divider style={{ margin: '12px 0' }} />
-
-            {/* Taxonomy Term Set Picker */}
-            <div className={styles.fieldRow}>
-              <Label weight="semibold">SharePoint Global Term Store Source</Label>
-              <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '6px', display: 'block' }}>
-                Optionally populate this dropdown dynamically from an enterprise taxonomy term set.
-              </Caption1>
-
-              <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
-                <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
-                  <Label size="small">Taxonomy Group</Label>
-                  <Dropdown
-                    size="medium"
-                    placeholder="Choose taxonomy group..."
-                    value={formData.dropdownTermGroupName || ''}
-                    selectedOptions={formData.dropdownTermGroupName ? [formData.dropdownTermGroupName] : []}
-                    style={{ width: '100%' }}
-                    onOptionSelect={(e, data) => {
-                      handleFieldChange('dropdownTermGroupName', data.optionValue || '');
-                      handleFieldChange('dropdownTermSetName', '');
-                    }}
-                  >
-                    {taxonomyGroups.map((g) => (
-                      <Option key={g.id} value={g.name}>{g.name}</Option>
-                    ))}
-                  </Dropdown>
-                </div>
-
-                <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
-                  <Label size="small">Term Set</Label>
-                  <Dropdown
-                    size="medium"
-                    placeholder={formData.dropdownTermGroupName ? 'Choose term set...' : 'Select group first'}
-                    disabled={!formData.dropdownTermGroupName}
-                    value={formData.dropdownTermSetName || ''}
-                    selectedOptions={formData.dropdownTermSetName ? [formData.dropdownTermSetName] : []}
-                    style={{ width: '100%' }}
-                    onOptionSelect={(e, data) => handleFieldChange('dropdownTermSetName', data.optionValue || '')}
-                  >
-                    {availableSets.map((s) => (
-                      <Option key={s.id} value={s.name}>{s.name}</Option>
-                    ))}
-                  </Dropdown>
-                </div>
-              </div>
-            </div>
-
-            <Divider style={{ margin: '12px 0' }} />
-
-            {/* Static Options fallback */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <div>
-                <Label weight="semibold">Custom / Static Options ({dropdownOpts.length})</Label>
+                <Label weight="semibold">Filter Dropdowns ({filterDropdowns.length})</Label>
                 <Caption1 style={{ color: tokens.colorNeutralForeground3, display: 'block' }}>
-                  Used when no term set is connected, or as initial fallback values.
+                  Place as many dropdown filters alongside each other as you need. Each can source from the SharePoint Term Store or custom options.
                 </Caption1>
               </div>
               <Button
@@ -1712,95 +1631,411 @@ export const CardItemPropertyEditor: React.FC<ICardItemPropertyEditorProps> = ({
                 appearance="subtle"
                 icon={<AddRegular />}
                 onClick={() => {
-                  const updated = [
-                    ...dropdownOpts,
+                  const newIdx = filterDropdowns.length + 1;
+                  const newId = `drop-${Date.now()}`;
+                  const updated: IDropdownFilterConfig[] = [
+                    ...filterDropdowns,
                     {
-                      label: 'New option',
-                      value: `opt-${Date.now()}`
+                      id: newId,
+                      label: `Filter ${newIdx}`,
+                      placeholder: 'Select an option...',
+                      iconName: 'Filter',
+                      options: [
+                        { label: 'Option 1', value: 'opt-1' },
+                        { label: 'Option 2', value: 'opt-2' }
+                      ]
                     }
                   ];
-                  handleFieldChange('dropdownOptions', updated);
+                  handleFieldChange('filterDropdowns', updated);
+                  setExpandedDropdownId(newId);
                 }}
               >
-                Add Option
+                Add Dropdown
               </Button>
             </div>
+
+            {/* Collapsible Dropdown Cards List */}
             <div className={styles.listContainer}>
-              {dropdownOpts.map((opt, idx) => (
-                <div key={idx} className={styles.listItemRow}>
-                  <Input
-                    size="small"
-                    value={opt.label}
-                    placeholder="Display label (e.g. Infrastructure)"
-                    onChange={(e, data) => {
-                      const updated = [...dropdownOpts];
-                      updated[idx] = { ...updated[idx], label: data.value };
-                      handleFieldChange('dropdownOptions', updated);
-                    }}
-                  />
-                  <Input
-                    size="small"
-                    value={opt.value}
-                    placeholder="Filter value (e.g. infrastructure)"
-                    onChange={(e, data) => {
-                      const updated = [...dropdownOpts];
-                      updated[idx] = { ...updated[idx], value: data.value };
-                      handleFieldChange('dropdownOptions', updated);
-                    }}
-                  />
-                  <Button
-                    size="small"
-                    appearance="subtle"
-                    icon={<ArrowUpRegular />}
-                    disabled={idx === 0}
-                    onClick={() => {
-                      if (idx === 0) return;
-                      const updated = [...dropdownOpts];
-                      const temp = updated[idx - 1];
-                      updated[idx - 1] = updated[idx];
-                      updated[idx] = temp;
-                      handleFieldChange('dropdownOptions', updated);
-                    }}
-                    title="Move option up"
-                  />
-                  <Button
-                    size="small"
-                    appearance="subtle"
-                    icon={<ArrowDownRegular />}
-                    disabled={idx === dropdownOpts.length - 1}
-                    onClick={() => {
-                      if (idx === dropdownOpts.length - 1) return;
-                      const updated = [...dropdownOpts];
-                      const temp = updated[idx + 1];
-                      updated[idx + 1] = updated[idx];
-                      updated[idx] = temp;
-                      handleFieldChange('dropdownOptions', updated);
-                    }}
-                    title="Move option down"
-                  />
-                  <Button
-                    size="small"
-                    appearance="subtle"
-                    icon={<DeleteRegular />}
-                    onClick={() => {
-                      handleFieldChange('dropdownOptions', dropdownOpts.filter((_, i) => i !== idx));
-                    }}
-                    title="Remove option"
-                  />
-                </div>
-              ))}
+              {filterDropdowns.map((drop, idx) => {
+                const dropKey = drop.id || `drop-${idx}`;
+                const isExpanded = expandedDropdownId === dropKey || (expandedDropdownId === null && idx === 0);
+                const dropOpts: Array<{ label: string; value: string }> = drop.options || [];
+                const selectedGroup = taxonomyGroups.find((g) => g.name === drop.termGroupName);
+                const availableSets = selectedGroup ? selectedGroup.termSets : [];
+
+                return (
+                  <div
+                    key={dropKey}
+                    className={`${styles.stepCard} ${isExpanded ? styles.stepCardExpanded : ''}`}
+                  >
+                    {/* Collapsible Header */}
+                    <div
+                      className={styles.stepHeader}
+                      onClick={() => setExpandedDropdownId(isExpanded ? '' : dropKey)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setExpandedDropdownId(isExpanded ? '' : dropKey);
+                        }
+                      }}
+                    >
+                      <div className={styles.stepHeaderLeft}>
+                        {isExpanded ? (
+                          <ChevronDownRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground2, flexShrink: 0 }} />
+                        ) : (
+                          <ChevronRightRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground3, flexShrink: 0 }} />
+                        )}
+                        <Badge size="small" appearance="filled" color="brand" style={{ fontWeight: 600, flexShrink: 0 }}>
+                          Dropdown #{idx + 1}
+                        </Badge>
+                        <span style={{ fontWeight: 600, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {drop.label || `Dropdown ${idx + 1}`}
+                        </span>
+                        {drop.termSetName && (
+                          <Badge size="small" appearance="outline" style={{ color: tokens.colorBrandForeground1, flexShrink: 0 }}>
+                            Term Store: {drop.termSetName}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className={styles.stepHeaderRight} onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<ArrowUpRegular />}
+                          disabled={idx === 0}
+                          title="Move dropdown left/up"
+                          onClick={() => {
+                            if (idx === 0) return;
+                            const updated = [...filterDropdowns];
+                            const temp = updated[idx - 1];
+                            updated[idx - 1] = updated[idx];
+                            updated[idx] = temp;
+                            handleFieldChange('filterDropdowns', updated);
+                          }}
+                        />
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<ArrowDownRegular />}
+                          disabled={idx === filterDropdowns.length - 1}
+                          title="Move dropdown right/down"
+                          onClick={() => {
+                            if (idx === filterDropdowns.length - 1) return;
+                            const updated = [...filterDropdowns];
+                            const temp = updated[idx + 1];
+                            updated[idx + 1] = updated[idx];
+                            updated[idx] = temp;
+                            handleFieldChange('filterDropdowns', updated);
+                          }}
+                        />
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<DeleteRegular />}
+                          disabled={filterDropdowns.length <= 1}
+                          title={filterDropdowns.length <= 1 ? 'At least one dropdown required' : 'Delete dropdown'}
+                          onClick={() => {
+                            if (filterDropdowns.length <= 1) return;
+                            const updated = filterDropdowns.filter((_, i) => i !== idx);
+                            handleFieldChange('filterDropdowns', updated);
+                            if (expandedDropdownId === dropKey) {
+                              setExpandedDropdownId(null);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Expandable Dropdown Body */}
+                    {isExpanded && (
+                      <div className={styles.stepBody}>
+                        {/* Dropdown Label and Placeholder */}
+                        <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                          <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                            <Label size="small" weight="semibold">Dropdown label</Label>
+                            <Input
+                              size="medium"
+                              value={drop.label || ''}
+                              placeholder="e.g. Filter by region"
+                              onChange={(e, data) => {
+                                const updated = [...filterDropdowns];
+                                updated[idx] = { ...updated[idx], label: data.value };
+                                handleFieldChange('filterDropdowns', updated);
+                              }}
+                            />
+                            <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Title displayed above the dropdown</Caption1>
+                          </div>
+                          <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                            <Label size="small" weight="semibold">Placeholder text</Label>
+                            <Input
+                              size="medium"
+                              value={drop.placeholder || ''}
+                              placeholder="e.g. Select an option..."
+                              onChange={(e, data) => {
+                                const updated = [...filterDropdowns];
+                                updated[idx] = { ...updated[idx], placeholder: data.value };
+                                handleFieldChange('filterDropdowns', updated);
+                              }}
+                            />
+                            <Caption1 style={{ color: tokens.colorNeutralForeground3 }}>Initial prompt before user selection</Caption1>
+                          </div>
+                        </div>
+
+                        {/* Icon for Dropdown Header */}
+                        <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                          <Label size="small" weight="semibold">Dropdown icon</Label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: tokens.borderRadiusMedium,
+                                border: `1px solid ${tokens.colorNeutralStroke1}`,
+                                backgroundColor: tokens.colorNeutralBackground2,
+                                fontSize: '18px',
+                                color: tokens.colorBrandForeground1
+                              }}
+                            >
+                              {renderUnifiedIcon(drop.iconName || 'Filter')}
+                            </div>
+                            <Button
+                              size="small"
+                              appearance="secondary"
+                              onClick={() => {
+                                setActiveDropdownIconPickerIdx(idx);
+                                setIsDropdownIconPickerOpen(true);
+                              }}
+                            >
+                              {drop.iconName ? `Change Icon (${drop.iconName})` : 'Select Icon'}
+                            </Button>
+                            {drop.iconName && (
+                              <Button
+                                size="small"
+                                appearance="subtle"
+                                onClick={() => {
+                                  const updated = [...filterDropdowns];
+                                  updated[idx] = { ...updated[idx], iconName: undefined };
+                                  handleFieldChange('filterDropdowns', updated);
+                                }}
+                              >
+                                Clear
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        <Divider style={{ margin: '8px 0' }} />
+
+                        {/* Taxonomy Term Set Picker */}
+                        <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                          <Label size="small" weight="semibold">SharePoint Global Term Store Source</Label>
+                          <Caption1 style={{ color: tokens.colorNeutralForeground3, marginBottom: '6px', display: 'block' }}>
+                            Optionally populate this dropdown dynamically from an enterprise taxonomy term set.
+                          </Caption1>
+
+                          <div className={styles.twoColRow} style={{ marginBottom: 0 }}>
+                            <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                              <Label size="small">Taxonomy Group</Label>
+                              <Dropdown
+                                size="medium"
+                                placeholder="Choose taxonomy group..."
+                                value={drop.termGroupName || ''}
+                                selectedOptions={drop.termGroupName ? [drop.termGroupName] : []}
+                                style={{ width: '100%' }}
+                                onOptionSelect={(e, data) => {
+                                  const updated = [...filterDropdowns];
+                                  updated[idx] = {
+                                    ...updated[idx],
+                                    termGroupName: data.optionValue || '',
+                                    termSetName: ''
+                                  };
+                                  handleFieldChange('filterDropdowns', updated);
+                                }}
+                              >
+                                {taxonomyGroups.map((g) => (
+                                  <Option key={g.id} value={g.name}>{g.name}</Option>
+                                ))}
+                              </Dropdown>
+                            </div>
+
+                            <div className={styles.fieldRow} style={{ marginBottom: 0 }}>
+                              <Label size="small">Term Set</Label>
+                              <Dropdown
+                                size="medium"
+                                placeholder={drop.termGroupName ? 'Choose term set...' : 'Select group first'}
+                                disabled={!drop.termGroupName}
+                                value={drop.termSetName || ''}
+                                selectedOptions={drop.termSetName ? [drop.termSetName] : []}
+                                style={{ width: '100%' }}
+                                onOptionSelect={(e, data) => {
+                                  const updated = [...filterDropdowns];
+                                  updated[idx] = {
+                                    ...updated[idx],
+                                    termSetName: data.optionValue || ''
+                                  };
+                                  handleFieldChange('filterDropdowns', updated);
+                                }}
+                              >
+                                {availableSets.map((s) => (
+                                  <Option key={s.id} value={s.name}>{s.name}</Option>
+                                ))}
+                              </Dropdown>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Divider style={{ margin: '8px 0' }} />
+
+                        {/* Static Options fallback */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div>
+                              <Label size="small" weight="semibold">Custom / Static Options ({dropOpts.length})</Label>
+                              <Caption1 style={{ color: tokens.colorNeutralForeground3, display: 'block' }}>
+                                Used when no term set is connected, or as fallback values.
+                              </Caption1>
+                            </div>
+                            <Button
+                              size="small"
+                              appearance="subtle"
+                              icon={<AddRegular />}
+                              onClick={() => {
+                                const updated = [...filterDropdowns];
+                                const currentOpts = updated[idx].options || [];
+                                updated[idx] = {
+                                  ...updated[idx],
+                                  options: [
+                                    ...currentOpts,
+                                    {
+                                      label: 'New option',
+                                      value: `opt-${Date.now()}`
+                                    }
+                                  ]
+                                };
+                                handleFieldChange('filterDropdowns', updated);
+                              }}
+                            >
+                              Add Option
+                            </Button>
+                          </div>
+
+                          <div className={styles.listContainer}>
+                            {dropOpts.map((opt, optIdx) => (
+                              <div key={optIdx} className={styles.listItemRow}>
+                                <Input
+                                  size="small"
+                                  value={opt.label}
+                                  placeholder="Display label (e.g. Infrastructure)"
+                                  onChange={(e, data) => {
+                                    const updated = [...filterDropdowns];
+                                    const opts = [...(updated[idx].options || [])];
+                                    opts[optIdx] = { ...opts[optIdx], label: data.value };
+                                    updated[idx] = { ...updated[idx], options: opts };
+                                    handleFieldChange('filterDropdowns', updated);
+                                  }}
+                                />
+                                <Input
+                                  size="small"
+                                  value={opt.value}
+                                  placeholder="Filter value (e.g. infrastructure)"
+                                  onChange={(e, data) => {
+                                    const updated = [...filterDropdowns];
+                                    const opts = [...(updated[idx].options || [])];
+                                    opts[optIdx] = { ...opts[optIdx], value: data.value };
+                                    updated[idx] = { ...updated[idx], options: opts };
+                                    handleFieldChange('filterDropdowns', updated);
+                                  }}
+                                />
+                                <Button
+                                  size="small"
+                                  appearance="subtle"
+                                  icon={<ArrowUpRegular />}
+                                  disabled={optIdx === 0}
+                                  onClick={() => {
+                                    if (optIdx === 0) return;
+                                    const updated = [...filterDropdowns];
+                                    const opts = [...(updated[idx].options || [])];
+                                    const temp = opts[optIdx - 1];
+                                    opts[optIdx - 1] = opts[optIdx];
+                                    opts[optIdx] = temp;
+                                    updated[idx] = { ...updated[idx], options: opts };
+                                    handleFieldChange('filterDropdowns', updated);
+                                  }}
+                                  title="Move option up"
+                                />
+                                <Button
+                                  size="small"
+                                  appearance="subtle"
+                                  icon={<ArrowDownRegular />}
+                                  disabled={optIdx === dropOpts.length - 1}
+                                  onClick={() => {
+                                    if (optIdx === dropOpts.length - 1) return;
+                                    const updated = [...filterDropdowns];
+                                    const opts = [...(updated[idx].options || [])];
+                                    const temp = opts[optIdx + 1];
+                                    opts[optIdx + 1] = opts[optIdx];
+                                    opts[optIdx] = temp;
+                                    updated[idx] = { ...updated[idx], options: opts };
+                                    handleFieldChange('filterDropdowns', updated);
+                                  }}
+                                  title="Move option down"
+                                />
+                                <Button
+                                  size="small"
+                                  appearance="subtle"
+                                  icon={<DeleteRegular />}
+                                  onClick={() => {
+                                    const updated = [...filterDropdowns];
+                                    const opts = (updated[idx].options || []).filter((_, i) => i !== optIdx);
+                                    updated[idx] = { ...updated[idx], options: opts };
+                                    handleFieldChange('filterDropdowns', updated);
+                                  }}
+                                  title="Remove option"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Dedicated Icon Picker for Dropdown */}
+            {/* Dedicated Icon Picker for Active Dropdown */}
             {isDropdownIconPickerOpen && (
               <FluentIconPicker
                 isOpen={isDropdownIconPickerOpen}
-                selectedIconKey={formData.dropdownIconName || ''}
+                selectedIconKey={
+                  activeDropdownIconPickerIdx !== null && filterDropdowns[activeDropdownIconPickerIdx]
+                    ? (filterDropdowns[activeDropdownIconPickerIdx].iconName || '')
+                    : ''
+                }
                 onSelectIcon={(iconKey) => {
-                  handleFieldChange('dropdownIconName', iconKey);
+                  if (activeDropdownIconPickerIdx !== null) {
+                    const updated = [...filterDropdowns];
+                    if (updated[activeDropdownIconPickerIdx]) {
+                      updated[activeDropdownIconPickerIdx] = {
+                        ...updated[activeDropdownIconPickerIdx],
+                        iconName: iconKey
+                      };
+                      handleFieldChange('filterDropdowns', updated);
+                    }
+                  }
                   setIsDropdownIconPickerOpen(false);
+                  setActiveDropdownIconPickerIdx(null);
                 }}
-                onDismiss={() => setIsDropdownIconPickerOpen(false)}
+                onDismiss={() => {
+                  setIsDropdownIconPickerOpen(false);
+                  setActiveDropdownIconPickerIdx(null);
+                }}
               />
             )}
           </>

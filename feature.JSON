@@ -501,6 +501,22 @@
         "src/webparts/fullWidthContainer/components/IFullWidthContainerProps.ts",
         "src/webparts/fullWidthContainer/components/FullWidthContainer.tsx"
       ]
+    },
+    {
+      "id": "FEAT-041",
+      "name": "MultiDropdownFilterBar",
+      "description": "Dedicated Multi-Dropdown Filter Bar item (like Filter Buttons) allowing page authors to place as many dropdown filters alongside each other horizontally as desired. Each dropdown supports independent configuration (label, placeholder, unified icon, SharePoint Term Store term set or static options), Up/Down reordering, and real-time deletion. Rendered horizontally with wrapping, active filter indicators, and a one-click 'Clear all' button, dispatching multi-token filtering to TabsContainer and AccordionContainer.",
+      "status": "Active",
+      "implementedIn": [
+        "src/webparts/fullWidthContainer/models/IContainerModels.ts",
+        "src/webparts/fullWidthContainer/components/FilterDropdownsRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/CardItemPropertyEditor.tsx",
+        "src/webparts/fullWidthContainer/components/ComposableContentSection.tsx",
+        "src/webparts/fullWidthContainer/components/BlockRenderer.tsx",
+        "src/webparts/fullWidthContainer/components/ToolboxModal.tsx",
+        "src/webparts/fullWidthContainer/components/TabsContainer.tsx",
+        "src/webparts/fullWidthContainer/components/AccordionContainer.tsx"
+      ]
     }
   ]
 }

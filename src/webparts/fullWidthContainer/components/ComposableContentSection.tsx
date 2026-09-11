@@ -36,6 +36,7 @@ import { RichTextEditable } from './RichTextEditable';
 import { LiveDataRenderer } from './LiveDataRenderer';
 import { TermStorePicker } from './TermStorePicker';
 import { FilterButtonsRenderer } from './FilterButtonsRenderer';
+import { FilterDropdownsRenderer } from './FilterDropdownsRenderer';
 import { ProcessModelRenderer } from './ProcessModelRenderer';
 import { CapabilitiesRenderer } from './CapabilitiesRenderer';
 import { IAssetPickerService } from '../services/IAssetPickerService';
@@ -216,6 +217,18 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
       dropdownOptions: itemType === 'dropdown' ? [
         { label: 'Option 1', value: 'option-1' },
         { label: 'Option 2', value: 'option-2' }
+      ] : undefined,
+      filterDropdowns: itemType === 'dropdown' ? [
+        {
+          id: 'drop-1',
+          label: 'Filter by',
+          placeholder: 'Select an option...',
+          iconName: 'Filter',
+          options: [
+            { label: 'Option 1', value: 'option-1' },
+            { label: 'Option 2', value: 'option-2' }
+          ]
+        }
       ] : undefined,
       capabilitiesSectionLabel: itemType === 'capabilities' ? 'Capabilities applied here' : undefined,
       capabilitiesSecondaryLabel: itemType === 'capabilities' ? '- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO' : undefined,
@@ -607,82 +620,35 @@ export const ComposableContentSection: React.FC<IComposableContentSectionProps> 
           />
         )}
 
-        {item.type === 'dropdown' && (() => {
-          // Resolve options: dynamic taxonomy terms if termSetName set, otherwise static dropdownOptions
-          const [loadedOptions, setLoadedOptions] = React.useState<Array<{ label: string; value: string }>>(item.dropdownOptions || []);
-
-          React.useEffect(() => {
-            let isMounted = true;
-            if (item.dropdownTermSetName && item.dropdownTermSetName.trim()) {
-              TaxonomyService.getTermsByTermSet(item.dropdownTermSetName.trim())
-                .then((terms) => {
-                  if (isMounted && terms && terms.length > 0) {
-                    setLoadedOptions(terms.map((t) => ({ label: t.label, value: t.label })));
-                  }
-                })
-                .catch((err) => console.warn('Failed to load terms for dropdown item', err));
-            } else {
-              setLoadedOptions(item.dropdownOptions || []);
+        {item.type === 'dropdown' && (
+          <FilterDropdownsRenderer
+            itemId={item.id}
+            dropdowns={
+              item.filterDropdowns && item.filterDropdowns.length > 0
+                ? item.filterDropdowns
+                : [{
+                    id: 'drop-1',
+                    label: item.dropdownLabel || 'Filter by',
+                    placeholder: item.dropdownPlaceholder || 'Select an option',
+                    iconName: item.dropdownIconName,
+                    termGroupName: item.dropdownTermGroupName,
+                    termSetName: item.dropdownTermSetName,
+                    options: item.dropdownOptions || [
+                      { label: 'Option 1', value: 'option-1' },
+                      { label: 'Option 2', value: 'option-2' }
+                    ]
+                  }]
             }
-            return () => {
-              isMounted = false;
-            };
-          }, [item.dropdownTermSetName, item.dropdownOptions]);
-
-          const currentOptions = loadedOptions.length > 0 ? loadedOptions : (item.dropdownOptions || []);
-          const activeLabel = currentOptions.find((o) => o.value === item.selectedDropdownValue)?.label || '';
-
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: item.alignment === 'center' ? 'center' : item.alignment === 'right' ? 'flex-end' : 'flex-start' }}>
-              {item.dropdownLabel && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {item.dropdownIconName && (
-                    <span style={{ fontSize: '15px', color: tokens.colorBrandForeground1, display: 'inline-flex' }}>
-                      {renderUnifiedIcon(item.dropdownIconName)}
-                    </span>
-                  )}
-                  <Label size="small" weight="semibold">{item.dropdownLabel}</Label>
-                </div>
-              )}
-              <Dropdown
-                placeholder={item.dropdownPlaceholder || 'Select an option'}
-                selectedOptions={item.selectedDropdownValue ? [item.selectedDropdownValue] : []}
-                value={activeLabel}
-                onOptionSelect={(_, data) => {
-                  const next = [...items];
-                  next[idx] = { ...next[idx], selectedDropdownValue: data.optionValue || undefined };
-                  onUpdateItems(next);
-
-                  window.dispatchEvent(
-                    new CustomEvent('dashboard:card-filter-apply', {
-                      detail: {
-                        sourceItemId: item.id,
-                        filterValue: data.optionValue || ''
-                      }
-                    })
-                  );
-                }}
-                style={{ minWidth: '220px' }}
-              >
-                {currentOptions.map((opt) => (
-                  <Option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Option>
-                ))}
-              </Dropdown>
-              {isEditMode && (
-                <Button
-                  size="small"
-                  appearance="subtle"
-                  onClick={() => setEditingItem({ item, index: idx })}
-                  style={{ marginTop: '2px', fontSize: '11px', color: tokens.colorNeutralForeground3 }}
-                >
-                  Configure dropdown
-                </Button>
-              )}
-            </div>
-          );
-        })()}
+            alignment={item.alignment || 'left'}
+            isEditMode={isEditMode}
+            onUpdateDropdowns={(updated) => {
+              const next = [...items];
+              next[idx] = { ...next[idx], filterDropdowns: updated };
+              onUpdateItems(next);
+            }}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
+        )}
 
         {item.type === 'capabilities' && (
           <CapabilitiesRenderer

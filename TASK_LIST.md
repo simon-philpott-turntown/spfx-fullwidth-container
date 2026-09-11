@@ -32,4 +32,6 @@
 - [x] | TSK-063 | 11/09/2026 14:58 | 11/09/2026 14:59 | PASS | Implement dual-source harvester (Graph + SharePoint PeopleManager) to unpack all AAD & User Profile corporate attributes | Verified with npx tsc --noEmit (code 0) |
 - [x] | TSK-064 | 11/09/2026 15:07 | 11/09/2026 15:08 | PASS | Filter and order curated user profile properties list in popover with custom labels for extensionAttribute10 and 12 | Verified with npx tsc --noEmit (code 0) |
 - [x] | TSK-065 | 11/09/2026 15:09 | 11/09/2026 15:09 | PASS | Remove maxHeight and scroll limit on user profile diagnostics popover to show all properties at full height | Verified with npx tsc --noEmit (code 0) |
-- [-] | TSK-066 | 11/09/2026 15:10 | 11/09/2026 15:10 | INCOMPLETE | Stage, commit, and push curated full-height user profile diagnostics to remote GitHub | In progress |
+- [x] | TSK-066 | 11/09/2026 15:10 | 11/09/2026 15:10 | PASS | Stage, commit, and push curated full-height user profile diagnostics to remote GitHub | Pushed 7eb7685 to origin/main |
+- [x] | TSK-067 | 11/09/2026 15:15 | 11/09/2026 15:21 | PASS | Implement Multi-Dropdown Filter Bar (FEAT-041) allowing multiple reorderable dropdowns in a horizontal row | Verified with npx tsc --noEmit (code 0) |
+- [-] | TSK-068 | 11/09/2026 15:22 | 11/09/2026 15:22 | INCOMPLETE | Stage, commit, and push FEAT-041 Multi-Dropdown Filter Bar updates to remote GitHub repository | In progress |

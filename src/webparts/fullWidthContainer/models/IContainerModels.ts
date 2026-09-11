@@ -113,6 +113,20 @@ export interface ILiveDataConfig {
 }
 
 /**
+ * Configuration for an individual dropdown within the Multi-Dropdown Filter Bar.
+ */
+export interface IDropdownFilterConfig {
+  id: string;
+  label?: string;
+  placeholder?: string;
+  options?: Array<{ label: string; value: string }>;
+  termGroupName?: string;
+  termSetName?: string;
+  iconName?: string;
+  selectedValue?: string;
+}
+
+/**
  * Nested inner item within a composable card.
  */
 export interface ICardItem {
@@ -151,7 +165,7 @@ export interface ICardItem {
   processSteps?: IProcessStepItem[];
   activeFilterId?: string;
   alignment?: 'left' | 'center' | 'right'; // Content alignment option
-  // Dropdown filter item fields
+  // Single Dropdown item fields (legacy/individual)
   dropdownLabel?: string;
   dropdownPlaceholder?: string;
   dropdownOptions?: Array<{ label: string; value: string }>;
@@ -159,6 +173,8 @@ export interface ICardItem {
   dropdownTermSetName?: string;
   dropdownIconName?: string;
   selectedDropdownValue?: string;
+  // Multi-Dropdown Filter Bar fields
+  filterDropdowns?: IDropdownFilterConfig[];
   // Capabilities content part fields
   capabilitiesSectionLabel?: string; // Custom prefix e.g. "CAPABILITIES APPLIED HERE"
   capabilitiesSecondaryLabel?: string; // e.g. "- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO"

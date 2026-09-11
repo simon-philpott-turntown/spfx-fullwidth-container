@@ -46,6 +46,7 @@ import { InsertionBar } from './InsertionBar';
 import { TermStorePicker } from './TermStorePicker';
 import { LiveDataRenderer } from './LiveDataRenderer';
 import { FilterButtonsRenderer } from './FilterButtonsRenderer';
+import { FilterDropdownsRenderer } from './FilterDropdownsRenderer';
 import { ProcessModelRenderer } from './ProcessModelRenderer';
 import { CapabilitiesRenderer } from './CapabilitiesRenderer';
 import { suppressSharePointWebPartDrag } from '../utils/dragIsolation';
@@ -777,6 +778,18 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         { label: 'Option 1', value: 'option-1' },
         { label: 'Option 2', value: 'option-2' }
       ] : undefined,
+      filterDropdowns: itemType === 'dropdown' ? [
+        {
+          id: 'drop-1',
+          label: 'Filter by',
+          placeholder: 'Select an option...',
+          iconName: 'Filter',
+          options: [
+            { label: 'Option 1', value: 'option-1' },
+            { label: 'Option 2', value: 'option-2' }
+          ]
+        }
+      ] : undefined,
       capabilitiesSectionLabel: itemType === 'capabilities' ? 'Capabilities applied here' : undefined,
       capabilitiesSecondaryLabel: itemType === 'capabilities' ? '- WHAT EACH ONE GIVES YOU IN THE PROGRAMME SCENARIO' : undefined,
       capabilities: itemType === 'capabilities' ? [
@@ -1193,48 +1206,35 @@ export const BlockRenderer: React.FC<IBlockRendererProps> = ({
         )}
 
         {item.type === 'dropdown' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: item.alignment === 'center' ? 'center' : item.alignment === 'right' ? 'flex-end' : 'flex-start' }}>
-            {item.dropdownLabel && (
-              <Label size="small" weight="semibold">{item.dropdownLabel}</Label>
-            )}
-            <Dropdown
-              placeholder={item.dropdownPlaceholder || 'Select an option'}
-              selectedOptions={item.selectedDropdownValue ? [item.selectedDropdownValue] : []}
-              value={item.dropdownOptions?.find((o) => o.value === item.selectedDropdownValue)?.label || ''}
-              onOptionSelect={(_, data) => {
-                if (block.items && onUpdate) {
-                  const updatedItems = [...block.items];
-                  updatedItems[idx] = { ...updatedItems[idx], selectedDropdownValue: data.optionValue || undefined };
-                  onUpdate({ items: updatedItems });
-                }
-                window.dispatchEvent(
-                  new CustomEvent('dashboard:card-filter-apply', {
-                    detail: {
-                      sourceItemId: item.id,
-                      filterValue: data.optionValue || ''
-                    }
-                  })
-                );
-              }}
-              style={{ minWidth: '200px' }}
-            >
-              {(item.dropdownOptions || []).map((opt) => (
-                <Option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </Option>
-              ))}
-            </Dropdown>
-            {isEditMode && (
-              <Button
-                size="small"
-                appearance="subtle"
-                onClick={() => setEditingItem({ item, index: idx })}
-                style={{ marginTop: '4px', fontSize: '11px', color: tokens.colorNeutralForeground3 }}
-              >
-                Edit dropdown options
-              </Button>
-            )}
-          </div>
+          <FilterDropdownsRenderer
+            itemId={item.id}
+            dropdowns={
+              item.filterDropdowns && item.filterDropdowns.length > 0
+                ? item.filterDropdowns
+                : [{
+                    id: 'drop-1',
+                    label: item.dropdownLabel || 'Filter by',
+                    placeholder: item.dropdownPlaceholder || 'Select an option',
+                    iconName: item.dropdownIconName,
+                    termGroupName: item.dropdownTermGroupName,
+                    termSetName: item.dropdownTermSetName,
+                    options: item.dropdownOptions || [
+                      { label: 'Option 1', value: 'option-1' },
+                      { label: 'Option 2', value: 'option-2' }
+                    ]
+                  }]
+            }
+            alignment={item.alignment || 'left'}
+            isEditMode={isEditMode}
+            onUpdateDropdowns={(updated) => {
+              if (block.items && onUpdate) {
+                const updatedItems = [...block.items];
+                updatedItems[idx] = { ...updatedItems[idx], filterDropdowns: updated };
+                onUpdate({ items: updatedItems });
+              }
+            }}
+            onEdit={() => setEditingItem({ item, index: idx })}
+          />
         )}
 
         {item.type === 'capabilities' && (

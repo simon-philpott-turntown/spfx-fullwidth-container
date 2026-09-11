@@ -123,7 +123,7 @@ export const ToolboxModal: React.FC<IToolboxModalProps> = ({
     { type: 'filterButtons', label: 'Filter Buttons', icon: <FilterRegular /> },
     { type: 'processModel', label: 'Process Model', icon: <ArrowRoutingRegular /> },
     { type: 'capabilities', label: 'Capabilities', icon: <BoardRegular /> },
-    { type: 'dropdown', label: 'Filter Dropdown', icon: <ChevronDownRegular /> },
+    { type: 'dropdown', label: 'Filter Dropdowns', icon: <ChevronDownRegular /> },
     { type: 'cta', label: 'Call to action', icon: <MegaphoneRegular /> },
     { type: 'divider', label: 'Divider', icon: <LineHorizontal1Regular /> },
     { type: 'editorial', label: 'Editorial card', icon: <NewsRegular /> },
