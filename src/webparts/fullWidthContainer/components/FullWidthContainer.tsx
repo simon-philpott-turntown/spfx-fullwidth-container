@@ -363,12 +363,26 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                         image={userProfilePhotoUrl ? { src: userProfilePhotoUrl } : undefined}
                       />
                       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Caption1 style={{ fontWeight: 700, fontSize: '0.9rem', color: tokens.colorNeutralForeground1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Caption1 style={{ fontWeight: 700, fontSize: '1rem', lineHeight: '1.25rem', color: tokens.colorNeutralForeground1 }}>
                             {userProfileDetails.displayName || 'User'}
                           </Caption1>
                           {userProfileDetails.isSiteAdmin && (
-                            <Badge appearance="filled" color="success" size="extra-small" icon={<ShieldCheckmarkRegular />}>
+                            <Badge
+                              appearance="filled"
+                              color="success"
+                              size="medium"
+                              icon={<ShieldCheckmarkRegular style={{ fontSize: '14px' }} />}
+                              style={{
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                padding: '2px 8px',
+                                height: '22px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
                               Admin
                             </Badge>
                           )}

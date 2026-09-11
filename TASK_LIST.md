@@ -25,4 +25,6 @@
 - [x] | TSK-056 | 11/09/2026 14:18 | 11/09/2026 14:20 | PASS | Comment out vertical spacing tokens in flex containers across components to test zero vertical spacing | Verified with npx tsc --noEmit (exit code 0) |
 - [x] | TSK-057 | 11/09/2026 14:23 | 11/09/2026 14:26 | PASS | Implement FEAT-040: Graph account properties (jobTitle, officeLocation), _spPageContextInfo.isSiteAdmin, and dynamic user profile photo avatar | Verified with npx tsc --noEmit (code 0) |
 - [x] | TSK-058 | 11/09/2026 14:35 | 11/09/2026 14:35 | PASS | Remove pushpin icon before officeLocation in user profile diagnostics popover | Verified with npx tsc --noEmit (code 0) |
-- [-] | TSK-059 | 11/09/2026 14:35 | 11/09/2026 14:35 | INCOMPLETE | Stage, commit, and push FEAT-040 user profile Graph properties, avatar, and cleanup to remote GitHub | In progress |
+- [x] | TSK-059 | 11/09/2026 14:35 | 11/09/2026 14:36 | PASS | Stage, commit, and push FEAT-040 user profile Graph properties, avatar, and cleanup to remote GitHub | Pushed 9c1bec3 to origin/main |
+- [x] | TSK-060 | 11/09/2026 14:36 | 11/09/2026 14:37 | PASS | Increase size and visibility of Admin indicator badge in user profile popover to match text height | Verified with npx tsc --noEmit (code 0) |
+- [-] | TSK-061 | 11/09/2026 14:38 | 11/09/2026 14:38 | INCOMPLETE | Stage, commit, and push Admin badge sizing updates to remote GitHub repository | In progress |
