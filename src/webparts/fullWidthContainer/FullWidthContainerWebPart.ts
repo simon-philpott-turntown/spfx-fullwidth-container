@@ -8,6 +8,7 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version, DisplayMode } from '@microsoft/sp-core-library';
+import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import {
   type IPropertyPaneConfiguration,
   PropertyPaneTextField,
@@ -148,7 +149,7 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
   private _userProfilePhotoUrl: string | undefined;
 
   /**
-   * Loads user profile attributes from pageContext, SharePoint legacy context, and Microsoft Graph.
+   * Loads user profile attributes from pageContext, SharePoint legacy context, Microsoft Graph, and SharePoint User Profile Service.
    */
   private async _loadUserProfileAndPhoto(): Promise<void> {
     const user = this.context?.pageContext?.user;
@@ -172,18 +173,40 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
       this._userProfilePhotoUrl = `${webUrl}/_layouts/15/userphoto.aspx?size=M&accountname=${encodeURIComponent(accountIdentifier)}`;
     }
 
-    // Enhance with Microsoft Graph account properties (jobTitle, officeLocation, photo blob)
+    // 1. Microsoft Graph Harvester: standard + extended corporate attributes & manager
     try {
       if (this.context?.msGraphClientFactory) {
         const graphClient = await this.context.msGraphClientFactory.getClient('3');
         const graphUser = await graphClient
           .api('/me')
-          .select('displayName,mail,userPrincipalName,jobTitle,officeLocation')
+          .select('id,displayName,givenName,surname,userPrincipalName,mail,employeeId,department,companyName,jobTitle,officeLocation,city,state,country,postalCode,streetAddress,userType,onPremisesExtensionAttributes')
+          .expand('manager($select=displayName,userPrincipalName)')
           .get();
 
         if (graphUser) {
+          if (graphUser.givenName) baseDetails.givenName = graphUser.givenName;
+          if (graphUser.surname) baseDetails.surname = graphUser.surname;
           if (graphUser.jobTitle) baseDetails.jobTitle = graphUser.jobTitle;
+          if (graphUser.department) baseDetails.department = graphUser.department;
+          if (graphUser.companyName) baseDetails.companyName = graphUser.companyName;
+          if (graphUser.employeeId) baseDetails.employeeId = graphUser.employeeId;
           if (graphUser.officeLocation) baseDetails.officeLocation = graphUser.officeLocation;
+          if (graphUser.city) baseDetails.city = graphUser.city;
+          if (graphUser.state) baseDetails.state = graphUser.state;
+          if (graphUser.country) baseDetails.country = graphUser.country;
+          if (graphUser.postalCode) baseDetails.postalCode = graphUser.postalCode;
+          if (graphUser.streetAddress) baseDetails.streetAddress = graphUser.streetAddress;
+          if (graphUser.manager?.displayName) baseDetails.manager = graphUser.manager.displayName;
+
+          // Unpack onPremisesExtensionAttributes (extensionAttribute1..15) if present
+          if (graphUser.onPremisesExtensionAttributes && typeof graphUser.onPremisesExtensionAttributes === 'object') {
+            Object.keys(graphUser.onPremisesExtensionAttributes).forEach((extKey) => {
+              const val = graphUser.onPremisesExtensionAttributes[extKey];
+              if (val !== null && val !== undefined && val !== '') {
+                baseDetails[extKey] = val;
+              }
+            });
+          }
         }
 
         try {
@@ -196,11 +219,68 @@ export default class FullWidthContainerWebPart extends BaseClientSideWebPart<IFu
             this._userProfilePhotoUrl = URL.createObjectURL(photoBlob);
           }
         } catch {
-          // Photo not provisioned in Exchange / Graph, keeps SharePoint userphoto fallback
+          // Keeps SharePoint userphoto fallback
         }
       }
     } catch (graphErr) {
       console.warn('[FullWidthContainerWebPart] Graph profile fetch non-blocking warning:', graphErr);
+    }
+
+    // 2. SharePoint User Profile Service Harvester (SP.UserProfiles.PeopleManager):
+    // Directly accesses corporate AD attributes synced into SharePoint (Department, WorkPhone, UserProfile_GUID, custom fields)
+    try {
+      if (this.context?.spHttpClient && this.context?.pageContext?.web?.absoluteUrl) {
+        const endpoint = `${this.context.pageContext.web.absoluteUrl}/_api/SP.UserProfiles.PeopleManager/GetMyProperties`;
+        const res: SPHttpClientResponse = await this.context.spHttpClient.get(
+          endpoint,
+          SPHttpClient.configurations.v1,
+          {
+            headers: {
+              'Accept': 'application/json;odata=nometadata',
+              'odata-version': ''
+            }
+          }
+        );
+
+        if (res && res.ok) {
+          const data = await res.json();
+          if (data) {
+            if (data.Department && !baseDetails.department) baseDetails.department = data.Department;
+            if (data.Title && !baseDetails.jobTitle) baseDetails.jobTitle = data.Title;
+            if (data.Office && !baseDetails.officeLocation) baseDetails.officeLocation = data.Office;
+            if (data.WorkPhone) baseDetails.workPhone = data.WorkPhone;
+            if (data.PersonalUrl) baseDetails.personalUrl = data.PersonalUrl;
+
+            // Unpack UserProfileProperties array which contains Key/Value pairs of all company attributes
+            if (Array.isArray(data.UserProfileProperties)) {
+              data.UserProfileProperties.forEach((item: { Key?: string; Value?: string }) => {
+                if (item && item.Key && item.Value && item.Value.trim() !== '') {
+                  // Filter out redundant technical SharePoint system tokens
+                  const technicalSkip = [
+                    'SPS-FeedIdentifier', 'msOnline-ObjectId', 'PictureURL',
+                    'SIPAddress', 'SPS-PrivacyActivity', 'SPS-PrivacyPeople', 'SPS-DistinguishedName'
+                  ];
+                  if (technicalSkip.indexOf(item.Key) === -1) {
+                    // Normalize standard keys if not already present
+                    if (item.Key === 'Department') baseDetails.department = item.Value;
+                    else if (item.Key === 'Title') baseDetails.jobTitle = item.Value;
+                    else if (item.Key === 'Office') baseDetails.officeLocation = item.Value;
+                    else if (item.Key === 'WorkPhone') baseDetails.workPhone = item.Value;
+                    else if (item.Key === 'UserRegion' || item.Key.toLowerCase().includes('region')) baseDetails.userRegion = item.Value;
+                    else if (item.Key === 'EmployeeID' || item.Key === 'EmployeeId') baseDetails.employeeId = item.Value;
+                    else if (item.Key === 'Company' || item.Key === 'CompanyName') baseDetails.companyName = item.Value;
+                    else if (!baseDetails[item.Key]) {
+                      baseDetails[item.Key] = item.Value;
+                    }
+                  }
+                }
+              });
+            }
+          }
+        }
+      }
+    } catch (upsErr) {
+      console.warn('[FullWidthContainerWebPart] SharePoint PeopleManager fetch non-blocking warning:', upsErr);
     }
 
     this._userProfileDetails = baseDetails;

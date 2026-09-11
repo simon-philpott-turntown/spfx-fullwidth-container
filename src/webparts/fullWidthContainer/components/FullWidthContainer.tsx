@@ -348,11 +348,11 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                       zIndex: 1000000,
                       boxShadow: tokens.shadow28,
                       padding: '16px',
-                      maxWidth: '380px',
-                      minWidth: '280px',
+                      maxWidth: '440px',
+                      minWidth: '320px',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '8px',
+                      gap: '10px',
                       borderRadius: tokens.borderRadiusMedium
                     }}
                   >
@@ -392,6 +392,11 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                             {userProfileDetails.jobTitle}
                           </Caption1>
                         )}
+                        {userProfileDetails.department && (
+                          <Caption1 style={{ color: tokens.colorNeutralForeground3, fontSize: '0.75rem', fontWeight: 600 }}>
+                            {userProfileDetails.department}
+                          </Caption1>
+                        )}
                         {userProfileDetails.officeLocation && (
                           <Caption1 style={{ color: tokens.colorNeutralForeground4, fontSize: '0.72rem' }}>
                             {userProfileDetails.officeLocation}
@@ -399,27 +404,54 @@ export const FullWidthContainer: React.FC<IFullWidthContainerProps> = (props) =>
                         )}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto' }}>
-                      {Object.keys(userProfileDetails).map((key) => {
-                        const val = userProfileDetails[key];
-                        let renderedVal: string;
-                        if (typeof val === 'boolean') {
-                          renderedVal = val ? 'Yes' : 'No';
-                        } else if (typeof val === 'object' && val !== null) {
-                          renderedVal = JSON.stringify(val);
-                        } else {
-                          renderedVal = String(val ?? '—');
-                        }
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {(() => {
+                        const orderedKeys: Array<{ key: string; label: string }> = [
+                          { key: 'PreferredName', label: 'PreferredName' },
+                          { key: 'FirstName', label: 'FirstName' },
+                          { key: 'email', label: 'email' },
+                          { key: 'isSiteAdmin', label: 'isSiteAdmin' },
+                          { key: 'isAnonymousGuestUser', label: 'isAnonymousGuestUser' },
+                          { key: 'isExternalGuestUser', label: 'isExternalGuestUser' },
+                          { key: 'givenName', label: 'givenName' },
+                          { key: 'jobTitle', label: 'jobTitle' },
+                          { key: 'department', label: 'department' },
+                          { key: 'companyName', label: 'companyName' },
+                          { key: 'employeeId', label: 'employeeId' },
+                          { key: 'manager', label: 'manager' },
+                          { key: 'streetAddress', label: 'streetAddress' },
+                          { key: 'city', label: 'city' },
+                          { key: 'state', label: 'state' },
+                          { key: 'country', label: 'country' },
+                          { key: 'extensionAttribute10', label: 'extensionAttribute10 (Country)' },
+                          { key: 'extensionAttribute12', label: 'extensionAttribute12 (Start Date)' }
+                        ];
 
-                        return (
-                          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.78rem' }}>
-                            <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground3 }}>{key}:</span>
-                            <span style={{ color: tokens.colorNeutralForeground1, wordBreak: 'break-all', textAlign: 'right' }}>
-                              {renderedVal}
-                            </span>
-                          </div>
-                        );
-                      })}
+                        return orderedKeys.map(({ key, label }) => {
+                          const val = userProfileDetails[key];
+                          if (val === undefined || val === null || val === '') {
+                            return null;
+                          }
+
+                          let renderedVal: string;
+                          if (typeof val === 'boolean') {
+                            renderedVal = val ? 'Yes' : 'No';
+                          } else if (typeof val === 'object') {
+                            renderedVal = JSON.stringify(val);
+                          } else {
+                            renderedVal = String(val);
+                          }
+
+                          return (
+                            <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.78rem' }}>
+                              <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground3, whiteSpace: 'nowrap' }}>{label}:</span>
+                              <span style={{ color: tokens.colorNeutralForeground1, wordBreak: 'break-all', textAlign: 'right' }}>
+                                {renderedVal}
+                              </span>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </PopoverSurface>
                 </Popover>

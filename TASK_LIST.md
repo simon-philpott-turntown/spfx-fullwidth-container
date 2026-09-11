@@ -27,4 +27,9 @@
 - [x] | TSK-058 | 11/09/2026 14:35 | 11/09/2026 14:35 | PASS | Remove pushpin icon before officeLocation in user profile diagnostics popover | Verified with npx tsc --noEmit (code 0) |
 - [x] | TSK-059 | 11/09/2026 14:35 | 11/09/2026 14:36 | PASS | Stage, commit, and push FEAT-040 user profile Graph properties, avatar, and cleanup to remote GitHub | Pushed 9c1bec3 to origin/main |
 - [x] | TSK-060 | 11/09/2026 14:36 | 11/09/2026 14:37 | PASS | Increase size and visibility of Admin indicator badge in user profile popover to match text height | Verified with npx tsc --noEmit (code 0) |
-- [-] | TSK-061 | 11/09/2026 14:38 | 11/09/2026 14:38 | INCOMPLETE | Stage, commit, and push Admin badge sizing updates to remote GitHub repository | In progress |
+- [x] | TSK-061 | 11/09/2026 14:38 | 11/09/2026 14:38 | PASS | Stage, commit, and push Admin badge sizing updates to remote GitHub repository | Pushed 8bcbc8e to origin/main |
+- [x] | TSK-062 | 11/09/2026 14:47 | 11/09/2026 14:47 | PASS | Add department attribute to Microsoft Graph user profile fetch and diagnostics popover | Verified with npx tsc --noEmit (code 0) |
+- [x] | TSK-063 | 11/09/2026 14:58 | 11/09/2026 14:59 | PASS | Implement dual-source harvester (Graph + SharePoint PeopleManager) to unpack all AAD & User Profile corporate attributes | Verified with npx tsc --noEmit (code 0) |
+- [x] | TSK-064 | 11/09/2026 15:07 | 11/09/2026 15:08 | PASS | Filter and order curated user profile properties list in popover with custom labels for extensionAttribute10 and 12 | Verified with npx tsc --noEmit (code 0) |
+- [x] | TSK-065 | 11/09/2026 15:09 | 11/09/2026 15:09 | PASS | Remove maxHeight and scroll limit on user profile diagnostics popover to show all properties at full height | Verified with npx tsc --noEmit (code 0) |
+- [-] | TSK-066 | 11/09/2026 15:10 | 11/09/2026 15:10 | INCOMPLETE | Stage, commit, and push curated full-height user profile diagnostics to remote GitHub | In progress |
